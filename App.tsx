@@ -589,9 +589,6 @@ const App: React.FC = () => {
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
-        if (event === "SIGNED_OUT" || event === "USER_DELETED") {
-          setLoading(false);
-        }
       }
     });
 

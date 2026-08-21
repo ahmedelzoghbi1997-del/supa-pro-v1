@@ -237,13 +237,27 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                 (adv.funding_source === 'external_debt' || 
                  adv.reason?.includes('[EXTERNAL_DEBT]') ||
                  adv.reason?.includes('المعلم') ||
-                 adv.reason?.includes('خارجي'))
+                 adv.reason?.includes('خارجي')) &&
+                (!initialData?.id || adv.source_ref_id !== initialData.id)
             );
             const total = partnerAdvs.reduce((s, a) => s + (a.amount || 0), 0);
             debtMap[p.id] = total;
         });
         return debtMap;
-    }, [activePersons, advances]);
+    }, [activePersons, advances, initialData?.id]);
+
+    const getTrueRemainingJointDebt = useCallback((debtId: string, personId: string) => {
+        const linkedDebt = (partnerDebts || []).find(d => d.id === debtId);
+        if (!linkedDebt) return 0;
+        const alloc = (linkedDebt.partner_allocations ?? linkedDebt.partnerAllocations)?.[personId] || 0;
+        const basePaid = (linkedDebt.partner_repayments ?? linkedDebt.partnerRepayments)?.[personId] || 0;
+        const invoicePaid = (advances || [])
+            .filter(a => a.person_id === personId && 
+                         a.reason?.includes(`[PARTNER_DEBT_PAYMENT:${debtId}]`) &&
+                         (!initialData?.id || a.source_ref_id !== initialData.id))
+            .reduce((s, a) => s + Math.abs(a.amount || 0), 0);
+        return Math.max(0, alloc - (basePaid + invoicePaid));
+    }, [partnerDebts, advances, initialData?.id]);
 
     // Summary map of total debts (personal external + joint share) for each partner
     const partnerTotalDebtMap = useMemo(() => {
@@ -252,18 +266,12 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
             const extDebt = partnerExternalDebt[p.id] || 0;
             let jointAlloc = 0;
             (partnerDebts || []).forEach(d => {
-                const alloc = (d.partner_allocations ?? d.partnerAllocations)?.[p.id] || 0;
-                const paid = (d.partner_repayments ?? d.partnerRepayments)?.[p.id] || 0;
-                jointAlloc += Math.max(0, alloc - paid);
+                jointAlloc += getTrueRemainingJointDebt(d.id, p.id);
             });
-            map[p.id] = {
-                joint: jointAlloc,
-                external: extDebt,
-                total: jointAlloc + extDebt
-            };
+            map[p.id] = { joint: jointAlloc, external: extDebt, total: jointAlloc + extDebt };
         });
         return map;
-    }, [activePersons, partnerExternalDebt, partnerDebts]);
+    }, [activePersons, partnerExternalDebt, partnerDebts, getTrueRemainingJointDebt]);
 
     const cycleOptions = useMemo(() => cycles.filter(c => c.status === 'active' || c.status === 'closed'), [cycles]);
 
@@ -400,15 +408,58 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
 
     const handleSmartAutoFitDebts = useCallback(() => {
         const newAllocations: Record<string, string> = {};
-        let remainingNet = totals.net;
+        const persons = activePersons || [];
         
-        (activePersons || []).forEach(p => {
-            // نأخذ أقل قيمة بين الدين الإجمالي وبين ما يحدده الـ Cap في الواجهة
-            const maxDebt = partnerTotalDebtMap[p.id]?.total || 0;
-            const amountToAllocate = Math.min(maxDebt, remainingNet);
-            newAllocations[p.id] = String(amountToAllocate);
-            remainingNet -= amountToAllocate;
-        });
+        const totalDebtAll = persons.reduce((s, p) => s + (partnerTotalDebtMap[p.id]?.total || 0), 0);
+        
+        if (totalDebtAll > 0) {
+            // Proportional distribution allowing decimals
+            let remainingNet = totals.net;
+            persons.forEach((p, idx) => {
+                const maxDebt = partnerTotalDebtMap[p.id]?.total || 0;
+                let share = 0;
+                
+                if (idx === persons.length - 1) {
+                    // Last person gets the exact remaining to avoid floating point issues, capped at their max
+                    share = Math.min(maxDebt, Number(remainingNet.toFixed(2)));
+                } else {
+                    share = Number(((totals.net * maxDebt) / totalDebtAll).toFixed(2));
+                    share = Math.min(share, maxDebt, remainingNet);
+                }
+                
+                newAllocations[p.id] = share > 0 ? String(share) : '';
+                remainingNet -= share;
+            });
+            
+            // If there's still remainingNet (because of caps), distribute equally
+            if (Number(remainingNet.toFixed(2)) > 0) {
+                const equalShare = Number((remainingNet / persons.length).toFixed(2));
+                let currentRemaining = remainingNet;
+                persons.forEach((p, idx) => {
+                    const prevShare = parseFloat(newAllocations[p.id]) || 0;
+                    let addShare = equalShare;
+                    if (idx === persons.length - 1) {
+                        addShare = Number(currentRemaining.toFixed(2));
+                    }
+                    newAllocations[p.id] = String(Number((prevShare + addShare).toFixed(2)));
+                    currentRemaining -= addShare;
+                });
+            }
+        } else {
+            // Equal distribution if no debts found
+            const count = persons.length || 1;
+            const equalShare = Number((totals.net / count).toFixed(2));
+            let currentRemaining = totals.net;
+            
+            persons.forEach((p, idx) => {
+                let share = equalShare;
+                if (idx === persons.length - 1) {
+                    share = Number(currentRemaining.toFixed(2));
+                }
+                newAllocations[p.id] = String(share);
+                currentRemaining -= share;
+            });
+        }
         
         // تحديث البلوك الأول فقط لتجنب تكرار البلوكات
         setAllocationItems(prev => {
@@ -477,13 +528,26 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
 
         if (isRetained) {
             let grandTotalAllocated = 0;
-            allocationItems.forEach(item => {
-                Object.values(item.allocations).forEach(val => grandTotalAllocated += parseFloat(val) || 0);
-            });
+            for (const item of allocationItems) {
+                if (item.debtType === 'joint' && !item.debtId) {
+                    showToast('يرجى اختيار الدين المشترك النشط في أحد بنود التوزيع', 'error');
+                    setIsSaving(false); return;
+                }
+                for (const person of activePersons) {
+                    const val = parseFloat(item.allocations[person.id]) || 0;
+                    if (val > 0) {
+                        grandTotalAllocated += val;
+                        const maxAllowed = item.debtType === 'joint' ? getTrueRemainingJointDebt(item.debtId, person.id) : (partnerExternalDebt[person.id] || 0);
+                        if (val > maxAllowed) {
+                            showToast(`توزيع خاطئ! المتبقي الفعلي على ${person.name} هو ${formatCurrency(maxAllowed)} فقط`, 'error');
+                            setIsSaving(false); return;
+                        }
+                    }
+                }
+            }
             if (Math.abs(totals.net - grandTotalAllocated) >= 1) {
                 showToast(`يجب توزيع صافي الفاتورة بالكامل! المتبقي: ${formatCurrency(Math.max(0, totals.net - grandTotalAllocated))}`, 'error');
-                setIsSaving(false);
-                return;
+                setIsSaving(false); return;
             }
         }
 
@@ -762,7 +826,17 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                         <div className="grid grid-cols-2 gap-2 mb-3 pr-8">
                                             <button
                                                 type="button"
-                                                onClick={() => setAllocationItems(prev => prev.map(a => a.id === item.id ? { ...a, debtType: 'external', debtId: '' } : a))}
+                                                onClick={() => setAllocationItems(prev => prev.map(a => {
+                                                    if (a.id === item.id) {
+                                                        const clamped = { ...a.allocations };
+                                                        activePersons.forEach(person => {
+                                                            const maxAllowed = partnerExternalDebt[person.id] || 0;
+                                                            if ((parseFloat(clamped[person.id]) || 0) > maxAllowed) clamped[person.id] = maxAllowed > 0 ? String(maxAllowed) : '';
+                                                        });
+                                                        return { ...a, debtType: 'external', debtId: '', allocations: clamped };
+                                                    }
+                                                    return a;
+                                                }))}
                                                 className={`p-2.5 rounded-xl text-[11px] font-black transition-all flex items-center justify-center gap-1.5 border ${
                                                     item.debtType === 'external' 
                                                         ? 'bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-600/20' 
@@ -793,7 +867,22 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                 ) : (
                                                     <select
                                                         value={item.debtId}
-                                                        onChange={e => setAllocationItems(prev => prev.map(a => a.id === item.id ? { ...a, debtId: e.target.value } : a))}
+                                                        onChange={e => {
+                                                            const newDebtId = e.target.value;
+                                                            setAllocationItems(prev => prev.map(a => {
+                                                                if (a.id === item.id) {
+                                                                    const clamped = { ...a.allocations };
+                                                                    if (newDebtId) {
+                                                                        activePersons.forEach(person => {
+                                                                            const maxAllowed = getTrueRemainingJointDebt(newDebtId, person.id);
+                                                                            if ((parseFloat(clamped[person.id]) || 0) > maxAllowed) clamped[person.id] = maxAllowed > 0 ? String(maxAllowed) : '';
+                                                                        });
+                                                                    }
+                                                                    return { ...a, debtId: newDebtId, allocations: clamped };
+                                                                }
+                                                                return a;
+                                                            }));
+                                                        }}
                                                         className={`${inputBase} !py-2 font-bold text-xs border-amber-300`}
                                                         required={isRetained && item.debtType === 'joint'}
                                                     >
@@ -817,19 +906,10 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                         <div className="space-y-2 bg-amber-500/5 dark:bg-neutral-800/50 p-2.5 rounded-xl border border-amber-500/15">
                                             {activePersons.map(person => {
                                                 let capValue = -1;
-                                                const globalRemaining = partnerTotalDebtMap[person.id]?.total || 0;
-
                                                 if (item.debtType === 'joint' && item.debtId) {
-                                                    const linkedDebt = partnerDebts.find(d => d.id === item.debtId);
-                                                    if (linkedDebt) {
-                                                        const allocs = linkedDebt.partner_allocations ?? linkedDebt.partnerAllocations ?? {};
-                                                        const repays = linkedDebt.partner_repayments ?? linkedDebt.partnerRepayments ?? {};
-                                                        const specificRemaining = Math.max(0, (allocs[person.id] || 0) - (repays[person.id] || 0));
-                                                        // السقف هو الرقم الأصغر بين المتبقي من هذا الدين، وإجمالي ديون الشخص
-                                                        capValue = Math.min(specificRemaining, globalRemaining);
-                                                    }
+                                                    capValue = getTrueRemainingJointDebt(item.debtId, person.id);
                                                 } else if (item.debtType === 'external') {
-                                                    capValue = globalRemaining;
+                                                    capValue = partnerExternalDebt[person.id] || 0;
                                                 }
 
                                                 let alreadyAllocated = 0;
