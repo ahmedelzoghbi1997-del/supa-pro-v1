@@ -1,0 +1,8 @@
+{
+  "name": "Remix: المحاسب الزراعي 1",
+  "description": "إيقونة المحاسب الزراعي والأجندة الزراعية الذكية لمتابعة مواسم الزراعة والتدفقات النقدية والخزنة والموردين والعمالة.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

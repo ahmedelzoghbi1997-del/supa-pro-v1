@@ -1,0 +1,111 @@
+name: Build Unified App
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Deploy Edge Function
+        run: supabase functions deploy push-notify --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+  build-apk:
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure App Identity
+        run: |
+          sed -i -E "s/appId: *['\"].*['\"]/appId: 'com.ahmed.supapro'/g" capacitor.config.ts
+          sed -i -E "s/appName: *['\"].*['\"]/appName: 'المحاسب الزراعي'/g" capacitor.config.ts
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/local-notifications @capacitor/push-notifications @capacitor/assets
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Prepare Web Assets
+        run: |
+          mkdir -p www
+          cp -r dist/* www/
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      # --- الجزء الخاص باللوجو والـ Splash ---
+      - name: Download and Prepare Logo Assets
+        run: |
+          mkdir -p assets
+          curl -L "https://github.com/user-attachments/assets/188545f2-804d-46f2-85d3-7d37d845774e" -o assets/icon.png
+          cp assets/icon.png assets/splash.png
+      # ------------------------------------
+
+      - name: Reconstruct Android Project
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          rm -rf android
+          npx cap add android
+          
+          cat << EOF > android/app/google-services.json
+          $GOOGLE_SERVICES_JSON
+          EOF
+          
+          sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' android/build.gradle
+          echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
+          
+          echo "configurations.all { resolutionStrategy.eachDependency { if (requested.group == 'org.jetbrains.kotlin') { useVersion '1.8.22' } } }" >> android/app/build.gradle
+          sed -i '/<uses-permission android:name="android.permission.INTERNET"/a \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' android/app/src/main/AndroidManifest.xml
+          
+          # رقم الإصدار الموحد للتطبيق
+          sed -i -E "s/versionCode [0-9]+/versionCode 6/g" android/app/build.gradle
+          sed -i -E "s/versionName \"[0-9.]+\"/versionName \"1.6\"/g" android/app/build.gradle
+          
+          npx cap sync android
+          # توليد الأيقونات آلياً
+          npx capacitor-assets generate --android
+
+      - name: Build Release APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
+
+      - name: Rename APK
+        run: mv ${{steps.sign_app.outputs.signedReleaseFile}} android/app/build/outputs/apk/release/AlMohasibAlZirai.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlMohasibAlZirai.apk
+          path: android/app/build/outputs/apk/release/AlMohasibAlZirai.apk
+         

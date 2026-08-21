@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">المحاسب الزراعي</string>
+    <string name="title_activity_main">المحاسب الزراعي</string>
+    <string name="package_name">com.ahmed.supapro</string>
+    <string name="custom_url_scheme">com.ahmed.supapro</string>
+</resources>

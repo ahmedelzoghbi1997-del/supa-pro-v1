@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/logo-D71swidY.svg" />
+    
+    <!-- PWA Optimized Viewport: Prevents user scaling, enables cover fit -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="المحاسب الزراعي">
+    <!-- End PWA Meta Tags -->
+    
+    <title>المحاسب الزراعي</title>
+
+    <!-- CRITICAL: Global Polyfill to prevent "process is not defined" error -->
+    <script>
+      window.process = { env: { NODE_ENV: 'production' } };
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Cairo', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              DEFAULT: 'var(--color-primary-500)',
+              light: 'var(--color-primary-400)',
+              dark: 'var(--color-primary-600)',
+            },
+            neutral: { 
+              0: '#FFFFFF',
+              50: '#F8FAFC',
+              100: '#F1F5F9',
+              200: '#E2E8F0',
+              300: '#CBD5E1',
+              400: '#94A3B8',
+              500: '#64748B',
+              600: '#475569',
+              700: '#334115',
+              800: '#1E293B',
+              900: '#0F172A',
+              950: '#020617',
+            },
+            accent: {
+              danger: '#F43F5E', 
+              warning: '#F59E0B', 
+              success: '#10B981', 
+              info: '#3B82F6',   
+              purple: '#8B5CF6', 
+            }
+          },
+          boxShadow: {
+            'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03)',
+            'soft-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.03)',
+          },
+          animation: {
+            'shimmer': 'shimmer 2s linear infinite',
+          },
+          keyframes: {
+            shimmer: {
+              from: { backgroundPosition: '200% 0' },
+              to: { backgroundPosition: '-200% 0' },
+            }
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    html[data-ui-scale="xs"] { font-size: 12px; }
+    html[data-ui-scale="sm"] { font-size: 13px; }
+    html, html[data-ui-scale="md"] { font-size: 14px; }
+    html[data-ui-scale="lg"] { font-size: 15px; }
+    html[data-ui-scale="xl"] { font-size: 16px; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+    
+    :root, html[data-theme-color="emerald"] {
+      --color-primary-400: #34D399;
+      --color-primary-500: #10B981;
+      --color-primary-600: #059669;
+    }
+    html[data-theme-color="blue"] {
+      --color-primary-400: #60A5FA;
+      --color-primary-500: #3B82F6;
+      --color-primary-600: #2563EB;
+    }
+    html[data-theme-color="violet"] {
+      --color-primary-400: #A78BFA;
+      --color-primary-500: #8B5CF6;
+      --color-primary-600: #7C3AED;
+    }
+    html[data-theme-color="amber"] {
+      --color-primary-400: #FBBF24;
+      --color-primary-500: #F59E0B;
+      --color-primary-600: #D97706;
+    }
+    html[data-theme-color="rose"] {
+      --color-primary-400: #FB7185;
+      --color-primary-500: #F43F5E;
+      --color-primary-600: #E11D48;
+    }
+
+    body {
+        background-color: #F8FAFC;
+        background-image: linear-gradient(to bottom, #F8FAFC, #F1F5F9);
+        overflow-x: hidden;
+        overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+    }
+    .dark body {
+        background-color: #020617;
+        background-image: linear-gradient(to bottom, #020617, #0F172A);
+    }
+
+    ::-webkit-scrollbar { width: 0px; height: 0px; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; width: 0 !important; height: 0 !important; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-enter { 
+      animation: enter 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+      will-change: transform, opacity;
+    }
+
+    @keyframes page-enter {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .animate-page-enter { 
+      animation: page-enter 0.2s ease-out forwards; 
+      will-change: opacity;
+    }
+
+    @keyframes menu-enter {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .animate-menu-snappy { animation: menu-enter 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @keyframes shimmer { 100% { transform: translateX(100%); } }
+    .shimmer-bg { position: relative; overflow: hidden; background-color: #e2e8f0; }
+    .dark .shimmer-bg { background-color: #334155; }
+    .shimmer-bg::after {
+      content: '';
+      position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+      background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.2) 60%, rgba(255, 255, 255, 0) );
+      animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes stagger-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-stagger-in {
+      animation: stagger-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    /* Ripple Effect for Buttons */
+    .ripple-effect { position: relative; overflow: hidden; }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+    .glow-on-hover-success:hover { box-shadow: 0 0 20px 0 rgba(16, 185, 129, 0.3); }
+    .glow-on-hover-danger:hover { box-shadow: 0 0 20px 0 rgba(244, 63, 94, 0.3); }
+    .glow-on-hover-info:hover { box-shadow: 0 0 20px 0 rgba(59, 130, 246, 0.3); }
+    .glow-on-hover-purple:hover { box-shadow: 0 0 20px 0 rgba(139, 92, 246, 0.3); }
+
+    @keyframes spectacularGlow {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); transform: scale(1); border-color: rgba(59, 130, 246, 0.6); }
+      20% { box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.8), inset 0 0 20px rgba(59, 130, 246, 0.1); transform: scale(1.015); border-color: rgba(59, 130, 246, 1); }
+      50% { box-shadow: 0 5px 25px -5px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.05); transform: scale(1.005); border-color: rgba(59, 130, 246, 0.8); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); transform: scale(1); border-color: transparent; }
+    }
+
+    @keyframes spectacularGlowDark {
+      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); transform: scale(1); border-color: rgba(99, 102, 241, 0.6); }
+      20% { box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.8), inset 0 0 20px rgba(99, 102, 241, 0.15); transform: scale(1.015); border-color: rgba(99, 102, 241, 1); }
+      50% { box-shadow: 0 5px 25px -5px rgba(99, 102, 241, 0.5), inset 0 0 10px rgba(99, 102, 241, 0.08); transform: scale(1.005); border-color: rgba(99, 102, 241, 0.8); }
+      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); transform: scale(1); border-color: transparent; }
+    }
+
+    .animate-highlight {
+      animation: spectacularGlow 8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+      position: relative;
+      z-index: 50;
+    }
+
+    .dark .animate-highlight {
+      animation: spectacularGlowDark 8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+    }
+  </style>
+
+<link rel="stylesheet" href="/index.css">
+<script type="importmap">
+{
+  "imports": {
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.76.0",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^0.14.0",
+    "dexie": "https://aistudiocdn.com/dexie@^4.2.1",
+    "recharts": "https://aistudiocdn.com/recharts@^2.12.0",
+    "prop-types": "https://aistudiocdn.com/prop-types@^15.8.1",
+    "html-to-image": "https://aistudiocdn.com/html-to-image@^1.11.11",
+    "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/assets/index-7Pfqpf2e.js"></script>
+</head>
+  <body class="bg-neutral-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 select-none">
+    <div id="root"></div>
+  </body>
+</html>

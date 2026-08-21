@@ -1,0 +1,15 @@
+{
+	"appId": "com.ahmed.supapro",
+	"appName": "المحاسب الزراعي",
+	"webDir": "dist",
+	"bundledWebRuntime": false,
+	"plugins": {
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		}
+	}
+}
