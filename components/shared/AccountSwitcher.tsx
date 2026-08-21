@@ -40,6 +40,7 @@ const AccountSwitcher: React.FC = () => {
     const handleSwitchAccount = async (acc: SavedAccount) => {
         setIsOpen(false);
         setSwitching(true);
+        window.dispatchEvent(new CustomEvent('account_switching'));
         try {
             if (acc.biometricEnabled) {
                 const authOk = await authenticateBiometrically(`الدخول السريع إلى حساب: ${acc.greenhouseName || acc.fullName}`);
@@ -49,26 +50,54 @@ const AccountSwitcher: React.FC = () => {
                 }
             }
 
+            let success = false;
             if (acc.isVirtual) {
-                const parentId = acc.parentId || (acc as any).parent_id || (acc as any).owner_id || profile.parent_id || (profile as any).owner_id || profile.id;
-                const virtualUser = {
-                    id: acc.id.startsWith('virtual_') ? acc.id : `virtual_${acc.id}`,
-                    full_name: acc.fullName,
-                    role: acc.role || 'viewer',
-                    parent_id: parentId,
-                    username: acc.username || ''
-                };
-                localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
-                await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
+                const { data, error: supabaseError } = await supabase.rpc('virtual_login', {
+                    p_username: acc.username || '',
+                    p_password: acc.password || ''
+                });
+
+                const vMember = Array.isArray(data) ? data[0] : data;
+
+                if (supabaseError || !vMember || !vMember.id) {
+                    alert('فشل الدخول السريع: بيانات الدخول المحفوظة لم تعد صالحة وعليك إعادة تسجيل الدخول يدوياً.');
+                    setSwitching(false);
+                } else {
+                    const virtualUser = {
+                      id: `virtual_${vMember.id}`,
+                      full_name: vMember.full_name,
+                      role: vMember.role,
+                      parent_id: vMember.owner_id,
+                      username: vMember.username
+                    };
+                    localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
+                    await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
+                    success = true;
+                }
             } else {
                 await supabase.auth.signOut();
                 localStorage.removeItem('virtual_auth');
                 await Preferences.remove({ key: 'virtual_auth' });
-                // We rely on App.tsx to auto-login using the last_active_account_id
+
+                const { error: signInError } = await supabase.auth.signInWithPassword({
+                    email: acc.email || '',
+                    password: acc.password || ''
+                });
+                
+                if (signInError) {
+                    alert('فشل الدخول السريع: بيانات المالك المحفوظة لم تعد صالحة وعليك إعادة تسجيل الدخول يدوياً.');
+                    setSwitching(false);
+                } else {
+                    success = true;
+                }
             }
 
-            await setLastActiveAccount(acc.id);
-            window.location.reload();
+            if (success) {
+                await setLastActiveAccount(acc.id);
+                // Show loading spinner for 1 second to give illusion of session change
+                await new Promise(r => setTimeout(r, 1000));
+                window.location.reload();
+            }
         } catch (err) {
             console.error("Error switching accounts in header:", err);
             alert('حدث خطأ أثناء التنقل بين الحسابات.');
@@ -127,6 +156,17 @@ const AccountSwitcher: React.FC = () => {
             {/* Bottom Sheet Modal & Switching Overlay */}
             {typeof document !== 'undefined' && createPortal(
                 <div dir="rtl">
+                    {switching && (
+                        <div className="fixed inset-0 bg-white/90 dark:bg-neutral-950/90 z-[9999] flex flex-col items-center justify-center text-neutral-900 dark:text-white">
+                            <div className="flex flex-col items-center max-w-sm mx-4 text-center">
+                                <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
+                                <p className="text-xl font-black text-neutral-800 dark:text-neutral-100">
+                                    جارٍ التبديل...
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {isOpen && (
                         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
                             <div 

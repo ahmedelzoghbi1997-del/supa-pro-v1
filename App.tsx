@@ -327,10 +327,18 @@ const App: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const profileIdRef = React.useRef<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSwitching, setIsSwitching] = useState(false);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
     return !localStorage.getItem("onboarding_completed");
   });
+
+  useEffect(() => {
+    const handleSwitching = () => setIsSwitching(true);
+    window.addEventListener("account_switching", handleSwitching);
+    return () =>
+      window.removeEventListener("account_switching", handleSwitching);
+  }, []);
 
   const handleLogout = useCallback(async () => {
     localStorage.removeItem("virtual_auth");
@@ -344,34 +352,29 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      let virtualAuthString: string | null = null;
-      try {
-        const { value } = await Preferences.get({ key: "virtual_auth" });
-        virtualAuthString = value || localStorage.getItem("virtual_auth");
-      } catch {
-        virtualAuthString = localStorage.getItem("virtual_auth");
-      }
-
+      const { value: virtualAuthString } = await Preferences.get({
+        key: "virtual_auth",
+      });
       if (virtualAuthString) {
         try {
           const virtualProfile = JSON.parse(virtualAuthString);
           if (!virtualProfile || !virtualProfile.id || virtualProfile.id.includes("undefined")) {
             throw new Error("Invalid virtual profile");
           }
-
-          const accounts = await getSavedAccounts();
-          const savedAcc = accounts.find((a) => a.id === virtualProfile.id || a.id === `virtual_${virtualProfile.id}`);
-          const parentId = virtualProfile.parent_id || virtualProfile.owner_id || savedAcc?.parentId || (savedAcc as any)?.parent_id || (savedAcc as any)?.owner_id;
-
           const normalizedProfile = {
             ...virtualProfile,
             id: virtualProfile.id.startsWith("virtual_")
               ? virtualProfile.id
               : `virtual_${virtualProfile.id}`,
-            full_name: savedAcc?.greenhouseName || virtualProfile.full_name,
+            full_name: virtualProfile.full_name,
             role: virtualProfile.role || "viewer",
-            parent_id: parentId,
           } as Profile;
+
+          const accounts = await getSavedAccounts();
+          const savedAcc = accounts.find((a) => a.id === normalizedProfile.id);
+          if (savedAcc && savedAcc.greenhouseName) {
+            normalizedProfile.full_name = savedAcc.greenhouseName;
+          }
 
           setProfile(normalizedProfile);
           setSession({ user: { id: normalizedProfile.id } } as any);
@@ -380,6 +383,42 @@ const App: React.FC = () => {
         } catch (_err) {
           await Preferences.remove({ key: "virtual_auth" });
           localStorage.removeItem("virtual_auth");
+        }
+      } else {
+        // Check local storage as a fallback, then move it to preferences
+        const fallbackStr = localStorage.getItem("virtual_auth");
+        if (fallbackStr) {
+          try {
+            const virtualProfile = JSON.parse(fallbackStr);
+            if (!virtualProfile || !virtualProfile.id || virtualProfile.id.includes("undefined")) {
+              throw new Error("Invalid virtual profile");
+            }
+            const normalizedProfile = {
+              ...virtualProfile,
+              id: virtualProfile.id.startsWith("virtual_")
+                ? virtualProfile.id
+                : `virtual_${virtualProfile.id}`,
+              full_name: virtualProfile.full_name,
+              role: virtualProfile.role || "viewer",
+            } as Profile;
+
+            const accounts = await getSavedAccounts();
+            const savedAcc = accounts.find(
+              (a) => a.id === normalizedProfile.id,
+            );
+            if (savedAcc && savedAcc.greenhouseName) {
+              normalizedProfile.full_name = savedAcc.greenhouseName;
+            }
+
+            await Preferences.set({ key: "virtual_auth", value: fallbackStr });
+
+            setProfile(normalizedProfile);
+            setSession({ user: { id: normalizedProfile.id } } as any);
+            setLoading(false);
+            return true;
+          } catch (_err) {
+            localStorage.removeItem("virtual_auth");
+          }
         }
       }
       return false;
@@ -445,66 +484,20 @@ const App: React.FC = () => {
             targetAcc.username &&
             targetAcc.password
           ) {
-            let vMember: any = null;
-            try {
-              const { data: virtualData, error: virtualError } =
-                await supabase.rpc("virtual_login", {
-                  p_username: targetAcc.username,
-                  p_password: targetAcc.password,
-                });
-              if (!virtualError && virtualData) {
-                vMember = Array.isArray(virtualData) ? virtualData[0] : virtualData;
-              }
-            } catch (rpcErr) {
-              console.warn("Virtual auto-login RPC error:", rpcErr);
-            }
-
-            if (!vMember || !vMember.id) {
-              try {
-                const res = await fetch('/api/auth/virtual-login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    username: targetAcc.username,
-                    password: targetAcc.password
-                  })
-                });
-                const serverData = await res.json();
-                if (res.ok && serverData.user) {
-                  vMember = {
-                    id: serverData.user.id.replace('virtual_', ''),
-                    full_name: serverData.user.full_name,
-                    role: serverData.user.role || 'viewer',
-                    owner_id: serverData.user.parent_id,
-                    username: serverData.user.username
-                  };
-                }
-              } catch (fetchErr) {
-                console.warn("Virtual auto-login server fallback error:", fetchErr);
-              }
-            }
-
-            if (!vMember || !vMember.id) {
-              const parentId = targetAcc.parentId || (targetAcc as any).parent_id || (targetAcc as any).owner_id;
-              if (targetAcc.id && parentId) {
-                vMember = {
-                  id: targetAcc.id.replace('virtual_', ''),
-                  full_name: targetAcc.fullName,
-                  role: targetAcc.role || 'viewer',
-                  owner_id: parentId,
-                  username: targetAcc.username
-                };
-              }
-            }
-
-            if (vMember && vMember.id) {
+            const { data: virtualData, error: virtualError } =
+              await supabase.rpc("virtual_login", {
+                p_username: targetAcc.username,
+                p_password: targetAcc.password,
+              });
+            const vMember = Array.isArray(virtualData) ? virtualData[0] : virtualData;
+            if (vMember && vMember.id && !virtualError) {
               await Preferences.remove({ key: "was_explicitly_logged_out" });
               const virtualUser = {
                 id: `virtual_${vMember.id}`,
                 full_name: vMember.full_name,
-                role: vMember.role || 'viewer',
-                parent_id: vMember.owner_id || targetAcc.parentId || (targetAcc as any).parent_id || (targetAcc as any).owner_id,
-                username: vMember.username || targetAcc.username,
+                role: vMember.role,
+                parent_id: vMember.owner_id,
+                username: vMember.username,
               };
               await Preferences.set({
                 key: "virtual_auth",
@@ -581,9 +574,6 @@ const App: React.FC = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (localStorage.getItem("virtual_auth")) {
-        return; // ignore supabase auth changes if virtual
-      }
       const { value: virtualAuthString } = await Preferences.get({
         key: "virtual_auth",
       });
@@ -608,7 +598,7 @@ const App: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId: string, retries = 3, delay = 1000) => {
+  const fetchProfile = async (userId: string) => {
     try {
       if (profileIdRef.current !== userId) {
         setLoading(true); // التأكد من تفعيل حالة التحميل للمستخدم الجديد فقط
@@ -649,22 +639,16 @@ const App: React.FC = () => {
         setProfile(data);
         profileIdRef.current = userId;
       }
-      setLoading(false);
-    } catch (e: any) {
-      const isNetworkError = e?.message === 'Failed to fetch' || e?.message?.includes('Failed to fetch') || e?.message?.includes('NetworkError');
-      if (retries > 0 && isNetworkError) {
-        console.warn(`Profile Fetch Error: Retrying in ${delay}ms... (${retries} attempts left)`);
-        setTimeout(() => fetchProfile(userId, retries - 1, delay * 1.5), delay);
-        return;
-      }
+    } catch (e) {
       console.error("Profile Fetch Error:", e);
       setProfile(null); // التأكد من تصفير البروفايل في حال الخطأ
       profileIdRef.current = null;
+    } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
+  if (loading || isSwitching) {
     return (
       <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
         <div className="flex flex-col items-center animate-pulse">
@@ -678,7 +662,7 @@ const App: React.FC = () => {
             المحاسب الزراعي
           </h1>
           <p className="text-[10px] sm:text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-[0.3em]">
-            جارٍ التحميل...
+            {isSwitching ? "جارٍ تبديل الحساب..." : "جارٍ التحميل..."}
           </p>
         </div>
       </div>

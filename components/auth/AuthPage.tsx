@@ -260,70 +260,25 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         }
 
         if (acc.isVirtual) {
-            let vMember: any = null;
+            const { data, error: supabaseError } = await supabase.rpc('virtual_login', {
+                p_username: acc.username || '',
+                p_password: acc.password || ''
+            });
 
-            // 1. Try Supabase RPC
-            try {
-                const { data, error: supabaseError } = await supabase.rpc('virtual_login', {
-                    p_username: acc.username || '',
-                    p_password: acc.password || ''
-                });
-                if (!supabaseError && data) {
-                    vMember = Array.isArray(data) ? data[0] : data;
-                }
-            } catch (rpcErr) {
-                console.warn("Virtual login RPC error:", rpcErr);
-            }
+            const vMember = Array.isArray(data) ? data[0] : data;
 
-            // 2. Server API Fallback
-            if (!vMember || !vMember.id) {
-                try {
-                    const res = await fetch('/api/auth/virtual-login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            username: acc.username || '',
-                            password: acc.password || ''
-                        })
-                    });
-                    const serverData = await res.json();
-                    if (res.ok && serverData.user) {
-                        vMember = {
-                            id: serverData.user.id.replace('virtual_', ''),
-                            full_name: serverData.user.full_name,
-                            role: serverData.user.role || 'viewer',
-                            owner_id: serverData.user.parent_id,
-                            username: serverData.user.username
-                        };
-                    }
-                } catch (fetchErr) {
-                    console.warn("Virtual login server fallback error:", fetchErr);
-                }
-            }
-
-            // 3. Fallback to saved account metadata
-            if (!vMember || !vMember.id) {
-                const parentId = acc.parentId || (acc as any).parent_id || (acc as any).owner_id;
-                if (acc.id && parentId) {
-                    vMember = {
-                        id: acc.id.replace('virtual_', ''),
-                        full_name: acc.fullName,
-                        role: acc.role || 'viewer',
-                        owner_id: parentId,
-                        username: acc.username || ''
-                    };
-                }
-            }
-
-            if (!vMember || !vMember.id) {
+            if (supabaseError) {
+                console.error("Virtual Login Error from Saved Accounts Selection:", supabaseError);
+                setError('حدث خطأ في الاتصال بقاعدة البيانات');
+            } else if (!vMember || !vMember.id) {
                 setError('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور هذا الحساب.');
             } else {
                 const virtualUser = {
                   id: `virtual_${vMember.id}`,
                   full_name: vMember.full_name,
-                  role: vMember.role || 'viewer',
-                  parent_id: vMember.owner_id || acc.parentId || (acc as any).parent_id || (acc as any).owner_id,
-                  username: vMember.username || acc.username
+                  role: vMember.role,
+                  parent_id: vMember.owner_id,
+                  username: vMember.username
                 };
                 localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
                 await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
@@ -331,8 +286,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 await saveAccount({
                   ...acc,
                   fullName: vMember.full_name,
-                  role: vMember.role || 'viewer',
-                  parentId: virtualUser.parent_id
+                  role: vMember.role
                 });
                 await setLastActiveAccount(virtualUser.id);
                 

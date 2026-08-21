@@ -13,9 +13,6 @@ export interface SavedAccount {
   biometricEnabled?: boolean; // Enable biometric unlock for this specific account
   pinEnabled?: boolean; // Enable PIN lock for this account
   pinCode?: string; // 4-digit secure code
-  parentId?: string;
-  parent_id?: string;
-  owner_id?: string;
 }
 
 function obfuscate(text: string): string {

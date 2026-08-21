@@ -192,41 +192,43 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                initialData?.description?.includes('[مرصودة]') || false;
     });
 
-    const [allocationItems, setAllocationItems] = useState<Array<{ id: string, debtType: 'external' | 'joint', debtId: string, allocations: Record<string, string> }>>(() => {
+    const [allocationItems, setAllocationItems] = useState<{ id: string, debtType: 'external' | 'joint', debtId: string, allocations: Record<string, string> }[]>(() => {
         if (initialData?.description) {
             const match = initialData.description.match(/\[RETAINED_DEBT:([^\]]*)\]/);
             if (match) {
                 try {
                     const parsed = JSON.parse(match[1]);
-                    let items: any[] = [];
-                    if (parsed && typeof parsed === 'object' && 'items' in parsed) {
-                        items = Object.values(parsed.items);
-                    } else if (parsed && typeof parsed === 'object') {
-                        if ('allocations' in parsed) {
-                            items = [{ debtId: parsed.debtId || '', allocations: parsed.allocations }];
-                        } else {
-                            items = [{ debtId: '', allocations: parsed }];
-                        }
-                    }
-                    
-                    return items.map(item => {
-                        const strAllocations: Record<string, string> = {};
-                        for (const [k, v] of Object.entries(item.allocations || {})) {
-                            strAllocations[k] = String(v);
-                        }
-                        return {
+                    if (parsed && typeof parsed === 'object' && parsed.items) {
+                        return Object.values(parsed.items).map((item: any) => ({
                             id: generateRowId(),
                             debtType: item.debtId ? 'joint' : 'external',
                             debtId: item.debtId || '',
-                            allocations: strAllocations
-                        };
-                    });
+                            allocations: item.allocations || {}
+                        }));
+                    } else if (parsed && typeof parsed === 'object') {
+                        // Legacy single item fallback
+                        const isJoint = !!parsed.debtId;
+                        let allocationsMap = parsed.allocations || {};
+                        if (!parsed.allocations) {
+                             const map: any = {};
+                             for (const [k, v] of Object.entries(parsed)) {
+                                 if (k !== 'debtId') map[k] = v;
+                             }
+                             allocationsMap = map;
+                        }
+                        return [{
+                            id: generateRowId(),
+                            debtType: isJoint ? 'joint' : 'external',
+                            debtId: parsed.debtId || '',
+                            allocations: allocationsMap
+                        }];
+                    }
                 } catch (e) {
                     console.error("Failed to parse initial retained allocations:", e);
                 }
             }
         }
-        return [{ id: generateRowId(), debtType: 'joint', debtId: '', allocations: {} }];
+        return [{ id: generateRowId(), debtType: 'external', debtId: '', allocations: {} }];
     });
 
     const partnerExternalDebt = useMemo(() => {
@@ -390,14 +392,6 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
     }, []);
 
     // Smart Allocation Helpers
-    const handleAssignToSinglePartner = useCallback((partnerId: string) => {
-        const newAllocations: Record<string, string> = {};
-        (activePersons || []).forEach(p => {
-            newAllocations[p.id] = p.id === partnerId ? String(totals.net) : '0';
-        });
-        setAllocations(newAllocations);
-    }, [activePersons, totals.net]);
-
     const handleSmartAutoFitDebts = useCallback(() => {
         const totalDebtAll = Object.values(partnerTotalDebtMap).reduce((s, d) => s + d.total, 0);
         const newAllocations: Record<string, string> = {};
@@ -416,12 +410,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
             });
         }
         
-        setAllocationItems([{
-            id: generateRowId(),
-            debtType: 'joint',
-            debtId: '',
-            allocations: newAllocations
-        }]);
+        setAllocationItems([{ id: generateRowId(), debtType: 'external', debtId: '', allocations: newAllocations }]);
     }, [activePersons, partnerTotalDebtMap, totals.net]);
 
     // Auto-populate allocations when turning on retained checkbox if empty

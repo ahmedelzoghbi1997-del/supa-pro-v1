@@ -23,60 +23,32 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // Trust first proxy hop (Cloud Run / Nginx reverse proxy)
-  app.set("trust proxy", 1);
-
   app.use(express.json());
 
-  // Rate Limiter for virtual login (generous limit to prevent false lockout in shared environments)
+  // Rate Limiter for virtual login
   const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 200, // Limit each IP
+    max: 5, // Limit each IP to 5 requests per windowMs
     message: { error: "تم تجاوز عدد محاولات تسجيل الدخول المسموح بها، يرجى المحاولة لاحقاً" },
     standardHeaders: true,
     legacyHeaders: false,
-    validate: {
-      xForwardedForHeader: false,
-      forwardedHeader: false,
-      trustProxy: false,
-    },
   });
 
   // API Route: Login for Virtual Members
   app.post("/api/auth/virtual-login", loginLimiter, async (req, res) => {
     const { username, password } = req.body;
     try {
-      let member: any = null;
+      const { data, error } = await supabase.rpc('virtual_login', {
+        p_username: username,
+        p_password: password
+      });
 
-      // 1. Try Supabase RPC if available
-      try {
-        const { data, error } = await supabase.rpc('virtual_login', {
-          p_username: username,
-          p_password: password
-        });
-        if (!error && data) {
-          member = Array.isArray(data) ? data[0] : data;
-        }
-      } catch (rpcErr) {
-        console.warn("RPC virtual_login caught error:", rpcErr);
+      const member = Array.isArray(data) ? data[0] : data;
+
+      if (error) {
+        console.error("Virtual Login Supabase Error:", JSON.stringify(error, null, 2));
+        throw error;
       }
-
-      // 2. Fallback to direct query on virtual_members
-      if (!member || !member.id) {
-        const { data: directData, error: directError } = await supabase
-          .from('virtual_members')
-          .select('*')
-          .eq('username', username)
-          .eq('password', password)
-          .maybeSingle();
-
-        if (directError) {
-          console.error("Direct virtual_members query error:", directError);
-        } else if (directData) {
-          member = directData;
-        }
-      }
-
       if (!member || !member.id) {
         return res.status(401).json({ error: "اسم المستخدم أو كلمة المرور غير صحيحة" });
       }
@@ -87,7 +59,7 @@ async function startServer() {
         user: {
           id: `virtual_${member.id}`,
           full_name: member.full_name,
-          role: member.role || 'viewer',
+          role: member.role,
           parent_id: member.owner_id,
           username: member.username
         }
