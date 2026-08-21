@@ -1,5 +1,4 @@
-
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useTransition } from 'react';
 import type { NavItemId } from '../types';
 import { LogoIcon, LogoutIcon } from './Icons';
 import { supabase } from '../lib/supabase';
@@ -19,6 +18,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
   const visibleNavItems = useNavigationItems();
   const navRef = useRef<HTMLElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0, height: '0px', transform: 'translateY(0px)' });
+  const [isPending, startTransition] = useTransition();
+  const [localActiveItem, setLocalActiveItem] = useState<NavItemId>(activeItem);
+
+  useEffect(() => {
+    setLocalActiveItem(activeItem);
+  }, [activeItem]);
 
   const handleLogout = async () => {
     localStorage.removeItem('virtual_auth');
@@ -30,10 +35,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
 
   useEffect(() => {
     const navElement = navRef.current;
-    if (!navElement || !activeItem) return;
+    if (!navElement || !localActiveItem) return;
 
     const timer = setTimeout(() => {
-        const activeButton = navElement.querySelector(`[data-nav-id="${activeItem}"]`) as HTMLElement;
+        const activeButton = navElement.querySelector(`[data-nav-id="${localActiveItem}"]`) as HTMLElement;
         if (activeButton) {
             const top = activeButton.offsetTop;
             const height = activeButton.offsetHeight;
@@ -42,13 +47,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
                 height: `${height - 7}px`,
                 opacity: 1
             });
-        } else {
-             setIndicatorStyle({ opacity: 0, height: '0px', transform: 'translateY(0px)' });
+        } else { 
+            setIndicatorStyle({ opacity: 0, height: '0px', transform: 'translateY(0px)' });
         }
     }, 50);
 
     return () => clearTimeout(timer);
-  }, [activeItem, visibleNavItems]);
+  }, [localActiveItem, visibleNavItems]);
   
   if (!profile) return null;
 
@@ -67,8 +72,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
   return (
     <>
       <div 
-         className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} 
-         onClick={onClose} 
+          className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          onClick={onClose} 
       />
       <aside className={sidebarClasses}>
         <div className="p-4 flex flex-col h-full">
@@ -78,6 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
               <h1 className="text-xl font-bold whitespace-nowrap text-neutral-800 dark:text-neutral-0">المحاسب الزراعي</h1>
             </div>
           </div>
+          
           <div className="px-3 mb-2">
             <p className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400">المحاسبة اليومية</p>
           </div>
@@ -87,6 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
                 className="absolute top-1 right-0 w-1 bg-primary rounded-r-full transition-all duration-300 ease-in-out"
                 style={indicatorStyle}
             ></div>
+            
             {visibleNavItems.map((section, sectionIndex) => (
               <div key={sectionIndex}>
                 {section.title && (
@@ -98,10 +105,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
                       <button
                         data-nav-id={item.id}
                         onClick={() => {
-                          setActiveItem(item.id);
+                          if (item.id !== localActiveItem) {
+                            setLocalActiveItem(item.id);
+                            startTransition(() => {
+                              setActiveItem(item.id);
+                            });
+                          }
                           if (onClose) onClose();
                         }}
-                        className={`${baseItemClasses} ${item.id === activeItem ? activeItemClasses : ''}`}
+                        className={`${baseItemClasses} ${item.id === localActiveItem ? activeItemClasses : ''} ${isPending && item.id === localActiveItem ? 'opacity-70' : ''}`}
                       >
                         <item.icon className="h-6 w-6" />
                         <span className="font-medium text-base">{item.label}</span>

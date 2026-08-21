@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useTransition } from 'react';
 import type { NavItemId, NavItem } from '../types';
 import { useNavigationItems } from '../hooks/useNavigationItems';
 import { useSettings, terminology } from '../contexts/SettingsContext';
+import { triggerLightHaptic } from '../lib/haptics';
 
 interface BottomNavProps {
     activeItem: NavItemId;
@@ -12,9 +13,17 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     const visibleNavItems = useNavigationItems();
     const { settings } = useSettings();
     const term = terminology[settings.primaryTerm];
+    const [isPending, startTransition] = useTransition();
+
+    const [localActiveItem, setLocalActiveItem] = useState<NavItemId>(activeItem);
+
+    // Sync from props if changed externally
+    useEffect(() => {
+        setLocalActiveItem(activeItem);
+    }, [activeItem]);
 
     const allItems = useMemo(() => visibleNavItems.flatMap(section => section.items), [visibleNavItems]);
-    
+        
     const priorityIds = useMemo(() => {
         const ids = ['dashboard', 'invoices', 'expenses'];
         if (settings.systems.labor) {
@@ -26,7 +35,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
         ids.push('treasury'); // Add treasury to be the 5th item
         return ids;
     }, [settings.systems.labor, settings.systems.farmer_account]);
-    
+        
     const { bottomBarItems } = useMemo(() => {
         const bottom: NavItem[] = [];
         priorityIds.forEach(id => {
@@ -40,7 +49,13 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     }, [allItems, priorityIds]);
 
     const handleItemClick = (id: NavItemId) => {
-        setActiveItem(id);
+        triggerLightHaptic();
+        if (id !== localActiveItem) {
+            setLocalActiveItem(id);
+            startTransition(() => {
+                setActiveItem(id);
+            });
+        }
     };
 
     const getShortLabel = (id: string, originalLabel: string) => {
@@ -62,12 +77,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
             >
                 <div className="flex items-center justify-around px-2 py-1.5 relative">
                     {bottomBarItems.map(item => {
-                        const isActive = activeItem === item.id;
+                        const isActive = localActiveItem === item.id;
                         return (
                             <button
                                 key={item.id}
                                 onClick={() => handleItemClick(item.id)}
-                                className="relative flex flex-col items-center justify-center flex-1 h-[56px] transition-transform duration-200 active:scale-90 group outline-none select-none"
+                                className={`relative flex flex-col items-center justify-center flex-1 h-[56px] transition-transform duration-200 active:scale-90 group outline-none select-none ${isPending && isActive ? 'opacity-70' : ''}`}
                             >
                                 <div className={`relative z-10 flex flex-col items-center justify-center gap-1 w-full max-w-[72px] py-1.5 mx-auto transition-colors duration-200 ${isActive ? 'bg-indigo-50 dark:bg-indigo-500/15 rounded-2xl' : ''}`}>
                                     <item.icon className={`w-6 h-6 transition-colors duration-200 ${isActive ? 'text-indigo-700 dark:text-indigo-300' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-400'}`} />
@@ -81,4 +96,5 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
         </>
     );
 };
+
 export default BottomNav;
