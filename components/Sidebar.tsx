@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useTransition } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import type { NavItemId } from '../types';
 import { LogoIcon, LogoutIcon } from './Icons';
 import { supabase } from '../lib/supabase';
@@ -18,7 +18,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
   const visibleNavItems = useNavigationItems();
   const navRef = useRef<HTMLElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0, height: '0px', transform: 'translateY(0px)' });
-  const [isPending, startTransition] = useTransition();
   const [localActiveItem, setLocalActiveItem] = useState<NavItemId>(activeItem);
 
   useEffect(() => {
@@ -107,13 +106,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
                         onClick={() => {
                           if (item.id !== localActiveItem) {
                             setLocalActiveItem(item.id);
-                            startTransition(() => {
-                              setActiveItem(item.id);
+                            requestAnimationFrame(() => {
+                                setTimeout(() => {
+                                    setActiveItem(item.id);
+                                }, 0);
                             });
                           }
                           if (onClose) onClose();
                         }}
-                        className={`${baseItemClasses} ${item.id === localActiveItem ? activeItemClasses : ''} ${isPending && item.id === localActiveItem ? 'opacity-70' : ''}`}
+                        className={`${baseItemClasses} ${item.id === localActiveItem ? activeItemClasses : ''}`}
                       >
                         <item.icon className="h-6 w-6" />
                         <span className="font-medium text-base">{item.label}</span>

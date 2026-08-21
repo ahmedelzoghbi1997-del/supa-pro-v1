@@ -1,8 +1,7 @@
-import React, { useMemo, useState, useEffect, useTransition } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type { NavItemId, NavItem } from '../types';
 import { useNavigationItems } from '../hooks/useNavigationItems';
 import { useSettings, terminology } from '../contexts/SettingsContext';
-import { triggerLightHaptic } from '../lib/haptics';
 
 interface BottomNavProps {
     activeItem: NavItemId;
@@ -13,11 +12,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     const visibleNavItems = useNavigationItems();
     const { settings } = useSettings();
     const term = terminology[settings.primaryTerm];
-    const [isPending, startTransition] = useTransition();
 
+    // حالة محلية مسؤولة فقط عن تلوين الزر بسرعة البرق
     const [localActiveItem, setLocalActiveItem] = useState<NavItemId>(activeItem);
 
-    // Sync from props if changed externally
+    // مزامنة الحالة إذا تغيرت الصفحة من مكان آخر
     useEffect(() => {
         setLocalActiveItem(activeItem);
     }, [activeItem]);
@@ -32,7 +31,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
         if (settings.systems.farmer_account) {
             ids.push('farmer_account');
         }
-        ids.push('treasury'); // Add treasury to be the 5th item
+        ids.push('treasury'); 
         return ids;
     }, [settings.systems.labor, settings.systems.farmer_account]);
         
@@ -49,11 +48,15 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     }, [allItems, priorityIds]);
 
     const handleItemClick = (id: NavItemId) => {
-        triggerLightHaptic();
         if (id !== localActiveItem) {
+            // 1. تلوين الزر فوراً في نفس اللحظة
             setLocalActiveItem(id);
-            startTransition(() => {
-                setActiveItem(id);
+            
+            // 2. إجبار المتصفح على رسم اللون الجديد، ثم إرسال أمر تحميل الصفحة الثقيلة
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    setActiveItem(id);
+                }, 0);
             });
         }
     };
@@ -70,7 +73,6 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
 
     return (
         <>
-            {/* Bottom Navigation Bar (Mobile Only) */}
             <div 
                 className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#0a0a0a] border-t border-neutral-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]"
                 style={{ paddingBottom: 'env(safe-area-inset-bottom, 24px)' }}
@@ -82,7 +84,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
                             <button
                                 key={item.id}
                                 onClick={() => handleItemClick(item.id)}
-                                className={`relative flex flex-col items-center justify-center flex-1 h-[56px] transition-transform duration-200 active:scale-90 group outline-none select-none ${isPending && isActive ? 'opacity-70' : ''}`}
+                                className="relative flex flex-col items-center justify-center flex-1 h-[56px] transition-transform duration-200 active:scale-90 group outline-none select-none"
                             >
                                 <div className={`relative z-10 flex flex-col items-center justify-center gap-1 w-full max-w-[72px] py-1.5 mx-auto transition-colors duration-200 ${isActive ? 'bg-indigo-50 dark:bg-indigo-500/15 rounded-2xl' : ''}`}>
                                     <item.icon className={`w-6 h-6 transition-colors duration-200 ${isActive ? 'text-indigo-700 dark:text-indigo-300' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-400'}`} />
