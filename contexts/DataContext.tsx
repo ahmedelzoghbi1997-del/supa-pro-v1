@@ -449,7 +449,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             console.log(`Fetching from table: ${table}, for user: ${effectiveUserId}`);
             const { data, error } = await supabase.from(table).select('*').eq('user_id', effectiveUserId);
             if (error) {
-                console.error(`Error fetching ${table}:`, error);
+                console.warn(`[Network/Supabase] Could not fetch ${table}. Falling back to cache.`, error);
                 setIsOffline(true);
                 const cached = await getCache(effectiveUserId, table);
                 return cached || [];
@@ -466,7 +466,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             console.log(`Fetching virtual members for owner: ${effectiveUserId}`);
             const { data, error } = await supabase.from('virtual_members').select('*').eq('owner_id', effectiveUserId);
             if (error) {
-                console.error(`Error fetching virtual_members:`, error);
+                console.warn(`[Network/Supabase] Could not fetch virtual_members. Falling back to cache.`, error);
                 setIsOffline(true);
                 const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
                 return cached || [];
