@@ -670,7 +670,7 @@ const App: React.FC = () => {
     return <Onboarding onComplete={() => setShowOnboarding(false)} />;
   }
 
-  if (!session) return <AuthPage />;
+  if (!session) return <ToastProvider><AuthPage /></ToastProvider>;
   if (isFirstLogin && profile)
     return (
       <WelcomePage
@@ -678,7 +678,7 @@ const App: React.FC = () => {
         onContinue={() => setIsFirstLogin(false)}
       />
     );
-  if (!profile) return <AuthPage />;
+  if (!profile) return <ToastProvider><AuthPage /></ToastProvider>;
 
   return (
     <ToastProvider>

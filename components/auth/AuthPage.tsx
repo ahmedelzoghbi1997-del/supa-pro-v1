@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../hooks/useToast';
 import { supabase } from '../../lib/supabase';
 import { 
   LogoIcon, 
@@ -71,12 +72,10 @@ const InputField = ({ icon: Icon, type, placeholder, id, value, onChange, autoCo
 
 const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComplete }) => {
   const [view, setView] = useState<View>(initialFlow === 'recovery' ? 'update_password' : 'login');
-  const [isVirtual, setIsVirtual] = useState(false);
   const [otpFlow, setOtpFlow] = useState<OtpFlow>('signup');
 
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -118,8 +117,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
   const resetFormState = () => {
     setError(null);
     setMessage(null);
-    setEmail('');
-    setUsername('');
+    setIdentifier('');
     setPassword('');
     setConfirmPassword('');
     setFullName('');
@@ -132,11 +130,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setError(null);
     setMessage(null);
 
-    if (isVirtual) {
+    const isOwner = identifier.includes('@');
+
+    if (!isOwner) {
         try {
             // Using RPC function to bypass RLS securely for virtual login
             const { data, error: supabaseError } = await supabase.rpc('virtual_login', {
-                p_username: username,
+                p_username: identifier,
                 p_password: password
             });
 
@@ -148,7 +148,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                     const res = await fetch('/api/auth/virtual-login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
+                        body: JSON.stringify({ username: identifier, password })
                     });
                     const serverData = await res.json();
                     if (res.ok && serverData.user) {
@@ -160,7 +160,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                             username: serverData.user.username
                         };
                     } else if (serverData.error) {
-                        setError(serverData.error);
+                        setError('بيانات الدخول غير صحيحة');
                         setLoading(false);
                         return;
                     }
@@ -170,7 +170,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
 
             if (!vMember || !vMember.id) {
-                setError('اسم المستخدم أو كلمة المرور غير صحيحة');
+                setError('بيانات الدخول غير صحيحة');
             } else {
                 const virtualUser = {
                   id: `virtual_${vMember.id}`,
@@ -186,7 +186,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 const gName = (vMember.full_name && (vMember.full_name.includes('صوبة') || vMember.full_name.includes('مشاهد') || vMember.full_name.includes('مطلع'))) ? vMember.full_name : undefined;
                 await saveAccount({
                   id: virtualUser.id,
-                  username,
+                  username: identifier,
                   password,
                   fullName: vMember.full_name,
                   role: vMember.role,
@@ -199,19 +199,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
         } catch (err) {
             console.error("Virtual Login Exception:", err);
-            setError('خطأ في الاتصال بالخادم');
+            setError('بيانات الدخول غير صحيحة');
         }
     } else {
-        const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: authData, error } = await supabase.auth.signInWithPassword({ email: identifier, password });
         if (error) {
             if (error.message.includes('Email not confirmed')) {
                 setError('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.');
                 setOtpFlow('signup');
                 setView('verify_otp');
             } else {
-                setError('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+                setError('بيانات الدخول غير صحيحة');
             }
         } else if (authData?.user) {
+            await Preferences.remove({ key: 'was_explicitly_logged_out' });
             try {
                 const { data: profData } = await supabase
                     .from('profiles')
@@ -221,7 +222,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 
                 await saveAccount({
                     id: authData.user.id,
-                    email,
+                    email: identifier,
                     password,
                     fullName: profData?.full_name || 'مالك',
                     role: profData?.role || 'owner',
@@ -451,7 +452,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setError(null);
     setMessage(null);
     const { error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: identifier,
         password,
         options: { data: { full_name: fullName } }
     });
@@ -471,7 +472,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setLoading(true);
     setError(null);
     setMessage(null);
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(identifier);
     if (resetError) {
         setError(resetError.message);
     } else {
@@ -487,7 +488,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setLoading(true);
     setError(null);
     const type = otpFlow === 'signup' ? 'signup' : 'recovery';
-    const { error: verifyError } = await supabase.auth.verifyOtp({ email, token, type });
+    const { error: verifyError } = await supabase.auth.verifyOtp({ email: identifier, token, type });
     if (verifyError) {
         setError('الرمز غير صالح أو منتهي الصلاحية.');
     }
@@ -539,9 +540,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 <CredentialsView 
                     view={view} 
                     setView={(v: View) => { setView(v); resetFormState(); }}
-                    email={email} setEmail={setEmail}
-                    username={username} setUsername={setUsername}
-                    isVirtual={isVirtual} setIsVirtual={setIsVirtual}
+                    identifier={identifier} setIdentifier={setIdentifier}
                     password={password} setPassword={setPassword}
                     fullName={fullName} setFullName={setFullName}
                     handleLogin={handleLogin}
@@ -556,7 +555,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         case 'verify_otp':
             return (
                 <VerifyOtpView
-                    email={email}
+                    email={identifier}
                     flow={otpFlow}
                     token={token}
                     setToken={setToken}
@@ -726,12 +725,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
 interface CredentialsViewProps {
     view: View;
     setView: (v: View) => void;
-    email: string;
-    setEmail: (v: string) => void;
-    username: string;
-    setUsername: (v: string) => void;
-    isVirtual: boolean;
-    setIsVirtual: (v: boolean) => void;
+    identifier: string;
+    setIdentifier: (v: string) => void;
     password: string;
     setPassword: (v: string) => void;
     fullName: string;
@@ -746,38 +741,38 @@ interface CredentialsViewProps {
 }
 
 const CredentialsView: React.FC<CredentialsViewProps> = ({ 
-    view, setView, email, setEmail, username, setUsername, isVirtual, setIsVirtual,
+    view, setView, identifier, setIdentifier,
     password, setPassword, fullName, setFullName, handleLogin, handleSignUp, 
     handlePasswordResetRequest, loading, error, message, hasSavedAccounts = false
 }) => {
     const isLogin = view === 'login';
     const isForgot = view === 'forgot_password';
+    const { showToast } = useToast();
+
+    const handleGoogleLogin = async () => {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin,
+          },
+        });
+        if (error) throw error;
+      } catch (error: any) {
+        showToast('حدث خطأ أثناء تسجيل الدخول بجوجل', 'error');
+      }
+    };
+
     
     return (
         <>
-            {isLogin && (
-                <div className="flex p-1 bg-neutral-100 dark:bg-neutral-800 rounded-xl mb-6">
-                    <button
-                        onClick={() => setIsVirtual(false)}
-                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${!isVirtual ? 'bg-white dark:bg-neutral-700 shadow-sm text-primary' : 'text-neutral-500'}`}
-                    >
-                        دخول المالك
-                    </button>
-                    <button
-                        onClick={() => setIsVirtual(true)}
-                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${isVirtual ? 'bg-white dark:bg-neutral-700 shadow-sm text-primary' : 'text-neutral-500'}`}
-                    >
-                        دخول التقارير
-                    </button>
-                </div>
-            )}
          <div className="text-center">
           <h2 className="mt-6 lg:mt-0 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
-            {isVirtual ? 'دخول التقارير' : isLogin ? 'مرحباً بعودتك' : isForgot ? 'إعادة تعيين كلمة المرور' : 'إنشاء حساب جديد'}
+            {isLogin ? 'مرحباً بعودتك' : isForgot ? 'إعادة تعيين كلمة المرور' : 'إنشاء حساب جديد'}
           </h2>
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-            {isForgot ? 'أدخل بريدك الإلكتروني لإرسال رمز الاستعادة.' : isVirtual ? 'تسجيل الدخول باستخدام بيانات الحساب الافتراضي' : isLogin ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}{' '}
-            {!isForgot && !isVirtual && (
+            {isForgot ? 'أدخل بريدك الإلكتروني لإرسال رمز الاستعادة.' : isLogin ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}{' '}
+            {!isForgot && (
                 <a href="#" onClick={(e) => { e.preventDefault(); setView(isLogin ? 'signup' : 'login'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
                 {isLogin ? 'أنشئ حسابًا' : 'سجل الدخول'}
                 </a>
@@ -793,17 +788,17 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
                 {!isLogin && !isForgot && (
                     <InputField icon={UserIcon} type="text" placeholder="الاسم الكامل" id="full-name" value={fullName} onChange={e => setFullName(e.target.value)} autoComplete="name" />
                 )}
-                {isVirtual ? (
-                    <InputField icon={UserIcon} type="text" placeholder="اسم المستخدم" id="username" value={username} onChange={e => setUsername(e.target.value)} autoComplete="username" />
+                {isLogin ? (
+                    <InputField icon={UserIcon} type="text" placeholder="البريد الإلكتروني أو اسم المستخدم" id="identifier" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="username" />
                 ) : (
-                    <InputField icon={UserIcon} type="email" placeholder="البريد الإلكتروني" id="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
+                    <InputField icon={UserIcon} type="email" placeholder="البريد الإلكتروني" id="email" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="email" />
                 )}
                 {!isForgot && (
                     <InputField icon={LockClosedIcon} type="password" placeholder="كلمة المرور" id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete={isLogin ? "current-password" : "new-password"} />
                 )}
             </div>
 
-            {isLogin && !isVirtual && (
+            {isLogin && (
                 <div className="flex items-center justify-end">
                     <div className="text-sm">
                         <a href="#" onClick={(e) => { e.preventDefault(); setView('forgot_password'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
@@ -814,10 +809,37 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
             )}
 
              <div className="space-y-3">
+                
                 <button type="submit" onClick={createRipple} disabled={loading} className="group ripple-effect relative flex w-full justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark transition-all duration-300 disabled:opacity-50">
                     {isForgot || <span className="absolute inset-y-0 right-0 flex items-center pr-3"><ArrowLeftIcon className="h-5 w-5 text-emerald-300" /></span>}
                     {loading ? '...جاري التحميل' : isLogin ? 'تسجيل الدخول' : isForgot ? 'إرسال الرمز' : 'إنشاء الحساب'}
                 </button>
+
+                {!isForgot && (
+                    <div className="mt-4 w-full">
+                        <div className="flex items-center my-4">
+                            <div className="flex-1 border-t border-neutral-200 dark:border-neutral-700"></div>
+                            <span className="px-4 text-sm text-neutral-500 dark:text-neutral-400 font-medium">أو</span>
+                            <div className="flex-1 border-t border-neutral-200 dark:border-neutral-700"></div>
+                        </div>
+                        
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            disabled={loading}
+                            className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 active:scale-95 transition-all font-semibold text-md disabled:opacity-50"
+                        >
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                            </svg>
+                            <span>المتابعة باستخدام Google</span>
+                        </button>
+                    </div>
+                )}
+
                 {hasSavedAccounts && isLogin && (
                     <button
                         type="button"
@@ -1113,7 +1135,7 @@ interface VerifyOtpViewProps {
     message: string | null;
 }
 
-const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email, flow, token, setToken, handleVerifyOtp, setView, loading, error, message }) => {
+const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email: identifier, flow, token, setToken, handleVerifyOtp, setView, loading, error, message }) => {
     return (
         <>
             <div className="text-center">
