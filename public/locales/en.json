@@ -398,7 +398,7 @@
   "المصروف": "The expense",
   "إغلاق العروة": "Close Cycle",
   "تفعيل العروة": "Activate Cycle",
-  "فتح تقرير حسابات العروة": "Open the loop accounts report",
+  "فتح تقرير حسابات العروة": "Open Cycle Report",
   "مشاركة رابط التقرير 🔗": "Share the report link 🔗",
   "تعديل البيانات": "Modify data",
   "حذف العروة": "Delete Cycle",
@@ -4417,5 +4417,6 @@
   "تم تحديث كلمة المرور بنجاح. يرجى تسجيل الدخول.": "Password updated successfully. Please sign in.",
   "Explore Demo (One-Click)": "Explore Demo (One-Click)",
   "فشل التحقق من الهوية الحيوية. يرجى إعادة المحاولة.": "Biometric verification failed. Please try again.",
-  "Demo login failed. Please ensure the demo account exists.": "Demo login failed. Please ensure the demo account exists."
+  "Demo login failed. Please ensure the demo account exists.": "Demo login failed. Please ensure the demo account exists.",
+  "الحسابات البنكية": "Bank Accounts"
 }

@@ -19,6 +19,7 @@ import {
 import { formatNumber } from '../../utils/helpers';
 import { useData } from '../../contexts/DataContext';
 import { useToast } from '../../hooks/useToast';
+import { useSettings } from '../../contexts/SettingsContext';
 
 interface CycleCardProps {
     cycle: Cycle;
@@ -51,6 +52,7 @@ const MoneyBox = ({ label, value, colorClass, bgColorClass, icon: Icon }: { labe
 const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewReport, onToggleStatus, isNew, index }) => {
     const { invoices, expenses, dailyLogs } = useData();
     const { showToast } = useToast();
+    const { t } = useSettings();
     
     const measureLabel = cycle.unit_of_measure === 'area'
         ? `${formatNumber(cycle.area_in_feddans || 0)} فدان`
@@ -267,7 +269,7 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                     className="flex-1 flex items-center justify-center gap-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold py-2.5 px-4 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all active:scale-95 text-xs sm:text-sm shadow-sm"
                 >
                     <ClipboardDocumentIcon className="w-4 h-4 opacity-80"/>
-                    <span className="truncate">فتح تقرير حسابات العروة</span>
+                    <span className="truncate">{t('فتح تقرير حسابات العروة')}</span>
                 </button>
 
                 <div ref={menuRef} className="relative flex-shrink-0">

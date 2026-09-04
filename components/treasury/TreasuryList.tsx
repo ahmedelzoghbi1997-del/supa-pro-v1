@@ -294,7 +294,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
-                        الخزائن النقدية (الكاش)
+                        {t('الخزائن النقدية')} ({activeFund ? 1 : 0})
                     </button>
                     <button
                         onClick={() => setActiveTab('bank')}
@@ -304,7 +304,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
-                        الحسابات البنكية (المصارف)
+                        {t('الحسابات البنكية')} ({realBankAccounts.length})
                     </button>
                 </div>
 
