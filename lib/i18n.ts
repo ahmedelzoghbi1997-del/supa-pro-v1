@@ -341,7 +341,8 @@ const domainOverrides: Record<string, string> = {
   'الكل': 'All',
   'تسجيل الخروج': 'Logout',
   'تسجيل الدخول': 'Login',
-  'المحاسب الزراعي': 'Agri Accountant',
+  'appName': 'Agriledger',
+  'المحاسب الزراعي': 'Agriledger',
   'المحاسبة اليومية': 'Daily Accounting',
   'لوحة التحكم': 'Dashboard',
   'الفواتير': 'Invoices',
@@ -371,6 +372,10 @@ const domainOverrides: Record<string, string> = {
  * Guarantees that no Arabic characters remain when lang === 'en'.
  */
 export function translateText(text: string, lang: Language = 'ar'): string {
+  if (text === 'appName') {
+    return lang === 'en' ? 'Agriledger' : 'المحاسب الزراعي';
+  }
+
   if (lang !== 'en' || !text || typeof text !== 'string') {
     return text;
   }

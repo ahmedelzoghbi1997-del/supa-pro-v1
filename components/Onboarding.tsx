@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sprout, Wallet, FileSpreadsheet, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { t } from '../lib/i18n';
 
 interface OnboardingProps {
     onComplete: () => void;
@@ -16,37 +17,37 @@ interface Slide {
     shadowColor: string;
 }
 
-const slides: Slide[] = [
-    {
-        id: 0,
-        title: 'أهلاً بك في المحاسب الزراعي',
-        description: 'شريكك الذكي لإدارة شؤون الزراعة بذكاء وحكمة. تحكم متكامل في العروات والموارد لتحقيق أقصى ربحية ممكنة لمزرعتك.',
-        icon: Sprout,
-        gradient: 'from-emerald-500/20 via-emerald-600/5 to-transparent dark:from-emerald-500/10 dark:via-emerald-950/10 dark:to-transparent',
-        accentColor: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/40 border-emerald-250 dark:border-emerald-900/40',
-        shadowColor: 'shadow-emerald-500/10'
-    },
-    {
-        id: 1,
-        title: 'إدارة الخزائن والعهد البنكية',
-        description: 'تابع رصيد عهدة كل عروة نقدياً ولحظة بلغت، مع ميزات متطورة لإدارة عمليات السحب والإيداع وحوافظ البنوك بكل احترافية ودقة متناهية.',
-        icon: Wallet,
-        gradient: 'from-blue-500/20 via-blue-600/5 to-transparent dark:from-blue-500/10 dark:via-blue-950/10 dark:to-transparent',
-        accentColor: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/40 border-blue-250 dark:border-blue-900/40',
-        shadowColor: 'shadow-blue-500/10'
-    },
-    {
-        id: 2,
-        title: 'تقارير فورية وكشوف حسابات ذكية',
-        description: 'وثّق المعاملات وشارك كشوف الحسابات الدقيقة فوراً مع الموردين، التجار، والشركاء بنقرة واحدة، لتواكب نمو استثمارك لحظة بلحظة.',
-        icon: FileSpreadsheet,
-        gradient: 'from-violet-500/20 via-violet-600/5 to-transparent dark:from-violet-500/10 dark:via-violet-950/10 dark:to-transparent',
-        accentColor: 'text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-950/40 border-violet-250 dark:border-violet-900/40',
-        shadowColor: 'shadow-violet-500/10'
-    }
-];
-
 export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+    const slides: Slide[] = [
+        {
+            id: 0,
+            title: t('أهلاً بك في المحاسب الزراعي'),
+            description: t('شريكك الذكي لإدارة شؤون الزراعة بذكاء وحكمة. تحكم متكامل في العروات والموارد لتحقيق أقصى ربحية ممكنة لمزرعتك.'),
+            icon: Sprout,
+            gradient: 'from-emerald-500/20 via-emerald-600/5 to-transparent dark:from-emerald-500/10 dark:via-emerald-950/10 dark:to-transparent',
+            accentColor: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/40 border-emerald-250 dark:border-emerald-900/40',
+            shadowColor: 'shadow-emerald-500/10'
+        },
+        {
+            id: 1,
+            title: t('إدارة الخزائن والعهد البنكية'),
+            description: t('تابع رصيد عهدة كل عروة نقدياً ولحظة بلغت، مع ميزات متطورة لإدارة عمليات السحب والإيداع وحوافظ البنوك بكل احترافية ودقة متناهية.'),
+            icon: Wallet,
+            gradient: 'from-blue-500/20 via-blue-600/5 to-transparent dark:from-blue-500/10 dark:via-blue-950/10 dark:to-transparent',
+            accentColor: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/40 border-blue-250 dark:border-blue-900/40',
+            shadowColor: 'shadow-blue-500/10'
+        },
+        {
+            id: 2,
+            title: t('تقارير فورية وكشوف حسابات ذكية'),
+            description: t('وثّق المعاملات وشارك كشوف الحسابات الدقيقة فوراً مع الموردين، التجار، والشركاء بنقرة واحدة، لتواكب نمو استثمارك لحظة بلحظة.'),
+            icon: FileSpreadsheet,
+            gradient: 'from-violet-500/20 via-violet-600/5 to-transparent dark:from-violet-500/10 dark:via-violet-950/10 dark:to-transparent',
+            accentColor: 'text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-950/40 border-violet-250 dark:border-violet-900/40',
+            shadowColor: 'shadow-violet-500/10'
+        }
+    ];
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState<'next' | 'prev'>('next');
 
@@ -120,7 +121,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                         <span className="text-sm">أ</span>
                     </div>
                     <span className="text-sm font-black text-neutral-800 dark:text-neutral-250 tracking-tight">
-                        المحاسب الزراعي
+                        {t('appName')}
                     </span>
                 </div>
                 

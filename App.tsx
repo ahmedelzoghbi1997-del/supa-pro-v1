@@ -28,6 +28,7 @@ import { Preferences } from "@capacitor/preferences";
 import { getSavedAccounts } from "./lib/accountManager";
 
 import { useData } from "./contexts/DataContext";
+import { t } from "./lib/i18n";
 
 const NotificationListener: React.FC = () => {
   const { setActiveItem } = useData();
@@ -656,7 +657,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-neutral-800 dark:text-neutral-100 tracking-tight mb-2">
-            المحاسب الزراعي
+            {t('appName')}
           </h1>
           <p className="text-[10px] sm:text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-[0.3em]">
             {isSwitching ? "جارٍ تبديل الحساب..." : "جارٍ التحميل..."}

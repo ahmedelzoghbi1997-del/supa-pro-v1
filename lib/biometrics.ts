@@ -1,5 +1,6 @@
 import { NativeBiometric } from 'capacitor-native-biometric';
 import { Capacitor } from '@capacitor/core';
+import { t } from './i18n';
 
 export async function isBiometricSupportedOnDevice(): Promise<boolean> {
   if (!Capacitor.isNativePlatform()) {
@@ -43,7 +44,7 @@ export async function authenticateBiometrically(reasonArabic: string = "تأكي
   try {
     await NativeBiometric.verifyIdentity({
       reason: reasonArabic,
-      title: "المحاسب الزراعي",
+      title: t('appName'),
       subtitle: "تأكيد البصمة الحيوية",
       description: "يرجى وضع إصبعك على مستشعر البصمة أو استخدام التعرف على الوجه لتأكيد ملكية الحساب",
       negativeButtonText: "إلغاء واستخدام كلمة المرور"

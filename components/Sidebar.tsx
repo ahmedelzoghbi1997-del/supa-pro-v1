@@ -7,6 +7,7 @@ import { useData } from '../contexts/DataContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useNavigationItems } from '../hooks/useNavigationItems';
 import { Preferences } from '@capacitor/preferences';
+import { t } from '../lib/i18n';
 
 interface SidebarProps {
   activeItem: NavItemId;
@@ -84,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
             <div className="flex items-center gap-3">
               <LogoIcon className="h-10 w-10" />
               <h1 className="text-xl font-bold whitespace-nowrap text-neutral-800 dark:text-neutral-0">
-                {isEn ? 'Agri Accountant' : 'المحاسب الزراعي'}
+                {t('appName')}
               </h1>
             </div>
           </div>

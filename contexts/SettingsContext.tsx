@@ -223,6 +223,7 @@ export const SettingsProvider: React.FC<{
   const activeLanguage: Language = settings.language || 'ar';
   useEffect(() => {
     applyLanguage(activeLanguage);
+    document.title = translate('appName', activeLanguage);
   }, [activeLanguage]);
 
   const setLanguage = (lang: Language) => {

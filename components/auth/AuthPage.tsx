@@ -15,6 +15,7 @@ import {
 } from '../Icons';
 import { createRipple } from '../../utils/helpers';
 import { Preferences } from '@capacitor/preferences';
+import { t } from '../../lib/i18n';
 import { 
   SavedAccount, 
   getSavedAccounts, 
@@ -513,6 +514,41 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setLoading(false);
   };
 
+  const handleDemoLogin = async () => {
+    setIdentifier('demo@agriledger.com');
+    setPassword('demoPassword123');
+    setLoading(true);
+    setError(null);
+    const { data: authData, error } = await supabase.auth.signInWithPassword({ email: 'demo@agriledger.com', password: 'demoPassword123' });
+    if (error) {
+        setError('Demo login failed. Please ensure the demo account exists.');
+    } else if (authData?.user) {
+        await Preferences.remove({ key: 'was_explicitly_logged_out' });
+        try {
+            const { data: profData } = await supabase
+                .from('profiles')
+                .select('full_name, role')
+                .eq('id', authData.user.id)
+                .single();
+            
+            await saveAccount({
+                id: authData.user.id,
+                email: 'demo@agriledger.com',
+                password: 'demoPassword123',
+                fullName: profData?.full_name || 'Demo User',
+                role: profData?.role || 'owner',
+                isVirtual: false,
+                greenhouseName: 'Demo Farm'
+            });
+            await setLastActiveAccount(authData.user.id);
+        } catch (err) {
+            console.error("Error saving demo profile:", err);
+        }
+        window.location.reload();
+    }
+    setLoading(false);
+  };
+
   const renderContent = () => {
     switch (view) {
         case 'saved_accounts':
@@ -545,6 +581,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                     handleLogin={handleLogin}
                     handleSignUp={handleSignUp}
                     handlePasswordResetRequest={handlePasswordResetRequest}
+                    handleDemoLogin={handleDemoLogin}
                     loading={loading}
                     error={error}
                     message={message}
@@ -701,7 +738,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             <div className="bg-white/20 p-4 rounded-full inline-block backdrop-blur-sm">
                 <LogoIcon className="mx-auto h-52 w-52" />
             </div>
-            <h1 className="mt-8 text-5xl font-bold">المحاسب الزراعي</h1>
+            <h1 className="mt-8 text-5xl font-bold">{t('appName')}</h1>
             <p className="mt-4 text-lg text-emerald-100 max-w-sm mx-auto">
                 إدارة الأصول الزراعية، الفواتير، والمصروفات بكفاءة ودقة.
             </p>
@@ -712,7 +749,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         <div className="w-full max-w-sm space-y-8 animate-page-enter">
           <div className="text-center lg:hidden">
               <LogoIcon className="mx-auto h-28 w-28 text-primary" />
-              <h1 className="mt-4 text-3xl font-bold text-neutral-800 dark:text-neutral-50">المحاسب الزراعي</h1>
+              <h1 className="mt-4 text-3xl font-bold text-neutral-800 dark:text-neutral-50">{t('appName')}</h1>
           </div>
           {renderContent()}
         </div>
@@ -733,6 +770,7 @@ interface CredentialsViewProps {
     handleLogin: (e: React.FormEvent) => void;
     handleSignUp: (e: React.FormEvent) => void;
     handlePasswordResetRequest: (e: React.FormEvent) => void;
+    handleDemoLogin: () => void;
     loading: boolean;
     error: string | null;
     message: string | null;
@@ -742,7 +780,7 @@ interface CredentialsViewProps {
 const CredentialsView: React.FC<CredentialsViewProps> = ({ 
     view, setView, identifier, setIdentifier,
     password, setPassword, fullName, setFullName, handleLogin, handleSignUp, 
-    handlePasswordResetRequest, loading, error, message, hasSavedAccounts = false
+    handlePasswordResetRequest, handleDemoLogin, loading, error, message, hasSavedAccounts = false
 }) => {
     const isLogin = view === 'login';
     const isForgot = view === 'forgot_password';
@@ -796,6 +834,19 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
                     {isForgot || <span className="absolute inset-y-0 right-0 flex items-center pr-3"><ArrowLeftIcon className="h-5 w-5 text-emerald-300" /></span>}
                     {loading ? '...جاري التحميل' : isLogin ? 'تسجيل الدخول' : isForgot ? 'إرسال الرمز' : 'إنشاء الحساب'}
                 </button>
+                {isLogin && (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleDemoLogin();
+                        }}
+                        disabled={loading}
+                        className="group ripple-effect relative flex w-full justify-center rounded-lg bg-white border border-primary/20 py-3 px-4 text-md font-semibold text-primary hover:bg-primary/5 transition-all duration-300 disabled:opacity-50"
+                    >
+                        Explore Demo (One-Click)
+                    </button>
+                )}
                 {hasSavedAccounts && isLogin && (
                     <button
                         type="button"

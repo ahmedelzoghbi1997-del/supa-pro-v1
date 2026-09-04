@@ -14,6 +14,7 @@ import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
 import Skeleton from '../shared/Skeleton';
 import TreasuryReport from './TreasuryReport';
+import { t } from '../../lib/i18n';
 
 interface FundCardProps {
     fund: TreasuryFund;
@@ -419,7 +420,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                         <div>
                             <h4 className="font-black text-emerald-800 dark:text-emerald-400">عروتك الزراعية هي محرك الخزائن</h4>
                             <p className="text-sm text-emerald-700/85 dark:text-emerald-300 mt-1 leading-relaxed">
-                                بدلاً من إدارة خزنة نقدية عشوائية، "المحاسب الزراعي" يطبق المعايير المحاسبية السليمة بحيث توجد **خزنة/عهدة مستقلة لكل عروة**.
+                                {t('بدلاً من إدارة خزنة نقدية عشوائية، "المحاسب الزراعي" يطبق المعايير المحاسبية السليمة بحيث توجد **خزنة/عهدة مستقلة لكل عروة**.')}
                             </p>
                         </div>
                     </div>

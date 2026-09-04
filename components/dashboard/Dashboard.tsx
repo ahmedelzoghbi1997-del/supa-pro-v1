@@ -14,6 +14,7 @@ import { useSettings, terminology } from '../../contexts/SettingsContext';
 import Skeleton from '../shared/Skeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import type { PartnerDebt, Advance } from '../../types';
+import { t } from '../../lib/i18n';
 
 // Sparkline component
 export const Sparkline: React.FC<{ data: number[]; color: string; gradientId: string; }> = ({ data, color, gradientId }) => {
@@ -834,7 +835,7 @@ const Dashboard: React.FC = () => {
                 <div className="w-20 h-20 bg-white dark:bg-neutral-800 rounded-3xl shadow-xl flex items-center justify-center mb-6 border border-primary/10 transform group-hover:rotate-12 transition-transform duration-500">
                     <Rocket className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-3xl font-black mb-4">أهلاً بك في المحاسب الزراعي!</h3>
+                <h3 className="text-3xl font-black mb-4">{t('أهلاً بك في المحاسب الزراعي!')}</h3>
                 <p className="text-neutral-600 dark:text-neutral-400 font-bold mb-8 leading-relaxed">
                     يمكنك البدء من الصفر وإضافة بياناتك الخاصة، أو إذا كان لديك كود ربط من صاحب حساب آخر، يمكنك استخدامه لمشاهدة بياناته فوراً.
                 </p>

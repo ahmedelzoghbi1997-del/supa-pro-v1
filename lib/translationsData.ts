@@ -1,6 +1,7 @@
-// Auto-generated high-fidelity dictionary
-export const translationsData: Record<string, string> = {
-  "المحاسب الزراعي": "Agricultural Accountant",
+export const translationsData: Record<string, string> =
+{
+  "appName": "Agriledger",
+  "المحاسب الزراعي": "Agriledger",
   "المحاسبة اليومية": "Daily Accounting",
   "لوحة التحكم": "Dashboard",
   "إدارة الفواتير": "Invoices",
@@ -235,7 +236,7 @@ export const translationsData: Record<string, string> = {
   "setActiveModal(null)} title=\"إضافة دفعة مورد\" size=\"lg\">": "setActiveModal(null)} title=\"  \" size=\"lg\">",
   "setActiveModal(null)} title=\"إضافة سحب مزارع\" size=\"lg\">": "setActiveModal(null)} title=\"  \" size=\"lg\">",
   "setActiveModal(null)} title=\"إضافة سلفة شخصية\" size=\"lg\">": "setActiveModal(null)} title=\"  \" size=\"lg\">",
-  "أهلاً بك في المحاسب الزراعي": "Welcome to Agricultural Accountant",
+  "أهلاً بك في المحاسب الزراعي": "Welcome to Agriledger",
   "إدارة الخزائن والعهد البنكية": "Treasury management and banking covenants",
   "تقارير فورية وكشوف حسابات ذكية": "Instant reports and smart account statements",
   "ابدأ الآن": "Start now",
@@ -848,7 +849,7 @@ export const translationsData: Record<string, string> = {
   "إجمالي السيولة (الخزنة)": "Total liquidity (treasury)",
   "من تاريخ:": ":",
   "إلى تاريخ:": ":",
-  "أهلاً بك في المحاسب الزراعي!": "!",
+  "أهلاً بك في المحاسب الزراعي!": "Welcome to Agriledger!",
   "أرباحك المستحقة": "Your Earned Profits",
   "مسحوبات وسلف": "Withdrawals & Advances",
   "المتبقي لك": "The rest is yours",
@@ -4395,6 +4396,4 @@ export const translationsData: Record<string, string> = {
   "برجاء اختيار نشاط واحد على الأقل لكشف اليومية.": "Please select at least one activity.",
   "يجب اختيار نشاط واحد على الأقل ليتم حفظ التعديل.": "Please select at least one activity.",
   "برجاء كتابة النشاط أولاً قبل حفظ كشف العمالة.": "Please select at least one activity."
-};
-
-export default translationsData;
+}

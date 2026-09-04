@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import type { Invoice } from '../../types';
 import { formatCurrency, formatNumber } from '../../utils/helpers';
+import { t } from '../../lib/i18n';
 import { CalendarIcon, TruckIcon, TrendingUpIcon, TrendingDownIcon, LogoIcon, BoxIcon, PencilIcon } from '../Icons';
 import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
@@ -74,7 +75,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                             <LogoIcon className="w-12 h-12 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black text-neutral-800">المحاسب الزراعي</h1>
+                            <h1 className="text-3xl font-black text-neutral-800">{t('appName')}</h1>
                             <p className="text-sm font-bold text-neutral-400">وثيقة مبيعات رقمية</p>
                         </div>
                     </div>
@@ -290,7 +291,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
 
             {isForPrint && (
                 <div className="pt-8 text-center space-y-2 opacity-60">
-                    <p className="text-xs text-neutral-400 font-black uppercase tracking-[0.3em]">شكراً لاستخدامكم تطبيق المحاسب الزراعي</p>
+                    <p className="text-xs text-neutral-400 font-black uppercase tracking-[0.3em]">{t('شكراً لاستخدامكم تطبيق المحاسب الزراعي')}</p>
                 </div>
             )}
         </div>
