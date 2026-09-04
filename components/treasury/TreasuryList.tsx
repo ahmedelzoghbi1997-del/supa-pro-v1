@@ -14,7 +14,7 @@ import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
 import Skeleton from '../shared/Skeleton';
 import TreasuryReport from './TreasuryReport';
-import { t } from '../../lib/i18n';
+import { useSettings } from '../../contexts/SettingsContext';
 
 interface FundCardProps {
     fund: TreasuryFund;
@@ -143,6 +143,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
     } = useData();
     const { loading } = useUI();
     const { showToast } = useToast();
+    const { t } = useSettings();
     
     const [activeTab, setActiveTab] = useState<'cash' | 'bank'>('cash');
     const [isAddBankModalOpen, setIsAddBankModalOpen] = useState(false);
@@ -294,7 +295,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
-                        {t('الخزائن النقدية')} ({activeFund ? 1 : 0})
+                        {t('الخزائن النقدية')} ({funds.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('bank')}
