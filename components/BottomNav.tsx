@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import type { NavItemId, NavItem } from '../types';
 import { useNavigationItems } from '../hooks/useNavigationItems';
-import { useSettings, terminology } from '../contexts/SettingsContext';
+import { useSettings, getTerminology } from '../contexts/SettingsContext';
+import { translateText } from '../lib/i18n';
 
 interface BottomNavProps {
     activeItem: NavItemId;
@@ -11,7 +12,8 @@ interface BottomNavProps {
 const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     const visibleNavItems = useNavigationItems();
     const { settings } = useSettings();
-    const term = terminology[settings.primaryTerm];
+    const isEn = settings.language === 'en';
+    const term = getTerminology(settings.primaryTerm, settings.language || 'ar');
 
     // حالة محلية مسؤولة فقط عن تلوين الزر بسرعة البرق
     const [localActiveItem, setLocalActiveItem] = useState<NavItemId>(activeItem);
@@ -62,6 +64,15 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     };
 
     const getShortLabel = (id: string, originalLabel: string) => {
+        if (isEn) {
+            const enLabels: Record<string, string> = {
+                dashboard: 'Home', invoices: 'Invoices', expenses: 'Expenses', 
+                farmer_account: 'Farmer', labor: 'Labor',
+                cycles: term.plural, suppliers: 'Suppliers', assets: 'Assets', weekly_analysis: 'Analysis',
+                treasury: 'Treasury', advances: 'Advances', settings: 'Settings', users: 'Users', subscription: 'Subscription'
+            };
+            return enLabels[id] || translateText(originalLabel, 'en');
+        }
         const labels: Record<string, string> = {
             dashboard: 'الرئيسية', invoices: 'الفواتير', expenses: 'المصروفات', 
             farmer_account: 'المزارع', labor: 'العمالة',

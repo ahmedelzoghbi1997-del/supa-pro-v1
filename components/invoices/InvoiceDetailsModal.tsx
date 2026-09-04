@@ -183,7 +183,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                                         <div key={partnerId} className="flex justify-between items-center bg-white dark:bg-neutral-900/40 p-2.5 rounded-xl border border-neutral-100 dark:border-neutral-800">
                                             <span className="text-xs font-bold text-slate-700 dark:text-neutral-300">{pName}</span>
                                             <span className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
-                                                -{formatCurrency(amount).replace('EGP', '')} ج.م
+                                                -{formatNumber(Math.round(amount))} ج.م
                                             </span>
                                         </div>
                                     );
@@ -281,7 +281,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                             <span className={`${isForPrint ? 'text-base' : 'text-xs'} font-black uppercase tracking-wider`}>القبض الفعلي</span>
                         </div>
                         <span className={`${isForPrint ? 'text-4xl' : 'text-3xl'} font-black tracking-tighter tabular-nums`}>
-                            {formatCurrency(netTotal).replace('EGP', '')}
+                            {formatNumber(Math.round(netTotal))}
                             <span className={`${isForPrint ? 'text-xs' : 'text-[10px]'} mr-1 opacity-70`}>ج.م</span>
                         </span>
                     </div>

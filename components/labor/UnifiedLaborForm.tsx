@@ -213,7 +213,8 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
     onManageActivities 
 }) => {
     const { addExpense, cyclesWithCalculations, addExpenseCategory, rawExpenses: expenses } = useData();
-    const { settings, updateSettings } = useSettings();
+    const { settings, updateSettings, language } = useSettings();
+    const isEn = language === 'en';
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasSelectedGh, setHasSelectedGh] = useState(false);
@@ -637,7 +638,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
         }
 
         if (workerRecords.length > 0 && (!activity || activity.trim() === '')) {
-            setValidationError('برجاء كتابة النشاط أولاً قبل حفظ كشف العمالة.');
+            setValidationError(isEn ? 'Please select at least one activity.' : 'برجاء كتابة النشاط أولاً قبل حفظ كشف العمالة.');
             return;
         }
 
@@ -1092,7 +1093,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
 
                             {selectedActivities.length === 0 && (
                                 <div className="text-[9px] font-bold text-amber-600 dark:text-amber-400 pt-0.5">
-                                    ⚠️ يرجى النقر على نشاط واحد على الأقل لتحديده لهذا الكشف.
+                                    ⚠️ {isEn ? 'Please select at least one activity.' : 'يرجى النقر على نشاط واحد على الأقل لتحديده لهذا الكشف.'}
                                 </div>
                             )}
                         </div>

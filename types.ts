@@ -73,7 +73,10 @@ export interface PartnerDebt {
   partnerRepayments?: Record<string, number>;
 }
 
+export type Language = 'ar' | 'en';
+
 export interface AppSettings {
+  language?: Language;
   systems: Record<AppSystem, boolean>;
   welcome_message: string;
   support_whatsapp: string;

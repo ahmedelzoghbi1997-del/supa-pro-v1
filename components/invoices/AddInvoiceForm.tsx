@@ -182,6 +182,7 @@ DeductionRow.displayName = 'DeductionRow';
 
 const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initialData }) => {
     const { cycles, settings, activePersons, advances, partnerDebts } = useData();
+    const isEn = settings?.language === 'en';
     const { showToast } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [isManageMarketsOpen, setManageMarketsOpen] = useState(false);
@@ -630,7 +631,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                 <div className="grid grid-cols-2 gap-3">
                     <div className="col-span-1">
                         <label className={`${labelBase} ${dateError ? 'text-rose-500 dark:text-rose-400' : ''}`}>
-                            <CalendarIcon className="w-3 h-3"/> التاريخ (إجباري)
+                            <CalendarIcon className="w-3 h-3"/> {isEn ? 'Date (Required)' : 'التاريخ (إجباري)'}
                         </label>
                         <input 
                             type="date" 

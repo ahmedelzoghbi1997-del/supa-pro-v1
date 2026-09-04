@@ -84,7 +84,7 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                     <div className="flex flex-col items-end shrink-0 pl-1">
                         <div className="bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20 flex items-baseline gap-1">
                             <span className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-400 tabular-nums leading-none">
-                                {formatCurrency(totalAmount).replace('EGP', '')}
+                                {formatNumber(Math.round(totalAmount))}
                             </span>
                             <span className="text-[9px] font-bold text-emerald-600/70 dark:text-emerald-400/70">ج.م</span>
                         </div>

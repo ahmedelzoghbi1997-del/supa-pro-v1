@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import type { Cycle, Invoice } from '../../types';
 import { useData } from '../../contexts/DataContext';
 import { useUI } from '../../contexts/UIContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import { formatNumber } from '../../utils/helpers';
 import { 
   Scale, 
@@ -22,6 +23,8 @@ interface ProductionTabProps {
 const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
   const { invoices } = useData();
   const { loading } = useUI();
+  const { language } = useSettings();
+  const isEn = language === 'en';
   const [viewType, setViewType] = useState<'monthly' | 'weekly'>('monthly');
   const [sortBy, setSortBy] = useState<'date' | 'weight'>('date');
   const [expandedPeriod, setExpandedPeriod] = useState<string | null>(null);
@@ -192,13 +195,15 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
           {/* الكتلة الرئيسية: إجمالي الإنتاج وإنتاج النبات في صف واحد مدمج للغاية */}
           <div className="grid grid-cols-2 gap-4 border-b border-white/10 pb-3.5">
             <div>
-              <span className="text-emerald-250 text-[10px] font-black tracking-wider block opacity-90">إجمالي إنتاج العروة</span>
+              <span className="text-emerald-250 text-[10px] font-black tracking-wider block opacity-90">
+                {isEn ? 'Total Cycle Production' : 'إجمالي إنتاج العروة'}
+              </span>
               <h3 className="text-xl sm:text-2xl font-black tabular-nums leading-none mt-1 text-white">
                 {formatNumber(Math.round(stats.totalWeight))}
-                <span className="text-xs mr-0.5 opacity-75 font-semibold">كجم</span>
+                <span className="text-xs mr-0.5 opacity-75 font-semibold">{isEn ? ' kg' : ' كجم'}</span>
               </h3>
               <p className="text-[9px] text-emerald-200/80 font-bold mt-1.5 leading-none">
-                برواية {stats.invoiceCount} شحنات بيع.
+                {isEn ? `Across ${stats.invoiceCount} Shipments` : `برواية ${stats.invoiceCount} شحنات بيع.`}
               </p>
             </div>
 
@@ -258,7 +263,7 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
                   : '0 كجم'}
               </h4>
               <p className="text-[9px] text-emerald-250 font-bold opacity-80 leading-none truncate">
-                معدل تحميل مستقر
+                {isEn ? 'Average Daily Shipments' : 'معدل تحميل مستقر'}
               </p>
             </div>
           </div>
