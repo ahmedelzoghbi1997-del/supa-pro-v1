@@ -98,7 +98,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('password_updated') === 'true') {
-      setMessage('تم تحديث كلمة المرور بنجاح. يرجى تسجيل الدخول.');
+      setMessage(t('تم تحديث كلمة المرور بنجاح. يرجى تسجيل الدخول.'));
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -160,7 +160,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                             username: serverData.user.username
                         };
                     } else if (serverData.error) {
-                        setError('بيانات الدخول غير صحيحة');
+                        setError(t('بيانات الدخول غير صحيحة'));
                         setLoading(false);
                         return;
                     }
@@ -170,7 +170,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
 
             if (!vMember || !vMember.id) {
-                setError('بيانات الدخول غير صحيحة');
+                setError(t('بيانات الدخول غير صحيحة'));
             } else {
                 const virtualUser = {
                   id: `virtual_${vMember.id}`,
@@ -199,17 +199,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
         } catch (err) {
             console.error("Virtual Login Exception:", err);
-            setError('بيانات الدخول غير صحيحة');
+            setError(t('بيانات الدخول غير صحيحة'));
         }
     } else {
         const { data: authData, error } = await supabase.auth.signInWithPassword({ email: identifier, password });
         if (error) {
             if (error.message.includes('Email not confirmed')) {
-                setError('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.');
+                setError(t('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.'));
                 setOtpFlow('signup');
                 setView('verify_otp');
             } else {
-                setError('بيانات الدخول غير صحيحة');
+                setError(t('بيانات الدخول غير صحيحة'));
             }
         } else if (authData?.user) {
             await Preferences.remove({ key: 'was_explicitly_logged_out' });
@@ -252,9 +252,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         }
 
         if (acc.biometricEnabled) {
-            const authOk = await authenticateBiometrically(`الدخول السريع إلى حساب: ${acc.greenhouseName || acc.fullName}`);
+            const authOk = await authenticateBiometrically(`${t('الدخول السريع')} إلى حساب: ${acc.greenhouseName || acc.fullName}`);
             if (!authOk) {
-                setError('فشل التحقق من الهوية الحيوية. يرجى إعادة المحاولة.');
+                setError(t('فشل التحقق من الهوية الحيوية. يرجى إعادة المحاولة.'));
                 setLoading(false);
                 return;
             }
@@ -270,9 +270,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
 
             if (supabaseError) {
                 console.error("Virtual Login Error from Saved Accounts Selection:", supabaseError);
-                setError('حدث خطأ في الاتصال بقاعدة البيانات');
+                setError(t('حدث خطأ في الاتصال بقاعدة البيانات'));
             } else if (!vMember || !vMember.id) {
-                setError('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور هذا الحساب.');
+                setError(t('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور هذا الحساب.'));
             } else {
                 const virtualUser = {
                   id: `virtual_${vMember.id}`,
@@ -300,7 +300,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             });
             
             if (signInError) {
-                setError('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور البريد الإلكتروني.');
+                setError(t('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور البريد الإلكتروني.'));
             } else if (authData?.user) {
                 const { data: profData } = await supabase
                     .from('profiles')
@@ -319,7 +319,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
         }
     } catch (_err) {
-        setError('خطأ في الاتصال بالخادم أثناء تسجيل الدخول التلقائي.');
+        setError(t('خطأ في الاتصال بالخادم أثناء تسجيل الدخول التلقائي.'));
     } finally {
         setLoading(false);
     }
@@ -338,7 +338,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             setPinValue('');
             await handleSelectSavedAccount(targetAcc, true);
           } else {
-            setError('رمز PIN غير صحيح. يرجى الحذر والمحاولة مجدداً.');
+            setError(t('رمز PIN غير صحيح. يرجى الحذر والمحاولة مجدداً.'));
             setTimeout(() => {
               setPinValue('');
             }, 600);
@@ -357,9 +357,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
               setSavedAccounts(updated);
               setPinSetupAccount(null);
               setPinValue('');
-              setMessage('تم إيقاف قفل رمز PIN لهذا الحساب بنجاح.');
+              setMessage(t('تم إيقاف قفل رمز PIN لهذا الحساب بنجاح.'));
             } else {
-              setError('رمز PIN غير صحيح. لم يتم إلغاء القفل.');
+              setError(t('رمز PIN غير صحيح. لم يتم إلغاء القفل.'));
               setTimeout(() => {
                 setPinValue('');
               }, 600);
@@ -387,9 +387,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 setPinSetupAccount(null);
                 setPinSetupValue('');
                 setPinSetupConfirmValue('');
-                setMessage('تم تفعيل قفل رمز PIN لهذا الحساب بنجاح.');
+                setMessage(t('تم تفعيل قفل رمز PIN لهذا الحساب بنجاح.'));
               } else {
-                setError('الرموز غير متطابقة. يرجى المحاولة من جديد.');
+                setError(t('الرموز غير متطابقة. يرجى المحاولة من جديد.'));
                 setPinSetupStep('enter');
                 setPinSetupValue('');
                 setPinSetupConfirmValue('');
@@ -419,9 +419,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
 
   const handleToggleBiometric = async (accountId: string, enabled: boolean) => {
     if (enabled) {
-      const authOk = await authenticateBiometrically('تأكيد البصمة لربطها بالدخول السريع');
+      const authOk = await authenticateBiometrically(t('تأكيد البصمة لربطها بالدخول السريع'));
       if (!authOk) {
-        setError('فشل تأكيد البصمة. لم يتم تفعيل الميزة على الحساب.');
+        setError(t('فشل تأكيد البصمة. لم يتم تفعيل الميزة على الحساب.'));
         return;
       }
     }
@@ -458,9 +458,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     });
 
     if (signUpError) {
-        setError(signUpError.message === 'User already registered' ? 'هذا البريد الإلكتروني مسجل بالفعل.' : signUpError.message);
+        setError(signUpError.message === 'User already registered' ? t('هذا البريد الإلكتروني مسجل بالفعل.') : signUpError.message);
     } else {
-        setMessage('تم إرسال رمز التحقق إلى بريدك الإلكتروني.');
+        setMessage(t('تم إرسال رمز التحقق إلى بريدك الإلكتروني.'));
         setOtpFlow('signup');
         setView('verify_otp');
     }
@@ -476,7 +476,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     if (resetError) {
         setError(resetError.message);
     } else {
-        setMessage('تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني.');
+        setMessage(t('تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني.'));
         setOtpFlow('password_reset');
         setView('verify_otp');
     }
@@ -490,7 +490,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     const type = otpFlow === 'signup' ? 'signup' : 'recovery';
     const { error: verifyError } = await supabase.auth.verifyOtp({ email: identifier, token, type });
     if (verifyError) {
-        setError('الرمز غير صالح أو منتهي الصلاحية.');
+        setError(t('الرمز غير صالح أو منتهي الصلاحية.'));
     }
     setLoading(false);
   };
@@ -498,7 +498,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('كلمتا المرور غير متطابقتين.');
+      setError(t('كلمتا المرور غير متطابقتين.'));
       return;
     }
     setLoading(true);
@@ -521,7 +521,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setError(null);
     const { data: authData, error } = await supabase.auth.signInWithPassword({ email: 'demo@agriledger.com', password: 'demoPassword123' });
     if (error) {
-        setError('Demo login failed. Please ensure the demo account exists.');
+        setError(t('Demo login failed. Please ensure the demo account exists.'));
     } else if (authData?.user) {
         await Preferences.remove({ key: 'was_explicitly_logged_out' });
         try {
@@ -624,27 +624,27 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     const account = activePinAccount || pinSetupAccount;
     if (!account) return null;
 
-    let heading = "تأمين الدخول";
+    let heading = t('تأمين الدخول');
     let subheading = "";
     let currentVal = "";
 
     if (isVerifying) {
-      heading = "رمز المرور (PIN)";
-      subheading = `أدخل رمز PIN الحالي لفتح حساب:\n${account.greenhouseName || account.fullName}`;
+      heading = t('رمز المرور (PIN)');
+      subheading = `${t('أدخل رمز PIN الحالي لفتح حساب:\n')}${account.greenhouseName || account.fullName}`;
       currentVal = pinValue;
     } else {
       if (pinActionType === 'verify_disable') {
-        heading = "إيقاف رمز الحماية";
-        subheading = `أدخل الرمز الحالي لإلغاء القفل لـ ${account.greenhouseName || account.fullName}`;
+        heading = t('إيقاف رمز الحماية');
+        subheading = `${t('أدخل الرمز الحالي لإلغاء القفل لـ ')}${account.greenhouseName || account.fullName}`;
         currentVal = pinValue;
       } else {
         if (pinSetupStep === 'enter') {
-          heading = "تعيين حماية جديدة";
-          subheading = `اختر 4 أرقام لتسهيل الدخول لـ ${account.greenhouseName || account.fullName}`;
+          heading = t('تعيين حماية جديدة');
+          subheading = `${t('اختر 4 أرقام لتسهيل الدخول لـ ')}${account.greenhouseName || account.fullName}`;
           currentVal = pinSetupValue;
         } else {
-          heading = "تأكيد رمز الاستجابة";
-          subheading = "أعد كتابة الرمز نفسه للتأكيد ومطابقة الحساب";
+          heading = t('تأكيد رمز الاستجابة');
+          subheading = t('أعد كتابة الرمز نفسه للتأكيد ومطابقة الحساب');
           currentVal = pinSetupConfirmValue;
         }
       }
@@ -740,7 +740,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             </div>
             <h1 className="mt-8 text-5xl font-bold">{t('appName')}</h1>
             <p className="mt-4 text-lg text-emerald-100 max-w-sm mx-auto">
-                إدارة الأصول الزراعية، الفواتير، والمصروفات بكفاءة ودقة.
+                {t('إدارة الأصول الزراعية، الفواتير، والمصروفات بكفاءة ودقة.')}
             </p>
         </div>
       </div>
@@ -789,13 +789,13 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
         <>
          <div className="text-center">
           <h2 className="mt-6 lg:mt-0 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
-            {isLogin ? 'مرحباً بعودتك' : isForgot ? 'إعادة تعيين كلمة المرور' : 'إنشاء حساب جديد'}
+            {isLogin ? t('مرحباً بعودتك') : isForgot ? t('إعادة تعيين كلمة المرور') : t('إنشاء حساب جديد')}
           </h2>
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-            {isForgot ? 'أدخل بريدك الإلكتروني لإرسال رمز الاستعادة.' : isLogin ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}{' '}
+            {isForgot ? t('أدخل بريدك الإلكتروني لإرسال رمز الاستعادة.') : isLogin ? t('ليس لديك حساب؟') : t('لديك حساب بالفعل؟')}{' '}
             {!isForgot && (
                 <a href="#" onClick={(e) => { e.preventDefault(); setView(isLogin ? 'signup' : 'login'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                {isLogin ? 'أنشئ حسابًا' : 'سجل الدخول'}
+                {isLogin ? t('أنشئ حسابًا') : t('سجل الدخول')}
                 </a>
             )}
           </p>
@@ -807,15 +807,15 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
         <form className="mt-8 space-y-6" onSubmit={isLogin ? handleLogin : isForgot ? handlePasswordResetRequest : handleSignUp}>
             <div className="space-y-4 rounded-md">
                 {!isLogin && !isForgot && (
-                    <InputField icon={UserIcon} type="text" placeholder="الاسم الكامل" id="full-name" value={fullName} onChange={e => setFullName(e.target.value)} autoComplete="name" />
+                    <InputField icon={UserIcon} type="text" placeholder={t('الاسم الكامل')} id="full-name" value={fullName} onChange={e => setFullName(e.target.value)} autoComplete="name" />
                 )}
                 {isLogin ? (
-                    <InputField icon={UserIcon} type="text" placeholder="البريد الإلكتروني أو اسم المستخدم" id="identifier" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="username" />
+                    <InputField icon={UserIcon} type="text" placeholder={t('البريد الإلكتروني أو اسم المستخدم')} id="identifier" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="username" />
                 ) : (
-                    <InputField icon={UserIcon} type="email" placeholder="البريد الإلكتروني" id="email" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="email" />
+                    <InputField icon={UserIcon} type="email" placeholder={t('البريد الإلكتروني')} id="email" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="email" />
                 )}
                 {!isForgot && (
-                    <InputField icon={LockClosedIcon} type="password" placeholder="كلمة المرور" id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete={isLogin ? "current-password" : "new-password"} />
+                    <InputField icon={LockClosedIcon} type="password" placeholder={t('كلمة المرور')} id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete={isLogin ? "current-password" : "new-password"} />
                 )}
             </div>
 
@@ -823,7 +823,7 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
                 <div className="flex items-center justify-end">
                     <div className="text-sm">
                         <a href="#" onClick={(e) => { e.preventDefault(); setView('forgot_password'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                        هل نسيت كلمة المرور؟
+                        {t('هل نسيت كلمة المرور؟')}
                         </a>
                     </div>
                 </div>
@@ -832,7 +832,7 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
              <div className="space-y-3">
                 <button type="submit" onClick={createRipple} disabled={loading} className="group ripple-effect relative flex w-full justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark transition-all duration-300 disabled:opacity-50">
                     {isForgot || <span className="absolute inset-y-0 right-0 flex items-center pr-3"><ArrowLeftIcon className="h-5 w-5 text-emerald-300" /></span>}
-                    {loading ? '...جاري التحميل' : isLogin ? 'تسجيل الدخول' : isForgot ? 'إرسال الرمز' : 'إنشاء الحساب'}
+                    {loading ? t('...جاري التحميل') : isLogin ? t('تسجيل الدخول') : isForgot ? t('إرسال الرمز') : t('إنشاء الحساب')}
                 </button>
                 {isLogin && (
                     <button
@@ -844,7 +844,7 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
                         disabled={loading}
                         className="group ripple-effect relative flex w-full justify-center rounded-lg bg-white border border-primary/20 py-3 px-4 text-md font-semibold text-primary hover:bg-primary/5 transition-all duration-300 disabled:opacity-50"
                     >
-                        Explore Demo (One-Click)
+                        {t('Explore Demo (One-Click)')}
                     </button>
                 )}
                 {hasSavedAccounts && isLogin && (
@@ -853,14 +853,14 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
                         onClick={() => setView('saved_accounts')}
                         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-sm font-semibold transition-colors"
                     >
-                        <span>العودة لصفحة الدخول السريع</span>
+                        <span>{t('العودة لصفحة الدخول السريع')}</span>
                     </button>
                 )}
             </div>
             {isForgot && (
                  <div className="text-sm text-center">
                     <a href="#" onClick={(e) => { e.preventDefault(); setView('login'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                        العودة لتسجيل الدخول
+                        {t('العودة لتسجيل الدخول')}
                     </a>
                 </div>
             )}
@@ -977,10 +977,10 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
         <div className="space-y-6">
             <div className="text-center">
                 <h2 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-neutral-50">
-                    الدخول السريع
+                    {t('الدخول السريع')}
                 </h2>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                    اختر الحساب المسجل للانتقال مباشرة دون كتابة بيانات
+                    {t('اختر الحساب المسجل للانتقال مباشرة دون كتابة بيانات')}
                 </p>
             </div>
 
@@ -1015,7 +1015,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                             <div className="flex items-center gap-4 flex-1 min-w-0 z-10">
                                 <div 
                                     className="cursor-grab active:cursor-grabbing text-neutral-300 hover:text-neutral-500 transition-colors p-1 z-20 pointer-events-auto" 
-                                    title="اسحب لترتيب الحسابات"
+                                    title={t('اسحب لترتيب الحسابات')}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         e.preventDefault();
@@ -1067,12 +1067,12 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                     <div className="flex items-center gap-2 mt-1 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                                         {!acc.isVirtual ? (
                                             <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                                                <Shield className="w-3.5 h-3.5" /> مالك رئيسي
+                                                <Shield className="w-3.5 h-3.5" /> {t('مالك رئيسي')}
                                                 <span className="text-neutral-400 font-normal mr-1" dir="ltr">{acc.email}</span>
                                             </span>
                                         ) : (
                                             <span className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
-                                                <User className="w-3.5 h-3.5" /> رابط صوبة 
+                                                <User className="w-3.5 h-3.5" /> {t('رابط صوبة')} 
                                                 <span className="text-neutral-400 font-normal mr-1" dir="ltr">{acc.username}</span>
                                             </span>
                                         )}
@@ -1093,7 +1093,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                                 ? 'text-emerald-500 bg-emerald-50/80 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'
                                                 : 'text-neutral-300 dark:text-neutral-600 hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                                         }`}
-                                        title={acc.biometricEnabled ? "تعطيل الدخول بالبصمة" : "تمكين الدخول بالبصمة"}
+                                        title={acc.biometricEnabled ? t('تعطيل الدخول بالبصمة') : t('تمكين الدخول بالبصمة')}
                                     >
                                         <Fingerprint className="h-5 w-5" />
                                     </button>
@@ -1107,7 +1107,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                     if (!loading) onRemove(acc.id);
                                 }}
                                 className="absolute top-2 left-2 p-1.5 text-neutral-200 dark:text-neutral-700 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors z-20 pointer-events-auto"
-                                title="إزالة الحساب من القائمة"
+                                title={t('إزالة الحساب من القائمة')}
                             >
                                 <TrashIcon className="h-3.5 w-3.5" />
                             </button>
@@ -1123,7 +1123,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                     className="flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-neutral-300 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/30 hover:text-primary hover:border-primary transition-all font-semibold text-sm"
                 >
                     <PlusIcon className="h-5 w-5" />
-                    <span>تسجيل الدخول كحساب جديد</span>
+                    <span>{t('تسجيل الدخول كحساب جديد')}</span>
                 </button>
             </div>
         </div>
@@ -1146,9 +1146,9 @@ const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email: identifier, flow, 
     return (
         <>
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">التحقق من الرمز</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">{t('التحقق من الرمز')}</h2>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                    تم إرسال رمز مكون من 6 أرقام إلى <span className="font-bold text-neutral-700 dark:text-neutral-200">{email}</span>.
+                    {t('تم إرسال رمز مكون من 6 أرقام إلى')} <span className="font-bold text-neutral-700 dark:text-neutral-200">{email}</span>.
                 </p>
             </div>
 
@@ -1156,15 +1156,15 @@ const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email: identifier, flow, 
             {message && <div className="flex items-center gap-3 text-sm text-accent-success bg-accent-success/10 p-3 rounded-md"><CheckCircleIcon className="h-5 w-5 flex-shrink-0" /><p>{message}</p></div>}
             
             <form className="mt-8 space-y-6" onSubmit={handleVerifyOtp}>
-                <InputField icon={LockClosedIcon} type="text" placeholder="أدخل الرمز" id="token" value={token} onChange={e => setToken(e.target.value)} autoComplete="one-time-code" />
+                <InputField icon={LockClosedIcon} type="text" placeholder={t('أدخل الرمز')} id="token" value={token} onChange={e => setToken(e.target.value)} autoComplete="one-time-code" />
                 <div>
                     <button type="submit" onClick={createRipple} disabled={loading} className="group ripple-effect relative flex w-full justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark transition-all duration-300 disabled:opacity-50">
-                        {loading ? '...جاري التحقق' : 'تحقق'}
+                        {loading ? t('...جاري التحقق') : t('تحقق')}
                     </button>
                 </div>
                 <div className="text-sm text-center">
                     <a href="#" onClick={(e) => { e.preventDefault(); setView(flow === 'signup' ? 'signup' : 'forgot_password'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                        العودة
+                        {t('العودة')}
                     </a>
                 </div>
             </form>
@@ -1186,21 +1186,21 @@ const UpdatePasswordView: React.FC<UpdatePasswordViewProps> = ({ password, setPa
     return (
         <>
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">تعيين كلمة مرور جديدة</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">{t('تعيين كلمة مرور جديدة')}</h2>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                    أدخل كلمة المرور الجديدة لحسابك.
+                    {t('أدخل كلمة المرور الجديدة لحسابك.')}
                 </p>
             </div>
              {error && <div className="flex items-center gap-3 text-sm text-accent-danger bg-accent-danger/10 p-3 rounded-md"><WarningIcon className="h-5 w-5 flex-shrink-0" /><p>{error}</p></div>}
             
              <form className="mt-8 space-y-6" onSubmit={handleUpdatePassword}>
                 <div className="space-y-4">
-                    <InputField icon={LockClosedIcon} type="password" placeholder="كلمة المرور الجديدة" id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" />
-                    <InputField icon={LockClosedIcon} type="password" placeholder="تأكيد كلمة المرور" id="confirm-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
+                    <InputField icon={LockClosedIcon} type="password" placeholder={t('كلمة المرور الجديدة')} id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" />
+                    <InputField icon={LockClosedIcon} type="password" placeholder={t('تأكيد كلمة المرور')} id="confirm-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
                 </div>
                 <div>
                     <button type="submit" onClick={createRipple} disabled={loading} className="group ripple-effect relative flex w-full justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark transition-all duration-300 disabled:opacity-50">
-                        {loading ? '...جاري التحديث' : 'تحديث كلمة المرور'}
+                        {loading ? t('...جاري التحديث') : t('تحديث كلمة المرور')}
                     </button>
                 </div>
             </form>

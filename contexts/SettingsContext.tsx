@@ -20,7 +20,7 @@ export const terminology: Record<
 };
 
 const defaultSettings: AppSettings = {
-  language: "ar",
+  language: "en",
   systems: {
     treasury: true,
     advances: true,
@@ -220,7 +220,7 @@ export const SettingsProvider: React.FC<{
   }, [settings, userId]);
 
   // 3. تطبيق اللغة واتجاه الصفحة وتفعيل التعريب الشامل
-  const activeLanguage: Language = settings.language || 'ar';
+  const activeLanguage: Language = settings.language || 'en';
   useEffect(() => {
     applyLanguage(activeLanguage);
     document.title = translate('appName', activeLanguage);

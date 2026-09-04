@@ -147,12 +147,12 @@ const domainOverrides: Record<string, string> = {
   'برجاء كتابة النشاط أولاً قبل حفظ كشف العمالة': 'Please select at least one activity.',
   'برجاء كتابة النشاط أولاً قبل حفظ كشف العمالة.': 'Please select at least one activity.',
   'اختيار نشاط واحد على الأقل': 'Select at least one activity',
-  'تاريخ التحصيل': 'Collection Date',
-  'اختر التاريخ': 'Select Date',
-  'تحديد التاريخ': 'Select Date',
-  'فلترة بالتاريخ': 'Filter by Date',
-  'حسب التاريخ': 'By Date',
-  'تاريخ المعاملة': 'Transaction Date',
+
+
+
+
+
+
 
   // 4. Run -> Operational | Establishment -> Capital / Setup
   'تشغيل': 'Operational',
