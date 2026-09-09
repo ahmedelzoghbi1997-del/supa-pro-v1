@@ -294,7 +294,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
                 setSidebarOpen(false);
               }}
             />
-            <main className="flex-1 overflow-hidden relative pb-16 lg:pb-0">
+            <main className="flex-1 overflow-hidden relative pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
               <MainContent
                 activeItem={activeItem}
                 onOpenSidebar={() => {
