@@ -20,11 +20,11 @@ import UserManager from './users/UserManager';
 import SubscriptionPage from './subscription/SubscriptionPage';
 import LaborManager from './labor/LaborManager';
 import { navItems } from '../constants';
-import { useSettings, getTerminology } from '../contexts/SettingsContext';
+import { useSettings, terminology } from '../contexts/SettingsContext';
 import { useData } from '../contexts/DataContext';
-import { translateText } from '../lib/i18n';
 import { useUI } from '../contexts/UIContext';
 import AccountSwitcher from './shared/AccountSwitcher';
+import { PWAInstallButton } from './shared/PWAInstallButton';
 import Modal from './shared/Modal';
 import AddInvoiceForm from './invoices/AddInvoiceForm';
 import AddExpenseForm from './expenses/AddExpenseForm';
@@ -52,8 +52,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
     farmers, suppliers, cycles, activePersons, profile
   } = useData();
   const { showToast } = useToast();
-  const isEn = settings.language === 'en';
-  const term = getTerminology(settings.primaryTerm, settings.language || 'ar');
+  const term = terminology[settings.primaryTerm];
   const [isNotificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -73,14 +72,15 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
   }, [activeItem]);
 
   const activeItemLabel = useMemo(() => {
-    if (activeItem === 'cycles') {
-      return isEn ? `Manage ${term.plural}` : `إدارة ${term.plural}`;
-    }
-    const rawLabel = navItems
+    const baseLabel = navItems
       .flatMap(section => section.items)
-      .find(item => item.id === activeItem)?.label || (isEn ? 'Dashboard' : 'لوحة التحكم');
-    return isEn ? translateText(rawLabel, 'en') : rawLabel;
-  }, [activeItem, term, isEn]);
+      .find(item => item.id === activeItem)?.label || 'لوحة التحكم';
+    
+    if (activeItem === 'cycles') {
+      return `إدارة ${term.plural}`;
+    }
+    return baseLabel;
+  }, [activeItem, term]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,7 +94,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
 
   const handleGlobalSave = async (type: string, data: unknown) => {
       if (profile?.role === 'viewer') {
-          showToast(isEn ? 'Viewer is not allowed to perform this operation' : 'غير مسموح للمشاهد بتنفيذ هذه العملية', 'error');
+          showToast('غير مسموح للمشاهد بتنفيذ هذه العملية', 'error');
           return;
       }
       triggerSaveHaptic();
@@ -107,10 +107,10 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
               case 'withdrawal': await addFarmerWithdrawal(data as Omit<FarmerWithdrawal, 'id'>); break;
               case 'advance': await addAdvance(data as Omit<Advance, 'id'>); break;
           }
-          showToast(isEn ? 'Operation completed successfully' : 'تمت العملية بنجاح');
+          showToast('تمت العملية بنجاح');
           setActiveModal(null);
       } catch (_e) {
-          showToast(isEn ? 'An error occurred while saving' : 'حدث خطأ أثناء الحفظ', 'error');
+          showToast('حدث خطأ أثناء الحفظ', 'error');
           throw _e;
       }
   };
@@ -135,23 +135,24 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
             {isOffline ? (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 animate-pulse">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span>{isEn ? 'Offline' : 'غير متصل'}</span>
+                <span>غير متصل</span>
               </span>
             ) : isSyncing ? (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                <span>{isEn ? 'Updating...' : 'جاري التحديث...'}</span>
+                <span>جاري التحديث...</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>{isEn ? 'Synced' : 'مزامن'}</span>
+                <span>مزامن</span>
               </span>
             )}
           </div>
         </div>
         
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <PWAInstallButton variant="header" />
           <AccountSwitcher />
 
           <div className="h-6 w-px bg-neutral-300 dark:bg-neutral-700 mx-1 hidden sm:block"></div>
@@ -222,27 +223,27 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
       {/* Global Modals - Strictly prevented from mounting/rendering if role is viewer */}
       {profile?.role !== 'viewer' && (
         <>
-          <Modal isOpen={activeModal === 'invoice'} onClose={() => setActiveModal(null)} title={isEn ? 'Add Quick Invoice' : 'إضافة فاتورة سريعة'} size="3xl">
+          <Modal isOpen={activeModal === 'invoice'} onClose={() => setActiveModal(null)} title="إضافة فاتورة سريعة" size="3xl">
             <AddInvoiceForm onSave={(d) => handleGlobalSave('invoice', d)} onCancel={() => setActiveModal(null)} />
           </Modal>
 
-          <Modal isOpen={activeModal === 'expense'} onClose={() => setActiveModal(null)} title={isEn ? 'Add Quick Expense' : 'إضافة مصروف سريع'} size="lg">
+          <Modal isOpen={activeModal === 'expense'} onClose={() => setActiveModal(null)} title="إضافة مصروف سريع" size="lg">
             <AddExpenseForm onSave={(d) => handleGlobalSave('expense', d)} onCancel={() => setActiveModal(null)} />
           </Modal>
 
-          <Modal isOpen={activeModal === 'cycle'} onClose={() => setActiveModal(null)} title={isEn ? `Add New ${term.singular}` : `إضافة ${term.singular} جديد`} size="lg">
+          <Modal isOpen={activeModal === 'cycle'} onClose={() => setActiveModal(null)} title={`إضافة ${term.singular} جديد`} size="lg">
             <AddCycleForm onSave={(d) => handleGlobalSave('cycle', d)} onCancel={() => setActiveModal(null)} />
           </Modal>
 
-          <Modal isOpen={activeModal === 'payment'} onClose={() => setActiveModal(null)} title={isEn ? 'Add Supplier Payment' : 'إضافة دفعة مورد'} size="lg">
+          <Modal isOpen={activeModal === 'payment'} onClose={() => setActiveModal(null)} title="إضافة دفعة مورد" size="lg">
             <AddPaymentForm onSave={(d) => handleGlobalSave('payment', d)} onCancel={() => setActiveModal(null)} suppliers={suppliers} cycles={cycles} />
           </Modal>
 
-          <Modal isOpen={activeModal === 'withdrawal'} onClose={() => setActiveModal(null)} title={isEn ? 'Add Farmer Withdrawal' : 'إضافة سحب مزارع'} size="lg">
+          <Modal isOpen={activeModal === 'withdrawal'} onClose={() => setActiveModal(null)} title="إضافة سحب مزارع" size="lg">
             <AddWithdrawalForm onSave={(d) => handleGlobalSave('withdrawal', d)} onCancel={() => setActiveModal(null)} farmers={farmers} cycles={cycles} />
           </Modal>
 
-          <Modal isOpen={activeModal === 'advance'} onClose={() => setActiveModal(null)} title={isEn ? 'Add Personal Advance' : 'إضافة سلفة شخصية'} size="lg">
+          <Modal isOpen={activeModal === 'advance'} onClose={() => setActiveModal(null)} title="إضافة سلفة شخصية" size="lg">
             <AddAdvanceForm onSave={(d) => handleGlobalSave('advance', d)} onCancel={() => setActiveModal(null)} persons={activePersons} cycles={cycles} onManagePersons={() => {}} />
           </Modal>
         </>

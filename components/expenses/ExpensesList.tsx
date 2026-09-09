@@ -195,11 +195,11 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
   return (
     <div className="space-y-8">
       {/* Unified Agriculture Expenses Card - Exactly matching the premium, compact size and footprint of the invoices card */}
-      <Card className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-rose-300/80 dark:border-rose-800/50 p-4 rounded-2xl shadow-sm bg-rose-100/70 dark:bg-rose-900/20">
+      <Card className="flex items-center justify-between border-rose-300/80 dark:border-rose-800/50 p-4 rounded-2xl shadow-sm bg-rose-100/70 dark:bg-rose-900/20">
         {/* القسم الأيمن: إجمالي المصروفات والتقسيم التفصيلي الصغير له */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-3 min-w-0">
           <TrendingDownIcon className="h-8 w-8 text-rose-500 shrink-0" />
-          <div className="text-start min-w-0">
+          <div className="text-right">
             <p className="text-neutral-500 dark:text-neutral-400 text-xs font-black">
               إجمالي المصروفات
             </p>
@@ -208,20 +208,20 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
               <span className="text-xs mr-1 opacity-75">ج.م</span>
             </p>
 
-            {/* التأسيس والتشغيل تفصيلياً بخط مرن ومتجاوب لمنع أي تداخل */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-bold select-none">
-              <span className="flex items-center gap-1.5 whitespace-nowrap">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block shrink-0" />
-                <span>تأسيس:</span>{" "}
-                <strong className="text-neutral-700 dark:text-neutral-200 tabular-nums font-extrabold">
+            {/* التأسيس والتشغيل تفصيلياً بخط صغير تحت المبلغ الأساسي */}
+            <div className="flex items-center gap-3 mt-1.5 text-[10px] text-neutral-400 dark:text-neutral-500 font-bold select-none whitespace-nowrap">
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
+                تأسيس:{" "}
+                <strong className="text-neutral-600 dark:text-neutral-305 tabular-nums font-extrabold">
                   {formatNumber(Math.round(totals.establishment))} ج.م
                 </strong>
               </span>
-              <span className="hidden sm:inline-block w-[1px] h-3 bg-neutral-300 dark:bg-neutral-700" />
-              <span className="flex items-center gap-1.5 whitespace-nowrap">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block shrink-0" />
-                <span>تشغيل:</span>{" "}
-                <strong className="text-neutral-700 dark:text-neutral-200 tabular-nums font-extrabold">
+              <span className="w-[1px] h-2.5 bg-neutral-200 dark:bg-neutral-800" />
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                تشغيل:{" "}
+                <strong className="text-neutral-600 dark:text-neutral-305 tabular-nums font-extrabold">
                   {formatNumber(Math.round(totals.operating))} ج.م
                 </strong>
               </span>
@@ -230,11 +230,11 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
         </div>
 
         {/* القسم الأيسر: إحصائيات متوازنة لمظهر متناسق تماماً */}
-        <div className="text-start sm:text-end shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-rose-200/60 dark:border-rose-800/40 pl-1">
+        <div className="text-left pl-1">
           <p className="text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-xs font-black">
             حركات الصرف
           </p>
-          <p className="text-base sm:text-lg font-black text-neutral-800 dark:text-neutral-200 tabular-nums leading-none mt-1">
+          <p className="text-base sm:text-lg font-black text-neutral-800 dark:text-neutral-350 tabular-nums leading-none mt-1">
             {expenses.length}{" "}
             <span className="text-[10px] sm:text-xs opacity-75 font-bold">
               حركة

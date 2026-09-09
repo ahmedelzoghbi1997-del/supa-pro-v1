@@ -14,7 +14,6 @@ import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
 import Skeleton from '../shared/Skeleton';
 import TreasuryReport from './TreasuryReport';
-import { useSettings } from '../../contexts/SettingsContext';
 
 interface FundCardProps {
     fund: TreasuryFund;
@@ -143,7 +142,6 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
     } = useData();
     const { loading } = useUI();
     const { showToast } = useToast();
-    const { t } = useSettings();
     
     const [activeTab, setActiveTab] = useState<'cash' | 'bank'>('cash');
     const [isAddBankModalOpen, setIsAddBankModalOpen] = useState(false);
@@ -295,7 +293,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
-                        {t('الخزائن النقدية')} ({funds.length})
+                        الخزائن النقدية (الكاش)
                     </button>
                     <button
                         onClick={() => setActiveTab('bank')}
@@ -305,7 +303,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
-                        {t('الحسابات البنكية')} ({realBankAccounts.length})
+                        الحسابات البنكية (المصارف)
                     </button>
                 </div>
 
@@ -421,7 +419,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                         <div>
                             <h4 className="font-black text-emerald-800 dark:text-emerald-400">عروتك الزراعية هي محرك الخزائن</h4>
                             <p className="text-sm text-emerald-700/85 dark:text-emerald-300 mt-1 leading-relaxed">
-                                {t('بدلاً من إدارة خزنة نقدية عشوائية، "المحاسب الزراعي" يطبق المعايير المحاسبية السليمة بحيث توجد **خزنة/عهدة مستقلة لكل عروة**.')}
+                                بدلاً من إدارة خزنة نقدية عشوائية، "المحاسب الزراعي" يطبق المعايير المحاسبية السليمة بحيث توجد **خزنة/عهدة مستقلة لكل عروة**.
                             </p>
                         </div>
                     </div>

@@ -9,6 +9,7 @@ import FinancialSettings from './FinancialSettings';
 import CommunicationSettings from './CommunicationSettings';
 import TeamSettings from './TeamSettings';
 import LinkToOwner from './LinkToOwner';
+import { PWAInstallButton } from '../shared/PWAInstallButton';
 import { useData } from '../../contexts/DataContext';
 
 type SettingsTab = 'systems_terms' | 'financial' | 'appearance' | 'account_data' | 'team';
@@ -54,6 +55,7 @@ const SettingsManager: React.FC = () => {
             case 'appearance':
                 return (
                     <div className="space-y-8">
+                        <PWAInstallButton variant="settings" />
                         <AppearanceSettings />
                         <SizeSettings />
                     </div>

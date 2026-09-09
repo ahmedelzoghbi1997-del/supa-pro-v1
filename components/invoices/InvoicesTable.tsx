@@ -55,7 +55,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                 <div className="text-left shrink-0">
                   <div className="bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
                     <span className="text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                      {formatNumber(Math.round(total))}
+                      {formatCurrency(total).replace('EGP', '')}
                     </span>
                     <span className="text-[9px] font-bold text-emerald-600/70 dark:text-emerald-400/70 mr-1">ج.م</span>
                   </div>

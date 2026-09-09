@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Rocket } from "lucide-react";
 import { supabase } from "../../lib/supabase";
-import { t } from "../../lib/i18n";
 import {
   LogoIcon,
   LeafIcon,
@@ -3230,7 +3229,7 @@ const SharedReport = () => {
             </div>
             <div>
               <h1 className="text-lg font-black text-neutral-900 dark:text-white leading-none">
-                {t('appName')}
+                المحاسب الزراعي
               </h1>
               <p className="text-[10px] font-bold text-neutral-400 mt-1">
                 تقرير أداء العروة (للقراءة فقط)
@@ -4142,7 +4141,7 @@ const SharedReport = () => {
         {/* Footer */}
         <div className="pt-10 pb-6 border-t border-neutral-200 dark:border-neutral-800 text-center opacity-40">
           <p className="text-xs font-black uppercase tracking-[0.2em]">
-            {t('تم توليد هذا التقرير بواسطة نظام المحاسب الزراعي')}
+            تم توليد هذا التقرير بواسطة نظام المحاسب الزراعي
           </p>
         </div>
       </main>

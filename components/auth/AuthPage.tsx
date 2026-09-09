@@ -15,7 +15,6 @@ import {
 } from '../Icons';
 import { createRipple } from '../../utils/helpers';
 import { Preferences } from '@capacitor/preferences';
-import { t } from '../../lib/i18n';
 import { 
   SavedAccount, 
   getSavedAccounts, 
@@ -98,7 +97,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('password_updated') === 'true') {
-      setMessage(t('تم تحديث كلمة المرور بنجاح. يرجى تسجيل الدخول.'));
+      setMessage('تم تحديث كلمة المرور بنجاح. يرجى تسجيل الدخول.');
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -160,7 +159,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                             username: serverData.user.username
                         };
                     } else if (serverData.error) {
-                        setError(t('بيانات الدخول غير صحيحة'));
+                        setError('بيانات الدخول غير صحيحة');
                         setLoading(false);
                         return;
                     }
@@ -170,7 +169,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
 
             if (!vMember || !vMember.id) {
-                setError(t('بيانات الدخول غير صحيحة'));
+                setError('بيانات الدخول غير صحيحة');
             } else {
                 const virtualUser = {
                   id: `virtual_${vMember.id}`,
@@ -199,17 +198,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
         } catch (err) {
             console.error("Virtual Login Exception:", err);
-            setError(t('بيانات الدخول غير صحيحة'));
+            setError('بيانات الدخول غير صحيحة');
         }
     } else {
         const { data: authData, error } = await supabase.auth.signInWithPassword({ email: identifier, password });
         if (error) {
             if (error.message.includes('Email not confirmed')) {
-                setError(t('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.'));
+                setError('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.');
                 setOtpFlow('signup');
                 setView('verify_otp');
             } else {
-                setError(t('بيانات الدخول غير صحيحة'));
+                setError('بيانات الدخول غير صحيحة');
             }
         } else if (authData?.user) {
             await Preferences.remove({ key: 'was_explicitly_logged_out' });
@@ -252,9 +251,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         }
 
         if (acc.biometricEnabled) {
-            const authOk = await authenticateBiometrically(`${t('الدخول السريع')} إلى حساب: ${acc.greenhouseName || acc.fullName}`);
+            const authOk = await authenticateBiometrically(`الدخول السريع إلى حساب: ${acc.greenhouseName || acc.fullName}`);
             if (!authOk) {
-                setError(t('فشل التحقق من الهوية الحيوية. يرجى إعادة المحاولة.'));
+                setError('فشل التحقق من الهوية الحيوية. يرجى إعادة المحاولة.');
                 setLoading(false);
                 return;
             }
@@ -270,9 +269,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
 
             if (supabaseError) {
                 console.error("Virtual Login Error from Saved Accounts Selection:", supabaseError);
-                setError(t('حدث خطأ في الاتصال بقاعدة البيانات'));
+                setError('حدث خطأ في الاتصال بقاعدة البيانات');
             } else if (!vMember || !vMember.id) {
-                setError(t('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور هذا الحساب.'));
+                setError('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور هذا الحساب.');
             } else {
                 const virtualUser = {
                   id: `virtual_${vMember.id}`,
@@ -300,7 +299,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             });
             
             if (signInError) {
-                setError(t('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور البريد الإلكتروني.'));
+                setError('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور البريد الإلكتروني.');
             } else if (authData?.user) {
                 const { data: profData } = await supabase
                     .from('profiles')
@@ -319,7 +318,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
         }
     } catch (_err) {
-        setError(t('خطأ في الاتصال بالخادم أثناء تسجيل الدخول التلقائي.'));
+        setError('خطأ في الاتصال بالخادم أثناء تسجيل الدخول التلقائي.');
     } finally {
         setLoading(false);
     }
@@ -338,7 +337,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             setPinValue('');
             await handleSelectSavedAccount(targetAcc, true);
           } else {
-            setError(t('رمز PIN غير صحيح. يرجى الحذر والمحاولة مجدداً.'));
+            setError('رمز PIN غير صحيح. يرجى الحذر والمحاولة مجدداً.');
             setTimeout(() => {
               setPinValue('');
             }, 600);
@@ -357,9 +356,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
               setSavedAccounts(updated);
               setPinSetupAccount(null);
               setPinValue('');
-              setMessage(t('تم إيقاف قفل رمز PIN لهذا الحساب بنجاح.'));
+              setMessage('تم إيقاف قفل رمز PIN لهذا الحساب بنجاح.');
             } else {
-              setError(t('رمز PIN غير صحيح. لم يتم إلغاء القفل.'));
+              setError('رمز PIN غير صحيح. لم يتم إلغاء القفل.');
               setTimeout(() => {
                 setPinValue('');
               }, 600);
@@ -387,9 +386,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 setPinSetupAccount(null);
                 setPinSetupValue('');
                 setPinSetupConfirmValue('');
-                setMessage(t('تم تفعيل قفل رمز PIN لهذا الحساب بنجاح.'));
+                setMessage('تم تفعيل قفل رمز PIN لهذا الحساب بنجاح.');
               } else {
-                setError(t('الرموز غير متطابقة. يرجى المحاولة من جديد.'));
+                setError('الرموز غير متطابقة. يرجى المحاولة من جديد.');
                 setPinSetupStep('enter');
                 setPinSetupValue('');
                 setPinSetupConfirmValue('');
@@ -419,9 +418,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
 
   const handleToggleBiometric = async (accountId: string, enabled: boolean) => {
     if (enabled) {
-      const authOk = await authenticateBiometrically(t('تأكيد البصمة لربطها بالدخول السريع'));
+      const authOk = await authenticateBiometrically('تأكيد البصمة لربطها بالدخول السريع');
       if (!authOk) {
-        setError(t('فشل تأكيد البصمة. لم يتم تفعيل الميزة على الحساب.'));
+        setError('فشل تأكيد البصمة. لم يتم تفعيل الميزة على الحساب.');
         return;
       }
     }
@@ -458,9 +457,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     });
 
     if (signUpError) {
-        setError(signUpError.message === 'User already registered' ? t('هذا البريد الإلكتروني مسجل بالفعل.') : signUpError.message);
+        setError(signUpError.message === 'User already registered' ? 'هذا البريد الإلكتروني مسجل بالفعل.' : signUpError.message);
     } else {
-        setMessage(t('تم إرسال رمز التحقق إلى بريدك الإلكتروني.'));
+        setMessage('تم إرسال رمز التحقق إلى بريدك الإلكتروني.');
         setOtpFlow('signup');
         setView('verify_otp');
     }
@@ -476,7 +475,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     if (resetError) {
         setError(resetError.message);
     } else {
-        setMessage(t('تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني.'));
+        setMessage('تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني.');
         setOtpFlow('password_reset');
         setView('verify_otp');
     }
@@ -490,7 +489,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     const type = otpFlow === 'signup' ? 'signup' : 'recovery';
     const { error: verifyError } = await supabase.auth.verifyOtp({ email: identifier, token, type });
     if (verifyError) {
-        setError(t('الرمز غير صالح أو منتهي الصلاحية.'));
+        setError('الرمز غير صالح أو منتهي الصلاحية.');
     }
     setLoading(false);
   };
@@ -498,7 +497,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError(t('كلمتا المرور غير متطابقتين.'));
+      setError('كلمتا المرور غير متطابقتين.');
       return;
     }
     setLoading(true);
@@ -510,41 +509,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
       await supabase.auth.signOut();
       if (onAuthComplete) onAuthComplete();
       window.location.search = '?password_updated=true';
-    }
-    setLoading(false);
-  };
-
-  const handleDemoLogin = async () => {
-    setIdentifier('demo@agriledger.com');
-    setPassword('demoPassword123');
-    setLoading(true);
-    setError(null);
-    const { data: authData, error } = await supabase.auth.signInWithPassword({ email: 'demo@agriledger.com', password: 'demoPassword123' });
-    if (error) {
-        setError(t('Demo login failed. Please ensure the demo account exists.'));
-    } else if (authData?.user) {
-        await Preferences.remove({ key: 'was_explicitly_logged_out' });
-        try {
-            const { data: profData } = await supabase
-                .from('profiles')
-                .select('full_name, role')
-                .eq('id', authData.user.id)
-                .single();
-            
-            await saveAccount({
-                id: authData.user.id,
-                email: 'demo@agriledger.com',
-                password: 'demoPassword123',
-                fullName: profData?.full_name || 'Demo User',
-                role: profData?.role || 'owner',
-                isVirtual: false,
-                greenhouseName: 'Demo Farm'
-            });
-            await setLastActiveAccount(authData.user.id);
-        } catch (err) {
-            console.error("Error saving demo profile:", err);
-        }
-        window.location.reload();
     }
     setLoading(false);
   };
@@ -581,7 +545,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                     handleLogin={handleLogin}
                     handleSignUp={handleSignUp}
                     handlePasswordResetRequest={handlePasswordResetRequest}
-                    handleDemoLogin={handleDemoLogin}
                     loading={loading}
                     error={error}
                     message={message}
@@ -624,27 +587,27 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     const account = activePinAccount || pinSetupAccount;
     if (!account) return null;
 
-    let heading = t('تأمين الدخول');
+    let heading = "تأمين الدخول";
     let subheading = "";
     let currentVal = "";
 
     if (isVerifying) {
-      heading = t('رمز المرور (PIN)');
-      subheading = `${t('أدخل رمز PIN الحالي لفتح حساب:\n')}${account.greenhouseName || account.fullName}`;
+      heading = "رمز المرور (PIN)";
+      subheading = `أدخل رمز PIN الحالي لفتح حساب:\n${account.greenhouseName || account.fullName}`;
       currentVal = pinValue;
     } else {
       if (pinActionType === 'verify_disable') {
-        heading = t('إيقاف رمز الحماية');
-        subheading = `${t('أدخل الرمز الحالي لإلغاء القفل لـ ')}${account.greenhouseName || account.fullName}`;
+        heading = "إيقاف رمز الحماية";
+        subheading = `أدخل الرمز الحالي لإلغاء القفل لـ ${account.greenhouseName || account.fullName}`;
         currentVal = pinValue;
       } else {
         if (pinSetupStep === 'enter') {
-          heading = t('تعيين حماية جديدة');
-          subheading = `${t('اختر 4 أرقام لتسهيل الدخول لـ ')}${account.greenhouseName || account.fullName}`;
+          heading = "تعيين حماية جديدة";
+          subheading = `اختر 4 أرقام لتسهيل الدخول لـ ${account.greenhouseName || account.fullName}`;
           currentVal = pinSetupValue;
         } else {
-          heading = t('تأكيد رمز الاستجابة');
-          subheading = t('أعد كتابة الرمز نفسه للتأكيد ومطابقة الحساب');
+          heading = "تأكيد رمز الاستجابة";
+          subheading = "أعد كتابة الرمز نفسه للتأكيد ومطابقة الحساب";
           currentVal = pinSetupConfirmValue;
         }
       }
@@ -738,9 +701,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             <div className="bg-white/20 p-4 rounded-full inline-block backdrop-blur-sm">
                 <LogoIcon className="mx-auto h-52 w-52" />
             </div>
-            <h1 className="mt-8 text-5xl font-bold">{t('appName')}</h1>
+            <h1 className="mt-8 text-5xl font-bold">المحاسب الزراعي</h1>
             <p className="mt-4 text-lg text-emerald-100 max-w-sm mx-auto">
-                {t('إدارة الأصول الزراعية، الفواتير، والمصروفات بكفاءة ودقة.')}
+                إدارة الأصول الزراعية، الفواتير، والمصروفات بكفاءة ودقة.
             </p>
         </div>
       </div>
@@ -749,7 +712,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         <div className="w-full max-w-sm space-y-8 animate-page-enter">
           <div className="text-center lg:hidden">
               <LogoIcon className="mx-auto h-28 w-28 text-primary" />
-              <h1 className="mt-4 text-3xl font-bold text-neutral-800 dark:text-neutral-50">{t('appName')}</h1>
+              <h1 className="mt-4 text-3xl font-bold text-neutral-800 dark:text-neutral-50">المحاسب الزراعي</h1>
           </div>
           {renderContent()}
         </div>
@@ -770,7 +733,6 @@ interface CredentialsViewProps {
     handleLogin: (e: React.FormEvent) => void;
     handleSignUp: (e: React.FormEvent) => void;
     handlePasswordResetRequest: (e: React.FormEvent) => void;
-    handleDemoLogin: () => void;
     loading: boolean;
     error: string | null;
     message: string | null;
@@ -780,7 +742,7 @@ interface CredentialsViewProps {
 const CredentialsView: React.FC<CredentialsViewProps> = ({ 
     view, setView, identifier, setIdentifier,
     password, setPassword, fullName, setFullName, handleLogin, handleSignUp, 
-    handlePasswordResetRequest, handleDemoLogin, loading, error, message, hasSavedAccounts = false
+    handlePasswordResetRequest, loading, error, message, hasSavedAccounts = false
 }) => {
     const isLogin = view === 'login';
     const isForgot = view === 'forgot_password';
@@ -789,13 +751,13 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
         <>
          <div className="text-center">
           <h2 className="mt-6 lg:mt-0 text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
-            {isLogin ? t('مرحباً بعودتك') : isForgot ? t('إعادة تعيين كلمة المرور') : t('إنشاء حساب جديد')}
+            {isLogin ? 'مرحباً بعودتك' : isForgot ? 'إعادة تعيين كلمة المرور' : 'إنشاء حساب جديد'}
           </h2>
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-            {isForgot ? t('أدخل بريدك الإلكتروني لإرسال رمز الاستعادة.') : isLogin ? t('ليس لديك حساب؟') : t('لديك حساب بالفعل؟')}{' '}
+            {isForgot ? 'أدخل بريدك الإلكتروني لإرسال رمز الاستعادة.' : isLogin ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}{' '}
             {!isForgot && (
                 <a href="#" onClick={(e) => { e.preventDefault(); setView(isLogin ? 'signup' : 'login'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                {isLogin ? t('أنشئ حسابًا') : t('سجل الدخول')}
+                {isLogin ? 'أنشئ حسابًا' : 'سجل الدخول'}
                 </a>
             )}
           </p>
@@ -807,15 +769,15 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
         <form className="mt-8 space-y-6" onSubmit={isLogin ? handleLogin : isForgot ? handlePasswordResetRequest : handleSignUp}>
             <div className="space-y-4 rounded-md">
                 {!isLogin && !isForgot && (
-                    <InputField icon={UserIcon} type="text" placeholder={t('الاسم الكامل')} id="full-name" value={fullName} onChange={e => setFullName(e.target.value)} autoComplete="name" />
+                    <InputField icon={UserIcon} type="text" placeholder="الاسم الكامل" id="full-name" value={fullName} onChange={e => setFullName(e.target.value)} autoComplete="name" />
                 )}
                 {isLogin ? (
-                    <InputField icon={UserIcon} type="text" placeholder={t('البريد الإلكتروني أو اسم المستخدم')} id="identifier" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="username" />
+                    <InputField icon={UserIcon} type="text" placeholder="البريد الإلكتروني أو اسم المستخدم" id="identifier" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="username" />
                 ) : (
-                    <InputField icon={UserIcon} type="email" placeholder={t('البريد الإلكتروني')} id="email" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="email" />
+                    <InputField icon={UserIcon} type="email" placeholder="البريد الإلكتروني" id="email" value={identifier} onChange={e => setIdentifier(e.target.value)} autoComplete="email" />
                 )}
                 {!isForgot && (
-                    <InputField icon={LockClosedIcon} type="password" placeholder={t('كلمة المرور')} id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete={isLogin ? "current-password" : "new-password"} />
+                    <InputField icon={LockClosedIcon} type="password" placeholder="كلمة المرور" id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete={isLogin ? "current-password" : "new-password"} />
                 )}
             </div>
 
@@ -823,7 +785,7 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
                 <div className="flex items-center justify-end">
                     <div className="text-sm">
                         <a href="#" onClick={(e) => { e.preventDefault(); setView('forgot_password'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                        {t('هل نسيت كلمة المرور؟')}
+                        هل نسيت كلمة المرور؟
                         </a>
                     </div>
                 </div>
@@ -832,35 +794,22 @@ const CredentialsView: React.FC<CredentialsViewProps> = ({
              <div className="space-y-3">
                 <button type="submit" onClick={createRipple} disabled={loading} className="group ripple-effect relative flex w-full justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark transition-all duration-300 disabled:opacity-50">
                     {isForgot || <span className="absolute inset-y-0 right-0 flex items-center pr-3"><ArrowLeftIcon className="h-5 w-5 text-emerald-300" /></span>}
-                    {loading ? t('...جاري التحميل') : isLogin ? t('تسجيل الدخول') : isForgot ? t('إرسال الرمز') : t('إنشاء الحساب')}
+                    {loading ? '...جاري التحميل' : isLogin ? 'تسجيل الدخول' : isForgot ? 'إرسال الرمز' : 'إنشاء الحساب'}
                 </button>
-                {isLogin && (
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handleDemoLogin();
-                        }}
-                        disabled={loading}
-                        className="group ripple-effect relative flex w-full justify-center rounded-lg bg-white border border-primary/20 py-3 px-4 text-md font-semibold text-primary hover:bg-primary/5 transition-all duration-300 disabled:opacity-50"
-                    >
-                        {t('Explore Demo (One-Click)')}
-                    </button>
-                )}
                 {hasSavedAccounts && isLogin && (
                     <button
                         type="button"
                         onClick={() => setView('saved_accounts')}
                         className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-sm font-semibold transition-colors"
                     >
-                        <span>{t('العودة لصفحة الدخول السريع')}</span>
+                        <span>العودة لصفحة الدخول السريع</span>
                     </button>
                 )}
             </div>
             {isForgot && (
                  <div className="text-sm text-center">
                     <a href="#" onClick={(e) => { e.preventDefault(); setView('login'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                        {t('العودة لتسجيل الدخول')}
+                        العودة لتسجيل الدخول
                     </a>
                 </div>
             )}
@@ -977,10 +926,10 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
         <div className="space-y-6">
             <div className="text-center">
                 <h2 className="text-3xl font-black tracking-tight text-neutral-900 dark:text-neutral-50">
-                    {t('الدخول السريع')}
+                    الدخول السريع
                 </h2>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                    {t('اختر الحساب المسجل للانتقال مباشرة دون كتابة بيانات')}
+                    اختر الحساب المسجل للانتقال مباشرة دون كتابة بيانات
                 </p>
             </div>
 
@@ -1015,7 +964,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                             <div className="flex items-center gap-4 flex-1 min-w-0 z-10">
                                 <div 
                                     className="cursor-grab active:cursor-grabbing text-neutral-300 hover:text-neutral-500 transition-colors p-1 z-20 pointer-events-auto" 
-                                    title={t('اسحب لترتيب الحسابات')}
+                                    title="اسحب لترتيب الحسابات"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         e.preventDefault();
@@ -1067,12 +1016,12 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                     <div className="flex items-center gap-2 mt-1 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                                         {!acc.isVirtual ? (
                                             <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                                                <Shield className="w-3.5 h-3.5" /> {t('مالك رئيسي')}
+                                                <Shield className="w-3.5 h-3.5" /> مالك رئيسي
                                                 <span className="text-neutral-400 font-normal mr-1" dir="ltr">{acc.email}</span>
                                             </span>
                                         ) : (
                                             <span className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
-                                                <User className="w-3.5 h-3.5" /> {t('رابط صوبة')} 
+                                                <User className="w-3.5 h-3.5" /> رابط صوبة 
                                                 <span className="text-neutral-400 font-normal mr-1" dir="ltr">{acc.username}</span>
                                             </span>
                                         )}
@@ -1093,7 +1042,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                                 ? 'text-emerald-500 bg-emerald-50/80 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'
                                                 : 'text-neutral-300 dark:text-neutral-600 hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                                         }`}
-                                        title={acc.biometricEnabled ? t('تعطيل الدخول بالبصمة') : t('تمكين الدخول بالبصمة')}
+                                        title={acc.biometricEnabled ? "تعطيل الدخول بالبصمة" : "تمكين الدخول بالبصمة"}
                                     >
                                         <Fingerprint className="h-5 w-5" />
                                     </button>
@@ -1107,7 +1056,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                     if (!loading) onRemove(acc.id);
                                 }}
                                 className="absolute top-2 left-2 p-1.5 text-neutral-200 dark:text-neutral-700 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors z-20 pointer-events-auto"
-                                title={t('إزالة الحساب من القائمة')}
+                                title="إزالة الحساب من القائمة"
                             >
                                 <TrashIcon className="h-3.5 w-3.5" />
                             </button>
@@ -1123,7 +1072,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                     className="flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-neutral-300 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100/50 dark:hover:bg-neutral-800/30 hover:text-primary hover:border-primary transition-all font-semibold text-sm"
                 >
                     <PlusIcon className="h-5 w-5" />
-                    <span>{t('تسجيل الدخول كحساب جديد')}</span>
+                    <span>تسجيل الدخول كحساب جديد</span>
                 </button>
             </div>
         </div>
@@ -1146,9 +1095,9 @@ const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email: identifier, flow, 
     return (
         <>
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">{t('التحقق من الرمز')}</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">التحقق من الرمز</h2>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                    {t('تم إرسال رمز مكون من 6 أرقام إلى')} <span className="font-bold text-neutral-700 dark:text-neutral-200">{email}</span>.
+                    تم إرسال رمز مكون من 6 أرقام إلى <span className="font-bold text-neutral-700 dark:text-neutral-200">{email}</span>.
                 </p>
             </div>
 
@@ -1156,15 +1105,15 @@ const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email: identifier, flow, 
             {message && <div className="flex items-center gap-3 text-sm text-accent-success bg-accent-success/10 p-3 rounded-md"><CheckCircleIcon className="h-5 w-5 flex-shrink-0" /><p>{message}</p></div>}
             
             <form className="mt-8 space-y-6" onSubmit={handleVerifyOtp}>
-                <InputField icon={LockClosedIcon} type="text" placeholder={t('أدخل الرمز')} id="token" value={token} onChange={e => setToken(e.target.value)} autoComplete="one-time-code" />
+                <InputField icon={LockClosedIcon} type="text" placeholder="أدخل الرمز" id="token" value={token} onChange={e => setToken(e.target.value)} autoComplete="one-time-code" />
                 <div>
                     <button type="submit" onClick={createRipple} disabled={loading} className="group ripple-effect relative flex w-full justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark transition-all duration-300 disabled:opacity-50">
-                        {loading ? t('...جاري التحقق') : t('تحقق')}
+                        {loading ? '...جاري التحقق' : 'تحقق'}
                     </button>
                 </div>
                 <div className="text-sm text-center">
                     <a href="#" onClick={(e) => { e.preventDefault(); setView(flow === 'signup' ? 'signup' : 'forgot_password'); }} className="font-medium text-primary hover:text-primary-light transition-colors">
-                        {t('العودة')}
+                        العودة
                     </a>
                 </div>
             </form>
@@ -1186,21 +1135,21 @@ const UpdatePasswordView: React.FC<UpdatePasswordViewProps> = ({ password, setPa
     return (
         <>
             <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">{t('تعيين كلمة مرور جديدة')}</h2>
+                <h2 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">تعيين كلمة مرور جديدة</h2>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                    {t('أدخل كلمة المرور الجديدة لحسابك.')}
+                    أدخل كلمة المرور الجديدة لحسابك.
                 </p>
             </div>
              {error && <div className="flex items-center gap-3 text-sm text-accent-danger bg-accent-danger/10 p-3 rounded-md"><WarningIcon className="h-5 w-5 flex-shrink-0" /><p>{error}</p></div>}
             
              <form className="mt-8 space-y-6" onSubmit={handleUpdatePassword}>
                 <div className="space-y-4">
-                    <InputField icon={LockClosedIcon} type="password" placeholder={t('كلمة المرور الجديدة')} id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" />
-                    <InputField icon={LockClosedIcon} type="password" placeholder={t('تأكيد كلمة المرور')} id="confirm-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
+                    <InputField icon={LockClosedIcon} type="password" placeholder="كلمة المرور الجديدة" id="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" />
+                    <InputField icon={LockClosedIcon} type="password" placeholder="تأكيد كلمة المرور" id="confirm-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" />
                 </div>
                 <div>
                     <button type="submit" onClick={createRipple} disabled={loading} className="group ripple-effect relative flex w-full justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark transition-all duration-300 disabled:opacity-50">
-                        {loading ? t('...جاري التحديث') : t('تحديث كلمة المرور')}
+                        {loading ? '...جاري التحديث' : 'تحديث كلمة المرور'}
                     </button>
                 </div>
             </form>

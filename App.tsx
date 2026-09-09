@@ -28,7 +28,7 @@ import { Preferences } from "@capacitor/preferences";
 import { getSavedAccounts } from "./lib/accountManager";
 
 import { useData } from "./contexts/DataContext";
-import { t } from "./lib/i18n";
+import { RealtimeNotificationProvider } from "./contexts/RealtimeNotificationContext";
 
 const NotificationListener: React.FC = () => {
   const { setActiveItem } = useData();
@@ -281,29 +281,31 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
   return (
     <UIProvider>
       <DataProvider profile={profile} setActiveItem={handleNavigation}>
-        <NotificationListener />
-        <AppUpdateModal />
-        <div className="flex h-screen font-sans bg-neutral-50 dark:bg-neutral-950 pt-[env(safe-area-inset-top)]">
-          <Sidebar
-            activeItem={activeItem}
-            setActiveItem={handleNavigation}
-            isOpen={isSidebarOpen}
-            onClose={() => {
-              triggerLightHaptic();
-              setSidebarOpen(false);
-            }}
-          />
-          <main className="flex-1 overflow-hidden relative pb-16 lg:pb-0">
-            <MainContent
+        <RealtimeNotificationProvider>
+          <NotificationListener />
+          <AppUpdateModal />
+          <div className="flex h-screen font-sans bg-neutral-50 dark:bg-neutral-950 pt-[env(safe-area-inset-top)]">
+            <Sidebar
               activeItem={activeItem}
-              onOpenSidebar={() => {
+              setActiveItem={handleNavigation}
+              isOpen={isSidebarOpen}
+              onClose={() => {
                 triggerLightHaptic();
-                setSidebarOpen(true);
+                setSidebarOpen(false);
               }}
             />
-          </main>
-          <BottomNav activeItem={activeItem} setActiveItem={handleNavigation} />
-        </div>
+            <main className="flex-1 overflow-hidden relative pb-16 lg:pb-0">
+              <MainContent
+                activeItem={activeItem}
+                onOpenSidebar={() => {
+                  triggerLightHaptic();
+                  setSidebarOpen(true);
+                }}
+              />
+            </main>
+            <BottomNav activeItem={activeItem} setActiveItem={handleNavigation} />
+          </div>
+        </RealtimeNotificationProvider>
       </DataProvider>
     </UIProvider>
   );
@@ -657,7 +659,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-neutral-800 dark:text-neutral-100 tracking-tight mb-2">
-            {t('appName')}
+            المحاسب الزراعي
           </h1>
           <p className="text-[10px] sm:text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-[0.3em]">
             {isSwitching ? "جارٍ تبديل الحساب..." : "جارٍ التحميل..."}

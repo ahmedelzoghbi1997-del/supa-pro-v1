@@ -5,11 +5,8 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import type { AppSettings, Terminology, Language } from "../types";
+import type { AppSettings, Terminology } from "../types";
 import { supabase } from "../lib/supabase";
-import { applyLanguage, t as translate, getTerminology } from "../lib/i18n";
-
-export { getTerminology };
 
 export const terminology: Record<
   Terminology,
@@ -20,7 +17,6 @@ export const terminology: Record<
 };
 
 const defaultSettings: AppSettings = {
-  language: "en",
   systems: {
     treasury: true,
     advances: true,
@@ -59,9 +55,6 @@ const defaultSettings: AppSettings = {
 
 interface SettingsContextType {
   settings: AppSettings;
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
   loadingSettings: boolean;
 }
@@ -219,21 +212,6 @@ export const SettingsProvider: React.FC<{
     localStorage.setItem(storageKey, JSON.stringify(settings));
   }, [settings, userId]);
 
-  // 3. تطبيق اللغة واتجاه الصفحة وتفعيل التعريب الشامل
-  const activeLanguage: Language = settings.language || 'en';
-  useEffect(() => {
-    applyLanguage(activeLanguage);
-    document.title = translate('appName', activeLanguage);
-  }, [activeLanguage]);
-
-  const setLanguage = (lang: Language) => {
-    updateSettings({ language: lang });
-  };
-
-  const tHelper = (key: string) => {
-    return translate(key, activeLanguage);
-  };
-
   const updateSettings = async (newSettings: Partial<AppSettings>) => {
     const updated = { ...settings, ...newSettings };
     if (newSettings.systems) {
@@ -259,14 +237,7 @@ export const SettingsProvider: React.FC<{
 
   return (
     <SettingsContext.Provider
-      value={{
-        settings,
-        language: activeLanguage,
-        setLanguage,
-        t: tHelper,
-        updateSettings,
-        loadingSettings,
-      }}
+      value={{ settings, updateSettings, loadingSettings }}
     >
       {children}
     </SettingsContext.Provider>

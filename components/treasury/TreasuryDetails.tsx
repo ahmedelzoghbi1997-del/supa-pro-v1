@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { TreasuryFund } from '../../types';
-import { formatNumber, calculateInvoiceTotal, getLocalDateString } from '../../utils/helpers';
+import { formatNumber, calculateInvoiceTotal, getLocalDateString, getInvoiceRetainedDetails } from '../../utils/helpers';
 import { useData } from '../../contexts/DataContext';
 import Breadcrumbs from '../shared/Breadcrumbs';
 import Modal from '../shared/Modal';
@@ -82,7 +82,6 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
     } = useData();
 
     const isViewer = profile?.role === 'viewer';
-    const isEn = settings.language === 'en';
 
     // Tab Filter state
     const [historyTab, setHistoryTab] = useState<TransactionTab>('all');
@@ -310,19 +309,21 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
 
         invoices.filter(i => i.cycle_id === fund.id).forEach(i => {
             const isManualFunding = i.market === 'تمويل يدوي';
-            const isRetained = i.description?.includes('[RETAINED_DEBT]') || i.description?.includes('[مرصودة]');
+            const invoiceTotal = calculateInvoiceTotal(i.price_items, i.deductions);
+            const { isRetained, surplus, retainedAmount } = getInvoiceRetainedDetails(i.description, i.is_retained_debt, invoiceTotal);
             
             if (isRetained) {
                 h.push({ 
                     ...i, 
-                    amount: 0, 
-                    typeLabel: 'فاتورة مرصودة للدين', 
-                    note: `(مرصودة لسداد مديونية المعلم) ${i.description ? i.description.replace(/\s*\[RETAINED_DEBT:.*?\]/g, '').replace(/\s*\[مرصودة\]/g, '').trim() : ''}`, 
+                    amount: surplus, 
+                    typeLabel: surplus > 0 ? 'فائض مبيعات مرصودة (نقدية واردة)' : 'فاتورة مرصودة للدين', 
+                    note: surplus > 0 
+                        ? `(سداد دين: ${formatNumber(retainedAmount)} ج | فائض مرحل للخزنة: ${formatNumber(surplus)} ج) ${i.description ? i.description.replace(/\s*\[RETAINED_DEBT:.*?\]/g, '').replace(/\s*\[مرصودة\]/g, '').trim() : ''}`
+                        : `(مرصودة لسداد مديونية المعلم) ${i.description ? i.description.replace(/\s*\[RETAINED_DEBT:.*?\]/g, '').replace(/\s*\[مرصودة\]/g, '').trim() : ''}`, 
                     isOutflow: false,
-                    badgeColor: 'neutral'
+                    badgeColor: surplus > 0 ? 'emerald' : 'neutral'
                 });
             } else {
-                const invoiceTotal = calculateInvoiceTotal(i.price_items, i.deductions);
                 h.push({ 
                     ...i, 
                     amount: invoiceTotal, 
@@ -594,9 +595,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                 <div className="p-1 sm:p-1.5 bg-emerald-500/20 rounded-xl text-emerald-400 group-hover:scale-110 transition-transform">
                                     <TrendingUpIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 </div>
-                                <p className="text-[8px] sm:text-[10px] font-black text-emerald-200/70 uppercase tracking-wider">
-                                    {isEn ? 'Total Inflow' : 'إجمالي الداخل'}
-                                </p>
+                                <p className="text-[8px] sm:text-[10px] font-black text-emerald-200/70 uppercase tracking-wider">إجمالي الداخل</p>
                             </div>
                             <p className="text-xs sm:text-lg font-black tabular-nums text-emerald-400">
                                 {formatNumber(fund.inflows.totalRevenue + fund.inflows.bankWithdrawals + (fund.inflows.transferredBalance || 0) + (fund.inflows.manualFunding || 0) + (fund.inflows.jointDebtsFunding || 0) + (fund.inflows.individualDebtsFunding || 0))}
@@ -609,9 +608,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                 <div className="p-1 sm:p-1.5 bg-rose-500/20 rounded-xl text-rose-400 group-hover:scale-110 transition-transform">
                                     <TrendingDownIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 </div>
-                                <p className="text-[8px] sm:text-[10px] font-black text-rose-200/70 uppercase tracking-wider">
-                                    {isEn ? 'Total Outflow' : 'إجمالي الخارج'}
-                                </p>
+                                <p className="text-[8px] sm:text-[10px] font-black text-rose-200/70 uppercase tracking-wider">إجمالي الخارج</p>
                             </div>
                             <p className="text-xs sm:text-lg font-black tabular-nums text-rose-400">{formatNumber(totalOutflow)}</p>
                         </div>
@@ -622,9 +619,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                 <div className="p-1 sm:p-1.5 bg-blue-500/20 rounded-xl text-blue-400 group-hover:scale-110 transition-transform">
                                     <WalletIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 </div>
-                                <p className="text-[8px] sm:text-[10px] font-black text-blue-200/70 uppercase tracking-wider">
-                                    {isEn ? 'Available in Bank' : 'المتاح بالبنك'}
-                                </p>
+                                <p className="text-[8px] sm:text-[10px] font-black text-blue-200/70 uppercase tracking-wider">المتاح بالبنك</p>
                             </div>
                             <p className="text-xs sm:text-lg font-black tabular-nums text-blue-400">{formatNumber(bankBalance)}</p>
                         </div>
@@ -722,7 +717,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                             }`}
                         >
                             <ArrowDownLeftIcon className="w-3 h-3" />
-                            <span>{isEn ? 'Inflow' : 'وارد'}</span>
+                            <span>وارد</span>
                             <span className={`px-1.5 py-0.2 rounded-md text-[9px] font-bold tabular-nums ${
                                 historyTab === 'inflow' 
                                     ? 'bg-white/20 text-white' 
@@ -743,7 +738,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                             }`}
                         >
                             <ArrowUpRightIcon className="w-3 h-3" />
-                            <span>{isEn ? 'Outflow' : 'منصرف'}</span>
+                            <span>منصرف</span>
                             <span className={`px-1.5 py-0.2 rounded-md text-[9px] font-bold tabular-nums ${
                                 historyTab === 'outflow' 
                                     ? 'bg-white/20 text-white' 
@@ -764,14 +759,10 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     }`}>
                         <div className="flex items-center gap-1.5">
                             {historyTab === 'inflow' ? <TrendingUpIcon className="w-4 h-4 text-emerald-600" /> : <TrendingDownIcon className="w-4 h-4 text-rose-600" />}
-                            <span>
-                                {historyTab === 'inflow' 
-                                    ? (isEn ? 'Total Inflow Transactions Displayed' : 'إجمالي الحركات الواردة المعروضة') 
-                                    : (isEn ? 'Total Outflow Transactions Displayed' : 'إجمالي الحركات المنصرفة المعروضة')}
-                            </span>
+                            <span>{historyTab === 'inflow' ? 'إجمالي الحركات الواردة المعروضة' : 'إجمالي الحركات المنصرفة المعروضة'}</span>
                         </div>
                         <span className="tabular-nums font-mono">
-                            {formatNumber(historyTab === 'inflow' ? tabCounts.inflowTotal : tabCounts.outflowTotal)} {isEn ? 'EGP' : 'ج.م'}
+                            {formatNumber(historyTab === 'inflow' ? tabCounts.inflowTotal : tabCounts.outflowTotal)} ج.م
                         </span>
                     </div>
                 )}
@@ -785,10 +776,8 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                             </div>
                             <p className="text-neutral-500 dark:text-neutral-400 text-xs font-black">
                                 {historyTab === 'all' 
-                                    ? (isEn ? 'No transactions recorded in this treasury yet' : 'لا توجد حركات مسجلة في هذه الخزنة حتى الآن') 
-                                    : (historyTab === 'inflow' 
-                                        ? (isEn ? 'No inflow transactions recorded' : 'لا توجد حركات واردة مسجلة') 
-                                        : (isEn ? 'No outflow transactions recorded' : 'لا توجد حركات منصرفة مسجلة'))}
+                                    ? 'لا توجد حركات مسجلة في هذه الخزنة حتى الآن' 
+                                    : (historyTab === 'inflow' ? 'لا توجد حركات واردة مسجلة' : 'لا توجد حركات منصرفة مسجلة')}
                             </p>
                             <p className="text-[10px] text-neutral-400 font-bold">
                                 ستظهر هنا كافة المعاملات المالية المرتبطة بالعهد فور تسجيلها.

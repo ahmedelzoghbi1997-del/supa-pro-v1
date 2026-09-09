@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { calculateInvoiceTotal } from '../utils/helpers';
+import { calculateInvoiceTotal, getInvoiceRetainedDetails } from '../utils/helpers';
 import type { 
     Cycle, 
     Invoice, 
@@ -46,10 +46,17 @@ const safeNum = (val: unknown): number => {
 };
 
 // Backward compatible helper to check if invoice is retained (non-cash)
-const isInvoiceRetained = (i: Invoice): boolean => {
+const _isInvoiceRetained = (i: Invoice): boolean => {
     return Boolean(i.is_retained_debt) || 
            Boolean(i.description?.includes('[مرصودة]')) || 
            Boolean(i.description?.includes('[RETAINED_DEBT]'));
+};
+
+// Helper to calculate exact cash inflow from an invoice (full net if normal, or surplus if retained)
+const getInvoiceCashRevenue = (i: Invoice): number => {
+    const net = calculateInvoiceTotal(i.price_items, i.deductions);
+    const { isRetained, surplus } = getInvoiceRetainedDetails(i.description, i.is_retained_debt, net);
+    return isRetained ? surplus : net;
 };
 
 // Backward compatible helper to check if advance is external debt
@@ -352,20 +359,17 @@ export function useFinancialCalculations({
                 if (cRpc) {
                     const salesInvoices = allCycleInvoices.filter(i =>
                         i.market !== 'رصيد منقول' &&
-                        i.market !== 'تمويل يدوي' &&
-                        !isInvoiceRetained(i)
+                        i.market !== 'تمويل يدوي'
                     );
-                    const localRev = salesInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
+                    const localRev = salesInvoices.reduce((s, i) => s + getInvoiceCashRevenue(i), 0);
 
                     const transferInvoices = allCycleInvoices.filter(i =>
-                        i.market === 'رصيد منقول' &&
-                        !isInvoiceRetained(i)
+                        i.market === 'رصيد منقول'
                     );
                     const transferredBal = transferInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
                     const fundingInvoices = allCycleInvoices.filter(i =>
-                        i.market === 'تمويل يدوي' &&
-                        !isInvoiceRetained(i)
+                        i.market === 'تمويل يدوي'
                     );
                     const manualFunding = fundingInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
@@ -418,9 +422,17 @@ export function useFinancialCalculations({
                         })
                         .reduce((s, a) => s + safeNum(a.amount), 0);
 
+                    const individualDebtsRepaymentFromTreasury = allCycleAdvances
+                        .filter(a => {
+                            if (a.amount >= 0) return false;
+                            if (!isAdvanceExternalDebt(a)) return false;
+                            return isAdvancePaidFromTreasury(a);
+                        })
+                        .reduce((s, a) => s + Math.abs(safeNum(a.amount)), 0);
+
                     const actualRevenue = localRev;
                     const totalIn = actualRevenue + cRpc.bank_withdrawals + transferredBal + manualFunding + jointDebtsFunding + individualDebtsFunding;
-                    const totalOut = opExpensesAmount + actualLaborCashInFlow + fatherLaborExpsSum + personalAdvancesAmount + cRpc.farmer_withdrawals + cRpc.supplier_payments + cRpc.bank_deposits;
+                    const totalOut = opExpensesAmount + actualLaborCashInFlow + fatherLaborExpsSum + personalAdvancesAmount + cRpc.farmer_withdrawals + cRpc.supplier_payments + cRpc.bank_deposits + individualDebtsRepaymentFromTreasury;
 
                     return {
                         id: cycle.id,
@@ -448,20 +460,17 @@ export function useFinancialCalculations({
                 // Fallback calculations for cycles not in rpc
                 const realInvoices = allCycleInvoices.filter(i =>
                     i.market !== 'رصيد منقول' &&
-                    i.market !== 'تمويل يدوي' &&
-                    !isInvoiceRetained(i)
+                    i.market !== 'تمويل يدوي'
                 );
-                const rev = realInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
+                const rev = realInvoices.reduce((s, i) => s + getInvoiceCashRevenue(i), 0);
 
                 const transferInvoices = allCycleInvoices.filter(i =>
-                    i.market === 'رصيد منقول' &&
-                    !isInvoiceRetained(i)
+                    i.market === 'رصيد منقول'
                 );
                 const transferredBal = transferInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
                 const fundingInvoices = allCycleInvoices.filter(i =>
-                    i.market === 'تمويل يدوي' &&
-                    !isInvoiceRetained(i)
+                    i.market === 'تمويل يدوي'
                 );
                 const manualFunding = fundingInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
@@ -502,9 +511,17 @@ export function useFinancialCalculations({
                     })
                     .reduce((s, a) => s + safeNum(a.amount), 0);
 
+                const individualDebtsRepaymentFromTreasury = allCycleAdvances
+                    .filter(a => {
+                        if (a.amount >= 0) return false;
+                        if (!isAdvanceExternalDebt(a)) return false;
+                        return isAdvancePaidFromTreasury(a);
+                    })
+                    .reduce((s, a) => s + Math.abs(safeNum(a.amount)), 0);
+
                 const actualRevenue = rev;
                 const totalIn = actualRevenue + bankWithdrawals + transferredBal + manualFunding + jointDebtsFunding + individualDebtsFunding;
-                const totalOut = cycleLocalCashExpenses + fatherLaborExpsSum + sumAdv + sumFarmer + sumSuppliers + bankDeposits;
+                const totalOut = cycleLocalCashExpenses + fatherLaborExpsSum + sumAdv + sumFarmer + sumSuppliers + bankDeposits + individualDebtsRepaymentFromTreasury;
 
                 return {
                     id: cycle.id,
@@ -537,10 +554,11 @@ export function useFinancialCalculations({
             const allCycleAdvances = advancesByCycle.get(cycle.id) || [];
             const allCyclePartnerDebts = partnerDebtsByCycle.get(cycle.id) || [];
 
-            const cycleInvoices = allCycleInvoices.filter(i =>
-                !isInvoiceRetained(i)
+            const salesInvoices = allCycleInvoices.filter(i =>
+                i.market !== 'رصيد منقول' &&
+                i.market !== 'تمويل يدوي'
             );
-            const rev = cycleInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
+            const rev = salesInvoices.reduce((s, i) => s + getInvoiceCashRevenue(i), 0);
 
             const cycleBankTx = bankTxByCycle.get(cycle.id) || [];
             const bankWithdrawals = cycleBankTx.filter(t => t.type === 'withdrawal').reduce((s, t) => s + safeNum(t.amount), 0);
@@ -579,9 +597,27 @@ export function useFinancialCalculations({
                 })
                 .reduce((s, a) => s + safeNum(a.amount), 0);
 
+            const transferInvoices = allCycleInvoices.filter(i =>
+                i.market === 'رصيد منقول'
+            );
+            const transferredBal = transferInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
+
+            const fundingInvoices = allCycleInvoices.filter(i =>
+                i.market === 'تمويل يدوي'
+            );
+            const manualFunding = fundingInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
+
+            const individualDebtsRepaymentFromTreasury = allCycleAdvances
+                .filter(a => {
+                    if (a.amount >= 0) return false;
+                    if (!isAdvanceExternalDebt(a)) return false;
+                    return isAdvancePaidFromTreasury(a);
+                })
+                .reduce((s, a) => s + Math.abs(safeNum(a.amount)), 0);
+
             const actualRevenue = rev;
-            const totalIn = actualRevenue + bankWithdrawals + jointDebtsFunding + individualDebtsFunding;
-            const totalOut = cycleLocalCashExpenses + fatherLaborExpsSum + sumAdv + sumFarmer + sumSuppliers + bankDeposits;
+            const totalIn = actualRevenue + bankWithdrawals + transferredBal + manualFunding + jointDebtsFunding + individualDebtsFunding;
+            const totalOut = cycleLocalCashExpenses + fatherLaborExpsSum + sumAdv + sumFarmer + sumSuppliers + bankDeposits + individualDebtsRepaymentFromTreasury;
 
             return {
                 id: cycle.id,
@@ -590,6 +626,8 @@ export function useFinancialCalculations({
                 inflows: {
                     totalRevenue: actualRevenue,
                     bankWithdrawals,
+                    transferredBalance: transferredBal,
+                    manualFunding,
                     jointDebtsFunding,
                     individualDebtsFunding
                 },
@@ -626,15 +664,16 @@ export function useFinancialCalculations({
         const allCycleAdvances = advancesByCycle.get(cycleId) || [];
         const allCyclePartnerDebts = partnerDebtsByCycle.get(cycleId) || [];
 
-        const cycleInvoices = allCycleInvoices.filter(i =>
-            !isInvoiceRetained(i)
+        const salesInvoices = allCycleInvoices.filter(i =>
+            i.market !== 'رصيد منقول' &&
+            i.market !== 'تمويل يدوي'
         );
-        const rev = cycleInvoices.filter(i => i.market !== 'رصيد منقول' && i.market !== 'تمويل يدوي').reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
+        const rev = salesInvoices.reduce((s, i) => s + getInvoiceCashRevenue(i), 0);
 
-        const transferInvoices = cycleInvoices.filter(i => i.market === 'رصيد منقول');
+        const transferInvoices = allCycleInvoices.filter(i => i.market === 'رصيد منقول');
         const transferredBal = transferInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
-        const fundingInvoices = cycleInvoices.filter(i => i.market === 'تمويل يدوي');
+        const fundingInvoices = allCycleInvoices.filter(i => i.market === 'تمويل يدوي');
         const manualFunding = fundingInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
         const cycleBankTx = bankTxByCycle.get(cycleId) || [];

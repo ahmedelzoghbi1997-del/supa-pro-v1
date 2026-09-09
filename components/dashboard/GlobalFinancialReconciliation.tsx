@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '../../contexts/DataContext';
 import { useSettings } from '../../contexts/SettingsContext';
-import { formatNumber, calculateInvoiceTotal } from '../../utils/helpers';
+import { formatNumber, calculateInvoiceTotal, getInvoiceRetainedDetails } from '../../utils/helpers';
 import { Info, ChevronDown, ChevronUp, CheckCircle2, ArrowLeft, Layers, ShieldCheck, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -96,15 +96,16 @@ const GlobalFinancialReconciliation: React.FC<GlobalFinancialReconciliationProps
     const cashInvoices = useMemo(() => {
         return (invoices || []).filter(i => 
             i.market !== 'رصيد منقول' && 
-            i.market !== 'تمويل يدوي' &&
-            !i.is_retained_debt &&
-            !i.description?.includes('[RETAINED_DEBT]') &&
-            !i.description?.includes('[مرصودة]')
+            i.market !== 'تمويل يدوي'
         );
     }, [invoices]);
 
     const cashRevenue = useMemo(() => {
-        return cashInvoices.reduce((s, i) => s + (Number(calculateInvoiceTotal(i.price_items || [], i.deductions || [])) || 0), 0);
+        return cashInvoices.reduce((s, i) => {
+            const net = Number(calculateInvoiceTotal(i.price_items || [], i.deductions || [])) || 0;
+            const { isRetained, surplus } = getInvoiceRetainedDetails(i.description, i.is_retained_debt, net);
+            return s + (isRetained ? surplus : net);
+        }, 0);
     }, [cashInvoices]);
 
     // Exclude ALL non-cash advances (Profit transfers, paper debts)

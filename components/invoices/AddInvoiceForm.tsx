@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Invoice } from '../../types';
 import { useData } from '../../contexts/DataContext';
-import { PlusIcon, TrashIcon, CalendarIcon, TruckIcon, CartonIcon, PencilIcon, SparklesIcon, CheckCircleIcon, ScaleIcon, UserIcon, CheckIcon } from '../Icons';
+import { PlusIcon, TrashIcon, CalendarIcon, TruckIcon, CartonIcon, PencilIcon, SparklesIcon, CheckCircleIcon, ScaleIcon, UserIcon, CheckIcon, WalletIcon } from '../Icons';
 import { formatCurrency } from '../../utils/helpers';
 import Modal from '../shared/Modal';
 import ManageMarkets from '../settings/ManageMarkets';
@@ -182,7 +182,6 @@ DeductionRow.displayName = 'DeductionRow';
 
 const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initialData }) => {
     const { cycles, settings, activePersons, advances, partnerDebts } = useData();
-    const isEn = settings?.language === 'en';
     const { showToast } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [isManageMarketsOpen, setManageMarketsOpen] = useState(false);
@@ -401,85 +400,79 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
     // Smart Allocation Helpers
     const handleAssignToSinglePartner = useCallback((partnerId: string) => {
         const newAllocations: Record<string, string> = {};
+        const maxAllowed = partnerExternalDebt[partnerId] || 0;
+        const alloc = Math.min(totals.net, Math.max(0, maxAllowed));
         (activePersons || []).forEach(p => {
-            newAllocations[p.id] = p.id === partnerId ? String(totals.net) : '0';
+            newAllocations[p.id] = p.id === partnerId && alloc > 0 ? String(alloc) : '';
         });
-        setAllocations(newAllocations);
-    }, [activePersons, totals.net]);
-
-    const handleSmartAutoFitDebts = useCallback(() => {
-        const newAllocations: Record<string, string> = {};
-        const persons = activePersons || [];
-        
-        const totalDebtAll = persons.reduce((s, p) => s + (partnerTotalDebtMap[p.id]?.total || 0), 0);
-        
-        if (totalDebtAll > 0) {
-            // Proportional distribution allowing decimals
-            let remainingNet = totals.net;
-            persons.forEach((p, idx) => {
-                const maxDebt = partnerTotalDebtMap[p.id]?.total || 0;
-                let share = 0;
-                
-                if (idx === persons.length - 1) {
-                    // Last person gets the exact remaining to avoid floating point issues, capped at their max
-                    share = Math.min(maxDebt, Number(remainingNet.toFixed(2)));
-                } else {
-                    share = Number(((totals.net * maxDebt) / totalDebtAll).toFixed(2));
-                    share = Math.min(share, maxDebt, remainingNet);
-                }
-                
-                newAllocations[p.id] = share > 0 ? String(share) : '';
-                remainingNet -= share;
-            });
-            
-            // If there's still remainingNet (because of caps), distribute equally
-            if (Number(remainingNet.toFixed(2)) > 0) {
-                const equalShare = Number((remainingNet / persons.length).toFixed(2));
-                let currentRemaining = remainingNet;
-                persons.forEach((p, idx) => {
-                    const prevShare = parseFloat(newAllocations[p.id]) || 0;
-                    let addShare = equalShare;
-                    if (idx === persons.length - 1) {
-                        addShare = Number(currentRemaining.toFixed(2));
-                    }
-                    newAllocations[p.id] = String(Number((prevShare + addShare).toFixed(2)));
-                    currentRemaining -= addShare;
-                });
-            }
-        } else {
-            // Equal distribution if no debts found
-            const count = persons.length || 1;
-            const equalShare = Number((totals.net / count).toFixed(2));
-            let currentRemaining = totals.net;
-            
-            persons.forEach((p, idx) => {
-                let share = equalShare;
-                if (idx === persons.length - 1) {
-                    share = Number(currentRemaining.toFixed(2));
-                }
-                newAllocations[p.id] = String(share);
-                currentRemaining -= share;
-            });
-        }
-        
-        // تحديث البلوك الأول فقط لتجنب تكرار البلوكات
         setAllocationItems(prev => {
             if (prev.length === 0) return [{ id: generateRowId(), debtType: 'external', debtId: '', allocations: newAllocations }];
             const updated = [...prev];
             updated[0] = { ...updated[0], allocations: newAllocations };
             return updated;
         });
-    }, [activePersons, partnerTotalDebtMap, totals.net]);
+    }, [activePersons, partnerExternalDebt, totals.net]);
 
-    // Auto-populate allocations when turning on retained checkbox if empty
-    useEffect(() => {
-        if (isRetained && totals.net > 0) {
-            const hasSomeValue = allocationItems.some(item => Object.values(item.allocations).some(v => parseFloat(v) > 0));
-            if (!hasSomeValue) {
-                handleSmartAutoFitDebts();
+    const handleSmartAutoFitDebts = useCallback(() => {
+        const newAllocations: Record<string, string> = {};
+        const persons = activePersons || [];
+        
+        // 1. حساب مديونية كل شريك بدقة لمنع وضع أي مبالغ للشريك الذي مديونيته = 0
+        const debts: Record<string, number> = {};
+        let totalDebtAll = 0;
+
+        persons.forEach(p => {
+            const externalDebt = partnerExternalDebt[p.id] || 0;
+            const debt = Math.max(0, externalDebt);
+            debts[p.id] = debt;
+            totalDebtAll += debt;
+        });
+
+        // 2. إذا وُجدت ديون وصافي الفاتورة موجب:
+        if (totalDebtAll > 0 && totals.net > 0) {
+            // أ) إذا كان صافي الفاتورة يغطي أو يفوق إجمالي الديون:
+            // سداد ديون جميع الشركاء المدينين بالكامل وتصفيرها، والشريك صاحب 0 دين يظل فارغاً تماماً
+            if (totals.net >= totalDebtAll) {
+                persons.forEach(p => {
+                    const maxDebt = debts[p.id] || 0;
+                    newAllocations[p.id] = maxDebt > 0 ? String(maxDebt) : '';
+                });
+                // الفارق (totals.net - totalDebtAll) يظل فائضاً يرحل كاش للخزنة
+            } else {
+                // ب) إذا كان صافي الفاتورة أقل من إجمالي الديون: توزيع تناسبي بين أصحاب الديون فقط
+                let remainingNet = totals.net;
+                persons.forEach((p, idx) => {
+                    const maxDebt = debts[p.id] || 0;
+                    if (maxDebt <= 0) {
+                        newAllocations[p.id] = '';
+                        return;
+                    }
+                    let share = 0;
+                    if (idx === persons.length - 1) {
+                        share = Math.min(maxDebt, Number(remainingNet.toFixed(2)));
+                    } else {
+                        share = Number(((totals.net * maxDebt) / totalDebtAll).toFixed(2));
+                        share = Math.min(share, maxDebt, remainingNet);
+                    }
+                    newAllocations[p.id] = share > 0 ? String(share) : '';
+                    remainingNet -= share;
+                });
             }
+        } else {
+            // لا توجد ديون: تبقى جميع الحقول فارغة (صفر) ولا يُفرض أي مبلغ عشوائي
+            persons.forEach(p => {
+                newAllocations[p.id] = '';
+            });
         }
-    }, [isRetained, totals.net, handleSmartAutoFitDebts, allocationItems]);
+        
+        // تحديث البلوك الأول في لوحة التوزيع
+        setAllocationItems(prev => {
+            if (prev.length === 0) return [{ id: generateRowId(), debtType: 'external', debtId: '', allocations: newAllocations }];
+            const updated = [...prev];
+            updated[0] = { ...updated[0], allocations: newAllocations };
+            return updated;
+        });
+    }, [activePersons, partnerExternalDebt, totals.net]);
 
     // Update package count when items change
     useEffect(() => {
@@ -495,16 +488,26 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
     // Active cycle and date safety check
     useEffect(() => {
         if (initialData?.id) {
-            setFormData(prev => ({ ...prev, date: initialData.date || '' }));
+            setFormData(prev => {
+                const targetDate = initialData.date || '';
+                if (prev.date === targetDate) return prev;
+                return { ...prev, date: targetDate };
+            });
         } else if (initialData?.date) {
-            setFormData(prev => ({ ...prev, date: initialData.date! }));
+            setFormData(prev => {
+                if (prev.date === initialData.date) return prev;
+                return { ...prev, date: initialData.date! };
+            });
         }
 
         if (!initialData) {
             const activeCycles = cycles.filter(c => c.status === 'active');
             const currentSelectedCycle = cycles.find(c => c.id === formData.cycle_id);
             if (activeCycles.length > 0 && (!currentSelectedCycle || currentSelectedCycle.status !== 'active')) {
-                setFormData(prev => ({ ...prev, cycle_id: activeCycles[0].id }));
+                setFormData(prev => {
+                    if (prev.cycle_id === activeCycles[0].id) return prev;
+                    return { ...prev, cycle_id: activeCycles[0].id };
+                });
             }
         }
     }, [cycles, formData.cycle_id, initialData]);
@@ -546,8 +549,12 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                     }
                 }
             }
-            if (Math.abs(totals.net - grandTotalAllocated) >= 1) {
-                showToast(`يجب توزيع صافي الفاتورة بالكامل! المتبقي: ${formatCurrency(Math.max(0, totals.net - grandTotalAllocated))}`, 'error');
+            if (grandTotalAllocated <= 0) {
+                showToast('يرجى إدخال مبلغ المرصود لسداد الدين في بند واحد على الأقل', 'error');
+                setIsSaving(false); return;
+            }
+            if (grandTotalAllocated > totals.net) {
+                showToast(`إجمالي المبالغ المرصودة (${formatCurrency(grandTotalAllocated)}) يتجاوز صافي الفاتورة (${formatCurrency(totals.net)})`, 'error');
                 setIsSaving(false); return;
             }
         }
@@ -563,6 +570,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
             if (isRetained) {
                 const payloadItems: Record<string, any> = {};
                 let itemIndex = 0;
+                let totalRetainedSum = 0;
                 for (const item of allocationItems) {
                     if (item.debtType === 'joint' && !item.debtId) {
                         showToast('يرجى اختيار الدين المشترك النشط في أحد بنود التوزيع', 'error');
@@ -575,6 +583,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                         const amt = parseFloat(val);
                         if (amt > 0) {
                             cleanAllocations[partnerId] = amt;
+                            totalRetainedSum += amt;
                             hasAmount = true;
                         }
                     }
@@ -585,12 +594,17 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                         };
                     }
                 }
-                if (itemIndex === 0) {
+                if (itemIndex === 0 || totalRetainedSum <= 0) {
                     showToast('يرجى إدخال مبلغ واحد على الأقل في التوزيع', 'error');
                     setIsSaving(false);
                     return;
                 }
-                finalDescription = `${finalDescription} [مرصودة] [RETAINED_DEBT:${JSON.stringify({ items: payloadItems })}]`.trim();
+                const surplusAmount = Math.max(0, Math.round((totals.net - totalRetainedSum) * 100) / 100);
+                finalDescription = `${finalDescription} [مرصودة] [RETAINED_DEBT:${JSON.stringify({ 
+                    items: payloadItems,
+                    retainedTotal: Number(totalRetainedSum.toFixed(2)),
+                    surplus: Number(surplusAmount.toFixed(2))
+                })}]`.trim();
             }
 
             const data: any = {
@@ -631,7 +645,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                 <div className="grid grid-cols-2 gap-3">
                     <div className="col-span-1">
                         <label className={`${labelBase} ${dateError ? 'text-rose-500 dark:text-rose-400' : ''}`}>
-                            <CalendarIcon className="w-3 h-3"/> {isEn ? 'Date (Required)' : 'التاريخ (إجباري)'}
+                            <CalendarIcon className="w-3 h-3"/> التاريخ (إجباري)
                         </label>
                         <input 
                             type="date" 
@@ -778,10 +792,10 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                             />
                             <div>
                                 <span className="text-xs font-black text-amber-900 dark:text-amber-200 block">
-                                    🌾 هذه الفاتورة مرصودة بالكامل لسداد ديون خارج الخزنة
+                                    🌾 رصد الفاتورة لسداد ديون (رصد كامل أو جزئي مع ترحيل الفائض للخزنة)
                                 </span>
                                 <span className="text-[9px] text-amber-700/80 dark:text-amber-400 font-bold block">
-                                    (تُسجل كفاتورة مبيعات، وتخصم دفترياً من مديونية الشركاء دون دخول كاش للخزنة)
+                                    (سداد ديون الشركاء أو المعلم مباشرة من المبيعات، مع ترحيل أي فائض نقدي تلقائياً إلى الخزنة)
                                 </span>
                             </div>
                         </div>
@@ -804,7 +818,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                         <span>توزيع الفاتورة (لوحة التوزيع الذكية)</span>
                                     </h4>
                                     <div className="text-[10px] font-bold text-amber-700 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-full">
-                                        إجمالي: {formatCurrency(totals.net)}
+                                        إجمالي صافي الفاتورة: {formatCurrency(totals.net)}
                                     </div>
                                 </div>
                                 
@@ -923,6 +937,18 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                     capValue = Math.max(0, capValue - alreadyAllocated);
                                                 }
 
+                                                // حساب الحد الأقصى المتاح من صافي الفاتورة لهذا الشريك تحديداً
+                                                let otherAllocatedAcrossBoard = 0;
+                                                allocationItems.forEach(anyItem => {
+                                                    Object.entries(anyItem.allocations).forEach(([pId, v]) => {
+                                                        if (anyItem.id !== item.id || pId !== person.id) {
+                                                            otherAllocatedAcrossBoard += parseFloat(v) || 0;
+                                                        }
+                                                    });
+                                                });
+                                                const netRemainingCap = Math.max(0, totals.net - otherAllocatedAcrossBoard);
+                                                const effectiveMax = capValue >= 0 ? Math.min(capValue, netRemainingCap) : netRemainingCap;
+
                                                 return (
                                                     <div key={person.id} className="flex items-center gap-2">
                                                         <label className="text-xs font-black text-slate-800 dark:text-neutral-200 w-24 shrink-0 truncate flex items-center gap-1">
@@ -932,8 +958,8 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                         <div className="flex-1 flex flex-col gap-1">
                                                             {capValue >= 0 && (
                                                                 <div className="flex justify-between items-center px-1">
-                                                                    <span className="text-[9px] font-black text-amber-700 dark:text-amber-400">
-                                                                        أقصى سداد مسموح: {formatCurrency(capValue).replace('EGP', '')} ج
+                                                                    <span className={`text-[9px] font-black ${capValue === 0 ? 'text-neutral-400 dark:text-neutral-500' : 'text-amber-700 dark:text-amber-400'}`}>
+                                                                        {capValue === 0 ? 'أقصى سداد مسموح: 0 ج (لا توجد مديونية)' : `أقصى سداد مسموح: ${formatCurrency(capValue).replace('EGP', '')} ج`}
                                                                     </span>
                                                                 </div>
                                                             )}
@@ -941,14 +967,18 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                                 type="text"
                                                                 inputMode="decimal"
                                                                 placeholder="0"
-                                                                value={item.allocations[person.id] || ''}
+                                                                value={effectiveMax === 0 ? '' : (item.allocations[person.id] || '')}
                                                                 onChange={e => {
                                                                     let val = e.target.value;
                                                                     if (/^\d*\.?\d*$/.test(val)) {
-                                                                        const numVal = parseFloat(val);
-                                                                        if (capValue >= 0 && numVal > capValue) {
-                                                                            val = String(capValue);
-                                                                            showToast(`تجاوزت الحد المسموح للشريك ${person.name}`, 'warning');
+                                                                        const numVal = parseFloat(val) || 0;
+                                                                        if (val !== '' && numVal > effectiveMax) {
+                                                                            val = effectiveMax > 0 ? String(effectiveMax) : '';
+                                                                            if (effectiveMax === capValue && capValue >= 0) {
+                                                                                showToast(`تجاوزت الحد المسموح للشريك ${person.name} (${formatCurrency(capValue).replace('EGP', '')} ج)`, 'warning');
+                                                                            } else {
+                                                                                showToast(`لا يمكن أن يتجاوز إجمالي التوزيع صافي الفاتورة (${formatCurrency(totals.net).replace('EGP', '')} ج)`, 'warning');
+                                                                            }
                                                                         }
                                                                         setAllocationItems(prev => prev.map(a => 
                                                                             a.id === item.id 
@@ -957,8 +987,8 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                                         ));
                                                                     }
                                                                 }}
-                                                                className={`${inputBase} !py-2 text-center text-sm font-black w-full border-amber-300 ${capValue === 0 ? 'opacity-50 cursor-not-allowed bg-neutral-200 dark:bg-neutral-800' : 'focus:border-amber-500 focus:ring-amber-500'}`}
-                                                                disabled={capValue === 0}
+                                                                className={`${inputBase} !py-2 text-center text-sm font-black w-full border-amber-300 ${effectiveMax === 0 ? 'opacity-50 cursor-not-allowed bg-neutral-200/60 dark:bg-neutral-800' : 'focus:border-amber-500 focus:ring-amber-500'}`}
+                                                                disabled={effectiveMax === 0}
                                                             />
                                                         </div>
                                                     </div>
@@ -976,51 +1006,123 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                     );
                                 })}
 
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => setAllocationItems(prev => [...prev, { id: generateRowId(), debtType: 'joint', debtId: '', allocations: {} }])}
-                                        className="w-full sm:w-auto text-[11px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-                                    >
-                                        <PlusIcon className="w-4 h-4" />
-                                        توجيه جزء لدين آخر
-                                    </button>
-
-                                    {(() => {
-                                        let grandTotalAllocated = 0;
-                                        allocationItems.forEach(item => {
-                                            Object.values(item.allocations).forEach(val => {
-                                                grandTotalAllocated += parseFloat(val) || 0;
-                                            });
+                                {(() => {
+                                    let grandTotalAllocated = 0;
+                                    allocationItems.forEach(item => {
+                                        Object.values(item.allocations).forEach(val => {
+                                            grandTotalAllocated += parseFloat(val) || 0;
                                         });
-                                        const unallocated = totals.net - grandTotalAllocated;
-                                        const isFull = Math.abs(unallocated) < 1;
-                                        
-                                        return (
-                                            <div className={`w-full sm:w-auto text-[10px] sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm ${isFull ? 'bg-emerald-500/10 text-emerald-800 border-emerald-500/30' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
-                                                {isFull ? <CheckCircleIcon className="w-4 h-4 text-emerald-600" /> : <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />}
-                                                {isFull ? 'تم التوزيع بالكامل بنجاح' : `متبقي للتوزيع: ${formatCurrency(Math.max(0, unallocated)).replace('EGP', '')} ج.م`}
+                                    });
+                                    const surplus = Math.max(0, Math.round((totals.net - grandTotalAllocated) * 100) / 100);
+                                    
+                                    return (
+                                        <>
+                                            {/* SURPLUS & RETENTION SUMMARY CARD */}
+                                            {grandTotalAllocated > 0 && surplus > 0 && (
+                                                <div className="w-full p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-300 dark:border-emerald-800/60 flex items-start gap-3 shadow-sm animate-page-enter">
+                                                    <div className="p-2 bg-emerald-500 text-white rounded-lg shrink-0 shadow-sm">
+                                                        <WalletIcon className="w-5 h-5" />
+                                                    </div>
+                                                    <div className="space-y-1 text-right flex-1">
+                                                        <div className="flex items-center justify-between flex-wrap gap-2">
+                                                            <span className="text-xs font-black text-emerald-900 dark:text-emerald-200">
+                                                                رصد جزئي مع ترحيل الفائض تلقائياً للخزنة
+                                                            </span>
+                                                            <span className="px-2.5 py-0.5 bg-emerald-600 text-white rounded-full text-[10px] font-black">
+                                                                +{formatCurrency(surplus).replace('EGP', '')} ج.م نقدية واردة
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-bold leading-relaxed">
+                                                            سيتم اعتماد سداد الدين بالكامل وتصفيره بمبلغ <span className="underline font-black">{formatCurrency(grandTotalAllocated).replace('EGP', '')} ج.م</span>، و<span className="font-black underline text-emerald-900 dark:text-emerald-100">سيتم ترحيل الفائض المتبقي ({formatCurrency(surplus).replace('EGP', '')} ج.م) كاش إلى الخزنة</span> كإيراد مبيعات لنفس الفاتورة مع حفظ المبيعات بكامل قيمتها ({formatCurrency(totals.net).replace('EGP', '')} ج.م).
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {grandTotalAllocated > 0 && surplus === 0 && (
+                                                <div className="w-full p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-800/50 flex items-center gap-2 text-[11px] font-bold text-amber-900 dark:text-amber-200">
+                                                    <SparklesIcon className="w-4 h-4 text-amber-600 shrink-0" />
+                                                    <span>تم رصد صافي الفاتورة بالكامل ({formatCurrency(totals.net).replace('EGP', '')} ج.م) لسداد الديون من المنبع ولا يوجد فائض مرحل.</span>
+                                                </div>
+                                            )}
+
+                                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setAllocationItems(prev => [...prev, { id: generateRowId(), debtType: 'joint', debtId: '', allocations: {} }])}
+                                                    className="w-full sm:w-auto text-[11px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                                                >
+                                                    <PlusIcon className="w-4 h-4" />
+                                                    توجيه جزء لدين آخر
+                                                </button>
+
+                                                {grandTotalAllocated > 0 && grandTotalAllocated <= totals.net ? (
+                                                    <div className="w-full sm:w-auto text-[10px] sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30">
+                                                        <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
+                                                        <span>
+                                                            سداد دين: {formatCurrency(grandTotalAllocated).replace('EGP', '')} ج.م
+                                                            {surplus > 0 ? ` | فائض كاش للخزنة: ${formatCurrency(surplus).replace('EGP', '')} ج.م` : ' (مرصودة بالكامل)'}
+                                                        </span>
+                                                    </div>
+                                                ) : grandTotalAllocated > totals.net ? (
+                                                    <div className="w-full sm:w-auto text-[10px] sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-rose-50 text-rose-700 border-rose-200">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                                                        <span>تجاوزت صافي الفاتورة بمقدار: {formatCurrency(grandTotalAllocated - totals.net).replace('EGP', '')} ج.م</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-full sm:w-auto text-[10px] sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-amber-50 text-amber-700 border-amber-200">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                                                        <span>يرجى تحديد مبالغ سداد الديون</span>
+                                                    </div>
+                                                )}
                                             </div>
-                                        );
-                                    })()}
-                                </div>
+                                        </>
+                                    );
+                                })()}
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="mt-6 bg-neutral-900 dark:bg-black p-4 rounded-2xl text-white relative">
-                    <div className="flex justify-between items-end">
-                        <div>
-                            <span className="text-[9px] font-black opacity-50 block mb-0.5">المبلغ المدفوع لك فعلياً</span>
-                            <span className="text-sm font-bold text-primary-light">صافي الفاتورة</span>
+                {/* BOTTOM SUMMARY CARD */}
+                {(() => {
+                    let grandTotalAllocated = 0;
+                    if (isRetained) {
+                        allocationItems.forEach(item => {
+                            Object.values(item.allocations).forEach(val => {
+                                grandTotalAllocated += parseFloat(val) || 0;
+                            });
+                        });
+                    }
+                    const surplus = isRetained ? Math.max(0, Math.round((totals.net - grandTotalAllocated) * 100) / 100) : totals.net;
+
+                    return (
+                        <div className="mt-6 bg-neutral-900 dark:bg-black p-4 rounded-2xl text-white relative">
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <span className="text-[9px] font-black opacity-50 block mb-0.5">
+                                        {isRetained && surplus > 0 
+                                            ? `صافي الفاتورة (${formatCurrency(totals.net).replace('EGP', '')}) - فائض كاش للخزنة:`
+                                            : isRetained 
+                                            ? 'مرصودة بالكامل لسداد الديون' 
+                                            : 'المبلغ المدفوع لك فعلياً'}
+                                    </span>
+                                    <span className="text-sm font-bold text-primary-light">
+                                        {isRetained && surplus > 0 
+                                            ? 'فائض الخزنة النقدي' 
+                                            : isRetained 
+                                            ? 'صافي الفاتورة (مرصود للديون)' 
+                                            : 'صافي الفاتورة'}
+                                    </span>
+                                </div>
+                                <div className="text-3xl font-black tracking-tighter tabular-nums text-emerald-400">
+                                    {formatCurrency(isRetained && surplus > 0 ? surplus : totals.net).replace('EGP', '')}
+                                    <span className="text-xs mr-1 opacity-60">ج.م</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-3xl font-black tracking-tighter tabular-nums text-emerald-400">
-                            {formatCurrency(totals.net).replace('EGP', '')}
-                            <span className="text-xs mr-1 opacity-60">ج.م</span>
-                        </div>
-                    </div>
-                </div>
+                    );
+                })()}
 
                 <div className="grid grid-cols-2 gap-3 mt-6">
                     <button 

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { formatNumber, calculateInvoiceTotal } from '../../utils/helpers';
+import { formatNumber, calculateInvoiceTotal, getInvoiceRetainedDetails } from '../../utils/helpers';
 import { X, PieChart, Search } from 'lucide-react';
 import { 
     WalletIcon
@@ -46,21 +46,29 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
 
         // 1. Invoices (Inflows)
         (invoices || []).forEach(i => {
-            const isRetained = Boolean(i.is_retained_debt) || i.description?.includes('[RETAINED_DEBT]') || i.description?.includes('[مرصودة]');
+            const invoiceTotal = calculateInvoiceTotal(i.price_items || [], i.deductions || []);
+            const { isRetained, surplus, retainedAmount } = getInvoiceRetainedDetails(i.description, i.is_retained_debt, invoiceTotal);
             const isBalanceTransfer = i.market === 'رصيد منقول';
             const isManualFunding = i.market === 'تمويل يدوي';
-            const invoiceTotal = calculateInvoiceTotal(i.price_items || [], i.deductions || []);
-            const amount = isRetained ? 0 : invoiceTotal;
+            const amount = isRetained ? surplus : invoiceTotal;
             const cleanDesc = i.description ? i.description.replace(/\s*\[RETAINED_DEBT:.*?\]/g, '').replace(/\s*\[مرصودة\]/g, '').trim() : '';
+
+            const isPureNonCash = isRetained && surplus === 0;
 
             let typeLabel = 'توريد إنتاج مبيعات';
             let description = i.invoice_number ? `فاتورة مبيعات رقـم #${i.invoice_number}` : (cleanDesc || 'مبيعات المحصول بالكيلو');
             let subNote = `الزبون: ${i.market || 'سوق محلي'}`;
 
             if (isRetained) {
-                typeLabel = 'فاتورة مرصودة للدين';
-                description = `(مرصودة لسداد مديونية المعلم) ${cleanDesc || 'مبيعات المحصول بالكيلو'}`;
-                subNote = 'سداد دين من المنبع 🔄';
+                if (surplus > 0) {
+                    typeLabel = 'فائض مبيعات مرصودة';
+                    description = `(فائض نقدي للخزنة بعد سداد دين ${formatNumber(retainedAmount)} ج) ${cleanDesc || 'مبيعات المحصول بالكيلو'}`;
+                    subNote = `سداد دين: ${formatNumber(retainedAmount)} ج | فائض كاش وارد: ${formatNumber(surplus)} ج 🔄`;
+                } else {
+                    typeLabel = 'فاتورة مرصودة للدين';
+                    description = `(مرصودة لسداد مديونية المعلم) ${cleanDesc || 'مبيعات المحصول بالكيلو'}`;
+                    subNote = 'سداد دين من المنبع (0 كاش) 🔄';
+                }
             } else if (isBalanceTransfer) {
                 typeLabel = 'رصيد منقول';
                 description = cleanDesc || 'تحويل رصيد نقدي مرحل من العروة السابقة';
@@ -83,6 +91,9 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                 cycleId: i.cycle_id,
                 cycleName: getCycleName(i.cycle_id),
                 isRetained,
+                isPureNonCash,
+                surplus,
+                retainedAmount,
                 isManualFunding,
                 isBalanceTransfer,
                 originalAmount: invoiceTotal
@@ -215,6 +226,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                             cycleId: a.cycle_id,
                             cycleName: getCycleName(a.cycle_id),
                             isRetained: true,
+                            isPureNonCash: true,
                             originalAmount: Math.abs(a.amount)
                         });
                     }
@@ -278,7 +290,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
             const txWithBalance = { ...tx, runningBalance: running };
             
             // Adjust running backward for the previous (older) transaction
-            if (tx.isRetained) {
+            if (tx.isPureNonCash || tx.amount === 0) {
                 // Non-cash retained settlements have 0 cash impact
             } else if (selectedCycleId !== 'all') {
                 // For a specific cycle, we trace the CASH safe drawer balance.
@@ -311,7 +323,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
         
         filteredHistory.forEach(tx => {
             if (periodFilter === 'year' && tx.rawDate.getFullYear() !== selectedYear) return;
-            if (tx.isRetained) return;
+            if (tx.isPureNonCash || tx.amount === 0) return;
             
             const isBankTx = tx.id.startsWith('bank-');
             if (isBankTx && selectedCycleId === 'all') return; // Keep internal transfers out of revenue/expenses metrics
@@ -345,7 +357,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
         const breakDown: Record<string, number> = {};
         filteredHistory.forEach(tx => {
              if (periodFilter === 'year' && tx.rawDate.getFullYear() !== selectedYear) return;
-             if (!tx.isOutflow || tx.isRetained) return;
+             if (!tx.isOutflow || tx.isPureNonCash || tx.amount <= 0) return;
              const isBankTx = tx.id.startsWith('bank-');
              if (isBankTx) return;
              const label = tx.typeLabel || 'آخر';
@@ -402,11 +414,15 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                 const description = (tx.description || '').toLowerCase();
                 const subNote = (tx.subNote || '').toLowerCase();
                 const cycleName = (tx.cycleName || '').toLowerCase();
+                const amountStr = String(tx.amount || '');
+                const originalAmountStr = String(tx.originalAmount || '');
                 
                 return typeLabel.includes(query) || 
                        description.includes(query) || 
                        subNote.includes(query) || 
-                       cycleName.includes(query);
+                       cycleName.includes(query) ||
+                       amountStr.includes(query) ||
+                       originalAmountStr.includes(query);
             });
         }
         return list;
@@ -629,7 +645,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
 
                                     {/* Left side: Amount & Running Balance */}
                                     <div className="flex flex-col items-end text-left shrink-0 pl-1.5 mt-0.5">
-                                        {tx.isRetained ? (
+                                        {tx.isPureNonCash || tx.amount === 0 ? (
                                             <div className="flex flex-col items-end gap-1">
                                                 <div className="px-2 py-1 rounded-md font-semibold font-mono text-[10px] sm:text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/10">
                                                     <span>تسوية: {formatNumber(tx.originalAmount)}</span>
@@ -637,6 +653,16 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                                                 </div>
                                                 <span className="text-[8px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/5 px-1 py-0.5 rounded">
                                                     أثر نقدي: ٠ ج.م 🔄
+                                                </span>
+                                            </div>
+                                        ) : tx.isRetained && tx.amount > 0 ? (
+                                            <div className="flex flex-col items-end gap-1">
+                                                <div className="px-2 py-1 rounded-md font-semibold font-mono text-xs sm:text-sm tracking-tight bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                                                    <span dir="ltr">+ {formatNumber(tx.amount)}</span>
+                                                    <span className="text-[10px] pr-1 font-bold">ج.م</span>
+                                                </div>
+                                                <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                                    فائض كاش (تسوية دين {formatNumber((tx.originalAmount || 0) - tx.amount)} ج)
                                                 </span>
                                             </div>
                                         ) : (

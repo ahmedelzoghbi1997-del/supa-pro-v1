@@ -14,7 +14,6 @@ import { useSettings, terminology } from '../../contexts/SettingsContext';
 import Skeleton from '../shared/Skeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import type { PartnerDebt, Advance } from '../../types';
-import { t } from '../../lib/i18n';
 
 // Sparkline component
 export const Sparkline: React.FC<{ data: number[]; color: string; gradientId: string; }> = ({ data, color, gradientId }) => {
@@ -211,7 +210,7 @@ const Dashboard: React.FC = () => {
     advances, farmerWithdrawals, supplierPayments,
     persons, partnerDebts
   } = useData();
-  const { settings, language } = useSettings();
+  const { settings } = useSettings();
   const term = terminology[settings.primaryTerm];
 
   const [period, setPeriod] = useState<string>('all');
@@ -423,17 +422,12 @@ const Dashboard: React.FC = () => {
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
-    if (language === 'en') {
-      if (hour < 12) return 'Good morning';
-      if (hour < 17) return 'Good afternoon';
-      return 'Good evening';
-    }
     if (hour < 12) return 'صباح الخير';
     if (hour < 17) return 'أهلاً بك';
     return 'مساء الخير';
-  }, [language]);
+  }, []);
 
-  const userName = profile?.full_name?.split(' ')[0] || (language === 'en' ? 'Farmer' : 'مزارعنا');
+  const userName = profile?.full_name?.split(' ')[0] || 'مزارعنا';
 
   const userNameColor = useMemo(() => {
     if (!profile?.id) return 'text-primary';
@@ -712,34 +706,17 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-row justify-between items-center gap-4 animate-enter px-1 relative z-20">
           <div>
               <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
-                  {(() => {
-                      const isValidName = userName && userName.trim() !== '' && userName !== '—' && userName !== 'Farmer' && userName !== 'مزارعنا';
-                      if (language === 'en') {
-                        return isValidName ? (
-                          <>{greeting}, <span className={userNameColor}>{userName}</span> <span className="inline-block animate-wave origin-bottom-right">👋</span></>
-                        ) : (
-                          <>{greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span></>
-                        );
-                      } else {
-                        return isValidName ? (
-                          <>{greeting} يا <span className={userNameColor}>{userName}</span> <span className="inline-block animate-wave origin-bottom-right">👋</span></>
-                        ) : (
-                          <>{greeting} <span className="inline-block animate-wave origin-bottom-right">👋</span></>
-                        );
-                      }
-                    })()}
+                  {greeting} يا <span className={userNameColor}>{userName}</span> <span className="inline-block animate-wave origin-bottom-right">👋</span>
               </h2>
               <p className="text-neutral-500 dark:text-neutral-400 mt-1 text-[10px] sm:text-xs md:text-sm font-medium">
-                  {language === 'en' 
-                    ? 'Here is a quick summary of your active crop cycles.' 
-                    : `إليك ملخص سريع لأداء أعمالك الزراعية لـ ${term.plural} النشطة.`}
+                  إليك ملخص سريع لأداء أعمالك الزراعية لـ {term.plural} النشطة.
               </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-soft">
                   <CalendarIcon className="w-4 h-4 text-primary" />
                   <span className="text-xs font-black text-neutral-700 dark:text-neutral-300">
-                      {new Date().toLocaleDateString(language === 'en' ? 'en-US' : 'ar-EG', { weekday: 'long', day: 'numeric', month: 'long', numberingSystem: 'latn' })}
+                      {new Date().toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', numberingSystem: 'latn' })}
                   </span>
               </div>
 
@@ -842,7 +819,7 @@ const Dashboard: React.FC = () => {
                 <div className="w-20 h-20 bg-white dark:bg-neutral-800 rounded-3xl shadow-xl flex items-center justify-center mb-6 border border-primary/10 transform group-hover:rotate-12 transition-transform duration-500">
                     <Rocket className="w-10 h-10 text-primary" />
                 </div>
-                <h3 className="text-3xl font-black mb-4">{t('أهلاً بك في المحاسب الزراعي!')}</h3>
+                <h3 className="text-3xl font-black mb-4">أهلاً بك في المحاسب الزراعي!</h3>
                 <p className="text-neutral-600 dark:text-neutral-400 font-bold mb-8 leading-relaxed">
                     يمكنك البدء من الصفر وإضافة بياناتك الخاصة، أو إذا كان لديك كود ربط من صاحب حساب آخر، يمكنك استخدامه لمشاهدة بياناته فوراً.
                 </p>

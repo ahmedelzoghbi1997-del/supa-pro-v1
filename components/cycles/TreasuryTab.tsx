@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { Cycle } from '../../types';
-import { formatNumber, calculateInvoiceTotal } from '../../utils/helpers';
+import { formatNumber, calculateInvoiceTotal, getInvoiceRetainedDetails } from '../../utils/helpers';
 import { useData } from '../../contexts/DataContext';
 import { 
     TrendingUpIcon, 
@@ -100,8 +100,12 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
     };
 
     const fund = useMemo(() => {
-        const realInvoices = invoices.filter(i => i.cycle_id === cycle.id && i.market !== 'رصيد منقول');
-        const rev = realInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
+        const realInvoices = invoices.filter(i => i.cycle_id === cycle.id && i.market !== 'رصيد منقول' && i.market !== 'تمويل يدوي');
+        const rev = realInvoices.reduce((s, i) => {
+            const net = calculateInvoiceTotal(i.price_items, i.deductions);
+            const { isRetained, surplus } = getInvoiceRetainedDetails(i.description, i.is_retained_debt, net);
+            return s + (isRetained ? surplus : net);
+        }, 0);
         
         const transferInvoices = invoices.filter(i => i.cycle_id === cycle.id && i.market === 'رصيد منقول');
         const transferredBal = transferInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
@@ -119,7 +123,13 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
             isExternalLabor(e)
         ).reduce((s, e) => s + safeNum(e.amount), 0);
 
-        const sumAdv = advances.filter(a => a.cycle_id === cycle.id && a.funding_source !== 'external_debt').reduce((s, a) => s + safeNum(a.amount), 0);
+        const sumAdv = advances.filter(a => 
+            a.cycle_id === cycle.id && 
+            a.funding_source !== 'external_debt' &&
+            !a.is_retained_debt &&
+            a.source_type !== 'invoice' &&
+            !a.reason?.includes('[INVOICE_REPAYMENT:')
+        ).reduce((s, a) => s + safeNum(a.amount), 0);
         const sumFarmer = farmerWithdrawals.filter(w => w.cycle_id === cycle.id).reduce((s, w) => s + safeNum(w.amount), 0);
         const sumSuppliers = supplierPayments.filter(p => p.cycle_id === cycle.id).reduce((s, p) => s + safeNum(p.amount), 0);
         

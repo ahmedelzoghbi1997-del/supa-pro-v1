@@ -2,7 +2,7 @@
 import React from 'react';
 import type { Invoice } from '../../types';
 import { TrashIcon, PencilIcon, ScaleIcon, TruckIcon, CalendarIcon, BoxIcon } from '../Icons';
-import { formatCurrency, calculateInvoiceTotal, formatNumber, formatShortDate } from '../../utils/helpers';
+import { formatCurrency, calculateInvoiceTotal, formatNumber, formatShortDate, getInvoiceRetainedDetails } from '../../utils/helpers';
 
 interface InvoiceCardProps {
     invoice: Invoice;
@@ -59,11 +59,23 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                                     ? invoice.description.replace(/\s*\[RETAINED_DEBT:.*?\]/g, '').replace(/\s*\[مرصودة\]/g, '').trim() 
                                     : 'فاتورة توريد محصول'}
                             </p>
-                            {(invoice.description?.includes('[RETAINED_DEBT]') || invoice.description?.includes('[مرصودة]')) && (
-                                <span className="text-[8px] font-black bg-amber-500/10 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/10 whitespace-nowrap">
-                                    مرصودة للدين 🔄
-                                </span>
-                            )}
+                            {(() => {
+                                const retDetails = getInvoiceRetainedDetails(invoice.description, invoice.is_retained_debt, totalAmount);
+                                if (!retDetails.isRetained) return null;
+                                if (retDetails.surplus > 0) {
+                                    return (
+                                        <span className="text-[8px] font-black bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 whitespace-nowrap flex items-center gap-1">
+                                            <span>مرصودة جزئياً</span>
+                                            <span className="text-emerald-800 dark:text-emerald-300 underline font-black">(+{formatCurrency(retDetails.surplus).replace('EGP', '')} ج للخزنة)</span>
+                                        </span>
+                                    );
+                                }
+                                return (
+                                    <span className="text-[8px] font-black bg-amber-500/10 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/10 whitespace-nowrap">
+                                        مرصودة بالكامل للدين 🔄
+                                    </span>
+                                );
+                            })()}
                         </div>
                         <div className="flex items-center gap-x-3 mt-1 overflow-x-auto scrollbar-hide w-full pb-0.5">
                             <InfoItem icon={CalendarIcon} value={formatShortDate(invoice.date)} />
@@ -84,7 +96,7 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                     <div className="flex flex-col items-end shrink-0 pl-1">
                         <div className="bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20 flex items-baseline gap-1">
                             <span className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-400 tabular-nums leading-none">
-                                {formatNumber(Math.round(totalAmount))}
+                                {formatCurrency(totalAmount).replace('EGP', '')}
                             </span>
                             <span className="text-[9px] font-bold text-emerald-600/70 dark:text-emerald-400/70">ج.م</span>
                         </div>

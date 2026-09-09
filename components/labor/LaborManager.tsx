@@ -15,8 +15,7 @@ type TabType = 'ledger' | 'workers' | 'analysis';
 
 const LaborManager: React.FC = () => {
     const { rawExpenses: expenses, expenseCategories, cyclesWithCalculations } = useData();
-    const { settings, language } = useSettings();
-    const isEn = language === 'en';
+    const { settings } = useSettings();
     const [activeTab, setActiveTab] = useState<TabType>('ledger');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
@@ -472,7 +471,7 @@ const LaborManager: React.FC = () => {
                 </div>
             </Modal>
 
-            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title={isEn ? "Record Daily Wage & Attendance" : "تسجيل يومية وحضور عمالة"} size="md">
+            <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="تسجيل يومية وحضور عمالة" size="md">
                 <UnifiedLaborForm 
                     onClose={() => setIsAddModalOpen(false)} 
                     defaultCycleId={selectedCycleId !== 'all' ? selectedCycleId : undefined} 

@@ -169,14 +169,14 @@ const InvoicesList: React.FC<InvoicesListProps> = ({ invoices, onAddNew, onDelet
   return (
     <div className="space-y-6">
        {/* بطاقة إحصاءات موحدة: تجمع إيرادات المحاصيل والأوزان المباعة في بطاقة مدمجة واحترافية وبنفس مظهر بطاقة المصروفات */}
-       <Card className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-emerald-300/80 dark:border-emerald-800/50 p-4 rounded-2xl shadow-sm bg-emerald-100/70 dark:bg-emerald-900/20">
+       <Card className="flex items-center justify-between border-emerald-300/80 dark:border-emerald-800/50 p-4 rounded-2xl shadow-sm bg-emerald-100/70 dark:bg-emerald-900/20">
            {/* القسم الأيمن: إجمالي الإيرادات والوزن التفصيلي الصغير */}
-           <div className="flex items-center gap-3 min-w-0 flex-1">
+           <div className="flex items-center gap-3 min-w-0">
                <TrendingUpIcon className="h-8 w-8 text-primary shrink-0" />
-               <div className="text-start min-w-0">
+               <div className="text-right">
                    <p className="text-neutral-500 dark:text-neutral-400 text-xs font-black">إجمالي الإيرادات</p>
                    <p className="text-2xl font-black text-primary tabular-nums leading-none mt-1">
-                       {formatNumber(Math.round(totalRevenue))}<span className="text-xs mr-1 opacity-75">ج.م</span>
+                       {formatCurrency(totalRevenue).replace('EGP', '')}<span className="text-xs mr-1 opacity-75">ج.م</span>
                    </p>
                    
                    {/* إجمالي الوزن مبين بخط صغير متناسق تماماً تحت المبلغ الأساسي */}
@@ -190,7 +190,7 @@ const InvoicesList: React.FC<InvoicesListProps> = ({ invoices, onAddNew, onDelet
            </div>
 
            {/* القسم الأيسر: إحصائيات متوازنة لمظهر متناسق تماماً */}
-           <div className="text-start sm:text-end shrink-0 border-t sm:border-t-0 pt-2 sm:pt-0 border-emerald-200/60 dark:border-emerald-800/40 pl-1">
+           <div className="text-left pl-1">
                <p className="text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-xs font-black">سجل الفواتير</p>
                <p className="text-base sm:text-lg font-black text-neutral-800 dark:text-neutral-350 tabular-nums leading-none mt-1">
                    {invoices.length} <span className="text-[10px] sm:text-xs opacity-75 font-bold">فاتورة</span>

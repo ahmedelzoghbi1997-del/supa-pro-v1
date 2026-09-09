@@ -3,24 +3,33 @@
   "id": "/",
   "name": "المحاسب الزراعي",
   "short_name": "المحاسب",
-  "description": "تطبيق إدارة الحسابات الزراعية الذكي",
+  "description": "تطبيق المحاسب الزراعي والأجندة الزراعية الذكية لمتابعة مواسم الزراعة والخزنة والديون والمبيعات والمصروفات.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#F8FAFC",
-  "theme_color": "#10B981",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

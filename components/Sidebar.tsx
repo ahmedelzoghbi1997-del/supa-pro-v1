@@ -1,13 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import type { NavItemId } from '../types';
 import { LogoIcon, LogoutIcon } from './Icons';
-import { Globe } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useData } from '../contexts/DataContext';
-import { useSettings } from '../contexts/SettingsContext';
 import { useNavigationItems } from '../hooks/useNavigationItems';
 import { Preferences } from '@capacitor/preferences';
-import { t } from '../lib/i18n';
 
 interface SidebarProps {
   activeItem: NavItemId;
@@ -18,8 +15,6 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, onClose }) => {
   const { profile } = useData();
-  const { settings, setLanguage } = useSettings();
-  const isEn = settings.language === 'en';
   const visibleNavItems = useNavigationItems();
   const navRef = useRef<HTMLElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0, height: '0px', transform: 'translateY(0px)' });
@@ -84,23 +79,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
           <div className="flex items-center justify-between gap-3 mb-2 pt-4 px-2">
             <div className="flex items-center gap-3">
               <LogoIcon className="h-10 w-10" />
-              <h1 className="text-xl font-bold whitespace-nowrap text-neutral-800 dark:text-neutral-0">
-                {t('appName')}
-              </h1>
+              <h1 className="text-xl font-bold whitespace-nowrap text-neutral-800 dark:text-neutral-0">المحاسب الزراعي</h1>
             </div>
           </div>
           
           <div className="px-3 mb-2">
-            <p className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
-              {isEn ? 'Daily Accounting' : 'المحاسبة اليومية'}
-            </p>
+            <p className="text-[11px] font-bold text-neutral-500 dark:text-neutral-400">المحاسبة اليومية</p>
           </div>
 
           <nav ref={navRef} className="relative flex-grow overflow-y-auto pr-2 mt-4">
             <div 
-                className={`absolute top-1 w-1 bg-primary transition-all duration-300 ease-in-out ${
-                  isEn ? 'left-0 rounded-r-full' : 'right-0 rounded-l-full'
-                }`}
+                className="absolute top-1 right-0 w-1 bg-primary rounded-r-full transition-all duration-300 ease-in-out"
                 style={indicatorStyle}
             ></div>
             
@@ -138,45 +127,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
             ))}
           </nav>
 
-          <div className="mt-auto px-2 py-4 border-t border-neutral-100 dark:border-neutral-800 space-y-2">
-            {/* Language selector strictly inside sidebar menu */}
-            <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-neutral-100/80 dark:bg-neutral-800/60 border border-neutral-200/50 dark:border-neutral-700/50">
-              <div className="flex items-center gap-2 text-xs font-semibold text-neutral-600 dark:text-neutral-300">
-                <Globe className="w-4 h-4 text-primary" />
-                <span>{isEn ? 'Language' : 'اللغة'}</span>
-              </div>
-              <div className="flex items-center gap-1 bg-neutral-200/70 dark:bg-neutral-900/80 p-0.5 rounded-lg text-xs">
-                <button
-                  type="button"
-                  onClick={() => setLanguage('ar')}
-                  className={`px-2 py-1 rounded-md transition-all font-medium ${
-                    !isEn
-                      ? 'bg-white dark:bg-neutral-800 text-primary shadow-xs font-bold'
-                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
-                  }`}
-                >
-                  عربي
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage('en')}
-                  className={`px-2 py-1 rounded-md transition-all font-medium ${
-                    isEn
-                      ? 'bg-white dark:bg-neutral-800 text-primary shadow-xs font-bold'
-                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
-                  }`}
-                >
-                  English
-                </button>
-              </div>
-            </div>
-
+          <div className="mt-auto px-2 py-4 border-t border-neutral-100 dark:border-neutral-800">
             <button
               onClick={handleLogout}
               className={`${baseItemClasses} !my-0 text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20`}
             >
               <LogoutIcon className="h-6 w-6" />
-              <span className="font-medium text-base">{isEn ? 'Logout' : 'تسجيل الخروج'}</span>
+              <span className="font-medium text-base">تسجيل الخروج</span>
             </button>
           </div>
         </div>

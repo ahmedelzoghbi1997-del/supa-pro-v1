@@ -187,3 +187,73 @@ export const createRipple = (event: React.MouseEvent<HTMLElement>) => {
     }
   });
 };
+
+export interface RetainedInvoiceDetails {
+  isRetained: boolean;
+  retainedAmount: number;
+  surplus: number;
+}
+
+export const getInvoiceRetainedDetails = (
+  invoiceDescription?: string,
+  isRetainedFlag?: boolean,
+  invoiceTotal?: number
+): RetainedInvoiceDetails => {
+  const isRetained = Boolean(isRetainedFlag) || 
+                     invoiceDescription?.includes('[RETAINED_DEBT]') || 
+                     invoiceDescription?.includes('[مرصودة]') || false;
+
+  if (!isRetained) {
+    return { isRetained: false, retainedAmount: 0, surplus: 0 };
+  }
+
+  const match = invoiceDescription?.match(/\[RETAINED_DEBT:([^\]]*)\]/);
+  let retainedAmount = 0;
+  let parsedSurplus: number | null = null;
+
+  if (match) {
+    try {
+      const parsed = JSON.parse(match[1]);
+      if (parsed && typeof parsed === 'object') {
+        if ('surplus' in parsed && typeof parsed.surplus === 'number') {
+          parsedSurplus = parsed.surplus;
+        }
+        if ('retainedTotal' in parsed && typeof parsed.retainedTotal === 'number') {
+          retainedAmount = parsed.retainedTotal;
+        } else if ('items' in parsed && typeof (parsed as Record<string, unknown>).items === 'object') {
+          const items = (parsed as Record<string, unknown>).items as Record<string, unknown>;
+          Object.values(items).forEach((item: unknown) => {
+            if (item && typeof item === 'object' && 'allocations' in item) {
+              const allocs = (item as Record<string, unknown>).allocations as Record<string, unknown>;
+              Object.values(allocs).forEach((v: unknown) => {
+                retainedAmount += (parseFloat(String(v)) || 0);
+              });
+            }
+          });
+        } else if ('allocations' in parsed) {
+          const allocs = (parsed as Record<string, unknown>).allocations as Record<string, unknown>;
+          Object.values(allocs).forEach((v: unknown) => {
+            retainedAmount += (parseFloat(String(v)) || 0);
+          });
+        } else {
+          Object.values(parsed as Record<string, unknown>).forEach((v: unknown) => {
+            retainedAmount += (parseFloat(String(v)) || 0);
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse retained debt payload in helper:", e);
+    }
+  }
+
+  const total = invoiceTotal ?? 0;
+  if (retainedAmount <= 0) {
+    retainedAmount = total;
+  }
+  if (total > 0 && retainedAmount > total) {
+    retainedAmount = total;
+  }
+
+  const surplus = parsedSurplus !== null ? parsedSurplus : Math.max(0, Math.round((total - retainedAmount) * 100) / 100);
+  return { isRetained: true, retainedAmount, surplus };
+};

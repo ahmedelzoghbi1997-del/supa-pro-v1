@@ -5,6 +5,7 @@ import { useUI } from './UIContext';
 import { getLocalDateString } from '../utils/helpers';
 import { sanitizePayloadForTable } from '../lib/payloadWhitelist';
 import { addToSyncQueue, isNetworkError, processSyncQueue } from '../lib/syncQueue';
+import { markLocalAction, isLocalAction } from '../lib/recentActions';
 import { supabase } from '../lib/supabase';
 import { db } from '../lib/db';
 import { useFinancialCalculations } from '../hooks/useFinancialCalculations';
@@ -627,7 +628,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 // DELETE doesn't have user_id, so it will attempt to remove from local state.
                 // If it doesn't exist in local state (because it's not ours), it does nothing (which is perfect).
 
-                if (eventType === 'INSERT' && newRecord && recentlyAddedIds.current.has(String(newRecord.id))) return;
+                if (eventType === 'INSERT' && newRecord && (recentlyAddedIds.current.has(String(newRecord.id)) || isLocalAction(newRecord.id))) return;
 
                 switch (table) {
                     case 'cycles': updateState(setCycles, newRecord, oldRecord, eventType); break;
@@ -963,6 +964,8 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 const [pricesRes, dedsRes] = await Promise.all([realPricesPromise, realDedsPromise]);
                 
                 recentlyAddedIds.current.add(newInv.id);
+                markLocalAction(newInv.id);
+                markLocalAction(stableId);
                 setTimeout(() => recentlyAddedIds.current.delete(newInv.id), 10000); // cleanup after 10s
 
                 setInvoicePriceItems(prev => [...prev.filter(p => p.invoice_id !== stableId), ...(pricesRes.data || [])]);
@@ -1297,6 +1300,8 @@ setDailyLogs(prev => prev.filter(l => l.id !== id));
             } }
             
             recentlyAddedIds.current.add(newExp.id);
+            markLocalAction(newExp.id);
+            markLocalAction(stableId);
             setTimeout(() => recentlyAddedIds.current.delete(newExp.id), 10000);
 
             // Notification handled by Edge Function
@@ -1689,6 +1694,8 @@ setExpenses(prev => prev.filter(e => e.id !== id));
             } }
 
             recentlyAddedIds.current.add(newAdv.id);
+            markLocalAction(newAdv.id);
+            markLocalAction(stableId);
             setTimeout(() => recentlyAddedIds.current.delete(newAdv.id), 10000);
 
             // Notification handled by Edge Function
@@ -1783,6 +1790,8 @@ setSuppliers(prev => prev.filter(s => s.id !== id));
             } }
 
             recentlyAddedIds.current.add(newPay.id);
+            markLocalAction(newPay.id);
+            markLocalAction(stableId);
             setTimeout(() => recentlyAddedIds.current.delete(newPay.id), 10000);
 
             // Notification handled by Edge Function
@@ -1857,6 +1866,8 @@ setFarmers(prev => prev.filter(f => f.id !== id));
             } }
 
             recentlyAddedIds.current.add(newWith.id);
+            markLocalAction(newWith.id);
+            markLocalAction(stableId);
             setTimeout(() => recentlyAddedIds.current.delete(newWith.id), 10000);
 
             // Notification handled by Edge Function
@@ -2075,6 +2086,7 @@ setBankTransactions(prev => prev.filter(t => t.id !== id));
             } as unknown as PartnerDebt;
 
             recentlyAddedIds.current.add(stableId);
+            markLocalAction(stableId);
             setPartnerDebts(prev => [optimisticDebt, ...prev]);
 
             try {

@@ -12,8 +12,7 @@ interface EditLaborFormProps {
 
 const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
     const { updateExpense, cyclesWithCalculations } = useData();
-    const { settings, updateSettings, loadingSettings, language } = useSettings();
-    const isEn = language === 'en';
+    const { settings, updateSettings, loadingSettings } = useSettings();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -227,7 +226,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
             const isWorkerWage = transactionType === 'wage_deferred' || transactionType === 'wage_cash';
 
             if (isWorkerWage && selectedActivities.length === 0) {
-                setError(isEn ? 'Please select at least one activity.' : 'برجاء اختيار نشاط واحد على الأقل لكشف اليومية.');
+                setError('برجاء اختيار نشاط واحد على الأقل لكشف اليومية.');
                 setIsSubmitting(false);
                 return;
             }
@@ -485,7 +484,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
 
                         {selectedActivities.length === 0 && (
                             <p className="text-[10px] font-bold text-rose-500 pt-0.5">
-                                ⚠️ {isEn ? 'Please select at least one activity.' : 'يجب اختيار نشاط واحد على الأقل ليتم حفظ التعديل.'}
+                                ⚠️ يجب اختيار نشاط واحد على الأقل ليتم حفظ التعديل.
                             </p>
                         )}
                     </div>

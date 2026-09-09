@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import type { Cycle } from '../../types';
 import { useData } from '../../contexts/DataContext';
 import { useUI } from '../../contexts/UIContext';
-import { useSettings } from '../../contexts/SettingsContext';
 import { calculateInvoiceTotal, formatNumber } from '../../utils/helpers';
 import { 
   TrendingUp, 
@@ -18,8 +17,6 @@ import { motion, AnimatePresence } from 'motion/react';
 const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
   const { invoices, expenses } = useData();
   const { loading } = useUI();
-  const { language } = useSettings();
-  const isEn = language === 'en';
   const [viewType, setViewType] = useState<'monthly' | 'weekly'>('monthly');
   const [expandedPeriod, setExpandedPeriod] = useState<string | null>(null);
 
@@ -268,7 +265,7 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                 <span className="text-xs mr-0.5 opacity-75 font-semibold"> ج.م</span>
               </h3>
               <p className="text-[9px] text-emerald-100/80 font-bold mt-1.5 leading-none">
-                {isEn ? `Across ${invoiceCount} Shipments` : `برواية ${invoiceCount} شحنات بيع`}
+                برواية {invoiceCount} شحنات بيع
               </p>
             </div>
 

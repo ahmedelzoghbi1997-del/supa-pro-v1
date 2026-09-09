@@ -1,8 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import type { Invoice } from '../../types';
-import { formatCurrency, formatNumber } from '../../utils/helpers';
-import { t } from '../../lib/i18n';
+import { formatCurrency, formatNumber, getInvoiceRetainedDetails } from '../../utils/helpers';
 import { CalendarIcon, TruckIcon, TrendingUpIcon, TrendingDownIcon, LogoIcon, BoxIcon, PencilIcon } from '../Icons';
 import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
@@ -29,25 +28,20 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
     const totalDeductions = deductions.reduce((sum, ded) => sum + ded.amount, 0);
     const netTotal = totalBeforeDeductions - totalDeductions;
 
-    const isRetained = invoice.description?.includes('[RETAINED_DEBT]') || invoice.description?.includes('[مرصودة]');
+    const retentionDetails = getInvoiceRetainedDetails(invoice.description, invoice.is_retained_debt, netTotal);
+    const isRetained = retentionDetails.isRetained;
     let cleanDescription = invoice.description || '';
     let partnerAllocations: Record<string, number> = {};
     
     if (isRetained) {
         cleanDescription = cleanDescription.replace(/\s*\[RETAINED_DEBT:.*?\]/g, '').replace(/\s*\[مرصودة\]/g, '').trim();
-        const match = invoice.description?.match(/\[RETAINED_DEBT:([^\]]*)\]/);
-        if (match) {
-            try {
-                const parsed = JSON.parse(match[1]);
-                if (parsed && typeof parsed === 'object') {
-                    if ('allocations' in parsed) {
-                        partnerAllocations = parsed.allocations;
-                    } else {
-                        partnerAllocations = parsed;
-                    }
-                }
-            } catch (e) {
-                console.error("Failed to parse allocations in details modal", e);
+        if (retentionDetails.rawPayload && typeof retentionDetails.rawPayload === 'object') {
+            if ('allocations' in retentionDetails.rawPayload) {
+                partnerAllocations = retentionDetails.rawPayload.allocations || {};
+            } else if ('items' in retentionDetails.rawPayload) {
+                partnerAllocations = retentionDetails.rawPayload.items || {};
+            } else {
+                partnerAllocations = retentionDetails.rawPayload as Record<string, number>;
             }
         }
     }
@@ -75,7 +69,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                             <LogoIcon className="w-12 h-12 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black text-neutral-800">{t('appName')}</h1>
+                            <h1 className="text-3xl font-black text-neutral-800">المحاسب الزراعي</h1>
                             <p className="text-sm font-bold text-neutral-400">وثيقة مبيعات رقمية</p>
                         </div>
                     </div>
@@ -167,16 +161,25 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                     )}
                     
                     {isRetained && (
-                        <div className="p-3.5 bg-amber-500/5 dark:bg-amber-500/5 rounded-2xl border border-amber-500/10 space-y-2.5">
-                            <div className="flex items-center gap-2">
-                                <span className="text-base">🔄</span>
-                                <span className="text-xs font-black text-amber-800 dark:text-amber-300">
-                                    تفاصيل سداد دين المعلم (فاتورة مرصودة)
+                        <div className="p-3.5 bg-amber-500/5 dark:bg-amber-500/5 rounded-2xl border border-amber-500/15 space-y-2.5">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-base">🔄</span>
+                                    <span className="text-xs font-black text-amber-800 dark:text-amber-300">
+                                        تفاصيل سداد دين المعلم {retentionDetails.surplus > 0 ? '(رصد جزئي)' : '(رصد كامل)'}
+                                    </span>
+                                </div>
+                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                                    مسدد: {formatNumber(retentionDetails.retainedAmount)} ج.م
                                 </span>
                             </div>
+
                             <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold leading-relaxed">
-                                تم توجيه صافي قيمة هذه الفاتورة بالكامل من المنبع لتسديد دين الشركاء المستحق للمعلم، ولم تدخل الخزنة كسيولة نقدية:
+                                {retentionDetails.surplus > 0 
+                                    ? `تم خصم ${formatNumber(retentionDetails.retainedAmount)} ج.م من صافي الفاتورة لسداد ديون الشركاء، بينما تم ترحيل الفائض المتبقي (${formatNumber(retentionDetails.surplus)} ج.م) كسيولة نقدية للخزنة:`
+                                    : 'تم توجيه صافي قيمة هذه الفاتورة بالكامل من المنبع لتسديد دين الشركاء المستحق للمعلم، ولم تدخل الخزنة كسيولة نقدية:'}
                             </p>
+
                             <div className="grid grid-cols-1 gap-2">
                                 {Object.entries(partnerAllocations).map(([partnerId, amount]) => {
                                     const pName = activePersons?.find(p => p.id === partnerId)?.name || 'شريك';
@@ -184,12 +187,24 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                                         <div key={partnerId} className="flex justify-between items-center bg-white dark:bg-neutral-900/40 p-2.5 rounded-xl border border-neutral-100 dark:border-neutral-800">
                                             <span className="text-xs font-bold text-slate-700 dark:text-neutral-300">{pName}</span>
                                             <span className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
-                                                -{formatNumber(Math.round(amount))} ج.م
+                                                -{formatCurrency(amount).replace('EGP', '')} ج.م
                                             </span>
                                         </div>
                                     );
                                 })}
                             </div>
+
+                            {retentionDetails.surplus > 0 && (
+                                <div className="flex justify-between items-center bg-emerald-500/10 dark:bg-emerald-500/15 p-2.5 rounded-xl border border-emerald-500/20 mt-2">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-xs">💰</span>
+                                        <span className="text-xs font-black text-emerald-800 dark:text-emerald-300">الفائض المرحل للخزنة</span>
+                                    </div>
+                                    <span className="text-sm font-black text-emerald-700 dark:text-emerald-300 tabular-nums">
+                                        +{formatCurrency(retentionDetails.surplus).replace('EGP', '')} ج.م
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -282,7 +297,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                             <span className={`${isForPrint ? 'text-base' : 'text-xs'} font-black uppercase tracking-wider`}>القبض الفعلي</span>
                         </div>
                         <span className={`${isForPrint ? 'text-4xl' : 'text-3xl'} font-black tracking-tighter tabular-nums`}>
-                            {formatNumber(Math.round(netTotal))}
+                            {formatCurrency(netTotal).replace('EGP', '')}
                             <span className={`${isForPrint ? 'text-xs' : 'text-[10px]'} mr-1 opacity-70`}>ج.م</span>
                         </span>
                     </div>
@@ -291,7 +306,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
 
             {isForPrint && (
                 <div className="pt-8 text-center space-y-2 opacity-60">
-                    <p className="text-xs text-neutral-400 font-black uppercase tracking-[0.3em]">{t('شكراً لاستخدامكم تطبيق المحاسب الزراعي')}</p>
+                    <p className="text-xs text-neutral-400 font-black uppercase tracking-[0.3em]">شكراً لاستخدامكم تطبيق المحاسب الزراعي</p>
                 </div>
             )}
         </div>

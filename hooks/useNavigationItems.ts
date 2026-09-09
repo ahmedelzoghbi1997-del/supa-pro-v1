@@ -2,9 +2,8 @@ import { useMemo } from 'react';
 import { navItems } from '../constants';
 import type { NavSection, AppSystem } from '../types';
 import { SubscriptionIcon } from '../components/Icons';
-import { useSettings, getTerminology } from '../contexts/SettingsContext';
+import { useSettings, terminology } from '../contexts/SettingsContext';
 import { useData } from '../contexts/DataContext';
-import { translateText } from '../lib/i18n';
 
 const systemToNavItem: Record<AppSystem, string> = {
     treasury: 'treasury',
@@ -18,8 +17,7 @@ const systemToNavItem: Record<AppSystem, string> = {
 export const useNavigationItems = () => {
     const { settings } = useSettings();
     const { profile } = useData();
-    const isEn = settings.language === 'en';
-    const term = getTerminology(settings.primaryTerm, settings.language || 'ar');
+    const term = terminology[settings.primaryTerm];
 
     const visibleNavItems = useMemo<NavSection[]>(() => {
         if (!profile) return [];
@@ -30,31 +28,19 @@ export const useNavigationItems = () => {
 
         const processedNavItems: NavSection[] = navItems.map(section => ({
             ...section,
-            title: isEn ? translateText(section.title, 'en') : section.title,
             items: [...section.items].map(item => {
                 if (item.id === 'cycles') {
-                    return { ...item, label: isEn ? `Manage ${term.plural}` : `إدارة ${term.plural}` };
+                    return { ...item, label: `إدارة ${term.plural}` };
                 }
-                return {
-                    ...item,
-                    label: isEn ? translateText(item.label, 'en') : item.label,
-                };
+                return item;
             }),
         }));
 
         if (profile.role === 'user') {
-            const appSection = processedNavItems.find(section => 
-                section.title === (isEn ? 'Application' : 'التطبيق') || 
-                section.title === 'Application' || 
-                section.title === 'التطبيق'
-            );
+            const appSection = processedNavItems.find(section => section.title === 'التطبيق');
             if (appSection) {
                 if (!appSection.items.some(item => item.id === 'subscription')) {
-                    appSection.items.push({ 
-                        id: 'subscription', 
-                        label: isEn ? 'Subscription' : 'الاشتراك', 
-                        icon: SubscriptionIcon 
-                    });
+                    appSection.items.push({ id: 'subscription', label: 'الاشتراك', icon: SubscriptionIcon });
                 }
             }
         }
