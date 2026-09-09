@@ -284,7 +284,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
         <RealtimeNotificationProvider>
           <NotificationListener />
           <AppUpdateModal />
-          <div className="flex min-h-screen font-sans bg-white dark:bg-[#0f172a] overscroll-none pt-[env(safe-area-inset-top)]">
+          <div className="flex h-screen font-sans bg-white dark:bg-[#0f172a] pt-[env(safe-area-inset-top)]">
             <Sidebar
               activeItem={activeItem}
               setActiveItem={handleNavigation}

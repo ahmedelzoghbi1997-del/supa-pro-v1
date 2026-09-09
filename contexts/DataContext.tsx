@@ -63,7 +63,7 @@ const getCache = async <T,>(userId: string, table: string): Promise<T[] | null> 
                 // ignore JSON parse error
             }
         }
-    } catch (e) {
+    } catch (_e) {
         console.warn(`[Dexie] Failed to get cache for ${table}:`, e);
     }
     return null;
@@ -73,7 +73,7 @@ const setCache = async <T,>(userId: string, table: string, data: T[]): Promise<v
     try {
         const key = `app_cache_${userId}_${table}`;
         await (db as any).cache.put({ key, data, updated_at: Date.now() });
-    } catch (e) {
+    } catch (_e) {
         console.warn(`[Dexie] Failed to set cache for ${table}:`, e);
     }
 };
@@ -94,7 +94,7 @@ const getCustomCache = async <T,>(key: string): Promise<T | null> => {
                 // ignore JSON parse error
             }
         }
-    } catch (e) {
+    } catch (_e) {
         console.warn(`[Dexie] Failed to get custom cache for ${key}:`, e);
     }
     return null;
@@ -103,7 +103,7 @@ const getCustomCache = async <T,>(key: string): Promise<T | null> => {
 const setCustomCache = async <T,>(key: string, data: T): Promise<void> => {
     try {
         await (db as any).cache.put({ key, data, updated_at: Date.now() });
-    } catch (e) {
+    } catch (_e) {
         console.warn(`[Dexie] Failed to set custom cache for ${key}:`, e);
     }
 };
@@ -541,14 +541,14 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                     setRpcData(data);
                     setCustomCache(`app_cache_${effectiveUserId}_rpc_totals`, data);
                 }
-            } catch (e) {
+            } catch (_e) {
                 console.warn('RPC totals fetch failed, fallback to calculations:', e);
             }
 
             setIsPhase2Loading(false);
             setIsSyncing(false);
 
-        } catch (e) {
+        } catch (_e) {
             console.error("Fetch Error:", e);
             setLoading(false);
             setIsPhase2Loading(false);
@@ -579,7 +579,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
 
             const { data } = await supabase.rpc('get_financial_totals', { p_user_id: effectiveUserId });
             if (data) setRpcData(data);
-        } catch (e) {
+        } catch (_e) {
             console.error('Failed to explicitly refresh global totals', e);
         }
     }, [effectiveUserId, setAdvances]);
@@ -951,7 +951,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                   addToSyncQueue({ table: 'invoices', action: 'insert', payload: data }).catch(console.error);
                   try {
                     setInvoices(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (e) {} return;
+                  } catch (_e) {} return;
                 } else {
                   throw error;
                 } }
@@ -1028,7 +1028,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                   await addToSyncQueue({ table: 'invoices', action: 'insert', payload: data });
                   try {
                     setInvoices(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (e) {} return;
+                  } catch (_e) {} return;
                 } else {
                   console.error("Failed to parse or save retained debt allocations:", jsonErr);
                 }
@@ -1041,7 +1041,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
           await addToSyncQueue({ table: 'invoices', action: 'insert', payload: data });
           try {
             setInvoices(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-          } catch (e) {} return;
+          } catch (_e) {} return;
         } else {
           setInvoices(prev => prev.filter(i => i._stable_id !== stableId));
                         setInvoicePriceItems(prev => prev.filter(p => p.invoice_id !== stableId));
@@ -1099,7 +1099,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                   addToSyncQueue({ table: 'invoices', action: 'update', payload: d }).catch(console.error);
                   try {
                     setInvoices(prev => prev.map(item => (item._stable_id === invoiceId || item.id === invoiceId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (e) {} return;
+                  } catch (_e) {} return;
                 } else {
                   throw invError;
                 } }
@@ -1184,7 +1184,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                   await addToSyncQueue({ table: 'invoices', action: 'update', payload: d });
                   try {
                     setInvoices(prev => prev.map(item => (item._stable_id === invoiceId || item.id === invoiceId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (e) {} return;
+                  } catch (_e) {} return;
                 } else {
                   console.error("Failed to update retained debt allocations:", jsonErr);
                 }
@@ -1198,7 +1198,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
           await addToSyncQueue({ table: 'invoices', action: 'update', payload: d });
           try {
             setInvoices(prev => prev.map(item => (item._stable_id === invoiceId || item.id === invoiceId) ? { ...item, pending_sync: true } as any : item));
-          } catch (e) {} return;
+          } catch (_e) {} return;
         } else {
           console.error("Update Invoice Error:", error);
                         fetchData();
@@ -1239,7 +1239,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
               addToSyncQueue({ table: 'daily_logs', action: 'insert', payload: data }).catch(console.error);
               try {
                 setDailyLogs(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               setDailyLogs(prev => prev.filter(l => l._stable_id !== stableId)); throw error;
             } }
@@ -1257,7 +1257,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
               addToSyncQueue({ table: 'daily_logs', action: 'update', payload: d }).catch(console.error);
               try {
                 setDailyLogs(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update daily log:", error);
                             throw error;
@@ -1294,7 +1294,7 @@ setDailyLogs(prev => prev.filter(l => l.id !== id));
               addToSyncQueue({ table: 'expenses', action: 'insert', payload: data }).catch(console.error);
               try {
                 setExpenses(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               setExpenses(prev => prev.filter(e => e._stable_id !== stableId)); throw error;
             } }
@@ -1335,7 +1335,7 @@ setDailyLogs(prev => prev.filter(l => l.id !== id));
               addToSyncQueue({ table: 'expenses', action: 'update', payload: payload }).catch(console.error);
               try {
                 setExpenses(prev => prev.map(item => (item._stable_id === (d.id || d) || item.id === (d.id || d)) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update expense in Supabase:", response.error);
                             throw response.error;
@@ -1363,7 +1363,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
               addToSyncQueue({ table: 'cycles', action: 'insert', payload: data }).catch(console.error);
               try {
                 setCycles(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               setCycles(prev => prev.filter(c => c._stable_id !== stableId)); throw error;
             } }
@@ -1404,7 +1404,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
                           await addToSyncQueue({ table: 'cycles', action: 'insert', payload: data });
                           try {
                             setCycles(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-                          } catch (e) {} return;
+                          } catch (_e) {} return;
                         } else {
                           console.error("Failed to auto-transfer cash balance", invErr);
                         }
@@ -1482,7 +1482,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
                           await addToSyncQueue({ table: 'cycles', action: 'update', payload: d });
                           try {
                             setCycles(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-                          } catch (e) {} return;
+                          } catch (_e) {} return;
                         } else {
                           console.error("Failed to auto-transfer cash balance on close", invErr);
                         }
@@ -1688,7 +1688,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
               addToSyncQueue({ table: 'advances', action: 'insert', payload: d }).catch(console.error);
               try {
                 setAdvances(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               setAdvances(prev => prev.filter(a => a._stable_id !== stableId)); throw error;
             } }
@@ -1722,7 +1722,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
               addToSyncQueue({ table: 'advances', action: 'update', payload: d }).catch(console.error);
               try {
                 setAdvances(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update advance:", error);
                             throw error;
@@ -1744,7 +1744,7 @@ setAdvances(prev => prev.filter(a => a.id !== id));
               addToSyncQueue({ table: 'suppliers', action: 'insert', payload: { name, opening_balance } }).catch(console.error);
               try {
                 setSuppliers(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               throw error;
             } }
@@ -1758,7 +1758,7 @@ setAdvances(prev => prev.filter(a => a.id !== id));
               addToSyncQueue({ table: 'suppliers', action: 'update', payload: supplier }).catch(console.error);
               try {
                 setSuppliers(prev => prev.map(item => (item._stable_id === supplier.id || item.id === supplier.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               throw error;
             } }
@@ -1784,7 +1784,7 @@ setSuppliers(prev => prev.filter(s => s.id !== id));
               addToSyncQueue({ table: 'supplier_payments', action: 'insert', payload: d }).catch(console.error);
               try {
                 setSupplierPayments(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               setSupplierPayments(prev => prev.filter(p => p._stable_id !== stableId)); throw error;
             } }
@@ -1807,7 +1807,7 @@ setSuppliers(prev => prev.filter(s => s.id !== id));
               addToSyncQueue({ table: 'supplier_payments', action: 'update', payload: d }).catch(console.error);
               try {
                 setSupplierPayments(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update supplier payment:", error);
                             throw error;
@@ -1834,7 +1834,7 @@ setSupplierPayments(prev => prev.filter(p => p.id !== id));
               addToSyncQueue({ table: 'farmers', action: 'update', payload: farmer }).catch(console.error);
               try {
                 setFarmers(prev => prev.map(item => (item._stable_id === farmer.id || item.id === farmer.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               throw error;
             } }
@@ -1860,7 +1860,7 @@ setFarmers(prev => prev.filter(f => f.id !== id));
               addToSyncQueue({ table: 'farmer_withdrawals', action: 'insert', payload: d }).catch(console.error);
               try {
                 setFarmerWithdrawals(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               setFarmerWithdrawals(prev => prev.filter(w => w._stable_id !== stableId)); throw error;
             } }
@@ -1883,7 +1883,7 @@ setFarmers(prev => prev.filter(f => f.id !== id));
               addToSyncQueue({ table: 'farmer_withdrawals', action: 'update', payload: d }).catch(console.error);
               try {
                 setFarmerWithdrawals(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update farmer withdrawal:", error);
                             throw error;
@@ -1910,7 +1910,7 @@ setFarmerWithdrawals(prev => prev.filter(w => w.id !== id));
                     addToSyncQueue({ table: 'expense_categories', action: 'insert', payload: c }).catch(console.error);
                     try {
                         setExpenseCategories(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-                    } catch (e) {} 
+                    } catch (_e) {} 
                     return stableId;
                 } else {
                     setExpenseCategories(prev => prev.filter(cat => cat._stable_id !== stableId));
@@ -1932,7 +1932,7 @@ setFarmerWithdrawals(prev => prev.filter(w => w.id !== id));
               addToSyncQueue({ table: 'expense_categories', action: 'update', payload: d }).catch(console.error);
               try {
                 setExpenseCategories(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update expense category:", error);
                             throw error;
@@ -1962,7 +1962,7 @@ setExpenseCategories(prev => prev.filter(cat => cat.id !== id));
               addToSyncQueue({ table: 'assets', action: 'update', payload: d }).catch(console.error);
               try {
                 setAssets(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update asset:", error);
                             throw error;
@@ -1995,7 +1995,7 @@ setAssets(prev => prev.filter(a => a.id !== id));
               addToSyncQueue({ table: 'bank_accounts', action: 'insert', payload: d }).catch(console.error);
               try {
                 setBankAccounts(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return stableId;
+              } catch (_e) {} return stableId;
             } else {
               setBankAccounts(prev => prev.filter(a => a._stable_id !== stableId)); throw error;
             } }
@@ -2011,7 +2011,7 @@ setAssets(prev => prev.filter(a => a.id !== id));
               addToSyncQueue({ table: 'bank_accounts', action: 'update', payload: d }).catch(console.error);
               try {
                 setBankAccounts(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update bank account:", error);
                             throw error;
@@ -2036,7 +2036,7 @@ setBankAccounts(prev => prev.filter(a => a.id !== id));
               addToSyncQueue({ table: 'bank_transactions', action: 'insert', payload: d }).catch(console.error);
               try {
                 setBankTransactions(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               setBankTransactions(prev => prev.filter(t => t._stable_id !== stableId)); throw error;
             } }
@@ -2051,7 +2051,7 @@ setBankAccounts(prev => prev.filter(a => a.id !== id));
               addToSyncQueue({ table: 'bank_transactions', action: 'update', payload: d }).catch(console.error);
               try {
                 setBankTransactions(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update bank transaction:", error);
                             throw error;
@@ -2095,7 +2095,7 @@ setBankTransactions(prev => prev.filter(t => t.id !== id));
                   addToSyncQueue({ table: 'partner_debts', action: 'insert', payload: d }).catch(console.error);
                   try {
                     setPartnerDebts(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (e) {} return;
+                  } catch (_e) {} return;
                 } else {
                   setPartnerDebts(prev => prev.filter(item => item._stable_id !== stableId));
                                     throw error;
@@ -2108,7 +2108,7 @@ setBankTransactions(prev => prev.filter(t => t.id !== id));
           await addToSyncQueue({ table: 'partner_debts', action: 'insert', payload: d });
           try {
             setPartnerDebts(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-          } catch (e) {} return;
+          } catch (_e) {} return;
         } else {
           console.error("Failed to add partner debt:", err);
                         throw err;
@@ -2132,7 +2132,7 @@ setBankTransactions(prev => prev.filter(t => t.id !== id));
               addToSyncQueue({ table: 'partner_debts', action: 'update', payload: d }).catch(console.error);
               try {
                 setPartnerDebts(prev => prev.map(item => (item._stable_id === d.id || item.id === d.id) ? { ...item, pending_sync: true } as any : item));
-              } catch (e) {} return;
+              } catch (_e) {} return;
             } else {
               console.error("Failed to update partner debt:", error);
                             throw error;

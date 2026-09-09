@@ -201,7 +201,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             setError('بيانات الدخول غير صحيحة');
         }
     } else {
-        const { data: authData, error } = await supabase.auth.signInWithPassword({ email: identifier, password });
+        const { data: authData, error } = await supabase.auth.signInWithPassword({ email: _identifier, password });
         if (error) {
             if (error.message.includes('Email not confirmed')) {
                 setError('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.');
@@ -221,7 +221,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 
                 await saveAccount({
                     id: authData.user.id,
-                    email: identifier,
+                    email: _identifier,
                     password,
                     fullName: profData?.full_name || 'مالك',
                     role: profData?.role || 'owner',
@@ -451,7 +451,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setError(null);
     setMessage(null);
     const { error: signUpError } = await supabase.auth.signUp({
-        email: identifier,
+        email: _identifier,
         password,
         options: { data: { full_name: fullName } }
     });
@@ -487,7 +487,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setLoading(true);
     setError(null);
     const type = otpFlow === 'signup' ? 'signup' : 'recovery';
-    const { error: verifyError } = await supabase.auth.verifyOtp({ email: identifier, token, type });
+    const { error: verifyError } = await supabase.auth.verifyOtp({ email: _identifier, token, type });
     if (verifyError) {
         setError('الرمز غير صالح أو منتهي الصلاحية.');
     }
@@ -1091,7 +1091,7 @@ interface VerifyOtpViewProps {
     message: string | null;
 }
 
-const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email: identifier, flow, token, setToken, handleVerifyOtp, setView, loading, error, message }) => {
+const VerifyOtpView: React.FC<VerifyOtpViewProps> = ({ email: _identifier, flow, token, setToken, handleVerifyOtp, setView, loading, error, message }) => {
     return (
         <>
             <div className="text-center">

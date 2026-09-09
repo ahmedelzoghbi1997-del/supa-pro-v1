@@ -5,7 +5,7 @@ import { ArrowDownToLine, Smartphone, X, Check } from 'lucide-react';
 export const PWAInstallButton: React.FC<{ variant?: 'header' | 'banner' | 'settings' }> = ({ variant = 'header' }) => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, _setIsDismissed] = useState(false);
 
   // If already running as an installed PWA or dismissed, hide
   if (isInstalled || isDismissed) {

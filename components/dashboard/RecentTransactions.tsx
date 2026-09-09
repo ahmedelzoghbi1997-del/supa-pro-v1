@@ -6,15 +6,15 @@ import {
     HandCoins, 
     Calendar, 
     Sprout, 
-    User, 
-    Tag, 
-    FileText, 
-    CreditCard, 
+     
+     
+     
+     
     Building2, 
-    Scale, 
+     
     X, 
     ChevronLeft, 
-    Layers,
+    
     Receipt
 } from 'lucide-react';
 import { formatNumber, calculateInvoiceTotal, formatDateShort, formatDateFull } from '../../utils/helpers';

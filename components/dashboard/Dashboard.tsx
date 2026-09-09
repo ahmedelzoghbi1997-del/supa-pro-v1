@@ -202,7 +202,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 };
 
 const Dashboard: React.FC = () => {
-  const { loading, isPhase2Loading } = useUI();
+  const { loading } = useUI();
   const { 
     profile, setActiveItem, 
     invoices, expenses, cyclesWithCalculations,

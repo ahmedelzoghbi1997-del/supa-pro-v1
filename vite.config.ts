@@ -47,6 +47,14 @@ export default defineConfig(() => {
                 purpose: 'maskable',
               },
             ],
+            screenshots: [
+              {
+                src: '/screenshot-mobile.jpg',
+                sizes: '1080x2400',
+                type: 'image/jpeg',
+                form_factor: 'narrow'
+              }
+            ],
           },
           workbox: {
             maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,

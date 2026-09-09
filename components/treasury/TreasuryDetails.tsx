@@ -20,7 +20,7 @@ import {
     SparklesIcon,
     ArrowUpRightIcon,
     ArrowDownLeftIcon,
-    CalendarIcon,
+
     PencilIcon,
     CheckCircleIcon
 } from '../Icons';

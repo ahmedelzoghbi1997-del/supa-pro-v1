@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Invoice } from '../../types';
 import { useData } from '../../contexts/DataContext';
-import { PlusIcon, TrashIcon, CalendarIcon, TruckIcon, CartonIcon, PencilIcon, SparklesIcon, CheckCircleIcon, ScaleIcon, UserIcon, CheckIcon, WalletIcon } from '../Icons';
+import { PlusIcon, TrashIcon, CalendarIcon, TruckIcon, CartonIcon, PencilIcon, SparklesIcon, CheckCircleIcon, UserIcon, WalletIcon } from '../Icons';
 import { formatCurrency } from '../../utils/helpers';
 import Modal from '../shared/Modal';
 import ManageMarkets from '../settings/ManageMarkets';
@@ -260,7 +260,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
     }, [partnerDebts, advances, initialData?.id]);
 
     // Summary map of total debts (personal external + joint share) for each partner
-    const partnerTotalDebtMap = useMemo(() => {
+    const _partnerTotalDebtMap = useMemo(() => {
         const map: Record<string, { joint: number; external: number; total: number }> = {};
         (activePersons || []).forEach(p => {
             const extDebt = partnerExternalDebt[p.id] || 0;
@@ -398,7 +398,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
     }, []);
 
     // Smart Allocation Helpers
-    const handleAssignToSinglePartner = useCallback((partnerId: string) => {
+    const _handleAssignToSinglePartner = useCallback((partnerId: string) => {
         const newAllocations: Record<string, string> = {};
         const maxAllowed = partnerExternalDebt[partnerId] || 0;
         const alloc = Math.min(totals.net, Math.max(0, maxAllowed));
