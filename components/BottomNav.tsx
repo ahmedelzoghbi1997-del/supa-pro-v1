@@ -74,7 +74,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     return (
         <>
             <div 
-                className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#0f172a] border-t border-neutral-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] pb-[env(safe-area-inset-bottom)]"
+                className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#0f172a] border-t border-neutral-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]"
+                style={{ paddingBottom: 'env(safe-area-inset-bottom, 20px)' }}
             >
                 <div className="flex items-center justify-around px-2 py-1.5 relative">
                     {bottomBarItems.map(item => {
