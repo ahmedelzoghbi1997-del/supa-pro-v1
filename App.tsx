@@ -270,7 +270,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
 
   if (loadingSettings) {
     return (
-      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center pt-[env(safe-area-inset-top)]">
+      <div className="min-h-screen bg-white dark:bg-[#0f172a] flex items-center justify-center pt-[env(safe-area-inset-top)]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -284,7 +284,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
         <RealtimeNotificationProvider>
           <NotificationListener />
           <AppUpdateModal />
-          <div className="flex h-screen font-sans bg-neutral-50 dark:bg-neutral-950 pt-[env(safe-area-inset-top)]">
+          <div className="flex h-screen font-sans bg-white dark:bg-[#0f172a] pt-[env(safe-area-inset-top)]">
             <Sidebar
               activeItem={activeItem}
               setActiveItem={handleNavigation}

@@ -19,7 +19,7 @@ export default defineConfig(() => {
             name: 'المحاسب الزراعي',
             short_name: 'المحاسب',
             description: 'تطبيق المحاسب الزراعي والأجندة الزراعية الذكية لمتابعة مواسم الزراعة والخزنة والديون والمبيعات والمصروفات.',
-            theme_color: '#16a34a',
+            theme_color: '#ffffff',
             background_color: '#ffffff',
             display: 'standalone',
             orientation: 'portrait-primary',
