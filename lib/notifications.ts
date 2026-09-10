@@ -318,7 +318,8 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
     }
 
     // 3. مفتاح VAPID العام (VAPID Public Key)
-    let vapidKey = vapidPublicKey || (import.meta.env.VITE_VAPID_PUBLIC_KEY as string);
+    const DEFAULT_VAPID_PUBLIC_KEY = 'BP101sEliba9o7qrqxHPriHkFkTS5OhokFOu0-G7wf1UmP---IP3WYsagVoozyRAyCdSoXt-TrQianQOuhMh5Xk';
+    let vapidKey = vapidPublicKey || (import.meta.env.VITE_VAPID_PUBLIC_KEY as string) || DEFAULT_VAPID_PUBLIC_KEY;
     if (!vapidKey) {
       vapidKey = prompt('يرجى إدخال VAPID Public Key لتفعيل إشعارات الويب:') || '';
       if (!vapidKey) {
