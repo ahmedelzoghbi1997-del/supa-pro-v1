@@ -12,6 +12,7 @@ import LinkToOwner from './LinkToOwner';
 import { PWAInstallButton } from '../shared/PWAInstallButton';
 import { useData } from '../../contexts/DataContext';
 import { useRealtimeListener } from '../../contexts/RealtimeNotificationContext';
+import { subscribeToWebPush } from '../../lib/notifications';
 
 type SettingsTab = 'systems_terms' | 'financial' | 'appearance' | 'account_data' | 'team';
 
@@ -20,13 +21,27 @@ const SettingsManager: React.FC = () => {
     const { permission, requestAndTestNotifications, realtimeStatus } = useRealtimeListener();
     const [activeTab, setActiveTab] = useState<SettingsTab>('systems_terms');
     const [isTestingNotification, setIsTestingNotification] = useState(false);
+    const [isSubscribingPush, setIsSubscribingPush] = useState(false);
 
     const handleNotificationTest = async () => {
         setIsTestingNotification(true);
         try {
             await requestAndTestNotifications();
+            // تفعيل واشتراك Web Push وحفظه بالسيرفر تلقائياً عند تجربة وتفعيل الإشعارات
+            const targetUserId = profile?.id || (profile as any)?.owner_id || profile?.parent_id;
+            await subscribeToWebPush(targetUserId);
         } finally {
             setIsTestingNotification(false);
+        }
+    };
+
+    const handleSubscribeWebPush = async () => {
+        setIsSubscribingPush(true);
+        try {
+            const targetUserId = profile?.id || (profile as any)?.owner_id || profile?.parent_id;
+            await subscribeToWebPush(targetUserId);
+        } finally {
+            setIsSubscribingPush(false);
         }
     };
     
@@ -146,15 +161,27 @@ const SettingsManager: React.FC = () => {
                         </p>
                     </div>
                 </div>
-                <button
-                    id="btn-test-notifications"
-                    type="button"
-                    disabled={isTestingNotification}
-                    onClick={handleNotificationTest}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 text-white font-bold text-sm shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 flex-shrink-0"
-                >
-                    <span>{isTestingNotification ? 'جاري الاختبار...' : 'تفعيل وتجربة الإشعارات 🔔'}</span>
-                </button>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto flex-shrink-0">
+                    <button
+                        id="btn-subscribe-web-push"
+                        type="button"
+                        disabled={isSubscribingPush}
+                        onClick={handleSubscribeWebPush}
+                        className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 text-white font-bold text-sm shadow-sm hover:shadow transition-all flex items-center justify-center gap-2"
+                        title="تفعيل واشتراك Web Push وحفظ المفاتيح في جدول push_subscriptions"
+                    >
+                        <span>{isSubscribingPush ? 'جاري الاشتراك...' : 'تفعيل واشتراك Web Push 📡'}</span>
+                    </button>
+                    <button
+                        id="btn-test-notifications"
+                        type="button"
+                        disabled={isTestingNotification}
+                        onClick={handleNotificationTest}
+                        className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 text-white font-bold text-sm shadow-sm hover:shadow transition-all flex items-center justify-center gap-2"
+                    >
+                        <span>{isTestingNotification ? 'جاري الاختبار...' : 'تفعيل وتجربة الإشعارات 🔔'}</span>
+                    </button>
+                </div>
             </div>
             
             {/* Tabs */}

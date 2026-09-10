@@ -278,11 +278,18 @@ export async function sendLocalNotification(title: string, body: string, data: a
   }
 }
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
+/**
+ * دالة تحويل المفتاح من Base64URL إلى Uint8Array قبل تمريره إلى applicationServerKey
+ */
+export function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
+
   for (let i = 0; i < rawData.length; ++i) {
     outputArray[i] = rawData.charCodeAt(i);
   }
@@ -292,50 +299,91 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 /**
  * الاشتراك في خدمة Web Push API وحفظ البيانات في جدول push_subscriptions بـ Supabase
  */
-export async function subscribeToWebPush(userId: string, vapidPublicKey?: string) {
-  if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-    console.warn('Web Push is not supported in this browser environment.');
-    return null;
-  }
-
+export async function subscribeToWebPush(userId?: string, vapidPublicKey?: string) {
   try {
+    // 1. فحص دعم المتصفح
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('المتصفح الحالي لا يدعم تقنية Web Push API أو PushManager');
+      return null;
+    }
+
+    // 2. فحص وطلب إذن الإشعارات من المتصفح
+    let currentPerm = Notification.permission;
+    if (currentPerm === 'default') {
+      currentPerm = await Notification.requestPermission();
+    }
+    if (currentPerm !== 'granted') {
+      alert('تم رفض إذن الإشعارات من المتصفح. يرجى تفعيل الإذن من إعدادات الموقع.');
+      return null;
+    }
+
+    // 3. مفتاح VAPID العام (VAPID Public Key)
+    let vapidKey = vapidPublicKey || (import.meta.env.VITE_VAPID_PUBLIC_KEY as string);
+    if (!vapidKey) {
+      vapidKey = prompt('يرجى إدخال VAPID Public Key لتفعيل إشعارات الويب:') || '';
+      if (!vapidKey) {
+        alert('لم يتم إدخال مفتاح VAPID العام، لا يمكن إتمام الاشتراك.');
+        return null;
+      }
+    }
+
+    // 4. تحويل المفتاح والاشتراك عبر Service Worker
     const reg = await navigator.serviceWorker.ready;
     let subscription = await reg.pushManager.getSubscription();
 
-    if (!subscription && vapidPublicKey) {
+    if (!subscription) {
+      const convertedVapidKey = urlBase64ToUint8Array(vapidKey.trim());
       subscription = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: convertedVapidKey,
       });
     }
 
-    if (subscription) {
-      const subJson = subscription.toJSON();
-      const endpoint = subscription.endpoint;
-      const p256dhKey = subJson.keys?.p256dh || '';
-      const authKey = subJson.keys?.auth || '';
-
-      const { error } = await supabase
-        .from('push_subscriptions')
-        .upsert({
-          user_id: userId,
-          endpoint,
-          auth_key: authKey,
-          p256dh_key: p256dhKey,
-        }, { onConflict: 'endpoint' });
-
-      if (error) {
-        console.error('Error saving push subscription to Supabase push_subscriptions:', error);
-      } else {
-        console.log('Push subscription saved successfully to push_subscriptions');
-      }
-
-      return subscription;
+    if (!subscription) {
+      alert('فشل إنشاء كائن الاشتراك pushManager.subscribe في المتصفح');
+      return null;
     }
-  } catch (err) {
-    console.error('Failed to subscribe to Web Push:', err);
+
+    // تنبيه نجاح الاشتراك المحلي
+    alert('نجح الاشتراك محلياً. جاري الحفظ في السيرفر...');
+
+    // 5. استخراج endpoint ومفاتيح p256dh و auth
+    const subJson = subscription.toJSON();
+    const endpoint = subscription.endpoint;
+    const p256dh_key = subJson.keys?.p256dh || '';
+    const auth_key = subJson.keys?.auth || '';
+
+    // تحديد معرف المستخدم الحالي
+    let targetUserId = userId;
+    if (!targetUserId) {
+      const { data: authData } = await supabase.auth.getUser();
+      targetUserId = authData?.user?.id || 'anonymous_user';
+    }
+
+    // 6. إرسال البيانات لـ Supabase
+    const { data, error } = await supabase.from('push_subscriptions').insert([
+      {
+        user_id: targetUserId,
+        endpoint: endpoint,
+        auth_key: auth_key,
+        p256dh_key: p256dh_key,
+      },
+    ]);
+
+    if (error) {
+      alert('خطأ قاعدة البيانات: ' + error.message);
+      console.error('Supabase push_subscriptions error:', error);
+    } else {
+      alert('تم حفظ الاشتراك في السيرفر بنجاح!');
+      console.log('Saved push subscription successfully:', data);
+    }
+
+    return subscription;
+  } catch (err: any) {
+    alert('حدث خطأ تقني: ' + (err?.message || String(err)));
+    console.error('Technical error in subscribeToWebPush:', err);
+    return null;
   }
-  return null;
 }
 
 
