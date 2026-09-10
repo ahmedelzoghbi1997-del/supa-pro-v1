@@ -1,21 +1,23 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useRealtimeNotifications, playNotificationSound } from '../hooks/useRealtimeNotifications';
+import { useRealtimeNotifications, playNotificationSound, type RealtimeConnectionStatus } from '../hooks/useRealtimeNotifications';
 import { useData } from './DataContext';
 import { useToast } from '../hooks/useToast';
 import { useUI } from './UIContext';
 import { triggerSuccessHaptic } from '../lib/haptics';
-import { sendLocalNotification } from '../lib/notifications';
+import { showCrossPlatformNotification } from '../lib/notifications';
 import { Capacitor } from '@capacitor/core';
 import type { Notification } from '../types';
 
 interface RealtimeNotificationContextType {
   isListening: boolean;
+  realtimeStatus: RealtimeConnectionStatus;
   permission: NotificationPermission | 'unsupported';
   requestAndTestNotifications: () => Promise<boolean>;
 }
 
 const RealtimeNotificationContext = createContext<RealtimeNotificationContextType>({
   isListening: true,
+  realtimeStatus: 'CONNECTING',
   permission: 'default',
   requestAndTestNotifications: async () => false,
 });
@@ -39,7 +41,7 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
     }
   }, []);
 
-  useRealtimeNotifications({
+  const { status: realtimeStatus } = useRealtimeNotifications({
     effectiveUserId,
     enabled: !!effectiveUserId,
   });
@@ -48,107 +50,76 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
     const testTitle = 'المحاسب الزراعي 🔔';
     const testMessage = 'الإشعارات تعمل بنجاح في المحاسب الزراعي!';
 
-    // Handle native mobile (Capacitor)
+    // 1. إطلاق التنبيه الصوتي والاهتزاز التفاعلي وتنبيه Toast داخل الشاشة فوراً لتأكيد عمل الزر
+    playNotificationSound();
+    triggerSuccessHaptic();
+    showToast(testMessage, 'success', 6000);
+
+    // إضافة الإشعار في مركز الإشعارات بالواجهة
+    const newNotif: Notification = {
+      id: `test-notif-${Date.now()}`,
+      type: 'financial',
+      title: 'اختبار الإشعارات 🔔',
+      message: testMessage,
+      timestamp: new Date().toISOString(),
+      isRead: false,
+      link: 'settings',
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+
+    // Handle Native Capacitor (Android APK / iOS)
     if (Capacitor.isNativePlatform()) {
       try {
-        await sendLocalNotification(testTitle, testMessage);
-        showToast(testMessage, 'success', 6000);
-        playNotificationSound();
-        triggerSuccessHaptic();
+        await showCrossPlatformNotification({
+          title: testTitle,
+          body: testMessage,
+          tag: 'test-native-notification',
+        });
         return true;
       } catch (err) {
         console.error('Native notification error:', err);
+        return false;
       }
     }
 
-    // Handle PWA / Web Browsers
+    // Handle PWA / Mobile Web Browsers
     if (typeof window === 'undefined' || !('Notification' in window)) {
-      showToast('المتصفح الحالي لا يدعم إشعارات النظام (Web Notifications).', 'warning');
+      showToast('المتصفح الحالي لا يدعم إشعارات النظام (Web Notifications)، ولكن تم تفعيل التنبيهات الداخلية.', 'info');
       return false;
     }
 
     try {
-      console.log('[Realtime Notifications] Requesting notification permission...');
-      
-      // Safe requestPermission handling Promise and callback syntax
-      const perm = await new Promise<NotificationPermission>((resolve) => {
-        try {
-          const promise = Notification.requestPermission((result) => resolve(result));
-          if (promise && typeof promise.then === 'function') {
-            promise.then(resolve).catch(() => resolve('default'));
-          }
-        } catch (_err) {
-          resolve('default');
-        }
-      });
-
-      setPermission(perm);
-      console.log('[Realtime Notifications] Permission status granted:', perm);
-
-      if (perm === 'granted') {
-        const notifOptions: NotificationOptions = {
-          body: testMessage,
-          icon: '/icon-192x192.png',
-          badge: '/icon-192x192.png',
-          vibrate: [200, 100, 200] as any,
-          tag: 'test-pwa-notification',
-        };
-
-        // 1. Send system/OS notification via Service Worker registration
-        let sentViaSW = false;
-        if ('serviceWorker' in navigator) {
+      let currentPerm = Notification.permission;
+      if (currentPerm === 'default') {
+        currentPerm = await new Promise<NotificationPermission>((resolve) => {
           try {
-            const reg = await navigator.serviceWorker.ready;
-            if (reg && 'showNotification' in reg) {
-              await reg.showNotification(testTitle, notifOptions);
-              sentViaSW = true;
-              console.log('[Realtime Notifications] Test notification sent via Service Worker.');
+            const promise = Notification.requestPermission((result) => resolve(result));
+            if (promise && typeof promise.then === 'function') {
+              promise.then(resolve).catch(() => resolve('default'));
             }
-          } catch (swErr) {
-            console.warn('[Realtime Notifications] Service Worker showNotification failed:', swErr);
+          } catch (_err) {
+            resolve('default');
           }
-        }
+        });
+        setPermission(currentPerm);
+      }
 
-        // Fallback to window.Notification
-        if (!sentViaSW) {
-          try {
-            new Notification(testTitle, notifOptions);
-            console.log('[Realtime Notifications] Test notification sent via window.Notification.');
-          } catch (err) {
-            console.warn('[Realtime Notifications] window.Notification error:', err);
-          }
-        }
-
-        // 2. Play audio sound and haptic feedback
-        playNotificationSound();
-        triggerSuccessHaptic();
-
-        // 3. Show in-app toast
-        showToast(testMessage, 'success', 6000);
-
-        // 4. Add to in-app notification center (UIContext)
-        const newNotif: Notification = {
-          id: `test-notif-${Date.now()}`,
-          type: 'financial',
-          title: 'اختبار الإشعارات 🔔',
-          message: testMessage,
-          timestamp: new Date().toISOString(),
-          isRead: false,
-          link: 'settings',
-        };
-        setNotifications((prev) => [newNotif, ...prev]);
-
-        return true;
-      } else if (perm === 'denied') {
-        showToast('تم رفض إذن الإشعارات من المتصفح. يرجى تفعيل الإشعارات من إعدادات الموقع بالمتصفح.', 'warning', 7000);
+      if (currentPerm === 'granted') {
+        // الاعتماد على دالة الإشعارات الموحدة التي تستخدم ServiceWorkerRegistration.showNotification على هواتف أندرويد
+        const sent = await showCrossPlatformNotification({
+          title: testTitle,
+          body: testMessage,
+          tag: 'test-pwa-notification',
+        });
+        return sent;
+      } else if (currentPerm === 'denied') {
+        showToast('إذن الإشعارات محظور في إعدادات المتصفح. يرجى السماح بالإشعارات من إعدادات الموقع.', 'warning', 7000);
         return false;
       } else {
-        showToast('لم يتم تفعيل إذن الإشعارات.', 'info');
         return false;
       }
     } catch (err) {
-      console.error('[Realtime Notifications] Error requesting permission:', err);
-      showToast('حدث خطأ أثناء طلب إذن الإشعارات.', 'error');
+      console.error('[Realtime Notifications] Error requesting permission / sending test notification:', err);
       return false;
     }
   }, [showToast, setNotifications]);
@@ -157,6 +128,7 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
     <RealtimeNotificationContext.Provider
       value={{
         isListening: !!effectiveUserId,
+        realtimeStatus,
         permission,
         requestAndTestNotifications,
       }}

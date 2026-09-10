@@ -17,7 +17,7 @@ type SettingsTab = 'systems_terms' | 'financial' | 'appearance' | 'account_data'
 
 const SettingsManager: React.FC = () => {
     const { profile, invoices, expenses, cycles } = useData();
-    const { permission, requestAndTestNotifications } = useRealtimeListener();
+    const { permission, requestAndTestNotifications, realtimeStatus } = useRealtimeListener();
     const [activeTab, setActiveTab] = useState<SettingsTab>('systems_terms');
     const [isTestingNotification, setIsTestingNotification] = useState(false);
 
@@ -120,6 +120,24 @@ const SettingsManager: React.FC = () => {
                             {permission === 'default' && (
                                 <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
                                     يتطلب منح الإذن
+                                </span>
+                            )}
+                            {realtimeStatus === 'SUBSCRIBED' && (
+                                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 inline-flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    الخادم اللحظي: متصل 🟢
+                                </span>
+                            )}
+                            {(realtimeStatus === 'CLOSED' || realtimeStatus === 'CHANNEL_ERROR' || realtimeStatus === 'TIMED_OUT') && (
+                                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700 inline-flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                    الخادم اللحظي: غير متصل 🔴
+                                </span>
+                            )}
+                            {realtimeStatus === 'CONNECTING' && (
+                                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 inline-flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                                    الخادم اللحظي: جاري الاتصال 🟡
                                 </span>
                             )}
                         </div>

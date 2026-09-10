@@ -4,24 +4,45 @@ import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from './supabase';
 
-export async function requestNotificationPermissions() {
-  if (!Capacitor.isNativePlatform()) return false;
-  
-  try {
-    let status = await LocalNotifications.checkPermissions();
-    if (status.display === 'prompt') {
-      status = await LocalNotifications.requestPermissions();
-    }
-    
-    // Also request push notification permissions
-    let pushStatus = await PushNotifications.checkPermissions();
-    if (pushStatus.receive === 'prompt') {
-      pushStatus = await PushNotifications.requestPermissions();
-    }
+export async function requestNotificationPermissions(): Promise<boolean> {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      let status = await LocalNotifications.checkPermissions();
+      if (status.display === 'prompt') {
+        status = await LocalNotifications.requestPermissions();
+      }
+      
+      // Also request push notification permissions
+      let pushStatus = await PushNotifications.checkPermissions();
+      if (pushStatus.receive === 'prompt') {
+        pushStatus = await PushNotifications.requestPermissions();
+      }
 
-    return status.display === 'granted' || pushStatus.receive === 'granted';
+      return status.display === 'granted' || pushStatus.receive === 'granted';
+    } catch (error) {
+      console.error('Error requesting notification permissions:', error);
+      return false;
+    }
+  }
+
+  // Web / PWA browser environment
+  if (typeof window === 'undefined' || !('Notification' in window)) {
+    return false;
+  }
+
+  if (Notification.permission === 'granted') {
+    return true;
+  }
+
+  if (Notification.permission === 'denied') {
+    return false;
+  }
+
+  try {
+    const perm = await Notification.requestPermission();
+    return perm === 'granted';
   } catch (error) {
-    console.error('Error requesting notification permissions:', error);
+    console.error('Error requesting web notification permission:', error);
     return false;
   }
 }
@@ -132,15 +153,109 @@ export async function registerForPushNotifications(profileId: string | undefined
   }
 }
 
+export interface CrossPlatformNotificationOptions {
+  title: string;
+  body: string;
+  icon?: string;
+  badge?: string;
+  data?: any;
+  tag?: string;
+  vibrate?: number[];
+}
+
+/**
+ * دالة موحدة ومضمونة للإشعارات (Cross-Platform Notification Helper)
+ * تعالج مشكلة هواتف أندرويد و Mobile Chrome المانعة لـ new Notification()
+ * وتعتمد حصراً على navigator.serviceWorker.ready.showNotification() مع اهتزاز تفاعلي.
+ */
+export async function showCrossPlatformNotification({
+  title,
+  body,
+  icon = '/icon-192x192.png',
+  badge = '/icon-192x192.png',
+  data = {},
+  tag,
+  vibrate = [200, 100, 200],
+}: CrossPlatformNotificationOptions): Promise<boolean> {
+  // الاهتزاز التفاعلي في جميع الأحوال لضمان تنبيه المستخدم
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate(vibrate);
+    } catch (_e) {
+      // Ignored if device does not support vibration
+    }
+  }
+
+  // 1. تطبيق أندرويد / iOS الأصلي عبر Capacitor
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await sendLocalNotification(title, body, data);
+      return true;
+    } catch (err) {
+      console.error('[Notification] Capacitor local notification error:', err);
+    }
+  }
+
+  // 2. بيئة المتصفحات والـ PWA
+  if (typeof window === 'undefined' || !('Notification' in window)) {
+    return false;
+  }
+
+  // فحص إذن المتصفح
+  if (Notification.permission !== 'granted') {
+    console.warn('[Notification] Notification permission not granted:', Notification.permission);
+    return false;
+  }
+
+  const notifOptions: NotificationOptions = {
+    body,
+    icon,
+    badge,
+    vibrate: vibrate as any,
+    tag: tag || `notif-${Date.now()}`,
+    data,
+  };
+
+  const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+
+  // 3. على هواتف الموبايل (Android / PWA): الاعتماد حصراً على ServiceWorkerRegistration.showNotification
+  if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if (reg && typeof reg.showNotification === 'function') {
+        await reg.showNotification(title, notifOptions);
+        return true;
+      }
+    } catch (swErr) {
+      console.warn('[Notification] ServiceWorker showNotification failed:', swErr);
+      // على هواتف الموبايل، يمنع منعاً باتاً استدعاء new Notification لتجنب خطأ Illegal constructor
+      if (isMobile) {
+        return false;
+      }
+    }
+  }
+
+  // 4. على أجهزة الديسكتوب فقط: استخدام new Notification() كخيار احتياطي داخل try/catch
+  if (!isMobile) {
+    try {
+      new Notification(title, notifOptions);
+      return true;
+    } catch (deskErr) {
+      console.warn('[Notification] Desktop Notification constructor fallback failed:', deskErr);
+    }
+  }
+
+  return false;
+}
+
 export async function sendLocalNotification(title: string, body: string, data: any = {}) {
   if (!Capacitor.isNativePlatform()) {
-    console.log('Notification (Web):', title, body);
-    return;
+    return showCrossPlatformNotification({ title, body, data });
   }
 
   try {
     const hasPermission = await requestNotificationPermissions();
-    if (!hasPermission) return;
+    if (!hasPermission) return false;
 
     await LocalNotifications.schedule({
       notifications: [
@@ -156,8 +271,10 @@ export async function sendLocalNotification(title: string, body: string, data: a
         }
       ]
     });
+    return true;
   } catch (error) {
     console.error('Error sending local notification:', error);
+    return false;
   }
 }
 

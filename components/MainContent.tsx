@@ -23,6 +23,7 @@ import { navItems } from '../constants';
 import { useSettings, terminology } from '../contexts/SettingsContext';
 import { useData } from '../contexts/DataContext';
 import { useUI } from '../contexts/UIContext';
+import { useRealtimeListener } from '../contexts/RealtimeNotificationContext';
 import AccountSwitcher from './shared/AccountSwitcher';
 import { PWAInstallButton } from './shared/PWAInstallButton';
 import Modal from './shared/Modal';
@@ -46,6 +47,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
     notifications, markAllNotificationsAsRead,
     isOffline, isSyncing
   } = useUI();
+  const { realtimeStatus } = useRealtimeListener();
   const { 
     addInvoice, addExpense, addCycle, addSupplierPayment, 
     addFarmerWithdrawal, addAdvance,
@@ -130,8 +132,10 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
           </button>
-          <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 flex-wrap">
             <h1 className="text-lg sm:text-xl font-bold text-neutral-800 dark:text-neutral-0 truncate animate-enter">{activeItemLabel}</h1>
+            
+            {/* شارة حالة المزامنة المحلية */}
             {isOffline ? (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 animate-pulse">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -146,6 +150,33 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                 <span>مزامن</span>
+              </span>
+            )}
+
+            {/* نقطة ومؤشر حالة اتصال Supabase Realtime اللحظي */}
+            {realtimeStatus === 'SUBSCRIBED' ? (
+              <span 
+                title="متصل بالخادم لحظياً (Realtime Live): يتم تلقي الفواتير والمصروفات فوراً"
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="hidden xs:inline">متصل بالخادم</span>
+              </span>
+            ) : realtimeStatus === 'CONNECTING' ? (
+              <span 
+                title="جاري الاتصال بقناة التحديثات اللحظية بالخادم..."
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                <span className="hidden xs:inline">جاري الاتصال...</span>
+              </span>
+            ) : (
+              <span 
+                title="انقطع الاتصال اللحظي بقناة الخادم"
+                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                <span className="hidden xs:inline">غير متصل بالخادم</span>
               </span>
             )}
           </div>
