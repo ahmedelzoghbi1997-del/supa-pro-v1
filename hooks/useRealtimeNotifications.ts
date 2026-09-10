@@ -4,7 +4,6 @@ import { useToast } from './useToast';
 import { useUI } from '../contexts/UIContext';
 import { _isLocalAction } from '../lib/recentActions';
 import { triggerSuccessHaptic } from '../lib/haptics';
-import { showCrossPlatformNotification } from '../lib/notifications';
 import type { Notification, NavItemId } from '../types';
 
 export type RealtimeConnectionStatus = 'SUBSCRIBED' | 'CONNECTING' | 'CLOSED' | 'CHANNEL_ERROR' | 'TIMED_OUT';
@@ -39,48 +38,48 @@ interface RealtimeNotificationOptions {
 export function useRealtimeNotifications({ effectiveUserId, enabled = true }: RealtimeNotificationOptions) {
   const { showToast } = useToast();
   const { setNotifications } = useUI();
-  const [status, setStatus] = useState<RealtimeConnectionStatus>(enabled && effectiveUserId ? 'CONNECTING' : 'CLOSED');
+  const [status, setStatus] = useState<RealtimeConnectionStatus>(enabled ? 'CONNECTING' : 'CLOSED');
   const processedIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!enabled || !effectiveUserId) {
+    if (!enabled) {
       setStatus('CLOSED');
       return;
     }
 
     setStatus('CONNECTING');
-    const channelName = `partner_realtime_notifications_${effectiveUserId}`;
+    const channelName = effectiveUserId
+      ? `realtime_notifications_${effectiveUserId}`
+      : 'realtime_notifications_global';
     const channel = supabase.channel(channelName);
 
     const handleTransactionEvent = (
       table: string,
-      record: Record<string, any>,
-      eventType: 'INSERT' | 'UPDATE' = 'INSERT'
+      payload: any
     ) => {
-      if (!record || !record.id) return;
-      const recordId = String(record.id);
+      const eventType = (payload?.eventType as 'INSERT' | 'UPDATE' | 'DELETE') || 'INSERT';
+      const record = payload?.new || payload?.old || {};
+      const recordId = String(record?.id || Date.now());
       const eventKey = `${table}-${recordId}-${eventType}`;
 
-      // Prevent duplicate notifications in the same session
+      // منع التكرار اللحظي للحدث نفسه في نفس الثانية
       if (processedIdsRef.current.has(eventKey)) return;
       processedIdsRef.current.add(eventKey);
-      setTimeout(() => processedIdsRef.current.delete(eventKey), 12000);
+      setTimeout(() => processedIdsRef.current.delete(eventKey), 2000);
 
-      // إذا كانت السجلات تحمل user_id صريحاً، نتأكد من مطابقتها لحساب المستخدم/الفريق
-      if (record.user_id && String(record.user_id) !== String(effectiveUserId)) {
-        return;
-      }
-
-      console.log(`[Realtime Notifications] ${eventType} event received for table "${table}":`, record);
+      // [ملاحظة هامة]: تم إزالة أي شرط أو فلترة للمستخدم الحالي بناء على الطلب
+      // لتظهر الإشعارات دائماً ولأي مستخدم يضيف الفاتورة للتجربة على جهاز واحد
 
       let toastText = '';
-      let title = '';
-      let message = '';
+      let title = 'حركة جديدة';
+      let message = 'تم تسجيل فاتورة/حركة جديدة بنجاح';
       let link: NavItemId = 'treasury';
 
       if (table === 'invoices') {
         const customer = record.customer_name ? ` لـ ${record.customer_name}` : '';
-        const amountStr = record.net_amount || record.total_amount ? ` (${Number(record.net_amount || record.total_amount).toLocaleString('ar-EG')} ج.م)` : '';
+        const amountStr = (record.net_amount || record.total_amount)
+          ? ` (${Number(record.net_amount || record.total_amount).toLocaleString('ar-EG')} ج.م)`
+          : '';
         if (eventType === 'UPDATE') {
           toastText = `تم تعديل بيانات فاتورة${customer}${amountStr}`;
           title = 'تعديل فاتورة 📄';
@@ -166,16 +165,21 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
         title = 'سحب نقدي من الخزنة 🏧';
         message = `تم تسجيل حركة مسحوبات نقدية من الخزنة${amountStr}`;
         link = 'treasury';
+      } else {
+        toastText = `تم تسجيل حركة جديدة بالدفاتر (${table})`;
+        title = 'حركة جديدة 📝';
+        message = `تم تسجيل حركة جديدة في جدول ${table}`;
       }
 
-      if (!toastText) return;
-
       // 1. عرض Toast مباشر داخل الشاشة للمستخدمين
-      showToast(toastText, 'success', 5000);
+      showToast(toastText || message, 'success', 5000);
 
       // 2. إطلاق التنبيه الصوتي والاهتزاز التفاعلي
       playNotificationSound();
       triggerSuccessHaptic();
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate([200, 100, 200]); } catch (_e) {}
+      }
 
       // 3. الإضافة إلى قائمة الإشعارات ومركز الإشعارات داخل التطبيق
       const newNotif: Notification = {
@@ -190,68 +194,61 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
 
       setNotifications((prev) => [newNotif, ...prev]);
 
-      // 4. إظهار إشعار النظام الموحد عبر Service Worker على الموبايل و new Notification على الديسكتوب
-      showCrossPlatformNotification({
-        title,
-        body: message,
-        tag: `realtime-${table}-${recordId}-${eventType}`,
-        data: { table, recordId, link, eventType },
-      }).catch((notifErr) => {
-        console.warn('[Realtime Notifications] showCrossPlatformNotification error:', notifErr);
-      });
+      // 4. استدعاء الـ Service Worker بالطريقة المباشرة والناجحة لضمان ظهور الإشعار على هواتف Android و PWA
+      if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then((reg) => {
+          reg.showNotification(title || "حركة جديدة", {
+            body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
+            icon: '/icon-192x192.png',
+            badge: '/icon-192x192.png',
+            vibrate: [200, 100, 200],
+          });
+        }).catch((err) => {
+          console.warn('[Realtime Notifications] Service Worker showNotification error:', err);
+          try {
+            new Notification(title || "حركة جديدة", {
+              body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
+              icon: '/icon-192x192.png',
+              badge: '/icon-192x192.png',
+            });
+          } catch (_e) {}
+        });
+      } else if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(title || "حركة جديدة", {
+            body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
+            icon: '/icon-192x192.png',
+            badge: '/icon-192x192.png',
+          });
+        } catch (_e) {}
+      }
     };
 
-    // الاستماع لكل من INSERT و UPDATE لجداول invoices و expenses بدون شروط تعجيزية
-    ['invoices', 'expenses'].forEach((table) => {
-      channel.on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table,
-        },
-        (payload) => handleTransactionEvent(table, payload.new, 'INSERT')
-      );
-
-      channel.on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table,
-        },
-        (payload) => handleTransactionEvent(table, payload.new, 'UPDATE')
-      );
-    });
-
-    // الاستماع لجداول الخزنة والديون والسلف المتبقية
-    const otherTreasuryTables = [
+    // الاستماع لجميع التغييرات على الجداول المعنية
+    const tablesToWatch = [
+      'invoices',
+      'expenses',
       'advances',
       'partner_debts',
       'bank_transactions',
       'supplier_payments',
       'farmer_withdrawals',
+      'cycles',
+      'daily_logs',
     ];
 
-    otherTreasuryTables.forEach((table) => {
+    tablesToWatch.forEach((table) => {
       channel.on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table,
         },
-        (payload) => handleTransactionEvent(table, payload.new, 'INSERT')
-      );
-
-      channel.on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table,
-        },
-        (payload) => handleTransactionEvent(table, payload.new, 'UPDATE')
+        (payload: any) => {
+          console.log("Supabase Event Received:", payload);
+          handleTransactionEvent(table, payload);
+        }
       );
     });
 

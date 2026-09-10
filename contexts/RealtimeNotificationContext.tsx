@@ -43,7 +43,7 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
 
   const { status: realtimeStatus } = useRealtimeNotifications({
     effectiveUserId,
-    enabled: !!effectiveUserId,
+    enabled: true,
   });
 
   const requestAndTestNotifications = useCallback(async (): Promise<boolean> => {
