@@ -8,6 +8,7 @@ import { PlusIcon, TrashIcon, ClipboardDocumentIcon, UserIcon, PencilIcon, Lucid
 import Modal from '../shared/Modal';
 import { formatNumber } from '../../utils/helpers';
 import { useData } from '../../contexts/DataContext';
+import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
 import SupplierStatement from './SupplierStatement';
 import EmptyState from '../shared/EmptyState';
@@ -288,7 +289,8 @@ const SuppliersListView: React.FC<{
 
 
 const SupplierManager: React.FC = () => {
-    const { suppliers, addSupplier, updateSupplier, deleteSupplier, addSupplierPayment, updateSupplierPayment, deleteSupplierPayment, cycles, profile, statementAction, setStatementAction, supplierPayments, addExpense, updateExpense, rawExpenses, deleteExpense } = useData();
+    const { suppliers, addSupplier, updateSupplier, deleteSupplier, addSupplierPayment, updateSupplierPayment, deleteSupplierPayment, cycles, profile, supplierPayments, addExpense, updateExpense, rawExpenses, deleteExpense } = useData();
+    const { statementAction, setStatementAction } = useUI();
     const { showToast } = useToast();
     const isViewer = profile?.role === 'viewer';
 

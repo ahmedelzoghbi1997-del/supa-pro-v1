@@ -1,5 +1,6 @@
 import React from 'react';
 import { useUI } from '../../contexts/UIContext';
+import { useData } from '../../contexts/DataContext';
 import { formatTimeAgo } from '../../utils/helpers';
 import { BellIcon, CheckIcon, TrashIcon } from '../Icons';
 import type { Notification, NotificationType } from '../../types';
@@ -31,7 +32,8 @@ const getNotificationMeta = (type: NotificationType) => {
 }
 
 const NotificationItem: React.FC<{ notification: Notification }> = ({ notification }) => {
-    const { markNotificationAsRead, setActiveItem } = useData();
+    const { markNotificationAsRead } = useUI();
+    const { setActiveItem } = useData();
     const { Icon, iconBg, iconColor } = getNotificationMeta(notification.type);
 
     const handleClick = () => {

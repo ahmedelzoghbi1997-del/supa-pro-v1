@@ -167,10 +167,10 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
           <div ref={notificationsRef} className="relative">
             <button
               onClick={() => {
-                setNotificationsOpen(prev => {
-                    if (!prev) markAllNotificationsAsRead();
-                    return !prev;
-                });
+                if (!isNotificationsOpen) {
+                  markAllNotificationsAsRead();
+                }
+                setNotificationsOpen(prev => !prev);
               }}
               className="relative p-2 rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 active:scale-95 transition-transform"
             >

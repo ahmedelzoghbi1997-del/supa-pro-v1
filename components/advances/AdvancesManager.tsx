@@ -7,6 +7,7 @@ import ManagePersonsPopup from './ManagePersonsPopup';
 import PersonStatement from './PersonStatement';
 import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
+import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
 
 const AdvancesManager: React.FC = () => {
@@ -28,9 +29,9 @@ const AdvancesManager: React.FC = () => {
     const { 
         persons, activePersons, addPerson, deletePerson,
         addAdvance, updateAdvance, deleteAdvance,
-        cycles, statementAction, setStatementAction,
-        advances, settings
+        cycles, advances, settings
     } = useData();
+    const { statementAction, setStatementAction } = useUI();
 
     const filteredActivePersons = useMemo(() => {
         return activePersons.filter(p => {

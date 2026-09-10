@@ -7,10 +7,12 @@ import AddWithdrawalForm from './AddWithdrawalForm';
 import FarmerStatement from './FarmerStatement';
 import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
+import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
 
 const FarmerAccountManager: React.FC = () => {
-    const { farmers, addFarmer, updateFarmer, deleteFarmer, addFarmerWithdrawal, updateFarmerWithdrawal, deleteFarmerWithdrawal, cycles, lastFarmerAddedId, setLastFarmerAddedId, profile, statementAction, setStatementAction } = useData();
+    const { farmers, addFarmer, updateFarmer, deleteFarmer, addFarmerWithdrawal, updateFarmerWithdrawal, deleteFarmerWithdrawal, cycles, lastFarmerAddedId, setLastFarmerAddedId, profile } = useData();
+    const { statementAction, setStatementAction } = useUI();
     const { showToast } = useToast();
     const [isFarmerModalOpen, setFarmerModalOpen] = useState(false);
     const [isWithdrawalModalOpen, setWithdrawalModalOpen] = useState(false);
