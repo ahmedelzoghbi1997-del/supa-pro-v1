@@ -11,12 +11,24 @@ import TeamSettings from './TeamSettings';
 import LinkToOwner from './LinkToOwner';
 import { PWAInstallButton } from '../shared/PWAInstallButton';
 import { useData } from '../../contexts/DataContext';
+import { useRealtimeListener } from '../../contexts/RealtimeNotificationContext';
 
 type SettingsTab = 'systems_terms' | 'financial' | 'appearance' | 'account_data' | 'team';
 
 const SettingsManager: React.FC = () => {
     const { profile, invoices, expenses, cycles } = useData();
+    const { permission, requestAndTestNotifications } = useRealtimeListener();
     const [activeTab, setActiveTab] = useState<SettingsTab>('systems_terms');
+    const [isTestingNotification, setIsTestingNotification] = useState(false);
+
+    const handleNotificationTest = async () => {
+        setIsTestingNotification(true);
+        try {
+            await requestAndTestNotifications();
+        } finally {
+            setIsTestingNotification(false);
+        }
+    };
     
     const hasData = invoices.length > 0 || expenses.length > 0 || cycles.length > 0;
     const isOwner = profile?.role === 'owner' || (hasData && !profile?.parent_id);
@@ -81,9 +93,50 @@ const SettingsManager: React.FC = () => {
     return (
         <div className="text-slate-800 dark:text-white max-w-4xl mx-auto">
             {/* Sub-header */}
-            <div className="mb-8">
+            <div className="mb-6">
                 <h1 className="text-3xl sm:text-4xl font-bold mb-2">الإعدادات</h1>
                 <p className="text-gray-500 dark:text-gray-400">إدارة تفضيلات التطبيق والبيانات الأساسية.</p>
+            </div>
+
+            {/* بطاقة تفعيل وتجربة إشعارات النظام والـ PWA */}
+            <div id="pwa-notifications-card" className="mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-l from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20 dark:border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                <div className="flex items-start sm:items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl flex-shrink-0">
+                        🔔
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-bold text-slate-800 dark:text-white text-base">إشعارات النظام وتنبيهات المعاملات</h3>
+                            {permission === 'granted' && (
+                                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                                    مفعلة بالنظام ✓
+                                </span>
+                            )}
+                            {permission === 'denied' && (
+                                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
+                                    محظورة من المتصفح ✕
+                                </span>
+                            )}
+                            {permission === 'default' && (
+                                <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                                    يتطلب منح الإذن
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">
+                            طلب إذن المتصفح وتجربة إرسال إشعار فوري للتأكد من ربط الـ Service Worker والتنبيهات.
+                        </p>
+                    </div>
+                </div>
+                <button
+                    id="btn-test-notifications"
+                    type="button"
+                    disabled={isTestingNotification}
+                    onClick={handleNotificationTest}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-60 text-white font-bold text-sm shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 flex-shrink-0"
+                >
+                    <span>{isTestingNotification ? 'جاري الاختبار...' : 'تفعيل وتجربة الإشعارات 🔔'}</span>
+                </button>
             </div>
             
             {/* Tabs */}

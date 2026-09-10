@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from './useToast';
 import { useUI } from '../contexts/UIContext';
-import { isLocalAction } from '../lib/recentActions';
+import { _isLocalAction } from '../lib/recentActions';
 import { triggerSuccessHaptic } from '../lib/haptics';
 import type { Notification, NavItemId } from '../types';
 
@@ -56,8 +56,9 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
       processedIdsRef.current.add(recordId);
       setTimeout(() => processedIdsRef.current.delete(recordId), 30000);
 
-      // If initiated locally on this machine/account, do not send toast to oneself
-      if (isLocalAction(recordId)) return;
+      // [مؤقت للاختبار على جهاز واحد]: تم تعطيل فلترة الحركات الذاتية مؤقتاً لتظهر الإشعارات حتى للمستخدم نفسه
+      // if (isLocalAction(recordId)) return;
+      console.log(`[Realtime Notifications] Transaction event received for table "${table}":`, record);
 
       let toastText = '';
       let title = '';
@@ -161,6 +162,30 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
       };
 
       setNotifications((prev) => [newNotif, ...prev]);
+
+      // 4. Trigger system / PWA notification via Service Worker or Notification API if granted
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        const notifOptions: NotificationOptions = {
+          body: message,
+          icon: '/icon-192x192.png',
+          badge: '/icon-192x192.png',
+          vibrate: [200, 100, 200] as any,
+          tag: `realtime-${table}-${recordId}`,
+        };
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then((reg) => {
+            reg.showNotification(title, notifOptions).catch((err) => {
+              console.warn('[Realtime Notifications] Service Worker showNotification error:', err);
+              try { new Notification(title, notifOptions); } catch (_e) {}
+            });
+          }).catch(() => {
+            try { new Notification(title, notifOptions); } catch (_e) {}
+          });
+        } else {
+          try { new Notification(title, notifOptions); } catch (_e) {}
+        }
+      }
     };
 
     // Subscribing to invoices (الفواتير)
@@ -198,9 +223,21 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
       );
     });
 
-    channel.subscribe((status) => {
+    console.log(`[Realtime Notifications] Subscribing to channel: ${channelName} for user: ${effectiveUserId}`);
+
+    channel.subscribe((status, err) => {
+      console.log(`[Realtime Notifications] Channel status changed: ${status}`, err ? `Error: ${JSON.stringify(err)}` : '');
       if (status === 'SUBSCRIBED') {
-        console.log(`[Realtime Notifications] Subscribed for user ${effectiveUserId}`);
+        console.log(
+          `%c[Realtime Notifications] Successfully SUBSCRIBED to channel: ${channelName}`,
+          'color: #10b981; font-weight: bold; background: #ecfdf5; padding: 2px 6px; border-radius: 4px;'
+        );
+      } else if (status === 'CHANNEL_ERROR') {
+        console.error(`[Realtime Notifications] Channel error on ${channelName}:`, err);
+      } else if (status === 'TIMED_OUT') {
+        console.warn(`[Realtime Notifications] Channel timed out on ${channelName}`);
+      } else if (status === 'CLOSED') {
+        console.log(`[Realtime Notifications] Channel closed.`);
       }
     });
 
