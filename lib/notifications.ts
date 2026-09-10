@@ -278,3 +278,64 @@ export async function sendLocalNotification(title: string, body: string, data: a
   }
 }
 
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+/**
+ * الاشتراك في خدمة Web Push API وحفظ البيانات في جدول push_subscriptions بـ Supabase
+ */
+export async function subscribeToWebPush(userId: string, vapidPublicKey?: string) {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.warn('Web Push is not supported in this browser environment.');
+    return null;
+  }
+
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let subscription = await reg.pushManager.getSubscription();
+
+    if (!subscription && vapidPublicKey) {
+      subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+      });
+    }
+
+    if (subscription) {
+      const subJson = subscription.toJSON();
+      const endpoint = subscription.endpoint;
+      const p256dhKey = subJson.keys?.p256dh || '';
+      const authKey = subJson.keys?.auth || '';
+
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .upsert({
+          user_id: userId,
+          endpoint,
+          auth_key: authKey,
+          p256dh_key: p256dhKey,
+        }, { onConflict: 'endpoint' });
+
+      if (error) {
+        console.error('Error saving push subscription to Supabase push_subscriptions:', error);
+      } else {
+        console.log('Push subscription saved successfully to push_subscriptions');
+      }
+
+      return subscription;
+    }
+  } catch (err) {
+    console.error('Failed to subscribe to Web Push:', err);
+  }
+  return null;
+}
+
+

@@ -93,7 +93,33 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// 4. Notification Click
+// 4. Web Push Notifications
+self.addEventListener('push', (event) => {
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (_err) {
+      data = { body: event.data.text() };
+    }
+  }
+
+  const title = data.title || 'المحاسب الزراعي';
+  const options = {
+    body: data.body || 'لديك إشعار جديد',
+    icon: data.icon || '/icon-192x192.png',
+    badge: data.badge || '/icon-192x192.png',
+    vibrate: data.vibrate || [200, 100, 200],
+    data: data.data || {
+      dateOfArrival: Date.now(),
+      url: '/'
+    }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// 5. Notification Click
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(

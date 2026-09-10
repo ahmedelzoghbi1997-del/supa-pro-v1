@@ -1,22 +1,28 @@
 
-// This service worker handles push notifications
+// This service worker handles push notifications for Web Push API
 self.addEventListener('push', function(event) {
+  let data = {};
   if (event.data) {
-    const data = event.data.json();
-    const options = {
-      body: data.body,
-      icon: '/icon-192x192.png', // Ensure you have an icon at this path
-      badge: '/badge-72x72.png', // Optional badge icon
-      vibrate: [100, 50, 100],
-      data: {
-        dateOfArrival: Date.now(),
-        primaryKey: '2'
-      }
-    };
-    event.waitUntil(
-      self.registration.showNotification(data.title, options)
-    );
+    try {
+      data = event.data.json();
+    } catch (_err) {
+      data = { body: event.data.text() };
+    }
   }
+
+  const title = data.title || 'المحاسب الزراعي';
+  const options = {
+    body: data.body || 'لديك إشعار جديد',
+    icon: data.icon || '/icon-192x192.png',
+    badge: data.badge || '/icon-192x192.png',
+    vibrate: data.vibrate || [200, 100, 200],
+    data: data.data || {
+      dateOfArrival: Date.now(),
+      url: '/'
+    }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', function(event) {

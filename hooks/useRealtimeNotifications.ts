@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from './useToast';
 import { useUI } from '../contexts/UIContext';
+import { _isLocalAction } from '../lib/recentActions';
 import { triggerSuccessHaptic } from '../lib/haptics';
-import type { Notification } from '../types';
+import type { Notification, NavItemId } from '../types';
 
 export type RealtimeConnectionStatus = 'SUBSCRIBED' | 'CONNECTING' | 'CLOSED' | 'CHANNEL_ERROR' | 'TIMED_OUT';
 
@@ -34,22 +35,11 @@ interface RealtimeNotificationOptions {
   enabled?: boolean;
 }
 
-// قناة عامة وحيدة ومستمرة طوال الجلسة لمنع الـ Unsubscribe الخاطئ عند التنقل بين الصفحات
-let globalRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
-let currentConnectionStatus: RealtimeConnectionStatus = 'CLOSED';
-
-export function useRealtimeNotifications({ enabled = true }: RealtimeNotificationOptions) {
+export function useRealtimeNotifications({ effectiveUserId, enabled = true }: RealtimeNotificationOptions) {
   const { showToast } = useToast();
   const { setNotifications } = useUI();
-  const [status, setStatus] = useState<RealtimeConnectionStatus>(currentConnectionStatus);
-
-  const showToastRef = useRef(showToast);
-  const setNotificationsRef = useRef(setNotifications);
-
-  useEffect(() => {
-    showToastRef.current = showToast;
-    setNotificationsRef.current = setNotifications;
-  });
+  const [status, setStatus] = useState<RealtimeConnectionStatus>(enabled ? 'CONNECTING' : 'CLOSED');
+  const processedIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!enabled) {
@@ -57,126 +47,238 @@ export function useRealtimeNotifications({ enabled = true }: RealtimeNotificatio
       return;
     }
 
-    // إذا كانت القناة متصلة بالفعل، لا تقم بإعادة إنشائها أو إغلاقها عند التنقل
-    if (globalRealtimeChannel && currentConnectionStatus === 'SUBSCRIBED') {
-      setStatus('SUBSCRIBED');
-      return;
-    }
-
     setStatus('CONNECTING');
-    currentConnectionStatus = 'CONNECTING';
+    const channelName = effectiveUserId
+      ? `realtime_notifications_${effectiveUserId}`
+      : 'realtime_notifications_global';
+    const channel = supabase.channel(channelName);
 
-    // 1. تبسيط قناة الاستماع لتكون عامة schema-db-changes وتلتقط كل شيء على جدول invoices
-    const channel = supabase.channel('schema-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, (payload) => {
-        console.log("Supabase Event Received (invoices):", payload);
+    const handleTransactionEvent = (
+      table: string,
+      payload: any
+    ) => {
+      const eventType = (payload?.eventType as 'INSERT' | 'UPDATE' | 'DELETE') || 'INSERT';
+      const record = payload?.new || payload?.old || {};
+      const recordId = String(record?.id || Date.now());
+      const eventKey = `${table}-${recordId}-${eventType}`;
 
-        // فخ برمجي لكشف وصول البيانات
-        try {
-          alert("تم التقاط فاتورة جديدة من السيرفر!");
-        } catch (_e) {
-          console.log("Alert blocked by iframe/browser policy:", _e);
+      // منع التكرار اللحظي للحدث نفسه في نفس الثانية
+      if (processedIdsRef.current.has(eventKey)) return;
+      processedIdsRef.current.add(eventKey);
+      setTimeout(() => processedIdsRef.current.delete(eventKey), 2000);
+
+      // [ملاحظة هامة]: تم إزالة أي شرط أو فلترة للمستخدم الحالي بناء على الطلب
+      // لتظهر الإشعارات دائماً ولأي مستخدم يضيف الفاتورة للتجربة على جهاز واحد
+
+      let toastText = '';
+      let title = 'حركة جديدة';
+      let message = 'تم تسجيل فاتورة/حركة جديدة بنجاح';
+      let link: NavItemId = 'treasury';
+
+      if (table === 'invoices') {
+        const customer = record.customer_name ? ` لـ ${record.customer_name}` : '';
+        const amountStr = (record.net_amount || record.total_amount)
+          ? ` (${Number(record.net_amount || record.total_amount).toLocaleString('ar-EG')} ج.م)`
+          : '';
+        if (eventType === 'UPDATE') {
+          toastText = `تم تعديل بيانات فاتورة${customer}${amountStr}`;
+          title = 'تعديل فاتورة 📄';
+          message = `قام أحد الشركاء بتعديل بيانات فاتورة${customer}${amountStr}`;
+        } else {
+          toastText = `تمت إضافة فاتورة جديدة${customer}${amountStr}`;
+          title = 'فاتورة جديدة 📄';
+          message = `قام أحد الشركاء بإضافة فاتورة جديدة${customer}${amountStr}`;
         }
+        link = 'invoices';
+      } else if (table === 'expenses') {
+        const desc = String(record.description || '').toLowerCase();
+        const cat = String(record.category || '').toLowerCase();
+        const isDebtSettlement =
+          desc.includes('سداد') ||
+          desc.includes('دين') ||
+          desc.includes('مديونية') ||
+          desc.includes('التزام') ||
+          cat.includes('سداد') ||
+          cat.includes('دين');
 
-        // استدعاء الـ Service Worker
-        if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-          navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification("حركة جديدة", {
-              body: "تم التسجيل بنجاح",
-              icon: '/icon-192x192.png',
-              badge: '/icon-192x192.png',
-              vibrate: [200, 100, 200]
-            });
-          }).catch(err => {
-            console.warn('[Realtime Notifications] SW error:', err);
-            try {
-              new Notification("حركة جديدة", { body: "تم التسجيل بنجاح", icon: '/icon-192x192.png' });
-            } catch (_e) {}
+        const amountStr = record.amount ? ` (${Number(record.amount).toLocaleString('ar-EG')} ج.م)` : '';
+
+        if (eventType === 'UPDATE') {
+          toastText = `تم تعديل مصروف بالخزنة${amountStr}`;
+          title = 'تعديل مصروف 💸';
+          message = `تم تعديل مصروف: ${record.description || ''}${amountStr}`;
+          link = 'expenses';
+        } else if (isDebtSettlement) {
+          toastText = `تم تسجيل سداد دين جديد${amountStr}`;
+          title = 'سداد دين جديد 💰';
+          message = `تم تسجيل حركة سداد دين في الخزنة: ${record.description || 'سداد التزام'}${amountStr}`;
+          link = 'treasury';
+        } else {
+          toastText = `تم تسجيل مصروف جديد في الخزنة${amountStr}`;
+          title = 'مصروف خزنة جديد 💸';
+          message = `تم تسجيل مصروف جديد: ${record.description || ''}${amountStr}`;
+          link = 'expenses';
+        }
+      } else if (table === 'advances') {
+        const isRepayment =
+          record.is_repayment === true ||
+          String(record.reason || '').includes('EXTERNAL_DEBT') ||
+          String(record.reason || '').includes('سداد');
+        const amountStr = record.amount ? ` (${Number(record.amount).toLocaleString('ar-EG')} ج.م)` : '';
+
+        if (eventType === 'UPDATE') {
+          toastText = `تم تعديل سلفة نقدية${amountStr}`;
+          title = 'تعديل سلفة نقدية 💵';
+          message = `تم تعديل حركة سلفة نقدية بالخزنة${amountStr}`;
+        } else if (isRepayment) {
+          toastText = `تم تسجيل سداد دين / سلفة جديد${amountStr}`;
+          title = 'سداد دين / سلفة 💰';
+          message = `تم تسجيل سداد سلفة شخصية أو دين خارجي${amountStr}`;
+        } else {
+          toastText = `تم تسجيل صرف سلفة جديدة${amountStr}`;
+          title = 'صرف سلفة نقدية 💵';
+          message = `تم صرف سلفة نقدية من الخزنة${amountStr}`;
+        }
+        link = 'advances';
+      } else if (table === 'partner_debts') {
+        const amountStr = record.amount ? ` (${Number(record.amount).toLocaleString('ar-EG')} ج.م)` : '';
+        toastText = eventType === 'UPDATE' ? `تم تعديل مديونيات الشركاء${amountStr}` : `تم تحديث حسابات ديون الشركاء${amountStr}`;
+        title = 'ديون والتزامات الشركاء 🤝';
+        message = `تم تسجيل حركة في مديونيات الشركاء${amountStr}`;
+        link = 'partners';
+      } else if (table === 'bank_transactions') {
+        const amountStr = record.amount ? ` (${Number(record.amount).toLocaleString('ar-EG')} ج.م)` : '';
+        const typeStr = record.type === 'deposit' ? 'إيداع' : 'سحب';
+        toastText = eventType === 'UPDATE' ? `تم تعديل حركة بالخزنة: ${typeStr}${amountStr}` : `حركة جديدة بالخزنة: ${typeStr}${amountStr}`;
+        title = 'حركة بالخزنة / البنك 🏦';
+        message = `تم تسجيل حركة ${typeStr} في الخزنة${amountStr}`;
+        link = 'treasury';
+      } else if (table === 'supplier_payments') {
+        const amountStr = record.amount ? ` (${Number(record.amount).toLocaleString('ar-EG')} ج.م)` : '';
+        toastText = eventType === 'UPDATE' ? `تم تعديل سداد نقدي لمورد${amountStr}` : `تم تسجيل سداد نقدي لمورد من الخزنة${amountStr}`;
+        title = 'سداد نقدي لمورد 📦';
+        message = `تم سداد دفعة نقدية لمورد من الخزنة${amountStr}`;
+        link = 'suppliers';
+      } else if (table === 'farmer_withdrawals') {
+        const amountStr = record.amount ? ` (${Number(record.amount).toLocaleString('ar-EG')} ج.م)` : '';
+        toastText = eventType === 'UPDATE' ? `تم تعديل سحب نقدي من الخزنة${amountStr}` : `تم تسجيل سحب نقدي من الخزنة${amountStr}`;
+        title = 'سحب نقدي من الخزنة 🏧';
+        message = `تم تسجيل حركة مسحوبات نقدية من الخزنة${amountStr}`;
+        link = 'treasury';
+      } else {
+        toastText = `تم تسجيل حركة جديدة بالدفاتر (${table})`;
+        title = 'حركة جديدة 📝';
+        message = `تم تسجيل حركة جديدة في جدول ${table}`;
+      }
+
+      // 1. عرض Toast مباشر داخل الشاشة للمستخدمين
+      showToast(toastText || message, 'success', 5000);
+
+      // 2. إطلاق التنبيه الصوتي والاهتزاز التفاعلي
+      playNotificationSound();
+      triggerSuccessHaptic();
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate([200, 100, 200]); } catch (_e) {}
+      }
+
+      // 3. الإضافة إلى قائمة الإشعارات ومركز الإشعارات داخل التطبيق
+      const newNotif: Notification = {
+        id: `realtime-${table}-${recordId}-${eventType}-${Date.now()}`,
+        type: 'financial',
+        title,
+        message,
+        timestamp: new Date().toISOString(),
+        isRead: false,
+        link,
+      };
+
+      setNotifications((prev) => [newNotif, ...prev]);
+
+      // 4. استدعاء الـ Service Worker بالطريقة المباشرة والناجحة لضمان ظهور الإشعار على هواتف Android و PWA
+      if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then((reg) => {
+          reg.showNotification(title || "حركة جديدة", {
+            body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
+            icon: '/icon-192x192.png',
+            badge: '/icon-192x192.png',
+            vibrate: [200, 100, 200],
           });
-        }
-
-        // التنبيه الصوتي والاهتزاز والـ Toast والتحديث بالواجهة
-        playNotificationSound();
-        triggerSuccessHaptic();
-        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-          try { navigator.vibrate([200, 100, 200]); } catch (_e) {}
-        }
-        showToastRef.current("تم التقاط فاتورة جديدة من السيرفر! 🔔", 'success', 6000);
-
-        const newNotif: Notification = {
-          id: `realtime-invoice-${Date.now()}`,
-          type: 'financial',
-          title: 'حركة جديدة',
-          message: 'تم تسجيل فاتورة بنجاح في قاعدة البيانات',
-          timestamp: new Date().toISOString(),
-          isRead: false,
-          link: 'invoices',
-        };
-        setNotificationsRef.current(prev => [newNotif, ...prev]);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, (payload) => {
-        console.log("Supabase Event Received (expenses):", payload);
-
-        if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-          navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification("مصروف جديد", {
-              body: "تم تسجيل حركة في الخزنة بنجاح",
+        }).catch((err) => {
+          console.warn('[Realtime Notifications] Service Worker showNotification error:', err);
+          try {
+            new Notification(title || "حركة جديدة", {
+              body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
               icon: '/icon-192x192.png',
               badge: '/icon-192x192.png',
-              vibrate: [200, 100, 200]
             });
-          }).catch(() => {});
-        }
-
-        playNotificationSound();
-        triggerSuccessHaptic();
-        showToastRef.current("تم تسجيل مصروف جديد بالخزنة 💸", 'success', 5000);
-      })
-      .subscribe((subStatus, err) => {
-        console.log(`[Realtime Notifications] Channel status changed: ${subStatus}`, err ? `Error: ${JSON.stringify(err)}` : '');
-        if (subStatus === 'SUBSCRIBED') {
-          console.log("متصل بقناة قاعدة البيانات بنجاح");
-          setStatus('SUBSCRIBED');
-          currentConnectionStatus = 'SUBSCRIBED';
-        } else if (subStatus === 'CHANNEL_ERROR') {
-          setStatus('CHANNEL_ERROR');
-          currentConnectionStatus = 'CHANNEL_ERROR';
-        } else if (subStatus === 'TIMED_OUT') {
-          setStatus('TIMED_OUT');
-          currentConnectionStatus = 'TIMED_OUT';
-        } else if (subStatus === 'CLOSED') {
-          setStatus('CLOSED');
-          currentConnectionStatus = 'CLOSED';
-        }
-      });
-
-    globalRealtimeChannel = channel;
-
-    // 2. منع الـ Unsubscribe الخاطئ:
-    // دالة الـ cleanup هنا لا تقوم بإلغاء الاشتراك أثناء تنقل المستخدم بين الصفحات
-    return () => {
-      // نترك القناة متصلة ومستمرة لحين تسجيل الخروج الفعلي
+          } catch (_e) {}
+        });
+      } else if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(title || "حركة جديدة", {
+            body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
+            icon: '/icon-192x192.png',
+            badge: '/icon-192x192.png',
+          });
+        } catch (_e) {}
+      }
     };
-  }, [enabled]);
 
-  // إدارة إلغاء الاشتراك عند تسجيل الخروج الصريح فقط
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') {
-        if (globalRealtimeChannel) {
-          console.log("[Realtime Notifications] المستخدم قام بتسجيل الخروج، جاري إغلاق القناة.");
-          supabase.removeChannel(globalRealtimeChannel);
-          globalRealtimeChannel = null;
-          currentConnectionStatus = 'CLOSED';
-          setStatus('CLOSED');
+    // الاستماع لجميع التغييرات على الجداول المعنية
+    const tablesToWatch = [
+      'invoices',
+      'expenses',
+      'advances',
+      'partner_debts',
+      'bank_transactions',
+      'supplier_payments',
+      'farmer_withdrawals',
+      'cycles',
+      'daily_logs',
+    ];
+
+    tablesToWatch.forEach((table) => {
+      channel.on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table,
+        },
+        (payload: any) => {
+          console.log("Supabase Event Received:", payload);
+          handleTransactionEvent(table, payload);
         }
+      );
+    });
+
+    console.log(`[Realtime Notifications] Subscribing to channel: ${channelName} for user: ${effectiveUserId}`);
+
+    channel.subscribe((subStatus, err) => {
+      console.log(`[Realtime Notifications] Channel status changed: ${subStatus}`, err ? `Error: ${JSON.stringify(err)}` : '');
+      if (subStatus === 'SUBSCRIBED') {
+        setStatus('SUBSCRIBED');
+        console.log(
+          `%c[Realtime Notifications] Successfully SUBSCRIBED to channel: ${channelName}`,
+          'color: #10b981; font-weight: bold; background: #ecfdf5; padding: 2px 6px; border-radius: 4px;'
+        );
+      } else if (subStatus === 'CHANNEL_ERROR') {
+        setStatus('CHANNEL_ERROR');
+        console.error(`[Realtime Notifications] Channel error on ${channelName}:`, err);
+      } else if (subStatus === 'TIMED_OUT') {
+        setStatus('TIMED_OUT');
+        console.warn(`[Realtime Notifications] Channel timed out on ${channelName}`);
+      } else if (subStatus === 'CLOSED') {
+        setStatus('CLOSED');
+        console.log(`[Realtime Notifications] Channel closed.`);
       }
     });
 
     return () => {
-      subscription.unsubscribe();
+      supabase.removeChannel(channel);
+      setStatus('CLOSED');
     };
-  }, []);
+  }, [effectiveUserId, enabled, setNotifications, showToast]);
 
   return { status };
 }
