@@ -362,14 +362,28 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
     }
 
     // 6. إرسال البيانات لـ Supabase
-    const { data, error } = await supabase.from('push_subscriptions').insert([
-      {
-        user_id: targetUserId,
-        endpoint: endpoint,
-        auth_key: auth_key,
-        p256dh_key: p256dh_key,
-      },
-    ]);
+    const insertPayload: Record<string, any> = {
+      user_id: targetUserId,
+      endpoint: endpoint,
+      auth_key: auth_key,
+      p256dh_key: p256dh_key,
+    };
+
+    let { data, error } = await supabase.from('push_subscriptions').insert([insertPayload]);
+
+    // إذا فشل بسبب قيود نوع UUID أو Foreign Key لمستخدمي الحسابات الافتراضية، نحاول الإدراج برقم الجلسة أو بدونه
+    if (error && (error.message?.includes('uuid') || error.message?.includes('foreign key') || error.code === '22P02' || error.code === '23503')) {
+      console.warn('Retrying push_subscription insert with fallback user ID...', error.message);
+      const { data: authData } = await supabase.auth.getUser();
+      insertPayload.user_id = authData?.user?.id || null;
+      const retryResult = await supabase.from('push_subscriptions').insert([insertPayload]);
+      if (!retryResult.error) {
+        error = null;
+        data = retryResult.data;
+      } else {
+        error = retryResult.error;
+      }
+    }
 
     if (error) {
       alert('خطأ قاعدة البيانات: ' + error.message);

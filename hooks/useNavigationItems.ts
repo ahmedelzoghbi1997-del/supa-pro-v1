@@ -53,7 +53,7 @@ export const useNavigationItems = () => {
                         return false;
                     }
                     if (profile.role === 'viewer') {
-                        if (item.id === 'settings' || item.id === 'subscription' || item.id === 'labor') {
+                        if (item.id === 'subscription' || item.id === 'labor') {
                             return false;
                         }
                     }

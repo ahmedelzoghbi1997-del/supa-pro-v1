@@ -34,10 +34,10 @@ serve(async (req) => {
     const payload = await req.json().catch(() => ({}));
     console.log("Push trigger received with payload:", JSON.stringify(payload));
 
-    const { type, table, record, title: customTitle, body: customBody } = payload;
+    const { type: _type, record, title: customTitle, body: customBody } = payload;
 
     // استخراج محتوى الإشعار
-    let title = customTitle || "فاتورة جديدة 🧾";
+    const title = customTitle || "فاتورة جديدة 🧾";
     let body = customBody || "تم تسجيل فاتورة جديدة بنجاح في النظام.";
 
     if (record) {
@@ -53,7 +53,7 @@ serve(async (req) => {
     }
 
     // جلب الاشتراكات المسجلة من جدول push_subscriptions
-    let query = supabase.from('push_subscriptions').select('*');
+    const query = supabase.from('push_subscriptions').select('*');
 
     // إذا كان السجل مرتبطاً بمستخدم محدد، يمكن إرسال الإشعار لحسابات هذا المستخدم ومشاركيه
     // وفي حال رغبتك بإرسال الإشعار لجميع الأجهزة المسجلة:
