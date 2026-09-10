@@ -143,6 +143,44 @@ async function startServer() {
     res.json({ ok: true });
   });
 
+  // API Route: Get Settings for User (Proxy / Fallback for iframe/CORS issues)
+  app.get("/api/settings/:userId", async (req, res) => {
+    const { userId } = req.params;
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("app_settings")
+        .eq("id", userId)
+        .single();
+
+      if (error) {
+        return res.status(404).json({ error: error.message });
+      }
+      res.json(data?.app_settings || null);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to fetch settings" });
+    }
+  });
+
+  // API Route: Update Settings for User (Proxy / Fallback)
+  app.post("/api/settings/:userId", async (req, res) => {
+    const { userId } = req.params;
+    const { settings } = req.body;
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ app_settings: settings })
+        .eq("id", userId);
+
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to update settings" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

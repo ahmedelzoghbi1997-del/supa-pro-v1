@@ -63,8 +63,8 @@ const getCache = async <T,>(userId: string, table: string): Promise<T[] | null> 
                 // ignore JSON parse error
             }
         }
-    } catch (_e) {
-        console.warn(`[Dexie] Failed to get cache for ${table}:`, e);
+    } catch (err) {
+        console.warn(`[Dexie] Failed to get cache for ${table}:`, err);
     }
     return null;
 };
@@ -73,8 +73,8 @@ const setCache = async <T,>(userId: string, table: string, data: T[]): Promise<v
     try {
         const key = `app_cache_${userId}_${table}`;
         await (db as any).cache.put({ key, data, updated_at: Date.now() });
-    } catch (_e) {
-        console.warn(`[Dexie] Failed to set cache for ${table}:`, e);
+    } catch (err) {
+        console.warn(`[Dexie] Failed to set cache for ${table}:`, err);
     }
 };
 
@@ -94,8 +94,8 @@ const getCustomCache = async <T,>(key: string): Promise<T | null> => {
                 // ignore JSON parse error
             }
         }
-    } catch (_e) {
-        console.warn(`[Dexie] Failed to get custom cache for ${key}:`, e);
+    } catch (err) {
+        console.warn(`[Dexie] Failed to get custom cache for ${key}:`, err);
     }
     return null;
 };
@@ -103,8 +103,8 @@ const getCustomCache = async <T,>(key: string): Promise<T | null> => {
 const setCustomCache = async <T,>(key: string, data: T): Promise<void> => {
     try {
         await (db as any).cache.put({ key, data, updated_at: Date.now() });
-    } catch (_e) {
-        console.warn(`[Dexie] Failed to set custom cache for ${key}:`, e);
+    } catch (err) {
+        console.warn(`[Dexie] Failed to set custom cache for ${key}:`, err);
     }
 };
 
@@ -541,15 +541,15 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                     setRpcData(data);
                     setCustomCache(`app_cache_${effectiveUserId}_rpc_totals`, data);
                 }
-            } catch (_e) {
-                console.warn('RPC totals fetch failed, fallback to calculations:', e);
+            } catch (err) {
+                console.warn('RPC totals fetch failed, fallback to calculations:', err);
             }
 
             setIsPhase2Loading(false);
             setIsSyncing(false);
 
-        } catch (_e) {
-            console.error("Fetch Error:", e);
+        } catch (err) {
+            console.warn("Fetch Error (operating in offline/cached mode):", err);
             setLoading(false);
             setIsPhase2Loading(false);
             setIsSyncing(false);
@@ -579,8 +579,8 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
 
             const { data } = await supabase.rpc('get_financial_totals', { p_user_id: effectiveUserId });
             if (data) setRpcData(data);
-        } catch (_e) {
-            console.error('Failed to explicitly refresh global totals', e);
+        } catch (err) {
+            console.warn('Failed to explicitly refresh global totals (offline/cached):', err);
         }
     }, [effectiveUserId, setAdvances]);
 

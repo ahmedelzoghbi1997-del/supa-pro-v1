@@ -119,6 +119,9 @@ export const SettingsProvider: React.FC<{
         return;
       }
 
+      let remoteSettings: any = null;
+      let loadError: any = null;
+
       try {
         const { data, error } = await supabase
           .from("profiles")
@@ -126,10 +129,34 @@ export const SettingsProvider: React.FC<{
           .eq("id", userId)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          loadError = error;
+        } else if (data?.app_settings) {
+          remoteSettings = data.app_settings;
+        }
+      } catch (err: any) {
+        loadError = err;
+      }
 
-        if (data?.app_settings) {
-          const parsed = data.app_settings as any;
+      // If direct Supabase fetch failed (network / CORS / iframe sandbox restriction), try the server proxy
+      if (!remoteSettings && loadError) {
+        try {
+          const res = await fetch(`/api/settings/${encodeURIComponent(userId)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data) {
+              remoteSettings = data;
+              loadError = null;
+            }
+          }
+        } catch (_proxyErr) {
+          // Server proxy not available or offline
+        }
+      }
+
+      try {
+        if (remoteSettings) {
+          const parsed = remoteSettings as any;
           const finalSettings = { ...defaultSettings, ...parsed };
           if (parsed.systems) {
             finalSettings.systems = { ...defaultSettings.systems, ...parsed.systems };
@@ -138,7 +165,7 @@ export const SettingsProvider: React.FC<{
             setSettings(finalSettings as AppSettings);
             localStorage.setItem(storageKey, JSON.stringify(finalSettings));
           }
-        } else {
+        } else if (!loadError) {
           // إذا لم تكن هناك إعدادات في قاعدة البيانات، نستخدم التخزين المحلي لهذا الحساب أو الافتراضي
           const saved = localStorage.getItem(storageKey);
           let initial = defaultSettings;
@@ -153,7 +180,7 @@ export const SettingsProvider: React.FC<{
                 };
               }
             } catch (e) {
-              console.error(e);
+              console.warn("Could not parse local settings:", e);
             }
           }
           if (!isCancelled) {
@@ -165,9 +192,12 @@ export const SettingsProvider: React.FC<{
             .from("profiles")
             .update({ app_settings: initial })
             .eq("id", userId);
+        } else {
+          // There was a network or server error loading remote settings; fallback to local storage
+          throw loadError;
         }
-      } catch (e) {
-        console.error("Error loading settings from Supabase:", e);
+      } catch (e: any) {
+        console.warn("Notice: Operating in local/offline settings mode (cloud unreachable):", e?.message || e);
         // Fallback to local storage for this specific user
         const saved = localStorage.getItem(storageKey);
         if (saved && !isCancelled) {
@@ -179,8 +209,10 @@ export const SettingsProvider: React.FC<{
             }
             setSettings(merged);
           } catch (err) {
-            console.error(err);
+            console.warn("Could not parse local settings fallback:", err);
           }
+        } else if (!isCancelled) {
+          setSettings(defaultSettings);
         }
       } finally {
         if (!isCancelled) setLoadingSettings(false);
@@ -225,12 +257,22 @@ export const SettingsProvider: React.FC<{
     // حفظ في Supabase إذا كان المستخدم مسجلاً
     if (userId && !userId.includes("undefined")) {
       try {
-        await supabase
+        const { error } = await supabase
           .from("profiles")
           .update({ app_settings: updated })
           .eq("id", userId);
-      } catch (e) {
-        console.error("Error updating settings in Supabase:", e);
+        if (error) throw error;
+      } catch (e: any) {
+        // Fallback to server-side proxy
+        try {
+          await fetch(`/api/settings/${encodeURIComponent(userId)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ settings: updated }),
+          });
+        } catch (_proxyErr) {
+          console.warn("Notice: Saved settings locally (cloud sync pending/offline):", e?.message || e);
+        }
       }
     }
   };
