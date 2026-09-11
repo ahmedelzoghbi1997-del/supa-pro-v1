@@ -7,18 +7,19 @@ import { supabase } from './supabase';
 export async function requestNotificationPermissions(): Promise<boolean> {
   if (Capacitor.isNativePlatform()) {
     try {
+      // 1. طلب إذن إشعارات Push أولاً من نظام أندرويد
+      let pushStatus = await PushNotifications.checkPermissions();
+      if (pushStatus.receive === 'prompt' || pushStatus.receive === 'prompt-with-rationale') {
+        pushStatus = await PushNotifications.requestPermissions();
+      }
+
+      // 2. طلب إذن الإشعارات المحلية كاحتياطي
       let status = await LocalNotifications.checkPermissions();
       if (status.display === 'prompt') {
         status = await LocalNotifications.requestPermissions();
       }
-      
-      // Also request push notification permissions
-      let pushStatus = await PushNotifications.checkPermissions();
-      if (pushStatus.receive === 'prompt') {
-        pushStatus = await PushNotifications.requestPermissions();
-      }
 
-      return status.display === 'granted' || pushStatus.receive === 'granted';
+      return pushStatus.receive === 'granted' || status.display === 'granted';
     } catch (error) {
       console.error('Error requesting notification permissions:', error);
       return false;
@@ -47,6 +48,161 @@ export async function requestNotificationPermissions(): Promise<boolean> {
   }
 }
 
+/**
+ * حفظ توكن أجهزة أندرويد FCM الأصلي في جدول push_subscriptions بالسيرفر
+ */
+export async function saveFCMTokenToPushSubscriptions(fcmToken: string, targetUserId: string): Promise<boolean> {
+  if (!fcmToken || !targetUserId) return false;
+
+  const endpoint = fcmToken.startsWith('http')
+    ? fcmToken
+    : `https://fcm.googleapis.com/fcm/send/${fcmToken}`;
+
+  try {
+    // 1. تنظيف أي اشتراك سابق بنفس التوكن لهذا الجهاز لتجنب التكرار
+    await supabase
+      .from('push_subscriptions')
+      .delete()
+      .eq('endpoint', endpoint);
+
+    // 2. إدراج التوكن في جدول push_subscriptions
+    const { error: insertError } = await supabase
+      .from('push_subscriptions')
+      .insert([
+        {
+          user_id: targetUserId,
+          endpoint: endpoint,
+          auth_key: 'native_fcm',
+          p256dh_key: 'native_fcm',
+        },
+      ]);
+
+    if (insertError) {
+      console.error('[Capacitor Push] Failed to save to push_subscriptions:', insertError);
+    } else {
+      console.log('[Capacitor Push] Successfully saved FCM token to push_subscriptions for user:', targetUserId);
+    }
+
+    // 3. تحديث حقل push_token في جدول profiles أو virtual_members للضمان المزدوج
+    if (targetUserId.includes('virtual_')) {
+      const dbId = targetUserId.replace(/virtual_/g, '');
+      await supabase
+        .from('virtual_members')
+        .update({ push_token: fcmToken })
+        .eq('id', dbId);
+    } else {
+      await supabase
+        .from('profiles')
+        .update({ push_token: fcmToken })
+        .eq('id', targetUserId);
+    }
+
+    return true;
+  } catch (err) {
+    console.error('[Capacitor Push] Error in saveFCMTokenToPushSubscriptions:', err);
+    return false;
+  }
+}
+
+/**
+ * دالة تسجيل وتفعيل إشعارات أندرويد الأصلية واستخراج FCM Token وحفظه بجدول push_subscriptions
+ */
+export async function subscribeNativePushNotifications(
+  userId?: string
+): Promise<{ success: boolean; token?: string; error?: string }> {
+  if (!Capacitor.isNativePlatform()) {
+    return { success: false, error: 'Not running on a native platform' };
+  }
+
+  let targetUserId = userId;
+  if (!targetUserId) {
+    const vAuth = typeof localStorage !== 'undefined' ? localStorage.getItem('virtual_auth') : null;
+    if (vAuth) {
+      try {
+        targetUserId = JSON.parse(vAuth).id;
+      } catch (_e) {}
+    }
+    if (!targetUserId) {
+      const { data: authData } = await supabase.auth.getUser();
+      targetUserId = authData?.user?.id || 'anonymous_user';
+    }
+  }
+
+  try {
+    // 1. طلب الصلاحية عبر Capacitor
+    let permStatus = await PushNotifications.checkPermissions();
+    if (permStatus.receive === 'prompt' || permStatus.receive === 'prompt-with-rationale') {
+      permStatus = await PushNotifications.requestPermissions();
+    }
+
+    if (permStatus.receive !== 'granted') {
+      console.warn('[Capacitor Push] Permission not granted:', permStatus.receive);
+      return { success: false, error: 'Notification permission denied' };
+    }
+
+    // 2. إنشاء قناة إشعارات عالية الأهمية للأندرويد
+    if (Capacitor.getPlatform() === 'android') {
+      try {
+        await PushNotifications.createChannel({
+          id: 'high_priority_notifications',
+          name: 'High Priority Alerts',
+          description: 'Critical alerts for accounting system',
+          importance: 5,
+          visibility: 1,
+          vibration: true,
+        });
+      } catch (channelError) {
+        console.warn('[Capacitor Push] Failed to create notification channel:', channelError);
+      }
+    }
+
+    // 3. الاستماع واستخراج التوكن
+    return new Promise((resolve) => {
+      let resolved = false;
+
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          resolve({ success: false, error: 'Push registration timeout (check google-services.json)' });
+        }
+      }, 10000);
+
+      PushNotifications.addListener('registration', async (token) => {
+        console.log('[Capacitor Push] FCM Registration success! Token:', token.value);
+        if (targetUserId) {
+          await saveFCMTokenToPushSubscriptions(token.value, targetUserId);
+        }
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ success: true, token: token.value });
+        }
+      });
+
+      PushNotifications.addListener('registrationError', (err: any) => {
+        console.error('[Capacitor Push] Registration error:', err);
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ success: false, error: err?.error || JSON.stringify(err) });
+        }
+      });
+
+      PushNotifications.register().catch((regErr) => {
+        console.error('[Capacitor Push] register() failed:', regErr);
+        if (!resolved) {
+          resolved = true;
+          clearTimeout(timer);
+          resolve({ success: false, error: String(regErr) });
+        }
+      });
+    });
+  } catch (err: any) {
+    console.error('[Capacitor Push] Error in subscribeNativePushNotifications:', err);
+    return { success: false, error: err?.message || String(err) };
+  }
+}
+
 export async function registerForPushNotifications(profileId: string | undefined) {
   if (!Capacitor.isNativePlatform() || !profileId) return;
 
@@ -57,40 +213,10 @@ export async function registerForPushNotifications(profileId: string | undefined
     // Remove old listeners to prevent duplicates on multiple calls
     await PushNotifications.removeAllListeners();
 
-    // On success, we should be able to receive notifications
+    // On success, we extract the FCM token and save it to push_subscriptions
     PushNotifications.addListener('registration', async (token) => {
       console.log('Push registration success, token: ' + token.value);
-      
-      try {
-        // Check if the current user is a virtual member (employee)
-        if (profileId.includes('virtual_')) {
-          const dbId = profileId.replace(/virtual_/g, '');
-          const { error } = await supabase
-            .from('virtual_members')
-            .update({ push_token: token.value })
-            .eq('id', dbId);
-            
-          if (error) {
-              console.error('Failed to update push token for virtual member:', error);
-          } else {
-              console.log('Push token saved successfully for virtual member:', dbId);
-          }
-        } else {
-            // Save for main owner profile
-            const { error } = await supabase
-              .from('profiles')
-              .update({ push_token: token.value })
-              .eq('id', profileId);
-              
-            if (error) {
-                 console.error('Failed to update push token for owner profile:', error);
-            } else {
-                 console.log('Push token saved successfully for owner:', profileId);
-            }
-        }
-      } catch (err) {
-        console.error('Error saving push token:', err);
-      }
+      await saveFCMTokenToPushSubscriptions(token.value, profileId);
     });
 
     // Some issue with our setup and push will not work
@@ -302,7 +428,19 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
  */
 export async function subscribeToWebPush(userId?: string, vapidPublicKey?: string) {
   try {
-    // 1. فحص دعم المتصفح
+    // 0. التحقق أولاً إذا كان التطبيق يعمل داخل بيئة Capacitor الأصلية (Android APK)
+    if (Capacitor.isNativePlatform()) {
+      const nativeRes = await subscribeNativePushNotifications(userId);
+      if (nativeRes.success) {
+        alert('تم تفعيل إشعارات أندرويد الأصلية بنجاح وحفظ الـ FCM Token في السيرفر!');
+        return { native: true, token: nativeRes.token };
+      } else {
+        alert('فشل تفعيل إشعارات أندرويد: ' + (nativeRes.error || 'يرجى التحقق من صلاحيات النظام'));
+        return null;
+      }
+    }
+
+    // 1. فحص دعم المتصفح (Web / PWA)
     if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
       alert('المتصفح الحالي لا يدعم تقنية Web Push API أو PushManager');
       return null;

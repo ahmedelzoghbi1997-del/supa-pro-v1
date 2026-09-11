@@ -84,6 +84,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     const promises = validSubscriptions.map(async (sub) => {
+      // 1. التعامل مع توكنات FCM الأصلية لأجهزة أندرويد
+      if (sub.auth_key === 'native_fcm' || sub.endpoint?.includes('fcm.googleapis.com/fcm/send/')) {
+        const fcmToken = sub.endpoint.replace('https://fcm.googleapis.com/fcm/send/', '');
+        const serverKey = process.env.FCM_SERVER_KEY;
+        if (serverKey) {
+          try {
+            await fetch('https://fcm.googleapis.com/fcm/send', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `key=${serverKey}`
+              },
+              body: JSON.stringify({
+                to: fcmToken,
+                priority: 'high',
+                notification: {
+                  title,
+                  body,
+                  sound: 'default'
+                },
+                data: {
+                  title,
+                  body,
+                  route: '/'
+                }
+              })
+            });
+          } catch (fcmErr) {
+            console.warn('[FCM Send Error]:', fcmErr);
+          }
+        }
+        return;
+      }
+
+      // 2. إشعارات متصفحات الويب والـ PWA
       try {
         await webpush.sendNotification({
           endpoint: sub.endpoint,

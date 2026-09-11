@@ -3,6 +3,10 @@
 	"appName": "المحاسب الزراعي",
 	"webDir": "dist",
 	"bundledWebRuntime": false,
+	"server": {
+		"url": "https://supa-pro-v1.vercel.app",
+		"cleartext": true
+	},
 	"plugins": {
 		"PushNotifications": {
 			"presentationOptions": [

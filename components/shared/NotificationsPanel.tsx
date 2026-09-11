@@ -65,7 +65,6 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
 const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { notifications, markAllNotificationsAsRead, clearNotifications } = useUI();
-  const { profile } = useData();
 
   if (!isOpen) return null;
 

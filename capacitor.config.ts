@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'المحاسب الزراعي',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
+    url: 'https://supa-pro-v1.vercel.app',
     cleartext: true,
   },
   plugins: {

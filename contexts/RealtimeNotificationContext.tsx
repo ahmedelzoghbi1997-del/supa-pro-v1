@@ -29,6 +29,9 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
   const effectiveUserId = profile?.parent_id || (profile as any)?.owner_id || profile?.id;
 
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => {
+    if (Capacitor.isNativePlatform()) {
+      return 'default';
+    }
     if (typeof window !== 'undefined' && 'Notification' in window) {
       return Notification.permission;
     }
@@ -36,7 +39,23 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
   });
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (Capacitor.isNativePlatform()) {
+      import('@capacitor/push-notifications').then(({ PushNotifications }) => {
+        PushNotifications.checkPermissions()
+          .then((res) => {
+            if (res.receive === 'granted') {
+              setPermission('granted');
+            } else if (res.receive === 'denied') {
+              setPermission('denied');
+            } else {
+              setPermission('default');
+            }
+          })
+          .catch(() => {
+            setPermission('default');
+          });
+      }).catch(() => {});
+    } else if (typeof window !== 'undefined' && 'Notification' in window) {
       setPermission(Notification.permission);
     }
   }, []);
@@ -70,6 +89,13 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
     // Handle Native Capacitor (Android APK / iOS)
     if (Capacitor.isNativePlatform()) {
       try {
+        const { PushNotifications } = await import('@capacitor/push-notifications');
+        let status = await PushNotifications.checkPermissions();
+        if (status.receive === 'prompt' || status.receive === 'prompt-with-rationale') {
+          status = await PushNotifications.requestPermissions();
+        }
+        setPermission(status.receive === 'granted' ? 'granted' : 'denied');
+
         await showCrossPlatformNotification({
           title: testTitle,
           body: testMessage,
