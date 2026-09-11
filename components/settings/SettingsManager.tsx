@@ -19,8 +19,7 @@ type SettingsTab = 'systems_terms' | 'financial' | 'appearance' | 'account_data'
 const SettingsManager: React.FC = () => {
     const { profile, invoices, expenses, cycles } = useData();
     const { permission, requestAndTestNotifications, realtimeStatus } = useRealtimeListener();
-    const isViewer = profile?.role === 'viewer';
-    const [activeTab, setActiveTab] = useState<SettingsTab>(() => isViewer ? 'appearance' : 'systems_terms');
+    const [activeTab, setActiveTab] = useState<SettingsTab>('systems_terms');
     const [isTestingNotification, setIsTestingNotification] = useState(false);
     const [isSubscribingPush, setIsSubscribingPush] = useState(false);
 
@@ -48,6 +47,7 @@ const SettingsManager: React.FC = () => {
     
     const hasData = invoices.length > 0 || expenses.length > 0 || cycles.length > 0;
     const isOwner = profile?.role === 'owner' || (hasData && !profile?.parent_id);
+    const isViewer = profile?.role === 'viewer';
     
     const tabs: { id: SettingsTab; label: string; visible?: boolean }[] = [
         { id: 'systems_terms', label: 'الأنظمة والمصطلحات', visible: !isViewer },

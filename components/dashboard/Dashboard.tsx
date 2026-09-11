@@ -14,7 +14,6 @@ import { useSettings, terminology } from '../../contexts/SettingsContext';
 import Skeleton from '../shared/Skeleton';
 import { motion, AnimatePresence } from 'motion/react';
 import type { PartnerDebt, Advance } from '../../types';
-import { WebPushNotificationCard } from '../shared/WebPushNotificationCard';
 
 // Sparkline component
 export const Sparkline: React.FC<{ data: number[]; color: string; gradientId: string; }> = ({ data, color, gradientId }) => {
@@ -839,16 +838,6 @@ const Dashboard: React.FC = () => {
                     </button>
                 </div>
             </div>
-        </div>
-      )}
-
-      {/* كارت تفعيل وتجربة إشعارات Web Push لحسابات التقارير والشركاء */}
-      {(profile?.role === 'viewer' || profile?.id?.startsWith('virtual_') || !!partnerFinancials) && (
-        <div className="mb-4">
-          <WebPushNotificationCard
-            title="إشعارات الفواتير اللحظية للشركاء (Web Push)"
-            description="فعّل الإشعارات على جهازك لتصلك تنبيهات فورية بكل فاتورة ومبيعات جديدة تسجل بالنظام حتى عند إغلاق التطبيق."
-          />
         </div>
       )}
 

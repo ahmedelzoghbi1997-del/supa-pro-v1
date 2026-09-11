@@ -15,7 +15,6 @@ import {
 import Modal from '../shared/Modal';
 import { MarketDebtCenter } from './MarketDebtCenter';
 import type { PartnerDebt } from '../../types';
-import { WebPushNotificationCard } from '../shared/WebPushNotificationCard';
 
 const getCycleBadgeStyles = (cycleId: string, cycleName: string) => {
     const colors = [
@@ -1092,12 +1091,6 @@ const PartnersManager: React.FC = () => {
                     </div>
                 )}
             </div>
-
-            {/* بطاقة تفعيل واشتراك Web Push للشركاء */}
-            <WebPushNotificationCard
-                title="إشعارات الفواتير والعمليات للشركاء (Web Push)"
-                description="احرص على تفعيل واستقبال إشعارات الفواتير وتحديثات الحسابات فورياً على هاتفك أو حاسوبك حتى عند إغلاق المتصفح."
-            />
 
             {/* SEGMENTED CONTROL TABS */}
             <div className="flex bg-neutral-100 dark:bg-neutral-800/80 p-1 rounded-2xl w-full sm:w-fit border border-neutral-200/60 dark:border-neutral-700/60 font-sans">

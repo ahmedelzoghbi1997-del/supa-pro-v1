@@ -10,7 +10,6 @@ import {
   UserGroupIcon,
   Cog6ToothIcon
 } from '../Icons';
-import { WebPushNotificationCard } from './WebPushNotificationCard';
 
 interface NotificationsPanelProps {
   isOpen: boolean;
@@ -72,10 +71,6 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen }) => {
     <div className="absolute top-full mt-2 left-0 w-80 sm:w-96 bg-neutral-0 dark:bg-neutral-800 rounded-lg shadow-soft-lg border border-neutral-200 dark:border-neutral-700 z-20 animate-page-enter flex flex-col">
       <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
         <h4 className="font-semibold text-neutral-800 dark:text-neutral-100">الإشعارات</h4>
-      </div>
-
-      <div className="p-3 border-b border-neutral-200 dark:border-neutral-700 bg-neutral-50/60 dark:bg-neutral-900/60">
-        <WebPushNotificationCard compact />
       </div>
       
       <div className="flex-grow max-h-96 overflow-y-auto">
