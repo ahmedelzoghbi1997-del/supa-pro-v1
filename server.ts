@@ -181,6 +181,17 @@ async function startServer() {
     }
   });
 
+  // API Route: Send Web Push (Compatible with Vercel Serverless Function)
+  app.all("/api/send-push", async (req, res) => {
+    try {
+      const sendPushHandler = (await import("./api/send-push")).default;
+      await sendPushHandler(req as any, res as any);
+    } catch (err: any) {
+      console.error("Error invoking /api/send-push:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
