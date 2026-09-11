@@ -420,13 +420,6 @@ const Dashboard: React.FC = () => {
     return totalCash + totalBank;
   }, [treasuryFunds, bankAccounts, bankTransactions, cyclesWithCalculations]);
 
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'صباح الخير';
-    if (hour < 17) return 'أهلاً بك';
-    return 'مساء الخير';
-  }, []);
-
   const userName = profile?.full_name?.split(' ')[0] || 'مزارعنا';
 
   const userNameColor = useMemo(() => {
@@ -706,7 +699,7 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-row justify-between items-center gap-4 animate-enter px-1 relative z-20">
           <div>
               <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-neutral-900 dark:text-white tracking-tight leading-tight">
-                  {greeting} يا <span className={userNameColor}>{userName}</span> <span className="inline-block animate-wave origin-bottom-right">👋</span>
+                  تطبيق الويب مرحبا يا <span className={userNameColor}>{userName}</span> <span className="inline-block animate-wave origin-bottom-right">👋</span>
               </h2>
               <p className="text-neutral-500 dark:text-neutral-400 mt-1 text-[10px] sm:text-xs md:text-sm font-medium">
                   إليك ملخص سريع لأداء أعمالك الزراعية لـ {term.plural} النشطة.
