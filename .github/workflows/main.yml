@@ -1,5 +1,8 @@
 name: Build Unified App
+
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -47,21 +50,12 @@ jobs:
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
-          # Preserve google-services.json if present in repo
-          if [ -f "android/app/google-services.json" ]; then
-            cp android/app/google-services.json /tmp/google-services.json
-          fi
-
           rm -rf android
           npx cap add android
           
-          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
-            cat << EOF > android/app/google-services.json
-$GOOGLE_SERVICES_JSON
-EOF
-          elif [ -f "/tmp/google-services.json" ]; then
-            cp /tmp/google-services.json android/app/google-services.json
-          fi
+          cat << EOF > android/app/google-services.json
+          $GOOGLE_SERVICES_JSON
+          EOF
           
           sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' android/build.gradle
           echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
@@ -103,4 +97,4 @@ EOF
         with:
           name: AlMohasibAlZirai.apk
           path: android/app/build/outputs/apk/release/AlMohasibAlZirai.apk
-         
+          
