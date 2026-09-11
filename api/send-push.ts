@@ -36,6 +36,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body = `تم تسجيل فاتورة لـ ${customerName} بقيمة ${amount} ج.م`;
     }
 
+    // ارسال اشعار للخادم اللحظي
+    await supabase.channel('global_notifications').send({
+      type: 'broadcast',
+      event: 'new_transaction',
+      payload: { table, record, eventType: 'INSERT' }
+    });
+    
     const { data: subscriptions } = await supabase.from('push_subscriptions').select('*');
     if (!subscriptions) return res.status(200).json({ message: 'No subscriptions' });
 

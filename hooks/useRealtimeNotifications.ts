@@ -225,7 +225,7 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
       }
     };
 
-    // الاستماع لجميع التغييرات على الجداول المعنية
+        // الاستماع عبر الـ Broadcast لجميع التغييرات على الجداول المعنية لتخطي قيود RLS للحسابات الافتراضية
     const tablesToWatch = [
       'invoices',
       'expenses',
@@ -237,21 +237,18 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
       'cycles',
       'daily_logs',
     ];
-
-    tablesToWatch.forEach((table) => {
-      channel.on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table,
-        },
-        (payload: any) => {
-          console.log("Supabase Event Received:", payload);
-          handleTransactionEvent(table, payload);
+    
+    channel.on(
+      'broadcast',
+      { event: 'new_transaction' },
+      (payload) => {
+        console.log("Broadcast received:", payload);
+        const table = payload.payload?.table || 'invoices';
+        if (tablesToWatch.includes(table)) {
+          handleTransactionEvent(table, payload.payload);
         }
-      );
-    });
+      }
+    );
 
     console.log(`[Realtime Notifications] Subscribing to channel: ${channelName} for user: ${effectiveUserId}`);
 
