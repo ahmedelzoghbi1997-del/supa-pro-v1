@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from './useToast';
 import { useUI } from '../contexts/UIContext';
-import { isLocalAction } from '../lib/recentActions';
 import { triggerSuccessHaptic } from '../lib/haptics';
 import type { Notification, NavItemId } from '../types';
 
@@ -49,8 +48,8 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
 
     setStatus('CONNECTING');
     const channelName = effectiveUserId
-      ? `realtime_notifications_${effectiveUserId}`
-      : 'realtime_notifications_global';
+      ? `realtime_notifs_${effectiveUserId}`
+      : 'realtime_notifs_global';
     const channel = supabase.channel(channelName);
 
     const handleTransactionEvent = (
@@ -201,7 +200,7 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
             body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
             icon: '/icon-192x192.png',
             badge: '/icon-192x192.png',
-            // @ts-ignore
+            // @ts-expect-error - vibrate is supported in service worker notifications but not in all TS typings
             vibrate: [200, 100, 200],
           });
         }).catch((err) => {
@@ -241,11 +240,12 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
     channel.on(
       'broadcast',
       { event: 'new_transaction' },
-      (payload) => {
-        console.log("Broadcast received:", payload);
-        const table = payload.payload?.table || 'invoices';
+      (payload: any) => {
+        console.log("[useRealtimeNotifications] Broadcast received:", payload);
+        const p = payload?.payload || payload;
+        const table = p?.table || 'invoices';
         if (tablesToWatch.includes(table)) {
-          handleTransactionEvent(table, payload.payload);
+          handleTransactionEvent(table, p);
         }
       }
     );

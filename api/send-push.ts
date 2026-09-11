@@ -23,7 +23,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const record = payload.record || {};
     const table = payload.table || 'invoices';
     
-    // معرف الشريك الذي قام بتسجيل الفاتورة لاستبعاده من الإشعار
+    // معرف الشريك أو المزرعة
+    const ownerId = payload.owner_id || payload.effectiveUserId || record.user_id;
     const actionCreatorId = record.created_by || record.user_id;
 
     let title = "حركة جديدة 🧾";
@@ -34,14 +35,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const amount = record.total_amount || record.net_amount || record.amount || 0;
       title = "فاتورة جديدة 📄";
       body = `تم تسجيل فاتورة لـ ${customerName} بقيمة ${amount} ج.م`;
+    } else if (table === 'expenses') {
+      title = "مصروف جديد 💸";
+      body = `تم تسجيل مصروف ${record.description || ''} بقيمة ${record.amount || 0} ج.م`;
+    } else if (table === 'advances') {
+      title = "سلفة / سداد 💵";
+      body = `تم تسجيل حركة سلفة بقيمة ${record.amount || 0} ج.م`;
+    } else if (table === 'supplier_payments') {
+      title = "سداد لمورد 📦";
+      body = `تم سداد دفعة للمورد بقيمة ${record.amount || 0} ج.م`;
+    } else if (table === 'farmer_withdrawals') {
+      title = "سحب نقدي 🏧";
+      body = `تم سحب مبلغ بقيمة ${record.amount || 0} ج.م`;
+    } else if (table === 'partner_debts') {
+      title = "مديونية شريك 🤝";
+      body = `تم تسجيل مديونية شريك بقيمة ${record.amount || 0} ج.م`;
+    } else if (table === 'bank_transactions') {
+      title = "حركة بالخزنة / البنك 🏦";
+      body = `تم تسجيل معاملة بالخزنة بقيمة ${record.amount || 0} ج.م`;
     }
 
-    // ارسال اشعار للخادم اللحظي
-    await supabase.channel('global_notifications').send({
-      type: 'broadcast',
-      event: 'new_transaction',
-      payload: { table, record, eventType: 'INSERT' }
-    });
+    // ارسال اشعار للخادم اللحظي على القنوات المخصصة
+    const notifChannel = ownerId ? `realtime_notifs_${ownerId}` : 'realtime_notifs_global';
+    const dataChannel = ownerId ? `realtime_data_${ownerId}` : 'realtime_data_global';
+    const syncChannel = ownerId ? `realtime_sync_${ownerId}` : 'realtime_sync_global';
+    const bPayload = { table, record, new: record, eventType: payload.eventType || 'INSERT', user_id: ownerId };
+    
+    try {
+      await Promise.allSettled([
+        supabase.channel(notifChannel).send({ type: 'broadcast', event: 'new_transaction', payload: bPayload }),
+        supabase.channel(dataChannel).send({ type: 'broadcast', event: 'new_transaction', payload: bPayload }),
+        supabase.channel(syncChannel).send({ type: 'broadcast', event: 'new_transaction', payload: bPayload })
+      ]);
+    } catch (_bErr) {
+      console.warn("Broadcast in send-push error:", _bErr);
+    }
     
     const { data: subscriptions } = await supabase.from('push_subscriptions').select('*');
     if (!subscriptions) return res.status(200).json({ message: 'No subscriptions' });

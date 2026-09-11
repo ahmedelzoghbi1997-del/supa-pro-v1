@@ -417,6 +417,7 @@ export interface InvoiceInput extends Omit<Invoice, 'id' | 'created_at' | 'user_
 
 export interface DataContextType {
   refreshGlobalData: () => Promise<void>;
+  broadcastChange?: (table: string, record: any, eventType?: 'INSERT' | 'UPDATE' | 'DELETE', oldRecord?: any) => void;
   invoices: Invoice[];
   addInvoice: (data: InvoiceInput) => Promise<void>;
   updateInvoice: (data: Invoice) => Promise<void>;

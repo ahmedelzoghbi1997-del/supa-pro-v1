@@ -211,7 +211,7 @@ export async function showCrossPlatformNotification({
     body,
     icon,
     badge,
-    // @ts-ignore
+    // @ts-expect-error - vibrate is supported in browser notifications but not in all standard TS lib definitions
     vibrate: vibrate as any,
     tag: tag || `notif-${Date.now()}`,
     data,
@@ -360,7 +360,7 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
     if (!targetUserId) {
       const vAuth = localStorage.getItem('virtual_auth');
       if (vAuth) {
-        try { targetUserId = JSON.parse(vAuth).id; } catch(e){}
+        try { targetUserId = JSON.parse(vAuth).id; } catch (_e) {}
       }
       if (!targetUserId) {
         const { data: authData } = await supabase.auth.getUser();

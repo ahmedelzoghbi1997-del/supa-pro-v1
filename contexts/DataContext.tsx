@@ -584,7 +584,54 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         }
     }, [effectiveUserId, setAdvances]);
 
-    // real-time subscriptions for notifications
+    // دالة إرسال البث اللحظي والتنبيهات الموحدة لجميع الأجهزة والشركاء
+    const broadcastChange = useCallback((table: string, record: any, eventType: 'INSERT' | 'UPDATE' | 'DELETE' = 'INSERT', oldRecord?: any) => {
+        if (!effectiveUserId) return;
+        const payload = {
+            table,
+            record,
+            new: record,
+            old: oldRecord,
+            eventType,
+            user_id: effectiveUserId,
+            timestamp: Date.now()
+        };
+
+        // 1. إرسال البث اللحظي لقناة الإشعارات (للتنبيهات الصوتية وToasts)
+        const notifChannel = supabase.channel(`realtime_notifs_${effectiveUserId}`);
+        notifChannel.send({
+            type: 'broadcast',
+            event: 'new_transaction',
+            payload
+        }).catch(err => console.warn('[Realtime Notif Broadcast send error]:', err));
+
+        // 2. إرسال البث اللحظي لقناة مزامنة البيانات (لتحديث الجداول وحسابات الأجهزة الأخرى فوراً)
+        const dataChannel = supabase.channel(`realtime_data_${effectiveUserId}`);
+        dataChannel.send({
+            type: 'broadcast',
+            event: 'new_transaction',
+            payload
+        }).catch(err => console.warn('[Realtime Data Broadcast send error]:', err));
+
+        // 3. إشعار Web Push في الخلفية للأجهزة المغلقة أو غير النشطة
+        if (typeof window !== 'undefined') {
+            try {
+                fetch('/api/send-push', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        table,
+                        record,
+                        eventType,
+                        owner_id: effectiveUserId,
+                        effectiveUserId
+                    })
+                }).catch(() => {});
+            } catch (_e) {}
+        }
+    }, [effectiveUserId]);
+
+    // real-time subscriptions for notifications and instantaneous sync
     useEffect(() => {
         if (!effectiveUserId) return;
 
@@ -607,85 +654,103 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             });
         };
 
-        const channel = supabase.channel(`public_data_changes_${effectiveUserId}`);
-
         const tables = [
             'cycles', 'invoices', 'expenses', 
-            'invoice_price_items', 'invoice_deductions', 'expense_categories',
+            'invoice_price_items', 'invoice_deductions', 'expense_categories', 
             'assets', 'suppliers', 'farmers', 'persons', 
             'supplier_payments', 'farmer_withdrawals', 'advances', 
             'bank_accounts', 'bank_transactions', 'daily_logs', 'partner_debts'
         ];
 
-        tables.forEach(table => {
-            const processEvent = (payload: { eventType: string, new: Record<string, unknown> | null, old: Record<string, unknown> | null }) => {
-                const { eventType, new: newRecord, old: oldRecord } = payload;
+        const processEvent = (table: string, payload: { eventType?: string, new?: Record<string, unknown> | null, old?: Record<string, unknown> | null, record?: Record<string, unknown> | null }) => {
+            const eventType = payload.eventType || 'INSERT';
+            const newRecord = payload.new || payload.record || null;
+            const oldRecord = payload.old || (eventType === 'DELETE' ? (payload.record || payload.new) : null) || null;
 
-                // Client-side filtering for UPDATE to save bandwidth mapping if possible, 
-                // but if we receive it we must check if it's ours.
-                if (eventType === 'UPDATE' && newRecord && newRecord.user_id && newRecord.user_id !== effectiveUserId) return;
-                
-                // DELETE doesn't have user_id, so it will attempt to remove from local state.
-                // If it doesn't exist in local state (because it's not ours), it does nothing (which is perfect).
-
-                if (eventType === 'INSERT' && newRecord && (recentlyAddedIds.current.has(String(newRecord.id)) || isLocalAction(newRecord.id))) return;
-
-                switch (table) {
-                    case 'cycles': updateState(setCycles, newRecord, oldRecord, eventType); break;
-                    case 'invoices': updateState(setInvoices, newRecord, oldRecord, eventType); break;
-                    case 'expenses': updateState(setExpenses, newRecord, oldRecord, eventType); break;
-                    case 'invoice_price_items': updateState(setInvoicePriceItems, newRecord, oldRecord, eventType); break;
-                    case 'invoice_deductions': updateState(setInvoiceDeductions, newRecord, oldRecord, eventType); break;
-                    case 'expense_categories': updateState(setExpenseCategories, newRecord, oldRecord, eventType); break;
-                    case 'assets': updateState(setAssets, newRecord, oldRecord, eventType); break;
-                    case 'suppliers': updateState(setSuppliers, newRecord, oldRecord, eventType); break;
-                    case 'farmers': updateState(setFarmers, newRecord, oldRecord, eventType); break;
-                    case 'persons': updateState(setPersons, newRecord, oldRecord, eventType); break;
-                    case 'supplier_payments': updateState(setSupplierPayments, newRecord, oldRecord, eventType); break;
-                    case 'farmer_withdrawals': updateState(setFarmerWithdrawals, newRecord, oldRecord, eventType); break;
-                    case 'advances': updateState(setAdvances, newRecord, oldRecord, eventType); break;
-                    case 'bank_accounts': updateState(setBankAccounts, newRecord, oldRecord, eventType); break;
-                    case 'bank_transactions': updateState(setBankTransactions, newRecord, oldRecord, eventType); break;
-                    case 'daily_logs': updateState(setDailyLogs, newRecord, oldRecord, eventType); break;
-                    case 'partner_debts': updateState(setPartnerDebts, newRecord, oldRecord, eventType); break;
-                }
-
-                // Debounce RPC refresh for global totals
-                if (rpcDataTimeoutRef.current) clearTimeout(rpcDataTimeoutRef.current);
-                rpcDataTimeoutRef.current = setTimeout(() => {
-                    refreshGlobalData();
-                }, 1000);
-            };
-
-            // INSERT is safe to filter on server
-            channel.on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table, filter: `user_id=eq.${effectiveUserId}` },
-                (payload: { eventType: string, new: Record<string, unknown> | null, old: Record<string, unknown> | null }) => processEvent(payload)
-            );
+            // Client-side filtering for UPDATE to save bandwidth mapping if possible, 
+            // but if we receive it we must check if it's ours.
+            if (eventType === 'UPDATE' && newRecord && newRecord.user_id && newRecord.user_id !== effectiveUserId) return;
             
-            // UPDATE: In PostgreSQL, evaluating filter against newRecord should work, but to avoid any Supabase bugs we remove it.
-            channel.on(
-                'postgres_changes',
-                { event: 'UPDATE', schema: 'public', table },
-                (payload: { eventType: string, new: Record<string, unknown> | null, old: Record<string, unknown> | null }) => processEvent(payload)
-            );
+            // If we added this locally recently, don't duplicate
+            if (eventType === 'INSERT' && newRecord && (recentlyAddedIds.current.has(String(newRecord.id)) || isLocalAction(newRecord.id))) return;
 
-            // DELETE: Server filter CANNOT work for DELETE unless REPLICA IDENTITY FULL is enabled.
-            channel.on(
+            switch (table) {
+                case 'cycles': updateState(setCycles, newRecord, oldRecord, eventType); break;
+                case 'invoices': updateState(setInvoices, newRecord, oldRecord, eventType); break;
+                case 'expenses': updateState(setExpenses, newRecord, oldRecord, eventType); break;
+                case 'invoice_price_items': updateState(setInvoicePriceItems, newRecord, oldRecord, eventType); break;
+                case 'invoice_deductions': updateState(setInvoiceDeductions, newRecord, oldRecord, eventType); break;
+                case 'expense_categories': updateState(setExpenseCategories, newRecord, oldRecord, eventType); break;
+                case 'assets': updateState(setAssets, newRecord, oldRecord, eventType); break;
+                case 'suppliers': updateState(setSuppliers, newRecord, oldRecord, eventType); break;
+                case 'farmers': updateState(setFarmers, newRecord, oldRecord, eventType); break;
+                case 'persons': updateState(setPersons, newRecord, oldRecord, eventType); break;
+                case 'supplier_payments': updateState(setSupplierPayments, newRecord, oldRecord, eventType); break;
+                case 'farmer_withdrawals': updateState(setFarmerWithdrawals, newRecord, oldRecord, eventType); break;
+                case 'advances': updateState(setAdvances, newRecord, oldRecord, eventType); break;
+                case 'bank_accounts': updateState(setBankAccounts, newRecord, oldRecord, eventType); break;
+                case 'bank_transactions': updateState(setBankTransactions, newRecord, oldRecord, eventType); break;
+                case 'daily_logs': updateState(setDailyLogs, newRecord, oldRecord, eventType); break;
+                case 'partner_debts': updateState(setPartnerDebts, newRecord, oldRecord, eventType); break;
+            }
+
+            // Immediately refresh global totals
+            refreshGlobalData();
+
+            // Debounce silent sync to guarantee full parity of relations and RPC data
+            if (rpcDataTimeoutRef.current) clearTimeout(rpcDataTimeoutRef.current);
+            rpcDataTimeoutRef.current = setTimeout(() => {
+                refreshGlobalData();
+                fetchData(false);
+            }, 1000);
+        };
+
+        // 1. الاستماع عبر Broadcast على قناة البيانات المخصصة (بدون تضارب في bindings)
+        const dataChannelName = `realtime_data_${effectiveUserId}`;
+        const dataChannel = supabase.channel(dataChannelName);
+
+        dataChannel.on(
+            'broadcast',
+            { event: 'new_transaction' },
+            (msg: any) => {
+                console.log('[DataContext Realtime Broadcast Received]:', msg);
+                const p = msg?.payload || msg;
+                const table = p?.table;
+                if (table && tables.includes(table)) {
+                    processEvent(table, p);
+                } else {
+                    refreshGlobalData();
+                    if (rpcDataTimeoutRef.current) clearTimeout(rpcDataTimeoutRef.current);
+                    rpcDataTimeoutRef.current = setTimeout(() => {
+                        refreshGlobalData();
+                        fetchData(false);
+                    }, 1000);
+                }
+            }
+        );
+
+        dataChannel.subscribe();
+
+        // 2. الاستماع عبر postgres_changes على قناة معزولة تماماً لمنع أي تضارب
+        const dbChannelName = `realtime_db_${effectiveUserId}`;
+        const dbChannel = supabase.channel(dbChannelName);
+
+        tables.forEach(table => {
+            dbChannel.on(
                 'postgres_changes',
-                { event: 'DELETE', schema: 'public', table },
-                (payload: { eventType: string, new: Record<string, unknown> | null, old: Record<string, unknown> | null }) => processEvent(payload)
+                { event: '*', schema: 'public', table },
+                (payload: any) => processEvent(table, payload)
             );
         });
 
-        channel.subscribe();
+        dbChannel.subscribe();
 
         return () => {
-            supabase.removeChannel(channel);
+            supabase.removeChannel(dataChannel);
+            supabase.removeChannel(dbChannel);
             if (rpcDataTimeoutRef.current) clearTimeout(rpcDataTimeoutRef.current);
         };
-    }, [effectiveUserId, refreshGlobalData]);
+    }, [effectiveUserId, refreshGlobalData, fetchData]);
 
     const hydratedInvoices = useMemo(() => invoices.map(inv => {
         const isRetained = inv.is_retained_debt || 
@@ -1036,6 +1101,9 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 }
 
                 await refreshGlobalData();
+                if (newInv) {
+                    broadcastChange('invoices', newInv, 'INSERT');
+                }
             } catch (error) {
         if (isNetworkError(error)) {
           await addToSyncQueue({ table: 'invoices', action: 'insert', payload: data });
@@ -1192,6 +1260,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 }
 
                 await refreshGlobalData();
+                broadcastChange('invoices', { ...d, ...finalUpdateData, id: invoiceId }, 'UPDATE');
 
             } catch (error) {
         if (isNetworkError(error)) {
@@ -1223,6 +1292,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 }
             }
             await refreshGlobalData();
+            broadcastChange('invoices', { id }, 'DELETE');
         },
         lastInvoiceAddedId, setLastInvoiceAddedId,
         dailyLogs,
@@ -1248,6 +1318,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             setTimeout(() => recentlyAddedIds.current.delete(newLog.id), 10000);
 
             setDailyLogs(prev => prev.map(l => l._stable_id === stableId ? { ...newLog, _stable_id: stableId, cycle: cycleName } : l));
+            broadcastChange('daily_logs', newLog, 'INSERT');
         },
         updateDailyLog: async (d) => {
             const cleanData = sanitizePayloadForTable('daily_logs', d);
@@ -1263,14 +1334,16 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('daily_logs', cleanData, 'UPDATE');
         },
         deleteDailyLog: async (id) => {
-try {
-setDailyLogs(prev => prev.filter(l => l.id !== id));
-            await supabase.from('daily_logs').delete().eq('id', id);
-            return true;
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'daily_logs', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setDailyLogs(prev => prev.filter(l => l.id !== id));
+                await supabase.from('daily_logs').delete().eq('id', id);
+                broadcastChange('daily_logs', { id }, 'DELETE');
+                return true;
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'daily_logs', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         expenses: hydratedExpenses,
         rawExpenses: rawExpensesHydrated,
         isExternalLabor,
@@ -1308,6 +1381,7 @@ setDailyLogs(prev => prev.filter(l => l.id !== id));
 
             setExpenses(prev => prev.map(e => e._stable_id === stableId ? { ...newExp, _stable_id: stableId, cycle: cycleName, categoryName: catName, created_at: optimisticCreatedAt } : e));
             await refreshGlobalData();
+            broadcastChange('expenses', newExp, 'INSERT');
         },
         updateExpense: async (d: any, updates?: any) => {
             let targetId: string;
@@ -1341,14 +1415,16 @@ setDailyLogs(prev => prev.filter(l => l.id !== id));
                             throw response.error;
             } }
             await refreshGlobalData();
+            broadcastChange('expenses', cleanData, 'UPDATE');
         },
         deleteExpense: async (id) => {
-try {
-setExpenses(prev => prev.filter(e => e.id !== id));
-            await supabase.from('expenses').delete().eq('id', id);
-            await refreshGlobalData();
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'expenses', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setExpenses(prev => prev.filter(e => e.id !== id));
+                await supabase.from('expenses').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('expenses', { id }, 'DELETE');
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'expenses', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         lastExpenseAddedId, setLastExpenseAddedId,
         cycles: cyclesWithCalculations,
         cyclesWithCalculations,
@@ -1415,6 +1491,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
             }
             
             await refreshGlobalData();
+            broadcastChange('cycles', newCycle, 'INSERT');
         },
         updateCycle: async (d, transferBalance = false) => {
             const cycleObj = d as Cycle;
@@ -1493,6 +1570,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
             }
             
             await refreshGlobalData();
+            broadcastChange('cycles', cleanDataForDb, 'UPDATE');
         },
         deleteCycle: async (id) => {
             // 1. Clean local state immediately for a blazing fast, zero-jank UI (Optimistic Cascade)
@@ -1520,6 +1598,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
                 // 3. Finally delete the cycle itself
                 await supabase.from('cycles').delete().eq('id', id);
                 await refreshGlobalData();
+                broadcastChange('cycles', { id }, 'DELETE');
                 return true;
             } catch (error) {
         if (isNetworkError(error)) {
@@ -1578,6 +1657,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
             });
 
             await refreshGlobalData();
+            broadcastChange('persons', newData, 'INSERT');
             return newData;
         },
         updatePerson: async (id, name, virtual_id = null, percentage = 0) => {
@@ -1616,6 +1696,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
             });
 
             await refreshGlobalData();
+            broadcastChange('persons', { id, name }, 'UPDATE');
             return true;
         },
         deletePerson: async (id) => {
@@ -1650,6 +1731,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
             }
 
             await refreshGlobalData();
+            broadcastChange('persons', { id }, 'DELETE');
             return true;
         },
         virtualMembers,
@@ -1702,6 +1784,7 @@ setExpenses(prev => prev.filter(e => e.id !== id));
 
             setAdvances(prev => prev.map(a => a._stable_id === stableId ? { ...newAdv, _stable_id: stableId } : a));
             await refreshGlobalData();
+            broadcastChange('advances', newAdv, 'INSERT');
         },
         updateAdvance: async (d) => {
             let finalReason = d.reason || '';
@@ -1728,14 +1811,16 @@ setExpenses(prev => prev.filter(e => e.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('advances', cleanData, 'UPDATE');
         }, 
         deleteAdvance: async (id) => {
-try {
-setAdvances(prev => prev.filter(a => a.id !== id));
-            await supabase.from('advances').delete().eq('id', id);
-            await refreshGlobalData();
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'advances', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setAdvances(prev => prev.filter(a => a.id !== id));
+                await supabase.from('advances').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('advances', { id }, 'DELETE');
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'advances', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         lastAdvanceAddedId, setLastAdvanceAddedId,
         suppliers, 
         addSupplier: async (name, opening_balance = 0) => {
@@ -1750,6 +1835,7 @@ setAdvances(prev => prev.filter(a => a.id !== id));
             } }
             if (data) { setSuppliers(prev => [{...data, _stable_id: data.id}, ...prev]); setLastSupplierAddedId(data.id); }
             await refreshGlobalData();
+            if (data) broadcastChange('suppliers', data, 'INSERT');
         },
         updateSupplier: async (supplier) => {
             const { _stable_id: _unused_sid, ...cleanData } = supplier;
@@ -1764,15 +1850,17 @@ setAdvances(prev => prev.filter(a => a.id !== id));
             } }
             setSuppliers(prev => prev.map(s => s.id === supplier.id ? { ...s, ...cleanData } : s));
             await refreshGlobalData();
+            broadcastChange('suppliers', cleanData, 'UPDATE');
         },
         deleteSupplier: async (id) => {
-try {
-setSuppliers(prev => prev.filter(s => s.id !== id));
-            await supabase.from('suppliers').delete().eq('id', id);
-            await refreshGlobalData();
-            return true;
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'suppliers', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setSuppliers(prev => prev.filter(s => s.id !== id));
+                await supabase.from('suppliers').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('suppliers', { id }, 'DELETE');
+                return true;
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'suppliers', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         lastSupplierAddedId, setLastSupplierAddedId,
         supplierPayments, 
         addSupplierPayment: async (d) => {
@@ -1798,6 +1886,7 @@ setSuppliers(prev => prev.filter(s => s.id !== id));
 
             setSupplierPayments(prev => prev.map(p => p._stable_id === stableId ? { ...newPay, _stable_id: stableId } : p));
             await refreshGlobalData();
+            broadcastChange('supplier_payments', newPay, 'INSERT');
         },
         updateSupplierPayment: async (d) => {
             const cleanData = sanitizePayloadForTable('supplier_payments', d);
@@ -1813,19 +1902,22 @@ setSuppliers(prev => prev.filter(s => s.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('supplier_payments', cleanData, 'UPDATE');
         }, 
         deleteSupplierPayment: async (id) => {
-try {
-setSupplierPayments(prev => prev.filter(p => p.id !== id));
-            await supabase.from('supplier_payments').delete().eq('id', id);
-            await refreshGlobalData();
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'supplier_payments', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setSupplierPayments(prev => prev.filter(p => p.id !== id));
+                await supabase.from('supplier_payments').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('supplier_payments', { id }, 'DELETE');
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'supplier_payments', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         farmers, 
         addFarmer: async (name) => {
             const { data, error } = await supabase.from('farmers').insert([sanitizePayloadForTable('farmers', {name, user_id: effectiveUserId})]).select().single();
             if (!error && data) { setFarmers(prev => [{...data, _stable_id: data.id}, ...prev]); setLastFarmerAddedId(data.id); }
             await refreshGlobalData();
+            if (data) broadcastChange('farmers', data, 'INSERT');
         },
         updateFarmer: async (farmer) => {
             const { _stable_id: _unused_sid, ...cleanData } = farmer;
@@ -1840,15 +1932,17 @@ setSupplierPayments(prev => prev.filter(p => p.id !== id));
             } }
             setFarmers(prev => prev.map(f => f.id === farmer.id ? { ...farmer, _stable_id: farmer.id } : f));
             await refreshGlobalData();
+            broadcastChange('farmers', cleanData, 'UPDATE');
         },
         deleteFarmer: async (id) => {
-try {
-setFarmers(prev => prev.filter(f => f.id !== id));
-            await supabase.from('farmers').delete().eq('id', id);
-            await refreshGlobalData();
-            return true;
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'farmers', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setFarmers(prev => prev.filter(f => f.id !== id));
+                await supabase.from('farmers').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('farmers', { id }, 'DELETE');
+                return true;
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'farmers', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         lastFarmerAddedId, setLastFarmerAddedId,
         farmerWithdrawals, 
         addFarmerWithdrawal: async (d) => {
@@ -1874,6 +1968,7 @@ setFarmers(prev => prev.filter(f => f.id !== id));
 
             setFarmerWithdrawals(prev => prev.map(w => w._stable_id === stableId ? { ...newWith, _stable_id: stableId } : w));
             await refreshGlobalData();
+            broadcastChange('farmer_withdrawals', newWith, 'INSERT');
         },
         updateFarmerWithdrawal: async (d) => {
             const cleanData = sanitizePayloadForTable('farmer_withdrawals', d);
@@ -1889,14 +1984,16 @@ setFarmers(prev => prev.filter(f => f.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('farmer_withdrawals', cleanData, 'UPDATE');
         }, 
         deleteFarmerWithdrawal: async (id) => {
-try {
-setFarmerWithdrawals(prev => prev.filter(w => w.id !== id));
-            await supabase.from('farmer_withdrawals').delete().eq('id', id);
-            await refreshGlobalData();
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'farmer_withdrawals', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setFarmerWithdrawals(prev => prev.filter(w => w.id !== id));
+                await supabase.from('farmer_withdrawals').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('farmer_withdrawals', { id }, 'DELETE');
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'farmer_withdrawals', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         expenseCategories: filteredExpenseCategories, 
         allExpenseCategories: expenseCategories,
         addExpenseCategory: async (c) => {
@@ -1922,6 +2019,7 @@ setFarmerWithdrawals(prev => prev.filter(w => w.id !== id));
                 setLastExpenseCategoryAddedId(newCat.id); 
             }
             await refreshGlobalData();
+            if (newCat) broadcastChange('expense_categories', newCat, 'INSERT');
             return newCat?.id;
         },
         updateExpenseCategory: async (d) => {
@@ -1938,21 +2036,24 @@ setFarmerWithdrawals(prev => prev.filter(w => w.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('expense_categories', cleanData, 'UPDATE');
         }, 
         deleteExpenseCategory: async (id) => {
-try {
-setExpenseCategories(prev => prev.filter(cat => cat.id !== id));
-            await supabase.from('expense_categories').delete().eq('id', id);
-            await refreshGlobalData();
-            return true;
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'expense_categories', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setExpenseCategories(prev => prev.filter(cat => cat.id !== id));
+                await supabase.from('expense_categories').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('expense_categories', { id }, 'DELETE');
+                return true;
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'expense_categories', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         lastExpenseCategoryAddedId, setLastExpenseCategoryAddedId,
         assets, 
         addAsset: async (a) => {
             const { data, error } = await supabase.from('assets').insert([sanitizePayloadForTable('assets', {...a, user_id: effectiveUserId})]).select().single();
             if (!error && data) setAssets(prev => [{...data, _stable_id: data.id}, ...prev]);
             await refreshGlobalData();
+            if (data) broadcastChange('assets', data, 'INSERT');
         },
         updateAsset: async (d) => {
             const cleanData = sanitizePayloadForTable('assets', d);
@@ -1968,15 +2069,17 @@ setExpenseCategories(prev => prev.filter(cat => cat.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('assets', cleanData, 'UPDATE');
         }, 
         deleteAsset: async (id) => {
-try {
-setAssets(prev => prev.filter(a => a.id !== id));
-            await supabase.from('assets').delete().eq('id', id);
-            await refreshGlobalData();
-            return true;
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'assets', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setAssets(prev => prev.filter(a => a.id !== id));
+                await supabase.from('assets').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('assets', { id }, 'DELETE');
+                return true;
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'assets', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         getCycleCashBalance,
         getCycleTotalBalance,
         totalRevenue,
@@ -2001,6 +2104,7 @@ setAssets(prev => prev.filter(a => a.id !== id));
             } }
             setBankAccounts(prev => prev.map(a => a._stable_id === stableId ? { ...newAcc, _stable_id: stableId } : a));
             await refreshGlobalData();
+            broadcastChange('bank_accounts', newAcc, 'INSERT');
             return newAcc.id;
         },
         updateBankAccount: async (d) => {
@@ -2017,15 +2121,17 @@ setAssets(prev => prev.filter(a => a.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('bank_accounts', cleanData, 'UPDATE');
         },
         deleteBankAccount: async (id) => {
-try {
-setBankAccounts(prev => prev.filter(a => a.id !== id));
-            await supabase.from('bank_accounts').delete().eq('id', id);
-            await refreshGlobalData();
-            return true;
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'bank_accounts', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setBankAccounts(prev => prev.filter(a => a.id !== id));
+                await supabase.from('bank_accounts').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('bank_accounts', { id }, 'DELETE');
+                return true;
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'bank_accounts', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         bankTransactions,
         addBankTransaction: async (d) => {
             const stableId = generateStableId();
@@ -2042,6 +2148,7 @@ setBankAccounts(prev => prev.filter(a => a.id !== id));
             } }
             setBankTransactions(prev => prev.map(t => t._stable_id === stableId ? { ...newTx, _stable_id: stableId } : t));
             await refreshGlobalData();
+            broadcastChange('bank_transactions', newTx, 'INSERT');
         },
         updateBankTransaction: async (d) => {
             const cleanData = sanitizePayloadForTable('bank_transactions', d);
@@ -2057,14 +2164,16 @@ setBankAccounts(prev => prev.filter(a => a.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('bank_transactions', cleanData, 'UPDATE');
         },
         deleteBankTransaction: async (id) => {
-try {
-setBankTransactions(prev => prev.filter(t => t.id !== id));
-            await supabase.from('bank_transactions').delete().eq('id', id);
-            await refreshGlobalData();
-} catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'bank_transactions', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
-},
+            try {
+                setBankTransactions(prev => prev.filter(t => t.id !== id));
+                await supabase.from('bank_transactions').delete().eq('id', id);
+                await refreshGlobalData();
+                broadcastChange('bank_transactions', { id }, 'DELETE');
+            } catch (error) { if (isNetworkError(error)) { await addToSyncQueue({ table: 'bank_transactions', action: 'delete', payload: {}, recordId: id }); } else { throw error; } }
+        },
         partnerDebts,
         addPartnerDebt: async (d) => {
             const stableId = generateStableId();
@@ -2102,6 +2211,7 @@ setBankTransactions(prev => prev.filter(t => t.id !== id));
                 } }
                 if (newDebt) {
                     setPartnerDebts(prev => prev.map(item => item._stable_id === stableId ? { ...item, ...newDebt, _stable_id: newDebt.id } as unknown as PartnerDebt : item));
+                    broadcastChange('partner_debts', newDebt, 'INSERT');
                 }
             } catch (err) {
         if (isNetworkError(err)) {
@@ -2138,6 +2248,7 @@ setBankTransactions(prev => prev.filter(t => t.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('partner_debts', cleanData, 'UPDATE');
         },
         deletePartnerDebt: async (id) => {
             setPartnerDebts(prev => prev.filter(item => item.id !== id));
@@ -2149,15 +2260,18 @@ setBankTransactions(prev => prev.filter(t => t.id !== id));
                             throw error;
             } }
             await refreshGlobalData();
+            broadcastChange('partner_debts', { id }, 'DELETE');
         },
         settings, updateSettings,
         profile,
+        broadcastChange,
         setActiveItem,
         deleteAllUserData: async () => { await supabase.rpc('delete_user_data'); window.location.reload(); }
         };
         return val;
     }, [
         refreshGlobalData,
+        broadcastChange,
         hydratedInvoices,
         invoices,
         invoicePriceItems,
