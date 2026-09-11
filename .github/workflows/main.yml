@@ -1,8 +1,5 @@
 name: Build Unified App
-
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -111,4 +108,4 @@ jobs:
         with:
           name: AlMohasibAlZirai.apk
           path: android/app/build/outputs/apk/release/AlMohasibAlZirai.apk
-          
+         

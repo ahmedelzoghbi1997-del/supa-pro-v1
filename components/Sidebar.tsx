@@ -1,11 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import type { NavItemId } from '../types';
-import { LogoIcon, LogoutIcon, BellIcon } from './Icons';
+import { LogoIcon, LogoutIcon } from './Icons';
 import { supabase } from '../lib/supabase';
 import { useData } from '../contexts/DataContext';
 import { useNavigationItems } from '../hooks/useNavigationItems';
 import { Preferences } from '@capacitor/preferences';
-import { NotificationSettingsModal } from './shared/NotificationSettingsModal';
 
 interface SidebarProps {
   activeItem: NavItemId;
@@ -20,7 +19,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
   const navRef = useRef<HTMLElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0, height: '0px', transform: 'translateY(0px)' });
   const [localActiveItem, setLocalActiveItem] = useState<NavItemId>(activeItem);
-  const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
 
   useEffect(() => {
     setLocalActiveItem(activeItem);
@@ -130,15 +128,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
           </nav>
 
           <div className="mt-auto px-2 py-4 border-t border-neutral-100 dark:border-neutral-800 space-y-2">
-            {'serviceWorker' in navigator && 'PushManager' in window && (
-              <button
-                onClick={() => { setIsNotificationSettingsOpen(true); if (onClose) onClose(); }}
-                className={`${baseItemClasses} !my-0 text-primary hover:bg-primary/10`}
-              >
-                <BellIcon className="h-6 w-6" />
-                <span className="font-medium text-base">تفعيل الإشعارات</span>
-              </button>
-            )}
             <button
               onClick={handleLogout}
               className={`${baseItemClasses} !my-0 text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20`}
@@ -149,7 +138,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
           </div>
         </div>
       </aside>
-      <NotificationSettingsModal isOpen={isNotificationSettingsOpen} onClose={() => setIsNotificationSettingsOpen(false)} />
     </>
   );
 };
