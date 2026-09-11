@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from './useToast';
 import { useUI } from '../contexts/UIContext';
-import { _isLocalAction } from '../lib/recentActions';
+import { isLocalAction } from '../lib/recentActions';
 import { triggerSuccessHaptic } from '../lib/haptics';
 import type { Notification, NavItemId } from '../types';
 
@@ -201,6 +201,7 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
             body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
             icon: '/icon-192x192.png',
             badge: '/icon-192x192.png',
+            // @ts-ignore
             vibrate: [200, 100, 200],
           });
         }).catch((err) => {

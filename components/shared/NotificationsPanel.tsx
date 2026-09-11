@@ -4,6 +4,8 @@ import { useData } from '../../contexts/DataContext';
 import { formatTimeAgo } from '../../utils/helpers';
 import { BellIcon, CheckIcon, TrashIcon } from '../Icons';
 import type { Notification, NotificationType } from '../../types';
+import { NotificationSettingsModal } from './NotificationSettingsModal';
+import { useState } from 'react';
 import {
   DollarIcon,
   LightBulbIcon,
@@ -61,16 +63,26 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
 };
 
 const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen }) => {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { notifications, markAllNotificationsAsRead, clearNotifications } = useUI();
+  const { profile } = useData();
 
   if (!isOpen) return null;
 
   const sortedNotifications = [...notifications].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   return (
+    <>
     <div className="absolute top-full mt-2 left-0 w-80 sm:w-96 bg-neutral-0 dark:bg-neutral-800 rounded-lg shadow-soft-lg border border-neutral-200 dark:border-neutral-700 z-20 animate-page-enter flex flex-col">
       <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
         <h4 className="font-semibold text-neutral-800 dark:text-neutral-100">الإشعارات</h4>
+        <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="mt-2 w-full flex items-center justify-center gap-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700/50 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors"
+        >
+            <Cog6ToothIcon className="w-4 h-4" />
+            <span>إعدادات الإشعارات</span>
+        </button>
       </div>
       
       <div className="flex-grow max-h-96 overflow-y-auto">
@@ -98,6 +110,8 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen }) => {
         </button>
       </div>
     </div>
+    <NotificationSettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+    </>
   );
 };
 

@@ -211,6 +211,7 @@ export async function showCrossPlatformNotification({
     body,
     icon,
     badge,
+    // @ts-ignore
     vibrate: vibrate as any,
     tag: tag || `notif-${Date.now()}`,
     data,
@@ -357,8 +358,14 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
     // تحديد معرف المستخدم الحالي
     let targetUserId = userId;
     if (!targetUserId) {
-      const { data: authData } = await supabase.auth.getUser();
-      targetUserId = authData?.user?.id || 'anonymous_user';
+      const vAuth = localStorage.getItem('virtual_auth');
+      if (vAuth) {
+        try { targetUserId = JSON.parse(vAuth).id; } catch(e){}
+      }
+      if (!targetUserId) {
+        const { data: authData } = await supabase.auth.getUser();
+        targetUserId = authData?.user?.id || 'anonymous_user';
+      }
     }
 
     // 6. إرسال البيانات لـ Supabase
