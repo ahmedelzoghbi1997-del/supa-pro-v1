@@ -3,21 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - name: Deploy Edge Function
-        run: supabase functions deploy push-notify --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
   build-apk:
-    needs: deploy-backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,12 +47,21 @@ jobs:
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
+          # Preserve google-services.json if present in repo
+          if [ -f "android/app/google-services.json" ]; then
+            cp android/app/google-services.json /tmp/google-services.json
+          fi
+
           rm -rf android
           npx cap add android
           
-          cat << EOF > android/app/google-services.json
-          $GOOGLE_SERVICES_JSON
-          EOF
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            cat << EOF > android/app/google-services.json
+$GOOGLE_SERVICES_JSON
+EOF
+          elif [ -f "/tmp/google-services.json" ]; then
+            cp /tmp/google-services.json android/app/google-services.json
+          fi
           
           sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' android/build.gradle
           echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
