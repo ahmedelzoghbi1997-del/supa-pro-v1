@@ -1,23 +1,12 @@
 name: Build Unified App
+
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  deploy-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - name: Deploy Edge Function
-        run: supabase functions deploy push-notify --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
   build-apk:
-    needs: deploy-backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,11 +38,11 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      # --- الجزء الخاص باللوجو والـ Splash ---
-      - name: Download and Prepare Logo Assets
+      # --- تجهيز اللوجو الخاص بك ---
+      - name: Prepare Logo Assets
         run: |
           mkdir -p assets
-          cp assets/icon.png assets/splash.png
+          cp assets/icon.png assets/splash.png || true
       # ------------------------------------
 
       - name: Reconstruct Android Project
@@ -78,7 +67,7 @@ jobs:
           sed -i -E "s/versionName \"[0-9.]+\"/versionName \"1.6\"/g" android/app/build.gradle
           
           npx cap sync android
-          # توليد الأيقونات آلياً
+          # توليد الأيقونات آلياً باستخدام اللوجو الخاص بك
           npx capacitor-assets generate --android
 
       - name: Build Release APK
@@ -107,4 +96,4 @@ jobs:
         with:
           name: AlMohasibAlZirai.apk
           path: android/app/build/outputs/apk/release/AlMohasibAlZirai.apk
-         
+          
