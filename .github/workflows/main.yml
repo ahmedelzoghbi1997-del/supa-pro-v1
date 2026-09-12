@@ -53,7 +53,6 @@ jobs:
       - name: Download and Prepare Logo Assets
         run: |
           mkdir -p assets
-          curl -L "https://github.com/user-attachments/assets/188545f2-804d-46f2-85d3-7d37d845774e" -o assets/icon.png
           cp assets/icon.png assets/splash.png
       # ------------------------------------
 

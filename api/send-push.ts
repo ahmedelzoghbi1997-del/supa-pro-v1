@@ -74,8 +74,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { data: subscriptions } = await supabase.from('push_subscriptions').select('*');
     if (!subscriptions) return res.status(200).json({ message: 'No subscriptions' });
 
-    // الفلترة الذكية (للشركاء فقط): استبعاد الشخص الذي أضاف الفاتورة للتو
-    const validSubscriptions = subscriptions.filter(sub => sub.user_id !== actionCreatorId);
+    // إحضار الحسابات لمعرفة أدوار المستخدمين
+    const { data: profiles } = await supabase.from('profiles').select('id, role');
+    const ownerIds = profiles?.filter((p: any) => p.role === 'owner').map((p: any) => p.id) || [];
+
+    // الفلترة الذكية: إرسال الإشعارات للشركاء فقط
+    // 1- استبعاد حسابات المالك (owner)
+    // 2- استبعاد من قام بالإضافة (actionCreatorId)
+    const validSubscriptions = subscriptions.filter(sub => {
+      if (ownerIds.includes(sub.user_id)) return false;
+      return sub.user_id !== actionCreatorId;
+    });
 
     const notificationPayload = JSON.stringify({
       title, body,

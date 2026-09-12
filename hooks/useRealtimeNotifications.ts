@@ -34,7 +34,7 @@ interface RealtimeNotificationOptions {
   enabled?: boolean;
 }
 
-export function useRealtimeNotifications({ effectiveUserId, enabled = true }: RealtimeNotificationOptions) {
+export function useRealtimeNotifications({ effectiveUserId, enabled = true, currentUserId, currentUserRole }: RealtimeNotificationOptions) {
   const { showToast } = useToast();
   const { setNotifications } = useUI();
   const [status, setStatus] = useState<RealtimeConnectionStatus>(enabled ? 'CONNECTING' : 'CLOSED');
@@ -245,6 +245,12 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true }: Re
         const p = payload?.payload || payload;
         const table = p?.table || 'invoices';
         if (tablesToWatch.includes(table)) {
+          // تجاهل الإشعار إذا كان المستخدم الحالي هو المالك، أو إذا كان هو من قام بالعملية
+          const isTriggeredByMe = p?.trigger_user_id && currentUserId && p.trigger_user_id === currentUserId;
+          if (currentUserRole === 'owner' || isTriggeredByMe) {
+            console.log("[useRealtimeNotifications] Ignoring notification (user is owner or triggered by them)");
+            return;
+          }
           handleTransactionEvent(table, p);
         }
       }

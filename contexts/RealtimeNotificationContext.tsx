@@ -62,6 +62,8 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
 
   const { status: realtimeStatus } = useRealtimeNotifications({
     effectiveUserId,
+    currentUserId: profile?.id,
+    currentUserRole: profile?.role,
     enabled: true,
   });
 
@@ -154,6 +156,8 @@ export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode 
     <RealtimeNotificationContext.Provider
       value={{
         isListening: !!effectiveUserId,
+    currentUserId: profile?.id,
+    currentUserRole: profile?.role,
         realtimeStatus,
         permission,
         requestAndTestNotifications,

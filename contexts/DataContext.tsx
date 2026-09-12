@@ -594,6 +594,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             old: oldRecord,
             eventType,
             user_id: effectiveUserId,
+            trigger_user_id: profile?.id,
             timestamp: Date.now()
         };
 
@@ -1074,6 +1075,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                                     cycle_id: inv.cycle_id,
                                     reason: finalReason,
                                     user_id: effectiveUserId,
+            trigger_user_id: profile?.id,
                                     source_ref_id: newInv.id,
                                     source_type: 'invoice',
                                     is_retained_debt: true
@@ -1233,6 +1235,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                                     cycle_id: cleanData.cycle_id,
                                     reason: finalReason,
                                     user_id: effectiveUserId,
+            trigger_user_id: profile?.id,
                                     source_ref_id: invoiceId,
                                     source_type: 'invoice',
                                     is_retained_debt: true
