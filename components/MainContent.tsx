@@ -176,7 +176,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
         style={{ WebkitOverflowScrolling: 'touch' }} // Smooth scrolling for iOS
       >
         <div 
-          className={`${activeItem === 'dashboard' ? 'pt-3 sm:py-8 px-4' : 'pt-4 px-4 sm:p-8'} w-full min-h-full relative`}
+          className={`${activeItem === 'dashboard' ? 'pt-2.5 sm:pt-4 sm:pb-8 px-3.5 sm:px-6' : 'pt-4 px-4 sm:p-8'} w-full min-h-full relative`}
           style={{ paddingBottom: 'calc(8.5rem + env(safe-area-inset-bottom, 16px))' }}
         >
             
