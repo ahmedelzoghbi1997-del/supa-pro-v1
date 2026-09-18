@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { supabase } from '../lib/supabase';
 import { useToast } from './useToast';
 import { useUI } from '../contexts/UIContext';
@@ -193,34 +195,42 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true, curr
 
       setNotifications((prev) => [newNotif, ...prev]);
 
-      // 4. استدعاء الـ Service Worker بالطريقة المباشرة والناجحة لضمان ظهور الإشعار على هواتف Android و PWA
-      if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then((reg) => {
-          reg.showNotification(title || "حركة جديدة", {
-            body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
-            icon: '/icon-192x192.png',
-            badge: '/icon-192x192.png',
-            // @ts-expect-error - vibrate is supported in service worker notifications but not in all TS typings
-            vibrate: [200, 100, 200],
-          });
-        }).catch((err) => {
-          console.warn('[Realtime Notifications] Service Worker showNotification error:', err);
-          try {
-            new Notification(title || "حركة جديدة", {
+      // 4. إرسال الإشعار بناءً على بيئة التشغيل
+      if (Capacitor.isNativePlatform()) {
+        // إشعارات أندرويد الأصلية (Native)
+        LocalNotifications.schedule({
+          notifications: [
+            {
+              id: new Date().getTime(),
+              title: title || "حركة جديدة",
+              body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
+              smallIcon: "ic_notification"
+            }
+          ]
+        }).catch((err) => console.error('[Realtime Notifications] LocalNotification error:', err));
+      } else {
+        // إشعارات الويب (PWA)
+        if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then((reg) => {
+            reg.showNotification(title || "حركة جديدة", {
               body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
               icon: '/icon-192x192.png',
               badge: '/icon-192x192.png',
+              // @ts-expect-error - vibrate is supported in service worker
+              vibrate: [200, 100, 200],
             });
-          } catch (_e) {}
-        });
-      } else if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-        try {
-          new Notification(title || "حركة جديدة", {
-            body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
-            icon: '/icon-192x192.png',
-            badge: '/icon-192x192.png',
+          }).catch((err) => {
+            console.warn('SW error:', err);
+            try {
+              if (Notification.permission === 'granted') {
+                new Notification(title || "حركة جديدة", {
+                  body: message,
+                  icon: '/icon-192x192.png'
+                });
+              }
+            } catch (_e) {}
           });
-        } catch (_e) {}
+        }
       }
     };
 
