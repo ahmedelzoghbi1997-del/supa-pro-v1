@@ -215,7 +215,7 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true, curr
             reg.showNotification(title || "حركة جديدة", {
               body: message || "تم تسجيل فاتورة/حركة جديدة بنجاح",
               icon: '/icon-192x192.png',
-              badge: '/icon-192x192.png',
+              badge: '/badge-icon.png',
               // @ts-expect-error - vibrate is supported in service worker
               vibrate: [200, 100, 200],
             });
