@@ -88,7 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const notificationPayload = JSON.stringify({
       title, body,
-      icon: '/icon-192x192.png', badge: '/icon-192x192.png',
+      icon: '/icon-192x192.png', badge: '/badge-icon.png',
       vibrate: [200, 100, 200], url: '/'
     });
 
@@ -111,7 +111,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 notification: {
                   title,
                   body,
-                  sound: 'default'
+                  sound: 'default',
+                  icon: 'ic_notification',
+                  color: '#10B981'
                 },
                 data: {
                   title,

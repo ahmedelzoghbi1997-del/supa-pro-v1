@@ -108,7 +108,7 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || 'لديك إشعار جديد',
     icon: data.icon || '/icon-192x192.png',
-    badge: data.badge || '/icon-192x192.png',
+    badge: data.badge || '/badge-icon.png',
     vibrate: data.vibrate || [200, 100, 200],
     data: data.data || {
       dateOfArrival: Date.now(),
