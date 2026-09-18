@@ -199,19 +199,35 @@ serve(async (req: Request) => {
           notification: {
             title: title,
             body: body,
+            sound: "default",
+            image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
+            icon: "https://supa-pro-v1.vercel.app/badge-icon.png",
+            color: "#10B981",
           },
           data: {
             title: String(title),
             body: String(body),
+            image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
+            icon: "https://supa-pro-v1.vercel.app/badge-icon.png",
             table: String(table || ""),
             route: "/",
+          },
+          webpush: {
+            notification: {
+              title: title,
+              body: body,
+              icon: "https://supa-pro-v1.vercel.app/icon-192x192.png",
+              badge: "https://supa-pro-v1.vercel.app/badge-icon.png",
+              image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
+            },
           },
           android: {
             priority: "high",
             notification: {
               title: title,
               body: body,
-              icon: "ic_notification",
+              image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
+              icon: "https://supa-pro-v1.vercel.app/badge-icon.png",
               color: "#10B981",
               sound: "default",
               channel_id: "high_priority_notifications",
