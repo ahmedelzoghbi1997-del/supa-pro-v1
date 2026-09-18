@@ -133,32 +133,80 @@ serve(async (req: Request) => {
     const payload = await req.json();
     const { table, record } = payload;
     const actionRecord = record || {};
+    const lowerTable = String(table || "").toLowerCase().trim();
 
     let title = "إشعار جديد 🔔";
     let body = "تم تسجيل حركة جديدة في النظام";
 
-    if (table === "invoices") {
-      const customer = actionRecord.customer_name ? ` لـ ${actionRecord.customer_name}` : "";
-      const amount = actionRecord.total_amount || actionRecord.net_amount || actionRecord.amount || 0;
+    if (lowerTable === "invoices" || lowerTable === "invoice") {
+      const customer = actionRecord.customer_name || actionRecord.market || actionRecord.client_name || actionRecord.merchant || "";
+      const customerStr = customer ? ` لـ ${customer}` : "";
+      
+      let amount = Number(actionRecord.total_amount || actionRecord.net_amount || actionRecord.amount || actionRecord.total || actionRecord.total_price || 0);
+
+      // إذا كان المبلغ 0 وموجود id الفاتورة، نحاول جلب إجمالي بنود الأسعار من جدول invoice_price_items
+      if (!amount && actionRecord.id) {
+        try {
+          const { data: priceItems } = await supabase
+            .from("invoice_price_items")
+            .select("quantity, price_per_kg")
+            .eq("invoice_id", actionRecord.id);
+
+          if (priceItems && priceItems.length > 0) {
+            amount = priceItems.reduce((acc: number, item: any) => {
+              const q = Number(item.quantity) || 0;
+              const p = Number(item.price_per_kg) || 0;
+              return acc + (q * p);
+            }, 0);
+          }
+        } catch (itemErr) {
+          console.warn("[Push Notify] Failed to fetch invoice price items:", itemErr);
+        }
+      }
+
       title = "فاتورة مبيعات جديدة 📄";
-      body = `تم تسجيل فاتورة مبيعات جديدة${customer} بقيمة ${amount} ج.م`;
-    } else if (table === "expenses") {
-      const desc = actionRecord.description ? ` (${actionRecord.description})` : "";
-      const amount = actionRecord.amount || 0;
+      body = amount > 0
+        ? `تم تسجيل فاتورة مبيعات جديدة${customerStr} بقيمة ${amount} ج.م`
+        : `تم تسجيل فاتورة مبيعات جديدة${customerStr}`;
+    } else if (lowerTable === "expenses" || lowerTable === "expense") {
+      let expenseDesc = actionRecord.description || actionRecord.name || actionRecord.notes || "";
+      
+      // إذا لم يكن هناك وصف وكان هناك معرف تصنيف، نحاول جلب اسم التصنيف
+      if (!expenseDesc && actionRecord.category_id) {
+        try {
+          const { data: cat } = await supabase
+            .from("categories")
+            .select("name")
+            .eq("id", actionRecord.category_id)
+            .maybeSingle();
+          if (cat?.name) expenseDesc = cat.name;
+        } catch (_) {}
+      }
+
+      const descStr = expenseDesc ? ` (${expenseDesc})` : "";
+      const amount = Number(actionRecord.amount || actionRecord.cost || actionRecord.total || 0);
       title = "مصروف جديد 💸";
-      body = `تم تسجيل مصروف جديد${desc} بقيمة ${amount} ج.م`;
-    } else if (table === "farmer_withdrawals") {
-      const amount = actionRecord.amount || 0;
+      body = amount > 0
+        ? `تم تسجيل مصروف جديد${descStr} بقيمة ${amount} ج.م`
+        : `تم تسجيل مصروف جديد${descStr}`;
+    } else if (lowerTable === "farmer_withdrawals" || lowerTable === "farmer_withdrawal" || lowerTable === "withdrawals") {
+      const amount = Number(actionRecord.amount || 0);
       title = "سحب نقدي للمزارع 🌾";
-      body = `تم تسجيل سحب نقدي للمزارع بقيمة ${amount} ج.م`;
-    } else if (table === "supplier_payments") {
-      const amount = actionRecord.amount || 0;
+      body = amount > 0
+        ? `تم تسجيل سحب نقدي للمزارع بقيمة ${amount} ج.م`
+        : `تم تسجيل سحب نقدي للمزارع`;
+    } else if (lowerTable === "supplier_payments" || lowerTable === "supplier_payment") {
+      const amount = Number(actionRecord.amount || 0);
       title = "سداد دفعة للمورد 📦";
-      body = `تم تسجيل دفعة للمورد بقيمة ${amount} ج.م`;
-    } else if (table === "advances") {
-      const amount = actionRecord.amount || 0;
+      body = amount > 0
+        ? `تم تسجيل دفعة للمورد بقيمة ${amount} ج.م`
+        : `تم تسجيل دفعة للمورد`;
+    } else if (lowerTable === "advances" || lowerTable === "advance") {
+      const amount = Number(actionRecord.amount || 0);
       title = "حركة سلفة 💵";
-      body = `تم تسجيل حركة سلفة بقيمة ${amount} ج.م`;
+      body = amount > 0
+        ? `تم تسجيل حركة سلفة بقيمة ${amount} ج.م`
+        : `تم تسجيل حركة سلفة`;
     }
 
     // جلب اشتراكات الـ Push
@@ -178,7 +226,7 @@ serve(async (req: Request) => {
     const projectId = serviceAccount.project_id;
     const fcmV1Url = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
 
-    // إرسال الإشعارات إلى جميع أجهزة أندرويد عبر FCM HTTP v1 API
+    // إرسال الإشعارات إلى جميع الأجهزة عبر FCM HTTP v1 API
     const sendPromises = subscriptions.map(async (sub: any) => {
       // استخراج توكن FCM
       let fcmToken = "";
@@ -192,25 +240,32 @@ serve(async (req: Request) => {
         return null;
       }
 
-      // بناء هيكل رسالة FCM v1 الرسمي
+      // بناء هيكل رسالة FCM v1 الرسمي المتوافق تماماً
       const messagePayload = {
         message: {
           token: fcmToken,
           notification: {
             title: title,
             body: body,
-            sound: "default",
-            image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
-            icon: "https://supa-pro-v1.vercel.app/badge-icon.png",
-            color: "#10B981",
           },
           data: {
             title: String(title),
             body: String(body),
-            image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
-            icon: "https://supa-pro-v1.vercel.app/badge-icon.png",
+            icon: "https://supa-pro-v1.vercel.app/icon-192x192.png",
+            badge: "https://supa-pro-v1.vercel.app/badge-icon.png",
             table: String(table || ""),
             route: "/",
+          },
+          android: {
+            priority: "high",
+            notification: {
+              title: title,
+              body: body,
+              icon: "ic_notification",
+              color: "#10B981",
+              sound: "default",
+              channel_id: "high_priority_notifications",
+            },
           },
           webpush: {
             notification: {
@@ -218,19 +273,6 @@ serve(async (req: Request) => {
               body: body,
               icon: "https://supa-pro-v1.vercel.app/icon-192x192.png",
               badge: "https://supa-pro-v1.vercel.app/badge-icon.png",
-              image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
-            },
-          },
-          android: {
-            priority: "high",
-            notification: {
-              title: title,
-              body: body,
-              image: "https://supa-pro-v1.vercel.app/icon-192x192.png",
-              icon: "https://supa-pro-v1.vercel.app/badge-icon.png",
-              color: "#10B981",
-              sound: "default",
-              channel_id: "high_priority_notifications",
             },
           },
         },
@@ -249,7 +291,6 @@ serve(async (req: Request) => {
         const resultData = await resp.json();
         if (!resp.ok) {
           console.warn(`[FCM HTTP v1 Error] Status ${resp.status}:`, resultData);
-          // إذا كان التوكن منتهي الصلاحية أو غير صالح يتم حذفه تلقائياً
           if (resp.status === 404 || resultData?.error?.details?.some((d: any) => d.errorCode === "UNREGISTERED")) {
             await supabase.from("push_subscriptions").delete().eq("id", sub.id);
           }
