@@ -240,14 +240,11 @@ serve(async (req: Request) => {
         return null;
       }
 
-      // بناء هيكل رسالة FCM v1 الرسمي المتوافق تماماً
+      // بناء هيكل رسالة FCM v1 كـ (Data-Only Payload) حصراً
+      // تم حذف كائن notification بالكامل لإجبار الـ Service Worker على تولي عرض الإشعار بالصور الملونة
       const messagePayload = {
         message: {
           token: fcmToken,
-          notification: {
-            title: title,
-            body: body,
-          },
           data: {
             title: String(title),
             body: String(body),
@@ -258,22 +255,6 @@ serve(async (req: Request) => {
           },
           android: {
             priority: "high",
-            notification: {
-              title: title,
-              body: body,
-              icon: "ic_notification",
-              color: "#10B981",
-              sound: "default",
-              channel_id: "high_priority_notifications",
-            },
-          },
-          webpush: {
-            notification: {
-              title: title,
-              body: body,
-              icon: "https://supa-pro-v1.vercel.app/icon-192x192.png",
-              badge: "https://supa-pro-v1.vercel.app/badge-icon.png",
-            },
           },
         },
       };
