@@ -52,7 +52,18 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true, curr
     const channelName = effectiveUserId
       ? `realtime_notifs_${effectiveUserId}`
       : 'realtime_notifs_global';
-    const channel = supabase.channel(channelName);
+
+    // تنظيف أي قناة قديمة بنفس الاسم لمنع التعارض
+    const existing = supabase.getChannels().find((c) => c.topic === `realtime:${channelName}`);
+    if (existing) {
+      supabase.removeChannel(existing);
+    }
+
+    const channel = supabase.channel(channelName, {
+      config: {
+        broadcast: { ack: false, self: false },
+      },
+    });
 
     const handleTransactionEvent = (
       table: string,
@@ -278,7 +289,7 @@ export function useRealtimeNotifications({ effectiveUserId, enabled = true, curr
         );
       } else if (subStatus === 'CHANNEL_ERROR') {
         setStatus('CHANNEL_ERROR');
-        console.error(`[Realtime Notifications] Channel error on ${channelName}:`, err);
+        console.warn(`[Realtime Notifications] Channel reconnecting on ${channelName}:`, err || 'transient state');
       } else if (subStatus === 'TIMED_OUT') {
         setStatus('TIMED_OUT');
         console.warn(`[Realtime Notifications] Channel timed out on ${channelName}`);

@@ -598,21 +598,27 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             timestamp: Date.now()
         };
 
-        // 1. إرسال البث اللحظي لقناة الإشعارات (للتنبيهات الصوتية وToasts)
-        const notifChannel = supabase.channel(`realtime_notifs_${effectiveUserId}`);
-        notifChannel.send({
-            type: 'broadcast',
-            event: 'new_transaction',
-            payload
-        }).catch(err => console.warn('[Realtime Notif Broadcast send error]:', err));
+        // 1. إرسال البث اللحظي لقناة الإشعارات بأمان عبر القناة المشتركة
+        const notifTopic = `realtime:realtime_notifs_${effectiveUserId}`;
+        const activeNotifChannel = supabase.getChannels().find(c => c.topic === notifTopic);
+        if (activeNotifChannel && activeNotifChannel.state === 'joined') {
+            activeNotifChannel.send({
+                type: 'broadcast',
+                event: 'new_transaction',
+                payload
+            }).catch(err => console.warn('[Realtime Notif Broadcast send error]:', err));
+        }
 
-        // 2. إرسال البث اللحظي لقناة مزامنة البيانات (لتحديث الجداول وحسابات الأجهزة الأخرى فوراً)
-        const dataChannel = supabase.channel(`realtime_data_${effectiveUserId}`);
-        dataChannel.send({
-            type: 'broadcast',
-            event: 'new_transaction',
-            payload
-        }).catch(err => console.warn('[Realtime Data Broadcast send error]:', err));
+        // 2. إرسال البث اللحظي لقناة مزامنة البيانات
+        const dataTopic = `realtime:realtime_data_${effectiveUserId}`;
+        const activeDataChannel = supabase.getChannels().find(c => c.topic === dataTopic);
+        if (activeDataChannel && activeDataChannel.state === 'joined') {
+            activeDataChannel.send({
+                type: 'broadcast',
+                event: 'new_transaction',
+                payload
+            }).catch(err => console.warn('[Realtime Data Broadcast send error]:', err));
+        }
 
         // 3. إشعار Web Push في الخلفية للأجهزة المغلقة أو غير النشطة
         if (typeof window !== 'undefined') {
