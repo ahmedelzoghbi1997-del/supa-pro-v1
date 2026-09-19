@@ -1,24 +1,31 @@
 
 // This service worker handles push notifications for Web Push API
 self.addEventListener('push', function(event) {
-  let data = {};
+  let payload = {};
   if (event.data) {
     try {
-      data = event.data.json();
+      payload = event.data.json();
     } catch (_err) {
-      data = { body: event.data.text() };
+      payload = { body: event.data.text() };
     }
   }
 
-  const title = data.title || 'المحاسب الزراعي';
+  // دعم قراءة البيانات سواء كانت مغلّفة داخل payload.data أو payload.notification أو مباشرة في payload
+  const innerData = payload.data || payload.notification || payload;
+
+  const title = innerData.title || payload.title || 'المحاسب الزراعي';
+  const body = innerData.body || payload.body || 'لديك إشعار جديد';
+
   const options = {
-    body: data.body || 'لديك إشعار جديد',
-    icon: data.icon || '/icon-192x192.png',
-    badge: data.badge || '/badge-icon.png',
-    vibrate: data.vibrate || [200, 100, 200],
-    data: data.data || {
+    body: body,
+    // روابط كاملة ومباشرة لمنع فشل التحميل أو المربع الأبيض في الخلفية
+    icon: innerData.icon || 'https://supa-pro-v1.vercel.app/icon-192x192.png',
+    badge: innerData.badge || 'https://supa-pro-v1.vercel.app/badge-icon.png',
+    vibrate: innerData.vibrate || payload.vibrate || [200, 100, 200],
+    data: {
       dateOfArrival: Date.now(),
-      url: '/'
+      url: innerData.route || innerData.url || payload.url || '/',
+      table: innerData.table || payload.table || ''
     }
   };
 

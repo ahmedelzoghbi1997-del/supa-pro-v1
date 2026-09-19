@@ -297,8 +297,8 @@ export interface CrossPlatformNotificationOptions {
 export async function showCrossPlatformNotification({
   title,
   body,
-  icon = '/icon-192x192.png',
-  badge = '/icon-192x192.png',
+  icon = 'https://supa-pro-v1.vercel.app/icon-192x192.png',
+  badge = 'https://supa-pro-v1.vercel.app/badge-icon.png',
   data = {},
   tag,
   vibrate = [200, 100, 200],
