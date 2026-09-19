@@ -1,3 +1,50 @@
+name: Build Unified App
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure App Identity
+        run: |
+          sed -i -E "s/appId: *['\"].*['\"]/appId: 'com.ahmed.supapro'/g" capacitor.config.ts
+          sed -i -E "s/appName: *['\"].*['\"]/appName: 'المحاسب الزراعي'/g" capacitor.config.ts
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/local-notifications @capacitor/push-notifications @capacitor/assets
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Prepare Web Assets
+        run: |
+          mkdir -p www
+          cp -r dist/* www/
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      # --- تجهيز اللوجو الخاص بك ---
+      - name: Prepare Logo Assets
+        run: |
+          mkdir -p assets
+          cp assets/icon.png assets/splash.png || true
+      # ------------------------------------
+
       - name: Reconstruct Android Project
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
@@ -40,4 +87,31 @@
           # 3. إجبار نظام أندرويد (عبر الـ Manifest) على استخدام اللوجو الشفاف واللون الأخضر دائماً
           sed -i '/<\/application>/i \        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_notification" />\n        <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/notification_color" />' android/app/src/main/AndroidManifest.xml
           # -------------------------------------------------------------
+
+      - name: Build Release APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "34.0.0"
+
+      - name: Rename APK
+        run: mv ${{steps.sign_app.outputs.signedReleaseFile}} android/app/build/outputs/apk/release/AlMohasibAlZirai.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlMohasibAlZirai.apk
+          path: android/app/build/outputs/apk/release/AlMohasibAlZirai.apk
           
