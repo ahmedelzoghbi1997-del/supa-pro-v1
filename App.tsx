@@ -1,5 +1,6 @@
 import { Session } from "@supabase/supabase-js";
 import React, { useState, useEffect, useCallback } from "react";
+import { AnimatePresence } from "motion/react";
 import Sidebar from "./components/Sidebar";
 import BottomNav from "./components/BottomNav";
 import MainContent from "./components/MainContent";
@@ -126,7 +127,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const activeItemRef = React.useRef(activeItem);
-  const { settings, loadingSettings } = useSettings();
+  const { settings } = useSettings();
   const { showToast } = useToast();
   const lastBackPressTime = React.useRef<number>(0);
 
@@ -268,10 +269,6 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
     };
   }, [settings, handleNavigation, showToast]);
 
-  if (loadingSettings) {
-    return <SplashScreen statusText="جارٍ تحميل الإعدادات وتفضيلات النظام..." />;
-  }
-
   return (
     <UIProvider>
       <DataProvider profile={profile} setActiveItem={handleNavigation}>
@@ -326,9 +323,25 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSwitching, setIsSwitching] = useState(false);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const appMountedAt = React.useRef(Date.now());
   const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
     return !localStorage.getItem("onboarding_completed");
   });
+
+  useEffect(() => {
+    if (!loading && !isSwitching) {
+      const elapsed = Date.now() - appMountedAt.current;
+      const minSplashTime = 1300;
+      const remaining = Math.max(0, minSplashTime - elapsed);
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, remaining);
+      return () => clearTimeout(timer);
+    } else if (isSwitching) {
+      setShowSplash(true);
+    }
+  }, [loading, isSwitching]);
 
   useEffect(() => {
     const handleSwitching = () => setIsSwitching(true);
@@ -642,32 +655,42 @@ const App: React.FC = () => {
     }
   };
 
-  if (loading || isSwitching) {
-    return <SplashScreen isSwitching={isSwitching} />;
-  }
-
-  if (showOnboarding) {
-    return <Onboarding onComplete={() => setShowOnboarding(false)} />;
-  }
-
-  if (!session) return <AuthPage />;
-  if (isFirstLogin && profile)
-    return (
-      <WelcomePage
-        profile={profile}
-        onContinue={() => setIsFirstLogin(false)}
-      />
-    );
-  if (!profile) return <AuthPage />;
-
   return (
-    <ToastProvider>
-      <SettingsProvider
-        userId={profile.parent_id || (profile as any).owner_id || profile.id}
-      >
-        <GlobalErrorBoundary><AppContent profile={profile} /></GlobalErrorBoundary>
-      </SettingsProvider>
-    </ToastProvider>
+    <>
+      <AnimatePresence>
+        {showSplash && (
+          <SplashScreen
+            key="app-root-splash"
+            isSwitching={isSwitching}
+          />
+        )}
+      </AnimatePresence>
+
+      {!loading && (
+        <>
+          {showOnboarding ? (
+            <Onboarding onComplete={() => setShowOnboarding(false)} />
+          ) : !session || !profile ? (
+            <AuthPage />
+          ) : isFirstLogin && profile ? (
+            <WelcomePage
+              profile={profile}
+              onContinue={() => setIsFirstLogin(false)}
+            />
+          ) : (
+            <ToastProvider>
+              <SettingsProvider
+                userId={profile.parent_id || (profile as any).owner_id || profile.id}
+              >
+                <GlobalErrorBoundary>
+                  <AppContent profile={profile} />
+                </GlobalErrorBoundary>
+              </SettingsProvider>
+            </ToastProvider>
+          )}
+        </>
+      )}
+    </>
   );
 };
 

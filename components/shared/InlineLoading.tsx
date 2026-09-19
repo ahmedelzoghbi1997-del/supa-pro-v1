@@ -18,11 +18,11 @@ export const InlineLoading: React.FC<InlineLoadingProps> = ({
         transition={{ duration: 0.3 }}
         className="relative mb-5"
       >
-        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-neutral-800 p-2.5 shadow-sm border border-neutral-200/80 dark:border-neutral-700/80 flex items-center justify-center">
+        <div className="w-16 h-16 flex items-center justify-center">
           <img
             src="/app-logo.png"
             alt="المحاسب الزراعي"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain filter drop-shadow-sm"
           />
         </div>
         <motion.div

@@ -130,10 +130,8 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
               </svg>
           </button>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex items-center gap-2 select-none group cursor-pointer" onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}>
-              <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700/80 shadow-xs p-1 transition-transform group-hover:scale-105 active:scale-95">
-                <LogoIcon className="w-full h-full" />
-              </div>
+            <div className="flex items-center select-none group cursor-pointer" onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}>
+              <LogoIcon className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105 active:scale-95 filter drop-shadow-xs" />
             </div>
             <div className="flex flex-col min-w-0">
               <h1 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-neutral-0 truncate animate-enter leading-tight">{activeItemLabel}</h1>

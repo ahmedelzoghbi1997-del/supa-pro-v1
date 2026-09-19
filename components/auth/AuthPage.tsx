@@ -698,8 +698,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-white/10 rounded-full opacity-50"></div>
         <div className="absolute -bottom-32 -left-16 w-80 h-80 bg-white/5 rounded-full opacity-50"></div>
         <div className="z-10 animate-page-enter" style={{animationDelay: '200ms'}}>
-            <div className="bg-white p-8 rounded-[2.5rem] inline-block shadow-2xl border border-white/20">
-                <LogoIcon className="mx-auto h-44 w-44" />
+            <div className="inline-block">
+                <LogoIcon className="mx-auto h-48 w-48 filter drop-shadow-xl" />
             </div>
             <h1 className="mt-8 text-5xl font-bold">المحاسب الزراعي</h1>
             <p className="mt-4 text-lg text-emerald-100 max-w-sm mx-auto">
@@ -711,7 +711,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
       <div className="h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 lg:h-auto">
         <div className="w-full max-w-sm space-y-8 animate-page-enter">
           <div className="text-center lg:hidden">
-              <div className="w-24 h-24 mx-auto p-3 rounded-3xl bg-white dark:bg-neutral-800 shadow-md border border-neutral-200/80 dark:border-neutral-700/80 flex items-center justify-center"><LogoIcon className="w-full h-full" /></div>
+              <div className="w-28 h-28 mx-auto flex items-center justify-center">
+                <LogoIcon className="w-full h-full filter drop-shadow-md" />
+              </div>
               <h1 className="mt-4 text-3xl font-bold text-neutral-800 dark:text-neutral-50">المحاسب الزراعي</h1>
           </div>
           {renderContent()}
