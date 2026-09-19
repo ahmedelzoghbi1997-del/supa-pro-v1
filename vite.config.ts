@@ -13,7 +13,7 @@ export default defineConfig(() => {
         react(),
         VitePWA({
           registerType: 'autoUpdate',
-          includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg', 'icon-192x192.png', 'icon-512x512.png'],
+          includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg', 'icon-192x192.png', 'icon-512x512.png', 'badge-icon.png'],
           manifest: {
             id: '/',
             name: 'المحاسب الزراعي',
@@ -33,6 +33,12 @@ export default defineConfig(() => {
                 sizes: '192x192',
                 type: 'image/png',
                 purpose: 'any',
+              },
+              {
+                src: '/badge-icon.png',
+                sizes: '192x192',
+                type: 'image/png',
+                purpose: 'monochrome',
               },
               {
                 src: '/icon-512x512.png',
