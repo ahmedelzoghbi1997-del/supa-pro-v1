@@ -12,7 +12,7 @@ import { supabase } from "./lib/supabase";
 import AuthPage from "./components/auth/AuthPage";
 import WelcomePage from "./components/auth/WelcomePage";
 import { Onboarding } from "./components/Onboarding";
-import { LogoIcon } from "./components/Icons";
+import SplashScreen from "./components/shared/SplashScreen";
 import SharedReport from "./components/shared/SharedReport";
 import SharedReportErrorBoundary from "./src/components/shared/SharedReportErrorBoundary";
 import AppUpdateModal from "./components/shared/AppUpdateModal";
@@ -269,13 +269,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
   }, [settings, handleNavigation, showToast]);
 
   if (loadingSettings) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-[#0f172a] flex items-center justify-center pt-[env(safe-area-inset-top)]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
+    return <SplashScreen statusText="جارٍ تحميل الإعدادات وتفضيلات النظام..." />;
   }
 
   return (
@@ -649,24 +643,7 @@ const App: React.FC = () => {
   };
 
   if (loading || isSwitching) {
-    return (
-      <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-950 transition-colors duration-300">
-        <div className="flex flex-col items-center animate-pulse">
-          <div className="relative mb-8">
-            <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full transform scale-150"></div>
-            <div className="bg-white dark:bg-neutral-900 p-6 rounded-[2.5rem] shadow-2xl shadow-primary/10 border border-neutral-100 dark:border-neutral-800 relative z-10">
-              <LogoIcon className="w-24 h-24 sm:w-32 sm:h-32" />
-            </div>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-neutral-800 dark:text-neutral-100 tracking-tight mb-2">
-            المحاسب الزراعي
-          </h1>
-          <p className="text-[10px] sm:text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-[0.3em]">
-            {isSwitching ? "جارٍ تبديل الحساب..." : "جارٍ التحميل..."}
-          </p>
-        </div>
-      </div>
-    );
+    return <SplashScreen isSwitching={isSwitching} />;
   }
 
   if (showOnboarding) {

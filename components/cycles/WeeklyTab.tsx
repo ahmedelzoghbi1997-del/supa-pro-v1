@@ -1,3 +1,4 @@
+import InlineLoading from "../shared/InlineLoading";
 import React, { useMemo, useState } from 'react';
 import type { Cycle } from '../../types';
 import { useData } from '../../contexts/DataContext';
@@ -223,12 +224,7 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
   }, [cycle.revenue, cycle.expenses]);
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 animate-pulse">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-neutral-500 font-bold">جاري تحضير التقارير والتحليلات المالية...</p>
-      </div>
-    );
+    return <InlineLoading message="جاري تحضير التقارير والتحليلات المالية..." />;
   }
 
   if (activeListData.length === 0) {

@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { BellIcon, SunIcon, MoonIcon } from './Icons';
+import { BellIcon, SunIcon, MoonIcon, LogoIcon } from './Icons';
 import type { NavItemId, Invoice, Expense, Cycle, SupplierPayment, FarmerWithdrawal, Advance } from '../types';
 import InvoiceManager from './invoices/InvoiceManager';
 import ExpenseManager from './expenses/ExpenseManager';
@@ -129,8 +129,16 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
           </button>
-          <div className="flex items-center gap-2 min-w-0 flex-wrap">
-            <h1 className="text-lg sm:text-xl font-bold text-neutral-800 dark:text-neutral-0 truncate animate-enter">{activeItemLabel}</h1>
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2 select-none group cursor-pointer" onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}>
+              <div className="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-200/80 dark:border-neutral-700/80 shadow-xs p-1 transition-transform group-hover:scale-105 active:scale-95">
+                <LogoIcon className="w-full h-full" />
+              </div>
+            </div>
+            <div className="flex flex-col min-w-0">
+              <h1 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-neutral-0 truncate animate-enter leading-tight">{activeItemLabel}</h1>
+              <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 hidden sm:inline-block leading-tight">المحاسب الزراعي</span>
+            </div>
           </div>
         </div>
         

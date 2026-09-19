@@ -1,3 +1,4 @@
+import InlineLoading from "../shared/InlineLoading";
 import React, { useMemo } from 'react';
 import { useData } from '../../contexts/DataContext';
 import { formatCurrency } from '../../utils/helpers';
@@ -99,7 +100,7 @@ const FarmerStatement: React.FC<FarmerStatementProps> = ({ farmerId, onEdit, onD
         if (isPhase2Loading) {
             return (
                 <div className="p-12 text-center space-y-4">
-                    <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+                    <InlineLoading message="جاري تحميل كشف حساب المزارع..." />
                     <p className="text-neutral-500 font-bold">جاري تحضير بيانات المزارع...</p>
                 </div>
             );

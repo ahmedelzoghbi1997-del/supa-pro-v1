@@ -78,8 +78,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
         <div className="p-4 flex flex-col h-full">
           <div className="flex items-center justify-between gap-3 mb-2 pt-4 px-2">
             <div className="flex items-center gap-3">
-              <LogoIcon className="h-10 w-10" />
-              <h1 className="text-xl font-bold whitespace-nowrap text-neutral-800 dark:text-neutral-0">المحاسب الزراعي</h1>
+              <div className="w-11 h-11 rounded-2xl bg-white dark:bg-neutral-800 p-1.5 shadow-sm border border-neutral-200/80 dark:border-neutral-700/80 flex items-center justify-center shrink-0">
+                <LogoIcon className="w-full h-full" />
+              </div>
+              <div>
+                <h1 className="text-lg font-black whitespace-nowrap text-neutral-800 dark:text-neutral-0 leading-none">المحاسب الزراعي</h1>
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1 inline-block">الأجندة الزراعية الذكية</span>
+              </div>
             </div>
           </div>
           
