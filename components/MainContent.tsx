@@ -118,8 +118,8 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
 
   return (
     <main className="flex-1 bg-transparent h-screen flex flex-col w-full max-w-full overflow-hidden relative">
-      <header className="flex-shrink-0 z-20 flex flex-wrap justify-between items-center gap-y-2 bg-neutral-100/90 dark:bg-neutral-900/90 backdrop-blur-xl px-4 sm:px-8 py-3 border-b border-neutral-200 dark:border-neutral-800 w-full transition-colors duration-300">
-        <div className="flex items-center gap-4 min-w-0">
+      <header className="flex-shrink-0 z-20 h-14 sm:h-16 flex justify-between items-center bg-neutral-100/90 dark:bg-neutral-900/90 backdrop-blur-xl px-4 sm:px-8 border-b border-neutral-200 dark:border-neutral-800 w-full transition-colors duration-300">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <button 
               onClick={() => {
                   triggerLightHaptic();
@@ -131,14 +131,14 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
           </button>
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <div
               id="header-logo-target"
-              className="flex items-center select-none group cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0 select-none group cursor-pointer"
               onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}
             >
               <LogoIcon
-                className={`w-9 h-9 sm:w-10 sm:h-10 group-hover:scale-105 active:scale-95 ${
+                className={`w-full h-full group-hover:scale-105 active:scale-95 transition-opacity duration-150 ${
                   isTransitioning && !hasTransitionCompleted ? 'opacity-0' : 'opacity-100'
                 }`}
               />

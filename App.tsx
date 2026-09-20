@@ -669,6 +669,12 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSplashTransitionComplete = useCallback(() => {
+    setHasTransitionCompleted(true);
+    setIsTransitioning(false);
+    setShowSplash(false);
+  }, []);
+
   return (
     <>
       <AnimatePresence>
@@ -677,11 +683,7 @@ const App: React.FC = () => {
             key="app-root-splash"
             isSwitching={isSwitching}
             isExiting={isSplashExiting}
-            onTransitionComplete={() => {
-              setHasTransitionCompleted(true);
-              setIsTransitioning(false);
-              setShowSplash(false);
-            }}
+            onTransitionComplete={handleSplashTransitionComplete}
           />
         )}
       </AnimatePresence>

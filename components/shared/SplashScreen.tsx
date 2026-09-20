@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface SplashScreenProps {
   isSwitching?: boolean;
@@ -10,99 +10,75 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   isExiting = false,
   onTransitionComplete,
 }) => {
-  const [targetCoords, setTargetCoords] = useState<{
-    x: number;
-    y: number;
-    size: number;
-  } | null>(null);
-
-  const [startCoords, setStartCoords] = useState<{
-    centerX: number;
-    centerY: number;
-    size: number;
-  } | null>(null);
-
-  const logoCenterRef = useRef<HTMLDivElement>(null);
-  const flightContainerRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
+  const hasStartedRef = useRef(false);
+  const onTransitionCompleteRef = useRef(onTransitionComplete);
+  onTransitionCompleteRef.current = onTransitionComplete;
 
-  // Measure initial center logo position & size once mounted
   useEffect(() => {
-    if (logoCenterRef.current) {
-      const rect = logoCenterRef.current.getBoundingClientRect();
-      setStartCoords({
-        centerX: rect.left + rect.width / 2,
-        centerY: rect.top + rect.height / 2,
-        size: Math.min(rect.width, rect.height) || 256,
-      });
-    }
-  }, []);
+    if (!isExiting || hasStartedRef.current) return;
 
-  // When exiting begins, compute exact center coordinates of the target image inside the header
-  useEffect(() => {
-    if (!isExiting) return;
+    let rafId: number;
+    let attempts = 0;
+    const maxAttempts = 40; // Max ~600ms waiting for target if layout needs a tick
 
-    const findTargetCoords = () => {
+    const startFlight = () => {
+      const logoEl = logoRef.current;
       const targetEl = document.getElementById('header-logo-target');
-      if (targetEl) {
-        const imgEl = targetEl.querySelector('img') || targetEl;
-        const rect = imgEl.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-          setTargetCoords({
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-            size: Math.min(rect.width, rect.height) || 38,
-          });
-          return true;
+
+      if (!logoEl) return;
+
+      if (!targetEl) {
+        if (attempts++ < maxAttempts) {
+          rafId = requestAnimationFrame(startFlight);
+          return;
         }
+        // Fallback: complete transition cleanly if target never appears
+        onTransitionCompleteRef.current?.();
+        return;
       }
-      return false;
-    };
 
-    if (!findTargetCoords()) {
-      const raf = requestAnimationFrame(() => {
-        if (!findTargetCoords()) {
-          setTargetCoords({
-            x: window.innerWidth - 48,
-            y: 30,
-            size: 38,
-          });
-        }
-      });
-      return () => cancelAnimationFrame(raf);
-    }
-  }, [isExiting]);
+      const targetRect = targetEl.getBoundingClientRect();
+      const logoRect = logoEl.getBoundingClientRect();
 
-  // Launch the pure compositor Web Animations API (WAAPI) when target is resolved
-  useEffect(() => {
-    if (!isExiting || !targetCoords) return;
+      // Ensure target element has laid out with valid dimensions
+      if ((targetRect.width === 0 || targetRect.height === 0) && attempts++ < maxAttempts) {
+        rafId = requestAnimationFrame(startFlight);
+        return;
+      }
 
-    const initialSize = startCoords?.size || 256;
-    const startCenterX = startCoords?.centerX || window.innerWidth / 2;
-    const startCenterY = startCoords?.centerY || window.innerHeight / 2;
+      // Mark as started so it never runs twice
+      hasStartedRef.current = true;
 
-    const deltaX = targetCoords.x - startCenterX;
-    const deltaY = targetCoords.y - startCenterY;
-    const scale = targetCoords.size / initialSize;
+      // Calculate exact subpixel centers
+      const sourceCenterX = logoRect.left + logoRect.width / 2;
+      const sourceCenterY = logoRect.top + logoRect.height / 2;
+      const targetCenterX = targetRect.left + targetRect.width / 2;
+      const targetCenterY = targetRect.top + targetRect.height / 2;
 
-    // 1. Background soft fade out via compositor
-    if (bgRef.current) {
-      bgRef.current.animate(
-        [
-          { opacity: 1 },
-          { opacity: 0 }
-        ],
-        {
-          duration: 750,
-          easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
-          fill: 'forwards',
-        }
-      );
-    }
+      const deltaX = targetCenterX - sourceCenterX;
+      const deltaY = targetCenterY - sourceCenterY;
+      const targetSize = Math.max(targetRect.width, targetRect.height) || 36;
+      const scale = targetSize / logoRect.width;
 
-    // 2. Logo flight animation running on GPU compositor thread (zero JS-thread stutter)
-    if (flightContainerRef.current) {
-      const animation = flightContainerRef.current.animate(
+      // 1. Snappy fade out of the background canvas on the GPU
+      if (bgRef.current) {
+        bgRef.current.animate(
+          [
+            { opacity: 1 },
+            { opacity: 0 }
+          ],
+          {
+            duration: 380,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            fill: 'forwards',
+          }
+        );
+      }
+
+      // 2. Ultra-smooth GPU compositor flight directly to header coordinates
+      const flightAnim = logoEl.animate(
         [
           {
             transform: 'translate3d(0px, 0px, 0px) scale(1)',
@@ -112,66 +88,57 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           }
         ],
         {
-          duration: 950,
-          easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          duration: 480,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)', // Snappy, natural deceleration
           fill: 'forwards',
         }
       );
 
-      animation.onfinish = () => {
-        // Handover smoothly without any drop or flicker
-        requestAnimationFrame(() => {
-          onTransitionComplete?.();
-        });
+      flightAnim.onfinish = () => {
+        onTransitionCompleteRef.current?.();
       };
-    }
-  }, [isExiting, targetCoords, startCoords, onTransitionComplete]);
+    };
+
+    rafId = requestAnimationFrame(startFlight);
+    return () => cancelAnimationFrame(rafId);
+  }, [isExiting]);
 
   return (
     <div className="fixed inset-0 z-[100] pointer-events-none select-none overflow-hidden">
-      {/* Background Canvas */}
+      {/* Background with optimized CSS radial gradient glow (zero Gaussian blur re-rasterization jank) */}
       <div
         ref={bgRef}
         style={{ willChange: 'opacity' }}
-        className="absolute inset-0 bg-gradient-to-b from-neutral-50 via-white to-neutral-100 dark:from-[#060b13] dark:via-[#090f1d] dark:to-[#050811] flex items-center justify-center p-6"
+        className="absolute inset-0 bg-neutral-50 dark:bg-[#060b13] flex items-center justify-center"
       >
-        {/* Soft Ambient Light Glow */}
+        {/* Ambient Radial Gradient - 100% lightweight & instantaneous GPU fill */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 sm:w-[32rem] h-96 sm:h-[32rem] bg-emerald-500/10 dark:bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-emerald-400/15 dark:bg-emerald-400/20 rounded-full blur-2xl pointer-events-none"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.04) 40%, transparent 70%)',
+          }}
         />
       </div>
 
-      {/* The Flying Logo Element (Direct GPU Compositor execution) */}
+      {/* Direct Centered Flying Logo Element */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div
-          ref={flightContainerRef}
+          ref={logoRef}
           style={{
             willChange: 'transform',
             transformOrigin: 'center center',
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
           }}
-          className="relative flex items-center justify-center"
+          className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center pointer-events-none select-none"
         >
-          <div
-            ref={logoCenterRef}
-            className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 max-w-[85vw] max-h-[50vh] flex items-center justify-center"
-          >
-            <img
-              src="/app-logo.png"
-              alt="المحاسب الزراعي"
-              className="w-full h-full object-contain select-none"
-              style={{
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
-              }}
-              loading="eager"
-              decoding="sync"
-            />
-          </div>
+          <img
+            src="/app-logo.png"
+            alt="المحاسب الزراعي"
+            className="w-full h-full object-contain pointer-events-none select-none"
+            loading="eager"
+            decoding="sync"
+          />
         </div>
       </div>
     </div>
