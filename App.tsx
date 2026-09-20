@@ -672,7 +672,9 @@ const App: React.FC = () => {
   const handleSplashTransitionComplete = useCallback(() => {
     setHasTransitionCompleted(true);
     setIsTransitioning(false);
-    setShowSplash(false);
+    requestAnimationFrame(() => {
+      setShowSplash(false);
+    });
   }, []);
 
   return (

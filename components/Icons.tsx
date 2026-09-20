@@ -20,7 +20,7 @@ export const LogoIcon: React.FC<LogoIconProps> = ({ className = 'h-10 w-10', alt
       alt={alt}
       className={"object-contain select-none " + (className || "")}
       loading="eager"
-      decoding="async"
+      decoding="sync"
       {...props}
     />
   );

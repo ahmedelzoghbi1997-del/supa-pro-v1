@@ -138,7 +138,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
               onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}
             >
               <LogoIcon
-                className={`w-full h-full group-hover:scale-105 active:scale-95 transition-opacity duration-150 ${
+                className={`w-full h-full group-hover:scale-105 active:scale-95 ${
                   isTransitioning && !hasTransitionCompleted ? 'opacity-0' : 'opacity-100'
                 }`}
               />

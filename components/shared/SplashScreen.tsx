@@ -62,7 +62,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       const targetSize = Math.max(targetRect.width, targetRect.height) || 36;
       const scale = targetSize / logoRect.width;
 
-      // 1. Snappy fade out of the background canvas on the GPU
+      // 1. Smooth fade out of the background canvas on the GPU
       if (bgRef.current) {
         bgRef.current.animate(
           [
@@ -70,14 +70,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             { opacity: 0 }
           ],
           {
-            duration: 380,
+            duration: 620,
             easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
             fill: 'forwards',
           }
         );
       }
 
-      // 2. Ultra-smooth GPU compositor flight directly to header coordinates
+      // 2. Ultra-smooth GPU compositor flight directly to header coordinates (slightly slower & graceful)
       const flightAnim = logoEl.animate(
         [
           {
@@ -88,8 +88,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           }
         ],
         {
-          duration: 480,
-          easing: 'cubic-bezier(0.16, 1, 0.3, 1)', // Snappy, natural deceleration
+          duration: 750,
+          easing: 'cubic-bezier(0.22, 1, 0.36, 1)', // Smooth, graceful deceleration without abrupt stopping
           fill: 'forwards',
         }
       );
@@ -105,17 +105,17 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] pointer-events-none select-none overflow-hidden">
-      {/* Background with optimized CSS radial gradient glow (zero Gaussian blur re-rasterization jank) */}
+      {/* Background matching exact dashboard canvas (zero color-shift flash) */}
       <div
         ref={bgRef}
         style={{ willChange: 'opacity' }}
-        className="absolute inset-0 bg-neutral-50 dark:bg-[#060b13] flex items-center justify-center"
+        className="absolute inset-0 bg-neutral-100 dark:bg-neutral-950 flex items-center justify-center"
       >
-        {/* Ambient Radial Gradient - 100% lightweight & instantaneous GPU fill */}
+        {/* Subtle Ambient Radial Glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.04) 40%, transparent 70%)',
+            background: 'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.03) 45%, transparent 70%)',
           }}
         />
       </div>
