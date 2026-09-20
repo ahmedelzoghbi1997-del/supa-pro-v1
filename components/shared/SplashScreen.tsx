@@ -21,7 +21,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
     let rafId: number;
     let attempts = 0;
-    const maxAttempts = 40; // Max ~600ms waiting for target if layout needs a tick
+    const maxAttempts = 30;
 
     const startFlight = () => {
       const logoEl = logoRef.current;
@@ -34,7 +34,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           rafId = requestAnimationFrame(startFlight);
           return;
         }
-        // Fallback: complete transition cleanly if target never appears
         onTransitionCompleteRef.current?.();
         return;
       }
@@ -42,13 +41,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       const targetRect = targetEl.getBoundingClientRect();
       const logoRect = logoEl.getBoundingClientRect();
 
-      // Ensure target element has laid out with valid dimensions
       if ((targetRect.width === 0 || targetRect.height === 0) && attempts++ < maxAttempts) {
         rafId = requestAnimationFrame(startFlight);
         return;
       }
 
-      // Mark as started so it never runs twice
       hasStartedRef.current = true;
 
       // Calculate exact subpixel centers
@@ -62,7 +59,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       const targetSize = Math.max(targetRect.width, targetRect.height) || 36;
       const scale = targetSize / logoRect.width;
 
-      // 1. Smooth fade out of the background canvas on the GPU
+      // 1. Fluid, fast GPU background fadeout revealing the dashboard with zero delay
       if (bgRef.current) {
         bgRef.current.animate(
           [
@@ -70,32 +67,40 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             { opacity: 0 }
           ],
           {
-            duration: 620,
-            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            duration: 440,
+            easing: 'cubic-bezier(0.33, 1, 0.68, 1)',
             fill: 'forwards',
           }
         );
       }
 
-      // 2. Ultra-smooth GPU compositor flight directly to header coordinates (slightly slower & graceful)
+      // 2. Silky-smooth 144Hz compositor flight with spring-like organic deceleration
+      // Easing: cubic-bezier(0.16, 1, 0.3, 1) provides instantaneous acceleration and ultra-fluid settling
       const flightAnim = logoEl.animate(
         [
           {
-            transform: 'translate3d(0px, 0px, 0px) scale(1)',
+            transform: 'translate3d(0, 0, 0) scale(1)',
           },
           {
-            transform: `translate3d(${deltaX}px, ${deltaY}px, 0px) scale(${scale})`,
+            transform: `translate3d(${deltaX.toFixed(2)}px, ${deltaY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`,
           }
         ],
         {
-          duration: 750,
-          easing: 'cubic-bezier(0.22, 1, 0.36, 1)', // Smooth, graceful deceleration without abrupt stopping
+          duration: 540,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
           fill: 'forwards',
         }
       );
 
       flightAnim.onfinish = () => {
-        onTransitionCompleteRef.current?.();
+        // Direct DOM handoff: immediately reveal the header target image so it's already rendered
+        const targetImg = targetEl.querySelector('img') || targetEl;
+        targetImg.classList.remove('opacity-0');
+        targetImg.classList.add('opacity-100');
+
+        requestAnimationFrame(() => {
+          onTransitionCompleteRef.current?.();
+        });
       };
     };
 
@@ -104,12 +109,15 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   }, [isExiting]);
 
   return (
-    <div className="fixed inset-0 z-[100] pointer-events-none select-none overflow-hidden">
+    <div
+      style={{ contain: 'layout paint' }}
+      className="fixed inset-0 z-[100] pointer-events-none select-none overflow-hidden"
+    >
       {/* Background matching exact dashboard canvas (zero color-shift flash) */}
       <div
         ref={bgRef}
         style={{ willChange: 'opacity' }}
-        className="absolute inset-0 bg-neutral-100 dark:bg-neutral-950 flex items-center justify-center"
+        className="absolute inset-0 bg-[#F8FAFC] dark:bg-[#020617] flex items-center justify-center"
       >
         {/* Subtle Ambient Radial Glow */}
         <div
@@ -129,6 +137,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             transformOrigin: 'center center',
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
+            transform: 'translate3d(0, 0, 0)',
+            transformStyle: 'preserve-3d',
           }}
           className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center pointer-events-none select-none"
         >

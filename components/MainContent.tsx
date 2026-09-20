@@ -41,8 +41,24 @@ interface MainContentProps {
   onOpenSidebar?: () => void;
 }
 
-const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) => {
+const HeaderLogoTarget: React.FC<{ onOpenSidebar?: () => void }> = React.memo(({ onOpenSidebar }) => {
   const { isTransitioning, hasTransitionCompleted } = useSplashTransition();
+  return (
+    <div
+      id="header-logo-target"
+      className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0 select-none group cursor-pointer"
+      onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}
+    >
+      <LogoIcon
+        className={`w-full h-full group-hover:scale-105 active:scale-95 transition-none ${
+          isTransitioning && !hasTransitionCompleted ? 'opacity-0' : 'opacity-100'
+        }`}
+      />
+    </div>
+  );
+});
+
+const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) => {
   const { settings, updateSettings } = useSettings();
   const { 
     notifications, markAllNotificationsAsRead
@@ -132,17 +148,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
               </svg>
           </button>
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div
-              id="header-logo-target"
-              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shrink-0 select-none group cursor-pointer"
-              onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}
-            >
-              <LogoIcon
-                className={`w-full h-full group-hover:scale-105 active:scale-95 ${
-                  isTransitioning && !hasTransitionCompleted ? 'opacity-0' : 'opacity-100'
-                }`}
-              />
-            </div>
+            <HeaderLogoTarget onOpenSidebar={onOpenSidebar} />
             <div className="flex flex-col min-w-0">
               <h1 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-neutral-0 truncate animate-enter leading-tight">{activeItemLabel}</h1>
               <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 hidden sm:inline-block leading-tight">المحاسب الزراعي</span>

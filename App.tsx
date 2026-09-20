@@ -1,5 +1,5 @@
 import { Session } from "@supabase/supabase-js";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence } from "motion/react";
 import Sidebar from "./components/Sidebar";
 import BottomNav from "./components/BottomNav";
@@ -326,7 +326,7 @@ const App: React.FC = () => {
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [isSplashExiting, setIsSplashExiting] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(true);
   const [hasTransitionCompleted, setHasTransitionCompleted] = useState(false);
   const appMountedAt = React.useRef(Date.now());
   const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
@@ -341,10 +341,10 @@ const App: React.FC = () => {
       const timer = setTimeout(() => {
         // If user is ready to see the dashboard, trigger the flight transition
         if (session && profile && !isFirstLogin && !showOnboarding) {
-          setIsTransitioning(true);
           setIsSplashExiting(true);
         } else {
           // If onboarding or auth page, fade out normally
+          setIsTransitioning(false);
           setShowSplash(false);
         }
       }, remaining);
@@ -352,7 +352,7 @@ const App: React.FC = () => {
     } else if (isSwitching) {
       setShowSplash(true);
       setIsSplashExiting(false);
-      setIsTransitioning(false);
+      setIsTransitioning(true);
       setHasTransitionCompleted(false);
     }
   }, [loading, isSwitching, session, profile, isFirstLogin, showOnboarding]);
@@ -672,10 +672,14 @@ const App: React.FC = () => {
   const handleSplashTransitionComplete = useCallback(() => {
     setHasTransitionCompleted(true);
     setIsTransitioning(false);
-    requestAnimationFrame(() => {
-      setShowSplash(false);
-    });
+    setShowSplash(false);
   }, []);
+
+  const splashTransitionValue = useMemo(() => ({
+    isTransitioning,
+    hasTransitionCompleted,
+    completeTransition: handleSplashTransitionComplete,
+  }), [isTransitioning, hasTransitionCompleted, handleSplashTransitionComplete]);
 
   return (
     <>
@@ -707,17 +711,7 @@ const App: React.FC = () => {
                 userId={profile.parent_id || (profile as any).owner_id || profile.id}
               >
                 <GlobalErrorBoundary>
-                  <SplashTransitionProvider
-                    value={{
-                      isTransitioning,
-                      hasTransitionCompleted,
-                      completeTransition: () => {
-                        setIsTransitioning(false);
-                        setHasTransitionCompleted(true);
-                        setShowSplash(false);
-                      },
-                    }}
-                  >
+                  <SplashTransitionProvider value={splashTransitionValue}>
                     <AppContent profile={profile} />
                   </SplashTransitionProvider>
                 </GlobalErrorBoundary>
