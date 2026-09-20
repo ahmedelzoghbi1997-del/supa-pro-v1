@@ -2,11 +2,8 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
-
-const __filename = fileURLToPath(import.meta.env ? new URL(import.meta.url) : import.meta.url);
-const __dirname = path.dirname(__filename);
+import sendPushHandler from "./api/send-push";
 
 const supabaseUrl = 'https://ibudczfescwpmldarfbi.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw';
@@ -184,7 +181,6 @@ async function startServer() {
   // API Route: Send Web Push (Compatible with Vercel Serverless Function)
   app.all("/api/send-push", async (req, res) => {
     try {
-      const sendPushHandler = (await import("./api/send-push")).default;
       await sendPushHandler(req as any, res as any);
     } catch (err: any) {
       console.error("Error invoking /api/send-push:", err);

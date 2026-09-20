@@ -14,6 +14,7 @@ import AuthPage from "./components/auth/AuthPage";
 import WelcomePage from "./components/auth/WelcomePage";
 import { Onboarding } from "./components/Onboarding";
 import SplashScreen from "./components/shared/SplashScreen";
+import { SplashTransitionProvider } from "./contexts/SplashTransitionContext";
 import SharedReport from "./components/shared/SharedReport";
 import SharedReportErrorBoundary from "./src/components/shared/SharedReportErrorBoundary";
 import AppUpdateModal from "./components/shared/AppUpdateModal";
@@ -324,6 +325,9 @@ const App: React.FC = () => {
   const [isSwitching, setIsSwitching] = useState(false);
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [isSplashExiting, setIsSplashExiting] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [hasTransitionCompleted, setHasTransitionCompleted] = useState(false);
   const appMountedAt = React.useRef(Date.now());
   const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
     return !localStorage.getItem("onboarding_completed");
@@ -332,16 +336,26 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!loading && !isSwitching) {
       const elapsed = Date.now() - appMountedAt.current;
-      const minSplashTime = 1300;
+      const minSplashTime = 1200;
       const remaining = Math.max(0, minSplashTime - elapsed);
       const timer = setTimeout(() => {
-        setShowSplash(false);
+        // If user is ready to see the dashboard, trigger the flight transition
+        if (session && profile && !isFirstLogin && !showOnboarding) {
+          setIsTransitioning(true);
+          setIsSplashExiting(true);
+        } else {
+          // If onboarding or auth page, fade out normally
+          setShowSplash(false);
+        }
       }, remaining);
       return () => clearTimeout(timer);
     } else if (isSwitching) {
       setShowSplash(true);
+      setIsSplashExiting(false);
+      setIsTransitioning(false);
+      setHasTransitionCompleted(false);
     }
-  }, [loading, isSwitching]);
+  }, [loading, isSwitching, session, profile, isFirstLogin, showOnboarding]);
 
   useEffect(() => {
     const handleSwitching = () => setIsSwitching(true);
@@ -662,6 +676,12 @@ const App: React.FC = () => {
           <SplashScreen
             key="app-root-splash"
             isSwitching={isSwitching}
+            isExiting={isSplashExiting}
+            onTransitionComplete={() => {
+              setHasTransitionCompleted(true);
+              setIsTransitioning(false);
+              setShowSplash(false);
+            }}
           />
         )}
       </AnimatePresence>
@@ -683,7 +703,19 @@ const App: React.FC = () => {
                 userId={profile.parent_id || (profile as any).owner_id || profile.id}
               >
                 <GlobalErrorBoundary>
-                  <AppContent profile={profile} />
+                  <SplashTransitionProvider
+                    value={{
+                      isTransitioning,
+                      hasTransitionCompleted,
+                      completeTransition: () => {
+                        setIsTransitioning(false);
+                        setHasTransitionCompleted(true);
+                        setShowSplash(false);
+                      },
+                    }}
+                  >
+                    <AppContent profile={profile} />
+                  </SplashTransitionProvider>
                 </GlobalErrorBoundary>
               </SettingsProvider>
             </ToastProvider>

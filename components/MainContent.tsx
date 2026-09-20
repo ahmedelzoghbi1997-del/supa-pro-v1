@@ -19,6 +19,7 @@ import NotificationsPanel from './shared/NotificationsPanel';
 import UserManager from './users/UserManager';
 import SubscriptionPage from './subscription/SubscriptionPage';
 import LaborManager from './labor/LaborManager';
+import { useSplashTransition } from '../contexts/SplashTransitionContext';
 import { navItems } from '../constants';
 import { useSettings, terminology } from '../contexts/SettingsContext';
 import { useData } from '../contexts/DataContext';
@@ -41,6 +42,7 @@ interface MainContentProps {
 }
 
 const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) => {
+  const { isTransitioning, hasTransitionCompleted } = useSplashTransition();
   const { settings, updateSettings } = useSettings();
   const { 
     notifications, markAllNotificationsAsRead
@@ -130,8 +132,16 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
               </svg>
           </button>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex items-center select-none group cursor-pointer" onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}>
-              <LogoIcon className="w-9 h-9 sm:w-10 sm:h-10 transition-transform group-hover:scale-105 active:scale-95 filter drop-shadow-xs" />
+            <div
+              id="header-logo-target"
+              className="flex items-center select-none group cursor-pointer"
+              onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}
+            >
+              <LogoIcon
+                className={`w-9 h-9 sm:w-10 sm:h-10 group-hover:scale-105 active:scale-95 ${
+                  isTransitioning && !hasTransitionCompleted ? 'opacity-0' : 'opacity-100'
+                }`}
+              />
             </div>
             <div className="flex flex-col min-w-0">
               <h1 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-neutral-0 truncate animate-enter leading-tight">{activeItemLabel}</h1>
