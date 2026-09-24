@@ -5,7 +5,14 @@ import path from "path";
 import { createClient } from "@supabase/supabase-js";
 import sendPushHandler from "./api/send-push";
 
-const supabaseUrl = 'https://ibudczfescwpmldarfbi.supabase.co';
+if (typeof (process as any).loadEnvFile === 'function') {
+  try { (process as any).loadEnvFile(); } catch {}
+}
+
+const rawServerUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const supabaseUrl = (typeof rawServerUrl === 'string' && (rawServerUrl.startsWith('http://') || rawServerUrl.startsWith('https://')))
+  ? rawServerUrl.trim()
+  : 'https://ibudczfescwpmldarfbi.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw';
 
 if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
