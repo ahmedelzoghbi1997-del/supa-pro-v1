@@ -139,6 +139,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 p_password: password
             });
 
+            if (supabaseError?.message?.includes('تم قفل الحساب مؤقتاً')) {
+                setError('تم قفل الحساب مؤقتاً لكثرة المحاولات الخاطئة. يرجى المحاولة بعد 15 دقيقة.');
+                setLoading(false);
+                return;
+            }
+
             let vMember = Array.isArray(data) ? data[0] : data;
 
             if (supabaseError || !vMember || !vMember.id) {
@@ -159,7 +165,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                             username: serverData.user.username
                         };
                     } else if (serverData.error) {
-                        setError('بيانات الدخول غير صحيحة');
+                        setError(serverData.error);
                         setLoading(false);
                         return;
                     }

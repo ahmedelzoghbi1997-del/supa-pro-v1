@@ -89,6 +89,18 @@ ALTER TABLE public.virtual_members ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Owners can manage their virtual members" ON public.virtual_members
 FOR ALL USING (auth.uid() = owner_id);
 
+-- 2.5 Failed Login Attempts Tracking
+CREATE TABLE IF NOT EXISTS public.login_attempts (
+    id BIGSERIAL PRIMARY KEY,
+    username TEXT NOT NULL,
+    attempted_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_login_attempts_username_time 
+ON public.login_attempts (username, attempted_at DESC);
+
+ALTER TABLE public.login_attempts ENABLE ROW LEVEL SECURITY;
+
 -- 3. Functions for virtual members
 DROP FUNCTION IF EXISTS public.virtual_login(TEXT, TEXT);
 CREATE OR REPLACE FUNCTION public.virtual_login(p_username TEXT, p_password TEXT)
@@ -99,22 +111,61 @@ RETURNS TABLE (
     full_name TEXT,
     role TEXT
 ) AS $$
+DECLARE
+    v_failed_attempts INT;
+    v_member RECORD;
 BEGIN
-    RETURN QUERY
+    -- 1. تنظيف المحاولات القديمة (أقدم من ساعة) تلقائياً عند كل استدعاء
+    DELETE FROM public.login_attempts
+    WHERE attempted_at < NOW() - INTERVAL '1 hour';
+
+    -- 2. فحص عدد المحاولات الفاشلة لنفس اسم المستخدم خلال آخر 15 دقيقة
+    SELECT COUNT(*)
+    INTO v_failed_attempts
+    FROM public.login_attempts
+    WHERE username = p_username
+      AND attempted_at >= NOW() - INTERVAL '15 minutes';
+
+    -- إذا كان عدد المحاولات الفاشلة أكبر من 5، يتم قفل الحساب مؤقتاً فوراً دون مقارنة كلمة المرور
+    IF v_failed_attempts > 5 THEN
+        RAISE EXCEPTION 'تم قفل الحساب مؤقتاً';
+    END IF;
+
+    -- 3. التحقق من صحة بيانات الدخول ومقارنة كلمة المرور المشفرة
     SELECT vm.id, vm.owner_id, vm.username, vm.full_name, vm.role
+    INTO v_member
     FROM public.virtual_members vm
     WHERE vm.username = p_username 
       AND vm.password = crypt(p_password, vm.password)
     LIMIT 1;
-    
-    -- Update last seen upon successful login
-    IF FOUND THEN
-        UPDATE public.virtual_members 
-        SET last_seen = NOW()
-        WHERE virtual_members.username = p_username;
+
+    -- 4. في حالة فشل التحقق (اسم المستخدم غير موجود أو كلمة المرور غير صحيحة)
+    IF v_member.id IS NULL THEN
+        -- تسجيل المحاولة الفاشلة في جدول login_attempts
+        INSERT INTO public.login_attempts (username, attempted_at)
+        VALUES (p_username, NOW());
+
+        -- الخروج دون إرجاع بيانات
+        RETURN;
     END IF;
+
+    -- 5. في حالة نجاح تسجيل الدخول:
+    -- مسح سجل المحاولات الفاشلة السابقة لهذا المستخدم
+    DELETE FROM public.login_attempts 
+    WHERE username = p_username;
+
+    -- تحديث وقت آخر ظهور (last_seen)
+    UPDATE public.virtual_members 
+    SET last_seen = NOW()
+    WHERE id = v_member.id;
+
+    -- إرجاع بيانات العضو المعتمد
+    RETURN QUERY
+    SELECT v_member.id, v_member.owner_id, v_member.username, v_member.full_name, v_member.role;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.virtual_login(TEXT, TEXT) TO anon, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION public.update_virtual_member_last_seen(member_id UUID)
 RETURNS VOID AS $$
@@ -146,4 +197,142 @@ CREATE POLICY "Users can delete their own daily logs." ON public.daily_logs FOR 
 -- 5. تحديثات لاحقة لقاعدة البيانات (Schema Updates)
 -- إضافة عمود وردية العمل لجدول المصروفات (للتمييز بين اليوميات الصباحية والمسائية ويوم كامل)
 ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS shift_type TEXT DEFAULT NULL;
+
+-- 6. الربط بحساب مالك وكود الربط الآمن (Linking Code & Expiry & Rate Limiting)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS linking_code_expires_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_profiles_linking_code ON public.profiles (linking_code);
+
+CREATE TABLE IF NOT EXISTS public.linking_attempts (
+    id BIGSERIAL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    attempted_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_linking_attempts_user_time ON public.linking_attempts (user_id, attempted_at DESC);
+ALTER TABLE public.linking_attempts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own linking attempts" 
+ON public.linking_attempts FOR ALL 
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE OR REPLACE FUNCTION public.generate_secure_linking_code(p_length INT DEFAULT 12)
+RETURNS TEXT AS $$
+DECLARE
+    chars CONSTANT TEXT := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    result TEXT := '';
+    i INT;
+    rand_byte INT;
+    bytes BYTEA;
+    actual_length INT;
+BEGIN
+    actual_length := GREATEST(10, COALESCE(p_length, 12));
+    bytes := gen_random_bytes(actual_length);
+    FOR i IN 0..(actual_length - 1) LOOP
+        rand_byte := get_byte(bytes, i);
+        result := result || substr(chars, (rand_byte % length(chars)) + 1, 1);
+    END LOOP;
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.generate_owner_linking_code()
+RETURNS TABLE (
+    linking_code TEXT,
+    linking_code_expires_at TIMESTAMPTZ
+) AS $$
+DECLARE
+    v_user_id UUID;
+    v_code TEXT;
+    v_expires TIMESTAMPTZ;
+BEGIN
+    v_user_id := auth.uid();
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'يجب تسجيل الدخول أولاً';
+    END IF;
+
+    v_code := public.generate_secure_linking_code(12);
+    v_expires := NOW() + INTERVAL '24 hours';
+
+    UPDATE public.profiles
+    SET linking_code = v_code,
+        linking_code_expires_at = v_expires
+    WHERE id = v_user_id;
+
+    RETURN QUERY SELECT v_code, v_expires;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.generate_owner_linking_code() TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.link_account_to_owner(p_code TEXT)
+RETURNS JSONB AS $$
+DECLARE
+    v_user_id UUID;
+    v_failed_attempts INT;
+    v_owner RECORD;
+    v_clean_code TEXT;
+BEGIN
+    v_user_id := auth.uid();
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'يجب تسجيل الدخول أولاً';
+    END IF;
+
+    v_clean_code := UPPER(TRIM(COALESCE(p_code, '')));
+    IF length(v_clean_code) < 6 THEN
+        RAISE EXCEPTION 'يرجى إدخال كود ربط صحيح';
+    END IF;
+
+    DELETE FROM public.linking_attempts
+    WHERE attempted_at < NOW() - INTERVAL '1 hour';
+
+    SELECT COUNT(*)
+    INTO v_failed_attempts
+    FROM public.linking_attempts
+    WHERE user_id = v_user_id
+      AND attempted_at >= NOW() - INTERVAL '15 minutes';
+
+    IF v_failed_attempts >= 5 THEN
+        RAISE EXCEPTION 'تم قفل محاولات الربط مؤقتاً لكثرة المحاولات الخاطئة. يرجى المحاولة بعد 15 دقيقة.';
+    END IF;
+
+    SELECT id, full_name, linking_code_expires_at
+    INTO v_owner
+    FROM public.profiles
+    WHERE UPPER(linking_code) = v_clean_code
+    LIMIT 1;
+
+    IF v_owner.id IS NULL THEN
+        INSERT INTO public.linking_attempts (user_id, attempted_at)
+        VALUES (v_user_id, NOW());
+        RAISE EXCEPTION 'كود غير صحيح. تأكد من الكود من صاحب الحساب.';
+    END IF;
+
+    IF v_owner.id = v_user_id THEN
+        RAISE EXCEPTION 'لا يمكنك ربط حسابك بنفسك.';
+    END IF;
+
+    IF v_owner.linking_code_expires_at IS NULL OR v_owner.linking_code_expires_at < NOW() THEN
+        INSERT INTO public.linking_attempts (user_id, attempted_at)
+        VALUES (v_user_id, NOW());
+        RAISE EXCEPTION 'هذا الكود منتهي الصلاحية (صلاحية الكود 24 ساعة فقط من توليده). اطلب كوداً جديداً من صاحب الحساب.';
+    END IF;
+
+    DELETE FROM public.linking_attempts
+    WHERE user_id = v_user_id;
+
+    UPDATE public.profiles
+    SET parent_id = v_owner.id,
+        role = 'viewer',
+        status = 'active'
+    WHERE id = v_user_id;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'owner_id', v_owner.id,
+        'owner_name', v_owner.full_name
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.link_account_to_owner(TEXT) TO authenticated;
 

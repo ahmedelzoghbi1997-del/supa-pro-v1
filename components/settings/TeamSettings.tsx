@@ -3,10 +3,11 @@ import { useData } from '../../contexts/DataContext';
 import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
 import { TrashIcon, UserIcon, ShieldIcon, PlusIcon, LockClosedIcon, FingerPrintIcon } from '../Icons';
-import { Copy, Check, AlertTriangle } from 'lucide-react';
+import { Copy, Check, AlertTriangle, Key, Clock, RefreshCw } from 'lucide-react';
 import type { VirtualMember } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { removeSavedAccount } from '../../lib/accountManager';
+import { generateSecureLinkingCode } from './LinkToOwner';
 
 const TeamSettings: React.FC = () => {
     const { profile } = useData();
@@ -18,6 +19,60 @@ const TeamSettings: React.FC = () => {
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [memberToDelete, setMemberToDelete] = useState<VirtualMember | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+
+    // Linking code state
+    const [generatingCode, setGeneratingCode] = useState(false);
+    const [myLinkingCode, setMyLinkingCode] = useState<string | null>(profile?.linking_code || null);
+    const [myExpiresAt, setMyExpiresAt] = useState<string | null>(profile?.linking_code_expires_at || null);
+    const [copiedCode, setCopiedCode] = useState(false);
+
+    useEffect(() => {
+        if (profile?.linking_code) setMyLinkingCode(profile.linking_code);
+        if (profile?.linking_code_expires_at) setMyExpiresAt(profile.linking_code_expires_at);
+    }, [profile?.linking_code, profile?.linking_code_expires_at]);
+
+    const handleGenerateNewCode = async () => {
+        if (!profile?.id) return;
+        setGeneratingCode(true);
+        try {
+            const { data: rpcData, error: rpcError } = await supabase.rpc('generate_owner_linking_code');
+            let newCode = '';
+            let expiresAt = '';
+
+            if (!rpcError && rpcData && Array.isArray(rpcData) && rpcData.length > 0) {
+                newCode = rpcData[0].linking_code;
+                expiresAt = rpcData[0].linking_code_expires_at;
+            } else {
+                newCode = generateSecureLinkingCode(12);
+                expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({
+                        linking_code: newCode,
+                        linking_code_expires_at: expiresAt
+                    } as any)
+                    .eq('id', profile.id);
+
+                if (updateError) throw updateError;
+            }
+
+            setMyLinkingCode(newCode);
+            setMyExpiresAt(expiresAt);
+            showToast('تم توليد كود ربط مشفر جديد بنجاح (صالح لمدة 24 ساعة).');
+        } catch (_err: any) {
+            showToast(`فشل في توليد الكود: ${_err.message || 'خطأ في الاتصال'}`, 'error');
+        } finally {
+            setGeneratingCode(false);
+        }
+    };
+
+    const handleCopyCode = (codeToCopy: string) => {
+        navigator.clipboard.writeText(codeToCopy);
+        setCopiedCode(true);
+        showToast('تم نسخ كود الربط إلى الحافظة.');
+        setTimeout(() => setCopiedCode(false), 2500);
+    };
     
     const [isAdding, setIsAdding] = useState(false);
     const [newMember, setNewMember] = useState({
@@ -33,7 +88,7 @@ const TeamSettings: React.FC = () => {
         try {
             const { data, error } = await supabase
                 .from('virtual_members')
-                .select('*')
+                .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
                 .eq('owner_id', profile.id);
 
             if (error) {
@@ -90,7 +145,7 @@ const TeamSettings: React.FC = () => {
                     ...newMember, 
                     owner_id: profile.id 
                 }])
-                .select();
+                .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at');
 
             if (!error && data) {
                 showToast('تم إنشاء حساب المطلع بنجاح.');
@@ -239,6 +294,63 @@ const TeamSettings: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* Quick 24h Linking Code Card */}
+            <div className="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-soft border border-neutral-100 dark:border-neutral-700 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                            <Key className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-neutral-800 dark:text-neutral-50">كود الربط المباشر (صالح 24 ساعة)</h3>
+                            <p className="text-xs text-neutral-500">طريقة سريعة بديلة: أعطِ هذا الكود للشريك أو المحاسب لربط حسابه بحسابك مباشرة كـ (مشاهد).</p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={handleGenerateNewCode}
+                        disabled={generatingCode}
+                        className="py-2.5 px-4 bg-primary/10 hover:bg-primary/20 text-primary dark:text-emerald-400 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                        <RefreshCw className={`w-3.5 h-3.5 ${generatingCode ? 'animate-spin' : ''}`} />
+                        <span>{myLinkingCode ? 'تجديد الكود (24 ساعة)' : 'توليد كود آمن'}</span>
+                    </button>
+                </div>
+
+                {myLinkingCode && (
+                    <div className="bg-neutral-50 dark:bg-neutral-900/50 p-3.5 rounded-xl border border-neutral-100 dark:border-neutral-700/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            <span className="text-xl font-black font-mono tracking-widest text-primary select-all">
+                                {myLinkingCode}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => handleCopyCode(myLinkingCode)}
+                                className="p-1.5 text-neutral-400 hover:text-primary hover:bg-neutral-200/60 dark:hover:bg-neutral-700 rounded-lg transition-all"
+                                title="نسخ الكود"
+                            >
+                                {copiedCode ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                            </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            {myExpiresAt && new Date(myExpiresAt).getTime() < Date.now() ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                    <Clock className="w-3 h-3" />
+                                    منتهي الصلاحية
+                                </span>
+                            ) : myExpiresAt ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                    <Clock className="w-3 h-3" />
+                                    صالح حتى {new Date(myExpiresAt).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            ) : null}
+                        </div>
+                    </div>
+                )}
+            </div>
 
             <div className="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-soft border border-neutral-100 dark:border-neutral-700">
                 <div className="flex items-center justify-between mb-6">

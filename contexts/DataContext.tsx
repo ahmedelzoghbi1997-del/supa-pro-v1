@@ -393,7 +393,10 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
 
         const fetchVirtualMembers = async () => {
             console.log(`Fetching virtual members for owner: ${effectiveUserId}`);
-            const { data, error } = await supabase.from('virtual_members').select('*').eq('owner_id', effectiveUserId);
+            const { data, error } = await supabase
+                .from('virtual_members')
+                .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
+                .eq('owner_id', effectiveUserId);
             if (error) {
                 console.warn(`[Network/Supabase] Could not fetch virtual_members. Falling back to cache.`, error);
                 setIsOffline(true);

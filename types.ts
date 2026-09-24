@@ -43,6 +43,7 @@ export interface Profile {
   email?: string;
   parent_id?: string | null;
   linking_code?: string | null;
+  linking_code_expires_at?: string | null;
   subscription_type?: 'trial' | 'monthly' | 'yearly' | 'custom' | null;
   subscription_ends_at?: string | null;
   app_settings: AppSettings | null;

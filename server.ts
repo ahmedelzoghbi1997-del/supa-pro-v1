@@ -44,6 +44,9 @@ async function startServer() {
 
       if (error) {
         console.error("Virtual Login Supabase Error:", JSON.stringify(error, null, 2));
+        if (error.message && error.message.includes("تم قفل الحساب مؤقتاً")) {
+          return res.status(429).json({ error: "تم قفل الحساب مؤقتاً لكثرة المحاولات الخاطئة. يرجى المحاولة بعد 15 دقيقة." });
+        }
         throw error;
       }
       if (!member || !member.id) {
@@ -74,7 +77,7 @@ async function startServer() {
       const { data, error } = await supabase
         .from('virtual_members')
         .insert([{ owner_id, username, password, full_name, role }])
-        .select()
+        .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
         .single();
 
       if (error) {
@@ -95,7 +98,7 @@ async function startServer() {
     try {
       const { data, error } = await supabase
         .from('virtual_members')
-        .select('*')
+        .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
         .eq('owner_id', ownerId);
 
       if (error) {
