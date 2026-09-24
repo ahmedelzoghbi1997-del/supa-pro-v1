@@ -3,11 +3,15 @@ import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 
 export default [
-  { ignores: ["dist/**", "android/**"] },
-  { languageOptions: { globals: globals.browser } },
-  ...tseslint.configs.recommended,
-  { plugins: { react: pluginReact } },
+  { ignores: ["dist/**", "android/**", "node_modules/**"] },
   {
+    files: ["**/*.{ts,tsx,js,jsx}"],
+    languageOptions: { globals: globals.browser },
+  },
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{ts,tsx,js,jsx}"],
+    plugins: { react: pluginReact },
     rules: {
       "react/jsx-uses-react": "error",
       "react/jsx-uses-vars": "error",

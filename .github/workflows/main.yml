@@ -38,16 +38,11 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
 
-      # --- تجهيز اللوجو الخاص بك ---
-      - name: Prepare Logo Assets
-        run: |
-          mkdir -p assets
-          cp assets/icon.png assets/splash.png || true
-      # ------------------------------------
-
       - name: Reconstruct Android Project
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          VERSION_CODE: ${{ vars.VERSION_CODE || secrets.VERSION_CODE || '6' }}
+          VERSION_NAME: ${{ vars.VERSION_NAME || secrets.VERSION_NAME || '1.6' }}
         run: |
           rm -rf android
           npx cap add android
@@ -56,19 +51,29 @@ jobs:
           $GOOGLE_SERVICES_JSON
           EOF
           
-          sed -i '/dependencies {/a \        classpath "com.google.gms:google-services:4.4.1"' android/build.gradle
-          echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
+          # إضافة Google Services باستخدام Plugins DSL المتوافقة مع Gradle الحديث
+          if grep -q "plugins {" android/build.gradle; then
+            sed -i '/plugins {/a \    id "com.google.gms.google-services" version "4.4.2" apply false' android/build.gradle
+          else
+            sed -i '1s/^/plugins {\n    id "com.google.gms.google-services" version "4.4.2" apply false\n}\n/' android/build.gradle
+          fi
+
+          if grep -q "plugins {" android/app/build.gradle; then
+            sed -i '/plugins {/a \    id "com.google.gms.google-services"' android/app/build.gradle
+          else
+            echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
+          fi
           
           echo "configurations.all { resolutionStrategy.eachDependency { if (requested.group == 'org.jetbrains.kotlin') { useVersion '1.8.22' } } }" >> android/app/build.gradle
           sed -i '/<uses-permission android:name="android.permission.INTERNET"/a \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' android/app/src/main/AndroidManifest.xml
           
-          # رقم الإصدار الموحد للتطبيق
-          sed -i -E "s/versionCode [0-9]+/versionCode 6/g" android/app/build.gradle
-          sed -i -E "s/versionName \"[0-9.]+\"/versionName \"1.6\"/g" android/app/build.gradle
+          # قراءة رقم وإصدار التطبيق من المتغيرات أو Secrets
+          sed -i -E "s/versionCode [0-9]+/versionCode ${VERSION_CODE}/g" android/app/build.gradle
+          sed -i -E "s/versionName \"[0-9.]+\"/versionName \"${VERSION_NAME}\"/g" android/app/build.gradle
           
           npx cap sync android
-          # توليد الأيقونات آلياً باستخدام اللوجو الخاص بك
-          npx capacitor-assets generate --android
+          # توليد الأيقونات آلياً مباشرة من assets/icon.png
+          npx @capacitor/assets generate --android --assetPath assets
 
           # ------------- أوامر إصلاح أيقونة ولون الإشعارات -------------
           # 1. نسخ اللوجو الشفاف المفرغ من ملفات الموقع إلى مجلدات الأندرويد

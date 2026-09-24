@@ -2,6 +2,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import { createServer as createViteServer } from "vite";
 import path from "path";
+import fs from "fs";
 import { createClient } from "@supabase/supabase-js";
 import sendPushHandler from "./api/send-push";
 
@@ -9,19 +10,100 @@ if (typeof (process as any).loadEnvFile === 'function') {
   try { (process as any).loadEnvFile(); } catch {}
 }
 
+try {
+  const envPath = path.join(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, 'utf-8');
+    content.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const idx = trimmed.indexOf('=');
+        if (idx !== -1) {
+          const key = trimmed.substring(0, idx).trim();
+          const val = trimmed.substring(idx + 1).trim();
+          if (key && !process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      }
+    });
+  }
+} catch {}
+
 const rawServerUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
 const supabaseUrl = (typeof rawServerUrl === 'string' && (rawServerUrl.startsWith('http://') || rawServerUrl.startsWith('https://')))
   ? rawServerUrl.trim()
-  : 'https://ibudczfescwpmldarfbi.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw';
+  : '';
+const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
-if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.warn("⚠️ Running with Anon Key. Service Role Key is recommended for virtual member management (bypass RLS).");
+if (!supabaseUrl) {
+  console.warn("⚠️ تحذير: SUPABASE_URL غير معرّف أو غير صالح في متغيرات البيئة (process.env.SUPABASE_URL أو process.env.VITE_SUPABASE_URL).");
+}
+
+if (!supabaseKey) {
+  console.warn("⚠️ تحذير: لم يتم العثور على مفتاح Supabase في متغيرات البيئة (SUPABASE_SERVICE_ROLE_KEY أو SUPABASE_ANON_KEY أو VITE_SUPABASE_ANON_KEY).");
+} else if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn("⚠️ تحذير: السيرفر يعمل بمفتاح Anon Key. يوصى بتعيين SUPABASE_SERVICE_ROLE_KEY لإدارة الحسابات وتجاوز RLS.");
 }
 
 // Note: Using service role key is recommended for creating users without logging out.
-// For now, if no service role is provided, we use the anon key (which has limits).
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseKey || 'placeholder-key');
+
+// Middleware: Authenticate user using Bearer Token via supabase.auth.getUser
+async function authenticateUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: "غير مصرح - يرجى تسجيل الدخول أولاً وإرسال رمز المصادقة (Bearer Token)" });
+  }
+
+  const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ error: "رمز المصادقة مفقود" });
+  }
+
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) {
+      return res.status(401).json({ error: "جلسة المستخدم منتهية الصلاحية أو غير صالحة" });
+    }
+
+    (req as any).user = user;
+    next();
+  } catch (err: any) {
+    console.error("Auth Middleware Error:", err);
+    return res.status(401).json({ error: "فشل التحقق من هوية المستخدم" });
+  }
+}
+
+// Middleware: Verify Owner Role
+async function verifyOwnerRole(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const user = (req as any).user;
+  if (!user) {
+    return res.status(401).json({ error: "المستخدم غير موثق" });
+  }
+
+  try {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('id, role')
+      .eq('id', user.id)
+      .single();
+
+    if (error || !profile) {
+      return res.status(403).json({ error: "تعذر العثور على ملف تعريف المستخدم" });
+    }
+
+    if (profile.role !== 'owner') {
+      return res.status(403).json({ error: "غير مصرح - هذه العملية مخصصة لمالك الحساب فقط (Owner)" });
+    }
+
+    (req as any).profile = profile;
+    next();
+  } catch (err: any) {
+    console.error("Verify Owner Error:", err);
+    return res.status(500).json({ error: "فشل التحقق من صلاحيات المالك" });
+  }
+}
 
 async function startServer() {
   const app = express();
@@ -29,11 +111,20 @@ async function startServer() {
 
   app.use(express.json());
 
-  // Rate Limiter for virtual login
+  // Rate Limiter for virtual login (5 requests per 15 minutes)
   const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 5, // Limit each IP to 5 requests per windowMs
     message: { error: "تم تجاوز عدد محاولات تسجيل الدخول المسموح بها، يرجى المحاولة لاحقاً" },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  // Rate Limiter for virtual member management (10 requests per 15 minutes)
+  const virtualManageLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit each IP to 10 requests per windowMs
+    message: { error: "تم تجاوز الحد المسموح من عمليات إدارة الحسابات، يرجى المحاولة لاحقاً" },
     standardHeaders: true,
     legacyHeaders: false,
   });
@@ -78,12 +169,19 @@ async function startServer() {
   });
 
   // API Route: Create Virtual Member
-  app.post("/api/auth/create-virtual", async (req, res) => {
+  app.post("/api/auth/create-virtual", virtualManageLimiter, authenticateUser, verifyOwnerRole, async (req, res) => {
+    const authUser = (req as any).user;
     const { owner_id, username, password, full_name, role } = req.body;
+
+    // Ensure the requester can only create virtual members for their own account
+    if (owner_id && owner_id !== authUser.id) {
+      return res.status(403).json({ error: "غير مصرح لك بإنشاء حساب لمالك آخر" });
+    }
+
     try {
       const { data, error } = await supabase
         .from('virtual_members')
-        .insert([{ owner_id, username, password, full_name, role }])
+        .insert([{ owner_id: authUser.id, username, password, full_name, role }])
         .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
         .single();
 
@@ -100,13 +198,20 @@ async function startServer() {
   });
 
   // API Route: List Virtual Members
-  app.get("/api/auth/list-virtual/:ownerId", async (req, res) => {
+  app.get("/api/auth/list-virtual/:ownerId", authenticateUser, verifyOwnerRole, async (req, res) => {
+    const authUser = (req as any).user;
     const { ownerId } = req.params;
+
+    // Ensure the requester can only list their own virtual members
+    if (ownerId !== authUser.id) {
+      return res.status(403).json({ error: "غير مصرح لك بعرض حسابات مالك آخر" });
+    }
+
     try {
       const { data, error } = await supabase
         .from('virtual_members')
         .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
-        .eq('owner_id', ownerId);
+        .eq('owner_id', authUser.id);
 
       if (error) {
         console.error("List Virtual Supabase Error:", JSON.stringify(error, null, 2));
@@ -120,9 +225,26 @@ async function startServer() {
   });
 
   // API Route: Delete Virtual Member
-  app.delete("/api/auth/delete-virtual/:id", async (req, res) => {
+  app.delete("/api/auth/delete-virtual/:id", virtualManageLimiter, authenticateUser, verifyOwnerRole, async (req, res) => {
+    const authUser = (req as any).user;
     const { id } = req.params;
+
     try {
+      // Check if virtual member exists and belongs to the authenticated owner
+      const { data: member, error: fetchError } = await supabase
+        .from('virtual_members')
+        .select('id, owner_id')
+        .eq('id', id)
+        .single();
+
+      if (fetchError || !member) {
+        return res.status(404).json({ error: "الحساب الافتراضي غير موجود" });
+      }
+
+      if (member.owner_id !== authUser.id) {
+        return res.status(403).json({ error: "غير مصرح لك بحذف هذا الحساب الافتراضي" });
+      }
+
       const { error } = await supabase
         .from('virtual_members')
         .delete()
@@ -151,8 +273,15 @@ async function startServer() {
   });
 
   // API Route: Get Settings for User (Proxy / Fallback for iframe/CORS issues)
-  app.get("/api/settings/:userId", async (req, res) => {
+  app.get("/api/settings/:userId", authenticateUser, async (req, res) => {
+    const authUser = (req as any).user;
     const { userId } = req.params;
+
+    // Verify userId matches authenticated user
+    if (userId !== authUser.id) {
+      return res.status(403).json({ error: "غير مصرح لك بالوصول لإعدادات هذا الحساب" });
+    }
+
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -170,9 +299,16 @@ async function startServer() {
   });
 
   // API Route: Update Settings for User (Proxy / Fallback)
-  app.post("/api/settings/:userId", async (req, res) => {
+  app.post("/api/settings/:userId", authenticateUser, async (req, res) => {
+    const authUser = (req as any).user;
     const { userId } = req.params;
     const { settings } = req.body;
+
+    // Verify userId matches authenticated user
+    if (userId !== authUser.id) {
+      return res.status(403).json({ error: "غير مصرح لك بتعديل إعدادات هذا الحساب" });
+    }
+
     try {
       const { error } = await supabase
         .from("profiles")
@@ -190,6 +326,12 @@ async function startServer() {
 
   // API Route: Send Web Push (Compatible with Vercel Serverless Function)
   app.all("/api/send-push", async (req, res) => {
+    const internalSecret = process.env.PUSH_INTERNAL_SECRET;
+    const providedSecret = req.headers['x-internal-secret'] || (req.headers as any)['X-Internal-Secret'];
+    if (!internalSecret || !providedSecret || providedSecret !== internalSecret) {
+      return res.status(401).json({ error: 'Unauthorized: Invalid or missing internal secret' });
+    }
+
     try {
       await sendPushHandler(req as any, res as any);
     } catch (err: any) {
@@ -208,10 +350,21 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*all', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
   }
+
+  // Middleware نهائي: إرجاع 404 JSON لمسارات API غير المعرفة، وخدمة index.html في وضع الإنتاج
+  app.use((req, res) => {
+    if (req.path.startsWith('/api/') || req.path === '/api') {
+      return res.status(404).json({ error: "المسار غير موجود (Endpoint not found)" });
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      const distPath = path.join(process.cwd(), 'dist');
+      return res.sendFile(path.join(distPath, 'index.html'));
+    }
+
+    res.status(404).send("Not Found");
+  });
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);

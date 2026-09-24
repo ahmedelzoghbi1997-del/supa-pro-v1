@@ -79,6 +79,8 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     const res = await supabase.from(table).insert([cleanPayload]);
                     error = res.error;
                 } else if (action === 'update') {
+                    // ملاحظة: الجداول التابعة مثل invoice_price_items و invoice_deductions تستخدم معرفات رقمية محلية (++id تلقائي في Dexie/IndexedDB)
+                    // بينما السحابة (Supabase) تولد معرفات مختلفة، وعمليات المزامنة والتحديث ترتبط أساساً بـ invoice_id وليس بالـ id الرقمي المحلي.
                     const targetId = recordId || payload.id;
                     if (!targetId) {
                         // Skip unidentifiable update
@@ -88,6 +90,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     const res = await supabase.from(table).update(cleanPayload).eq('id', targetId);
                     error = res.error;
                 } else if (action === 'delete') {
+                    // استخدام recordId ثم payload.id لتحديد السجل المراد حذفه
                     const targetId = recordId || payload.id;
                     if (targetId) {
                         const res = await supabase.from(table).delete().eq('id', targetId);

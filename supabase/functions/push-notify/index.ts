@@ -135,6 +135,18 @@ serve(async (req: Request) => {
     const actionRecord = record || {};
     const lowerTable = String(table || "").toLowerCase().trim();
 
+    // معرف الشريك أو المزرعة (المالك)
+    const ownerId = payload.owner_id || payload.effectiveUserId || actionRecord.owner_id || actionRecord.user_id;
+    const actionCreatorId = actionRecord.created_by || actionRecord.user_id;
+
+    // إذا كان ownerId غير موجود أرجع نجاحًا دون إرسال لأي أحد
+    if (!ownerId) {
+      return new Response(
+        JSON.stringify({ success: true, message: "No ownerId provided, skipped" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     let title = "إشعار جديد 🔔";
     let body = "تم تسجيل حركة جديدة في النظام";
 
@@ -209,6 +221,15 @@ serve(async (req: Request) => {
         : `تم تسجيل حركة سلفة`;
     }
 
+    // إحضار الحسابات لمعرفة أدوار المستخدمين والشركاء التابعين لهذا المالك
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, role, parent_id")
+      .or(`id.eq.${ownerId},parent_id.eq.${ownerId}`);
+
+    const associatedUserIds = new Set<string>([ownerId, ...(profiles || []).map((p: any) => p.id)]);
+    const ownerIds = (profiles || []).filter((p: any) => p.role === "owner").map((p: any) => p.id);
+
     // جلب اشتراكات الـ Push
     const { data: subscriptions, error: subError } = await supabase
       .from("push_subscriptions")
@@ -221,13 +242,28 @@ serve(async (req: Request) => {
       );
     }
 
+    // تصفية الاشتراكات التابعة لهذا المالك فقط (للشركاء مع استبعاد المالك ومنشئ الحركة)
+    const validSubscriptions = subscriptions.filter((sub: any) => {
+      const isRelatedToOwner = (sub.owner_id === ownerId) || (sub.user_id && associatedUserIds.has(sub.user_id));
+      if (!isRelatedToOwner) return false;
+      if (ownerIds.includes(sub.user_id)) return false;
+      return sub.user_id !== actionCreatorId;
+    });
+
+    if (validSubscriptions.length === 0) {
+      return new Response(
+        JSON.stringify({ success: true, message: "No matching subscriptions for this owner", processed: 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // استخراج Google OAuth2 Access Token
     const accessToken = await getGoogleAccessToken(serviceAccount);
     const projectId = serviceAccount.project_id;
     const fcmV1Url = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
 
-    // إرسال الإشعارات إلى جميع الأجهزة عبر FCM HTTP v1 API
-    const sendPromises = subscriptions.map(async (sub: any) => {
+    // إرسال الإشعارات إلى الأجهزة المؤهلة عبر FCM HTTP v1 API
+    const sendPromises = validSubscriptions.map(async (sub: any) => {
       // استخراج توكن FCM
       let fcmToken = "";
       if (sub.endpoint && sub.endpoint.includes("/fcm/send/")) {

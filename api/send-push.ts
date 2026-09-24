@@ -2,30 +2,68 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
 
-webpush.setVapidDetails(
-  "mailto:ahmed.elzoghbe1997@gmail.com",
-  "BP101sEliba9o7qrqxHPriHkFkTS5OhokFOu0-G7wf1UmP---IP3WYsagVoozyRAyCdSoXt-TrQianQOuhMh5Xk",
-  "JrDTClsx-eI2Ac4cPw3K34HXRUEoT2yYfB0CMzrE4wE"
-);
+const pushSupabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const pushSupabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
+
+if (!pushSupabaseUrl) {
+  console.warn("⚠️ تحذير: SUPABASE_URL أو VITE_SUPABASE_URL غير معرّف في api/send-push.");
+}
+if (!pushSupabaseKey) {
+  console.warn("⚠️ تحذير: لم يتم العثور على مفتاح Supabase في متغيرات البيئة في api/send-push.");
+}
 
 // يتم استخدام المفتاح المتاح للاتصال بقاعدة البيانات
 const supabase = createClient(
-  (process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_URL.startsWith('http') ? process.env.VITE_SUPABASE_URL : 'https://ibudczfescwpmldarfbi.supabase.co'),
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw'
+  pushSupabaseUrl || 'https://placeholder.supabase.co',
+  pushSupabaseKey || 'placeholder-key'
 );
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // التحقق من المفتاح السري الداخلي للأمان
+  const internalSecret = process.env.PUSH_INTERNAL_SECRET;
+  const providedSecret = req.headers['x-internal-secret'] || (req.headers as any)['X-Internal-Secret'];
+  if (!internalSecret || !providedSecret || providedSecret !== internalSecret) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing internal secret' });
+  }
+
+  // التحقق من وجود مفاتيح VAPID لإرسال الإشعارات
+  const vapidEmail = process.env.VAPID_EMAIL;
+  const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
+  const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+
+  if (!vapidEmail || !vapidPublicKey || !vapidPrivateKey) {
+    return res.status(500).json({
+      error: 'إعدادات الخادم غير مكتملة: مفاتيح VAPID مفقودة (يرجى التأكد من تعيين VAPID_EMAIL و VAPID_PUBLIC_KEY و VAPID_PRIVATE_KEY في متغيرات البيئة).'
+    });
+  }
+
+  try {
+    webpush.setVapidDetails(
+      vapidEmail.startsWith('mailto:') ? vapidEmail : `mailto:${vapidEmail}`,
+      vapidPublicKey,
+      vapidPrivateKey
+    );
+  } catch (vapidErr: any) {
+    console.error('VAPID setup error:', vapidErr);
+    return res.status(500).json({ error: `فشل تهيئة مفاتيح VAPID: ${vapidErr.message}` });
+  }
+
   try {
     const payload = req.body;
     const record = payload.record || {};
     const table = payload.table || 'invoices';
     
-    // معرف الشريك أو المزرعة
-    const ownerId = payload.owner_id || payload.effectiveUserId || record.user_id;
+    // معرف الشريك أو المزرعة (المالك)
+    const ownerId = payload.owner_id || payload.effectiveUserId || record.owner_id || record.user_id;
     const actionCreatorId = record.created_by || record.user_id;
+
+    // إذا كان ownerId غير موجود أرجع نجاحًا دون إرسال لأي أحد
+    if (!ownerId) {
+      return res.status(200).json({ success: true, message: 'No ownerId provided, skipped' });
+    }
 
     let title = "حركة جديدة 🧾";
     let body = `تم تسجيل حركة جديدة في النظام.`;
@@ -55,10 +93,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body = `تم تسجيل معاملة بالخزنة بقيمة ${record.amount || 0} ج.م`;
     }
 
-    // ارسال اشعار للخادم اللحظي على القنوات المخصصة
-    const notifChannel = ownerId ? `realtime_notifs_${ownerId}` : 'realtime_notifs_global';
-    const dataChannel = ownerId ? `realtime_data_${ownerId}` : 'realtime_data_global';
-    const syncChannel = ownerId ? `realtime_sync_${ownerId}` : 'realtime_sync_global';
+    // ارسال اشعار للخادم اللحظي على القنوات المشتقة من ownerId فقط
+    const notifChannel = `realtime_notifs_${ownerId}`;
+    const dataChannel = `realtime_data_${ownerId}`;
+    const syncChannel = `realtime_sync_${ownerId}`;
     const bPayload = { table, record, new: record, eventType: payload.eventType || 'INSERT', user_id: ownerId };
     
     try {
@@ -71,20 +109,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.warn("Broadcast in send-push error:", _bErr);
     }
     
+    // إحضار الحسابات لمعرفة أدوار المستخدمين والشركاء التابعين لهذا المالك
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, role, parent_id')
+      .or(`id.eq.${ownerId},parent_id.eq.${ownerId}`);
+
+    const associatedUserIds = new Set<string>([ownerId, ...(profiles || []).map((p: any) => p.id)]);
+    const ownerIds = (profiles || []).filter((p: any) => p.role === 'owner').map((p: any) => p.id);
+
     const { data: subscriptions } = await supabase.from('push_subscriptions').select('*');
-    if (!subscriptions) return res.status(200).json({ message: 'No subscriptions' });
+    if (!subscriptions || subscriptions.length === 0) {
+      return res.status(200).json({ success: true, message: 'No subscriptions' });
+    }
 
-    // إحضار الحسابات لمعرفة أدوار المستخدمين
-    const { data: profiles } = await supabase.from('profiles').select('id, role');
-    const ownerIds = profiles?.filter((p: any) => p.role === 'owner').map((p: any) => p.id) || [];
-
-    // الفلترة الذكية: إرسال الإشعارات للشركاء فقط
-    // 1- استبعاد حسابات المالك (owner)
-    // 2- استبعاد من قام بالإضافة (actionCreatorId)
+    // الفلترة الذكية: إرسال الإشعارات فقط للاشتراكات المرتبطة بنفس ownerId (للشركاء فقط)
+    // 1- يجب أن يكون الاشتراك مرتبطاً بالمالك (owner_id أو user_id يتبع المالك)
+    // 2- استبعاد حسابات المالك (owner)
+    // 3- استبعاد من قام بالإضافة (actionCreatorId)
     const validSubscriptions = subscriptions.filter(sub => {
+      const isRelatedToOwner = (sub.owner_id === ownerId) || (sub.user_id && associatedUserIds.has(sub.user_id));
+      if (!isRelatedToOwner) return false;
       if (ownerIds.includes(sub.user_id)) return false;
       return sub.user_id !== actionCreatorId;
     });
+
+    if (validSubscriptions.length === 0) {
+      return res.status(200).json({ success: true, message: 'No matching subscriptions for this owner', sent: 0 });
+    }
 
     const notificationPayload = JSON.stringify({
       title, body,

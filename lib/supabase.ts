@@ -21,8 +21,15 @@ const getValidSupabaseKey = (): string => {
 };
 
 const supabaseUrl = getValidSupabaseUrl();
-// WARNING: NEVER use the Service Role Key in the frontend. ONLY use the Anon Public Key here.
 const supabaseKey = getValidSupabaseKey();
+
+if (!import.meta.env.VITE_SUPABASE_URL) {
+  console.warn("⚠️ VITE_SUPABASE_URL is not set in environment variables; using configured default.");
+}
+
+if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  console.warn("⚠️ VITE_SUPABASE_ANON_KEY is not set in environment variables; using configured default.");
+}
 
 const capacitorStorageAdapter = {
   getItem: async (key: string): Promise<string | null> => {
@@ -37,7 +44,7 @@ const capacitorStorageAdapter = {
   },
 };
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
+export const supabase = createClient(supabaseUrl.trim(), supabaseKey.trim(), {
     auth: {
         autoRefreshToken: true,
         persistSession: true,
