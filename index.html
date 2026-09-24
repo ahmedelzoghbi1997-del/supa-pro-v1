@@ -28,7 +28,9 @@
 
     <!-- CRITICAL: Global Polyfill to prevent "process is not defined" error -->
     <script>
-      window.process = { env: { NODE_ENV: 'production' } };
+      window.process = window.process || { env: {} };
+      window.process.env = window.process.env || {};
+      window.process.env.NODE_ENV = window.process.env.NODE_ENV || 'production';
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

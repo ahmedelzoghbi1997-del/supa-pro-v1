@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Preferences } from '@capacitor/preferences';
 
+// مفتاح anon عام بطبيعة التصميم في Supabase ومحمي عبر سياسات RLS - مفتاح service_role محظور تماماً من كود الواجهة الأمامية
 const defaultUrl = 'https://ibudczfescwpmldarfbi.supabase.co';
 const defaultAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw';
 

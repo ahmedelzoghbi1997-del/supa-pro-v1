@@ -1,55 +1,108 @@
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
+-- ==============================================================================
+-- المحاسب الزراعي - مخطط قاعدة البيانات الشامل والآمن (Production Schema)
+-- الإصدار: النهائي الموحد مع تشديد الأمان وتشفير التجزئة
+-- ==============================================================================
 
--- 1. جدول الملفات الشخصية (Profiles)
--- يحتوي على عمود app_settings لحفظ الإعدادات (الأسواق، بنود الخصم، الثيم، إلخ)
-create table if not exists public.profiles (
-  id uuid references auth.users on delete cascade not null primary key,
-  full_name text,
-  status text default 'pending',
-  role text default 'user',
-  email text,
-  subscription_type text,
-  subscription_ends_at timestamp with time zone,
-  app_settings jsonb, -- هنا يتم حفظ الأسواق وبنود الخصومات
-  last_seen_at timestamp with time zone,
-  push_token text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- تفعيل الحماية (RLS)
-alter table public.profiles enable row level security;
-
--- سياسات الوصول (Policies)
-create policy "Public profiles are viewable by everyone." on public.profiles for select using (true);
-create policy "Users can insert their own profile." on public.profiles for insert with check (auth.uid() = id);
-create policy "Users can update own profile." on public.profiles for update using (auth.uid() = id);
-
--- 2. جدول فئات المصروفات (Expense Categories)
--- يتم حفظ فئات المصروفات هنا بشكل منفصل
-create table if not exists public.expense_categories (
-  id uuid default uuid_generate_v4() primary key,
-  user_id uuid references public.profiles(id) on delete cascade not null,
-  name text not null,
-  is_supplier_category boolean default false,
-  is_labor_category boolean default false,
-  is_discount_category boolean default false,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- تفعيل الحماية (RLS)
-alter table public.expense_categories enable row level security;
-
--- سياسات الوصول
-create policy "Users can view their own expense categories." on public.expense_categories for select using (auth.uid() = user_id);
-create policy "Users can insert their own expense categories." on public.expense_categories for insert with check (auth.uid() = user_id);
-create policy "Users can update their own expense categories." on public.expense_categories for update using (auth.uid() = user_id);
-create policy "Users can delete their own expense categories." on public.expense_categories for delete using (auth.uid() = user_id);
-
--- Enable pgcrypto extension for password hashing
+-- 0. تفعيل الإضافات المطلوبة (Extensions)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- Virtual members table for employee logins
+-- ==============================================================================
+-- 1. جدول الملفات الشخصية (Profiles)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL PRIMARY KEY,
+  full_name TEXT,
+  status TEXT DEFAULT 'pending',
+  role TEXT DEFAULT 'user',
+  parent_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  linking_code TEXT,
+  linking_code_expires_at TIMESTAMPTZ,
+  email TEXT,
+  subscription_type TEXT,
+  subscription_ends_at TIMESTAMPTZ,
+  app_settings JSONB, -- حفظ إعدادات التطبيق (الأسواق، بنود الخصم، الثيم، إلخ)
+  last_seen_at TIMESTAMPTZ,
+  push_token TEXT,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- فهرس لتسريع البحث عن تجزئة كود الربط
+CREATE INDEX IF NOT EXISTS idx_profiles_linking_code ON public.profiles (linking_code);
+
+-- تفعيل الحماية (RLS) على جدول profiles
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- سياسات الوصول الآمنة والمشددة لجدول profiles
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
+DROP POLICY IF EXISTS "Public profiles general info viewable" ON public.profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile." ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update safe fields in own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can view own full profile" ON public.profiles;
+DROP POLICY IF EXISTS "Owners can view their linked members" ON public.profiles;
+
+-- أ) إنشاء الملف الشخصي للمستخدم الجديد
+CREATE POLICY "Users can insert their own profile." 
+ON public.profiles FOR INSERT 
+WITH CHECK (auth.uid() = id);
+
+-- ب) قراءة الملف الشخصي الكامل لصاحب الحساب فقط
+CREATE POLICY "Users can view own full profile" 
+ON public.profiles FOR SELECT 
+USING (auth.uid() = id);
+
+-- ج) قراءة المالك لبيانات الأعضاء المرتبطين بحسابه
+CREATE POLICY "Owners can view their linked members" 
+ON public.profiles FOR SELECT 
+USING (auth.uid() = parent_id);
+
+-- د) تعديل الحقول الآمنة فقط ومنع التعديل المباشر للأعمدة الحساسة
+CREATE POLICY "Users can update safe fields in own profile"
+ON public.profiles FOR UPDATE
+USING (auth.uid() = id)
+WITH CHECK (
+    auth.uid() = id AND
+    (
+        SELECT (
+            p.role IS NOT DISTINCT FROM profiles.role AND
+            p.parent_id IS NOT DISTINCT FROM profiles.parent_id AND
+            p.subscription_type IS NOT DISTINCT FROM profiles.subscription_type AND
+            p.subscription_ends_at IS NOT DISTINCT FROM profiles.subscription_ends_at AND
+            p.status IS NOT DISTINCT FROM profiles.status AND
+            p.linking_code IS NOT DISTINCT FROM profiles.linking_code AND
+            p.linking_code_expires_at IS NOT DISTINCT FROM profiles.linking_code_expires_at
+        )
+        FROM public.profiles p
+        WHERE p.id = profiles.id
+    )
+);
+
+-- ==============================================================================
+-- 2. جدول فئات المصروفات (Expense Categories)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.expense_categories (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  is_supplier_category BOOLEAN DEFAULT false,
+  is_labor_category BOOLEAN DEFAULT false,
+  is_discount_category BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.expense_categories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own expense categories." ON public.expense_categories FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own expense categories." ON public.expense_categories FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own expense categories." ON public.expense_categories FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own expense categories." ON public.expense_categories FOR DELETE USING (auth.uid() = user_id);
+
+-- ==============================================================================
+-- 3. جدول الأعضاء الافتراضيين (Virtual Members) لدخول الموظفين
+-- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.virtual_members (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     owner_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -62,7 +115,7 @@ CREATE TABLE IF NOT EXISTS public.virtual_members (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Trigger function to automatically hash passwords before insert or update
+-- دالة تشفير كلمات المرور تلقائياً قبل الحفظ
 CREATE OR REPLACE FUNCTION public.hash_virtual_member_password()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -76,20 +129,19 @@ END;
 $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS trigger_hash_virtual_member_password ON public.virtual_members;
-
 CREATE TRIGGER trigger_hash_virtual_member_password
 BEFORE INSERT OR UPDATE ON public.virtual_members
 FOR EACH ROW
 EXECUTE FUNCTION public.hash_virtual_member_password();
 
--- Enable RLS for virtual_members
 ALTER TABLE public.virtual_members ENABLE ROW LEVEL SECURITY;
 
--- Owner can see and manage their virtual members
 CREATE POLICY "Owners can manage their virtual members" ON public.virtual_members
 FOR ALL USING (auth.uid() = owner_id);
 
--- 2.5 Failed Login Attempts Tracking
+-- ==============================================================================
+-- 4. جدول تتبع محاولات تسجيل الدخول الفاشلة (Login Attempts) وحمايته
+-- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.login_attempts (
     id BIGSERIAL PRIMARY KEY,
     username TEXT NOT NULL,
@@ -101,8 +153,10 @@ ON public.login_attempts (username, attempted_at DESC);
 
 ALTER TABLE public.login_attempts ENABLE ROW LEVEL SECURITY;
 
--- 3. Functions for virtual members
-DROP FUNCTION IF EXISTS public.virtual_login(TEXT, TEXT);
+-- حماية الجدول من أي عبث خارجي مباشر (يُدار حصراً عبر دالة virtual_login)
+REVOKE ALL ON public.login_attempts FROM anon, authenticated;
+
+-- دالة تسجيل دخول الأعضاء الافتراضيين مع منع التخمين (Rate Limiting)
 CREATE OR REPLACE FUNCTION public.virtual_login(p_username TEXT, p_password TEXT)
 RETURNS TABLE (
     id UUID,
@@ -115,7 +169,7 @@ DECLARE
     v_failed_attempts INT;
     v_member RECORD;
 BEGIN
-    -- 1. تنظيف المحاولات القديمة (أقدم من ساعة) تلقائياً عند كل استدعاء
+    -- 1. تنظيف المحاولات القديمة (أقدم من ساعة)
     DELETE FROM public.login_attempts
     WHERE attempted_at < NOW() - INTERVAL '1 hour';
 
@@ -126,9 +180,9 @@ BEGIN
     WHERE username = p_username
       AND attempted_at >= NOW() - INTERVAL '15 minutes';
 
-    -- إذا كان عدد المحاولات الفاشلة أكبر من 5، يتم قفل الحساب مؤقتاً فوراً دون مقارنة كلمة المرور
+    -- إذا تجاوزت المحاولات 5، يتم قفل الحساب مؤقتاً
     IF v_failed_attempts > 5 THEN
-        RAISE EXCEPTION 'تم قفل الحساب مؤقتاً';
+        RAISE EXCEPTION 'تم قفل الحساب مؤقتاً لكثرة المحاولات الخاطئة. يرجى المحاولة بعد 15 دقيقة.';
     END IF;
 
     -- 3. التحقق من صحة بيانات الدخول ومقارنة كلمة المرور المشفرة
@@ -139,27 +193,21 @@ BEGIN
       AND vm.password = crypt(p_password, vm.password)
     LIMIT 1;
 
-    -- 4. في حالة فشل التحقق (اسم المستخدم غير موجود أو كلمة المرور غير صحيحة)
+    -- 4. في حالة فشل التحقق: تسجيل المحاولة الفاشلة
     IF v_member.id IS NULL THEN
-        -- تسجيل المحاولة الفاشلة في جدول login_attempts
         INSERT INTO public.login_attempts (username, attempted_at)
         VALUES (p_username, NOW());
-
-        -- الخروج دون إرجاع بيانات
         RETURN;
     END IF;
 
-    -- 5. في حالة نجاح تسجيل الدخول:
-    -- مسح سجل المحاولات الفاشلة السابقة لهذا المستخدم
+    -- 5. في حالة نجاح تسجيل الدخول: مسح المحاولات الفاشلة وتحديث وقت الظهور
     DELETE FROM public.login_attempts 
     WHERE username = p_username;
 
-    -- تحديث وقت آخر ظهور (last_seen)
     UPDATE public.virtual_members 
     SET last_seen = NOW()
     WHERE id = v_member.id;
 
-    -- إرجاع بيانات العضو المعتمد
     RETURN QUERY
     SELECT v_member.id, v_member.owner_id, v_member.username, v_member.full_name, v_member.role;
 END;
@@ -176,7 +224,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 4. Daily Logs (السجل اليومي)
+GRANT EXECUTE ON FUNCTION public.update_virtual_member_last_seen(UUID) TO authenticated, anon;
+
+-- ==============================================================================
+-- 5. جدول السجل اليومي (Daily Logs)
+-- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.daily_logs (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
@@ -194,27 +246,37 @@ CREATE POLICY "Users can insert their own daily logs." ON public.daily_logs FOR 
 CREATE POLICY "Users can update their own daily logs." ON public.daily_logs FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete their own daily logs." ON public.daily_logs FOR DELETE USING (auth.uid() = user_id);
 
--- 5. تحديثات لاحقة لقاعدة البيانات (Schema Updates)
--- إضافة عمود وردية العمل لجدول المصروفات (للتمييز بين اليوميات الصباحية والمسائية ويوم كامل)
-ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS shift_type TEXT DEFAULT NULL;
-
--- 6. الربط بحساب مالك وكود الربط الآمن (Linking Code & Expiry & Rate Limiting)
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS linking_code_expires_at TIMESTAMPTZ;
-CREATE INDEX IF NOT EXISTS idx_profiles_linking_code ON public.profiles (linking_code);
-
+-- ==============================================================================
+-- 6. جدول تتبع محاولات إدخال كود الربط الفاشلة (Linking Attempts)
+-- ==============================================================================
 CREATE TABLE IF NOT EXISTS public.linking_attempts (
     id BIGSERIAL PRIMARY KEY,
     user_id UUID NOT NULL,
     attempted_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_linking_attempts_user_time ON public.linking_attempts (user_id, attempted_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_linking_attempts_user_time 
+ON public.linking_attempts (user_id, attempted_at DESC);
+
 ALTER TABLE public.linking_attempts ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can manage own linking attempts" 
-ON public.linking_attempts FOR ALL 
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+-- سياسة SELECT فقط للمستخدم لمشاهدة محاولاته
+DROP POLICY IF EXISTS "Users can manage own linking attempts" ON public.linking_attempts;
+DROP POLICY IF EXISTS "Users can view own linking attempts" ON public.linking_attempts;
 
+CREATE POLICY "Users can view own linking attempts" 
+ON public.linking_attempts FOR SELECT 
+USING (auth.uid() = user_id);
+
+-- إلغاء صلاحيات الإضافة والتعديل والحذف المباشرة لحماية الجدول
+REVOKE INSERT, UPDATE, DELETE ON public.linking_attempts FROM authenticated;
+REVOKE INSERT, UPDATE, DELETE ON public.linking_attempts FROM anon;
+
+-- ==============================================================================
+-- 7. دوال توليد كود الربط المشفر والربط الآمن بالحساب
+-- ==============================================================================
+
+-- أ) دالة توليد كود عشوائي قوي بطول محدد
 CREATE OR REPLACE FUNCTION public.generate_secure_linking_code(p_length INT DEFAULT 12)
 RETURNS TEXT AS $$
 DECLARE
@@ -235,6 +297,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ب) دالة توليد كود الربط للمالك مع تخزين تجزئة SHA-256 وإرجاع الكود الصريح لمرة واحدة
 CREATE OR REPLACE FUNCTION public.generate_owner_linking_code()
 RETURNS TABLE (
     linking_code TEXT,
@@ -243,6 +306,7 @@ RETURNS TABLE (
 DECLARE
     v_user_id UUID;
     v_code TEXT;
+    v_code_hash TEXT;
     v_expires TIMESTAMPTZ;
 BEGIN
     v_user_id := auth.uid();
@@ -250,20 +314,28 @@ BEGIN
         RAISE EXCEPTION 'يجب تسجيل الدخول أولاً';
     END IF;
 
+    -- توليد كود عشوائي بطول 12 خانة
     v_code := public.generate_secure_linking_code(12);
+    -- حساب تجزئة SHA-256
+    v_code_hash := encode(digest(upper(v_code), 'sha256'), 'hex');
+    -- الصلاحية 24 ساعة فقط
     v_expires := NOW() + INTERVAL '24 hours';
 
+    -- تخزين التجزئة فقط في قاعدة البيانات
     UPDATE public.profiles
-    SET linking_code = v_code,
+    SET linking_code = v_code_hash,
         linking_code_expires_at = v_expires
     WHERE id = v_user_id;
 
+    -- إرجاع الكود الصريح مرة واحدة في الاستجابة
     RETURN QUERY SELECT v_code, v_expires;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 GRANT EXECUTE ON FUNCTION public.generate_owner_linking_code() TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.generate_owner_linking_code() FROM anon;
 
+-- ج) دالة ربط الحساب الآمنة بمطابقة التجزئة SHA-256 والتحقق من الصلاحية والمحاولات
 CREATE OR REPLACE FUNCTION public.link_account_to_owner(p_code TEXT)
 RETURNS JSONB AS $$
 DECLARE
@@ -271,6 +343,7 @@ DECLARE
     v_failed_attempts INT;
     v_owner RECORD;
     v_clean_code TEXT;
+    v_hash TEXT;
 BEGIN
     v_user_id := auth.uid();
     IF v_user_id IS NULL THEN
@@ -282,44 +355,56 @@ BEGIN
         RAISE EXCEPTION 'يرجى إدخال كود ربط صحيح';
     END IF;
 
+    -- حساب تجزئة الكود المدخل لمقارنته بالتجزئة المخزنة
+    v_hash := encode(digest(v_clean_code, 'sha256'), 'hex');
+
+    -- تنظيف المحاولات القديمة
     DELETE FROM public.linking_attempts
     WHERE attempted_at < NOW() - INTERVAL '1 hour';
 
+    -- فحص عدد المحاولات الفاشلة
     SELECT COUNT(*)
     INTO v_failed_attempts
     FROM public.linking_attempts
     WHERE user_id = v_user_id
       AND attempted_at >= NOW() - INTERVAL '15 minutes';
 
+    -- قفل مؤقت إذا تجاوزت 5 محاولات
     IF v_failed_attempts >= 5 THEN
         RAISE EXCEPTION 'تم قفل محاولات الربط مؤقتاً لكثرة المحاولات الخاطئة. يرجى المحاولة بعد 15 دقيقة.';
     END IF;
 
+    -- البحث بمطابقة تجزئة الكود
     SELECT id, full_name, linking_code_expires_at
     INTO v_owner
     FROM public.profiles
-    WHERE UPPER(linking_code) = v_clean_code
+    WHERE linking_code = v_hash
     LIMIT 1;
 
+    -- كود خاطئ
     IF v_owner.id IS NULL THEN
         INSERT INTO public.linking_attempts (user_id, attempted_at)
         VALUES (v_user_id, NOW());
         RAISE EXCEPTION 'كود غير صحيح. تأكد من الكود من صاحب الحساب.';
     END IF;
 
+    -- منع ربط الحساب بنفسه
     IF v_owner.id = v_user_id THEN
         RAISE EXCEPTION 'لا يمكنك ربط حسابك بنفسك.';
     END IF;
 
+    -- فحص انتهاء الصلاحية
     IF v_owner.linking_code_expires_at IS NULL OR v_owner.linking_code_expires_at < NOW() THEN
         INSERT INTO public.linking_attempts (user_id, attempted_at)
         VALUES (v_user_id, NOW());
         RAISE EXCEPTION 'هذا الكود منتهي الصلاحية (صلاحية الكود 24 ساعة فقط من توليده). اطلب كوداً جديداً من صاحب الحساب.';
     END IF;
 
+    -- مسح سجل المحاولات الفاشلة عند النجاح
     DELETE FROM public.linking_attempts
     WHERE user_id = v_user_id;
 
+    -- ربط الحساب
     UPDATE public.profiles
     SET parent_id = v_owner.id,
         role = 'viewer',
@@ -335,4 +420,4 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 GRANT EXECUTE ON FUNCTION public.link_account_to_owner(TEXT) TO authenticated;
-
+REVOKE EXECUTE ON FUNCTION public.link_account_to_owner(TEXT) FROM anon;
