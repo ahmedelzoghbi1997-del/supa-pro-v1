@@ -417,7 +417,7 @@ export interface InvoiceInput extends Omit<Invoice, 'id' | 'created_at' | 'user_
 
 export interface DataContextType {
   refreshGlobalData: () => Promise<void>;
-  broadcastChange?: (table: string, record: any, eventType?: 'INSERT' | 'UPDATE' | 'DELETE', oldRecord?: any) => void;
+  broadcastChange?: (table: string, record: unknown, eventType?: 'INSERT' | 'UPDATE' | 'DELETE', oldRecord?: unknown) => void;
   invoices: Invoice[];
   addInvoice: (data: InvoiceInput) => Promise<void>;
   updateInvoice: (data: Invoice) => Promise<void>;
@@ -431,7 +431,7 @@ export interface DataContextType {
   deleteExpense: (id: string) => Promise<void>;
   lastExpenseAddedId: string | null;
   setLastExpenseAddedId: (id: string | null) => void;
-  isExternalLabor: (e: any) => boolean;
+  isExternalLabor: (e: { description?: string }) => boolean;
   cycles: Cycle[];
   cyclesWithCalculations: Cycle[];
   addCycle: (data: Omit<Cycle, 'id' | 'created_at' | 'user_id' | '_stable_id' | 'revenue' | 'expenses' | 'profit' | 'health'>, transferBalance?: boolean, customTransferAmount?: number) => Promise<void>;

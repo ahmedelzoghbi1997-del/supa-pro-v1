@@ -9,6 +9,7 @@ import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
 import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
+import { triggerSaveHaptic } from '../../lib/haptics';
 
 const AdvancesManager: React.FC = () => {
     const [isAdvanceModalOpen, setAdvanceModalOpen] = useState(false);
@@ -65,10 +66,13 @@ const AdvancesManager: React.FC = () => {
         try {
             if (isEditing) {
                 await updateAdvance(advanceData as Advance);
+                triggerSaveHaptic();
+                showToast(isEditing ? 'تم تحديث السلفة.' : 'تم إضافة السلفة.');
             } else {
                 await addAdvance(advanceData as Omit<Advance, 'id' | 'user_id' | 'created_at'>);
+                triggerSaveHaptic();
+                showToast(isEditing ? 'تم تحديث السلفة.' : 'تم إضافة السلفة.');
             }
-            showToast(isEditing ? 'تم تحديث السلفة.' : 'تم إضافة السلفة.');
             setEditingAdvanceId(null);
             setIsAddingNewAdvanceForPerson(null);
             setAdvanceModalOpen(false);

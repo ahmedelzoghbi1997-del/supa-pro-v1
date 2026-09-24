@@ -8,6 +8,7 @@ import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
 import { useToast } from '../../hooks/useToast';
 import { useSettings, terminology } from '../../contexts/SettingsContext';
+import { triggerSaveHaptic } from '../../lib/haptics';
 
 const CycleManager: React.FC = () => {
     const [view, setView] = useState<'list' | 'report'>('list');
@@ -55,6 +56,7 @@ const CycleManager: React.FC = () => {
             } else {
                 await addCycle(cycleData as Omit<Cycle, 'id' | 'revenue' | 'expenses' | 'profit' | 'health'>, transferBalance, customTransferAmount);
             }
+            triggerSaveHaptic();
             showToast(isEditing ? `تم تحديث ${term.singular}.` : `تم إضافة ${term.singular}.`);
             setEditingCycleId(null);
             setFormModalOpen(false);

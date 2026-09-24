@@ -2,11 +2,12 @@ import { db, type SyncQueueItem } from './db';
 import { supabase } from './supabase';
 import { sanitizePayloadForTable } from './payloadWhitelist';
 
-export const isNetworkError = (error: any): boolean => {
+export const isNetworkError = (error: unknown): boolean => {
     if (!error) return false;
     if (typeof navigator !== 'undefined' && !navigator.onLine) return true;
     
-    const message = (error.message || error.details || error.hint || String(error)).toLowerCase();
+    const err = error as { message?: string; details?: string; hint?: string; name?: string };
+    const message = (err.message || err.details || err.hint || String(error)).toLowerCase();
     return (
         message.includes('fetch') ||
         message.includes('network') ||
@@ -16,8 +17,8 @@ export const isNetworkError = (error: any): boolean => {
         message.includes('timeout') ||
         message.includes('offline') ||
         message.includes('aborterror') ||
-        error.name === 'AbortError' ||
-        error.name === 'TypeError' && message.includes('fetch')
+        err.name === 'AbortError' ||
+        (err.name === 'TypeError' && message.includes('fetch'))
     );
 };
 

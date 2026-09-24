@@ -1,24 +1,9 @@
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { BellIcon, SunIcon, MoonIcon, LogoIcon } from './Icons';
 import type { NavItemId, Invoice, Expense, Cycle, SupplierPayment, FarmerWithdrawal, Advance } from '../types';
-import InvoiceManager from './invoices/InvoiceManager';
-import ExpenseManager from './expenses/ExpenseManager';
 import Dashboard from './dashboard/Dashboard';
-import AssetManager from './greenhouses/GreenhouseManager';
-import CycleManager from './cycles/CycleManager';
-import SupplierManager from './suppliers/SupplierManager';
-import FarmerAccountManager from './farmer_account/FarmerAccountManager';
-import TreasuryManager from './treasury/TreasuryManager';
-import AdvancesManager from './advances/AdvancesManager';
-import { DailyLogManager } from './daily_logs/DailyLogManager';
-import WeeklyAnalysis from './analytics/WeeklyAnalysis';
-import SettingsManager from './settings/SettingsManager';
-import PartnersManager from './partners/PartnersManager';
 import NotificationsPanel from './shared/NotificationsPanel';
-import UserManager from './users/UserManager';
-import SubscriptionPage from './subscription/SubscriptionPage';
-import LaborManager from './labor/LaborManager';
 import { useSplashTransition } from '../contexts/SplashTransitionContext';
 import { navItems } from '../constants';
 import { useSettings, terminology } from '../contexts/SettingsContext';
@@ -27,14 +12,37 @@ import { useUI } from '../contexts/UIContext';
 import AccountSwitcher from './shared/AccountSwitcher';
 import { PWAInstallButton } from './shared/PWAInstallButton';
 import Modal from './shared/Modal';
-import AddInvoiceForm from './invoices/AddInvoiceForm';
-import AddExpenseForm from './expenses/AddExpenseForm';
-import AddCycleForm from './cycles/AddCycleForm';
-import AddPaymentForm from './suppliers/AddPaymentForm';
-import AddWithdrawalForm from './farmer_account/AddWithdrawalForm';
-import AddAdvanceForm from './advances/AddAdvanceForm';
 import { useToast } from '../hooks/useToast';
 import { triggerLightHaptic, triggerSaveHaptic } from '../lib/haptics';
+
+// Lazy loaded secondary screens
+const InvoiceManager = lazy(() => import('./invoices/InvoiceManager'));
+const ExpenseManager = lazy(() => import('./expenses/ExpenseManager'));
+const AssetManager = lazy(() => import('./greenhouses/GreenhouseManager'));
+const CycleManager = lazy(() => import('./cycles/CycleManager'));
+const SupplierManager = lazy(() => import('./suppliers/SupplierManager'));
+const FarmerAccountManager = lazy(() => import('./farmer_account/FarmerAccountManager'));
+const TreasuryManager = lazy(() => import('./treasury/TreasuryManager'));
+const AdvancesManager = lazy(() => import('./advances/AdvancesManager'));
+const DailyLogManager = lazy(() => import('./daily_logs/DailyLogManager'));
+const WeeklyAnalysis = lazy(() => import('./analytics/WeeklyAnalysis'));
+const SettingsManager = lazy(() => import('./settings/SettingsManager'));
+const PartnersManager = lazy(() => import('./partners/PartnersManager'));
+const UserManager = lazy(() => import('./users/UserManager'));
+const SubscriptionPage = lazy(() => import('./subscription/SubscriptionPage'));
+const LaborManager = lazy(() => import('./labor/LaborManager'));
+
+import PageSkeleton from './shared/PageSkeleton';
+
+// Lazy loaded modal forms
+const AddInvoiceForm = lazy(() => import('./invoices/AddInvoiceForm'));
+const AddExpenseForm = lazy(() => import('./expenses/AddExpenseForm'));
+const AddCycleForm = lazy(() => import('./cycles/AddCycleForm'));
+const AddPaymentForm = lazy(() => import('./suppliers/AddPaymentForm'));
+const AddWithdrawalForm = lazy(() => import('./farmer_account/AddWithdrawalForm'));
+const AddAdvanceForm = lazy(() => import('./advances/AddAdvanceForm'));
+
+const ViewLoadingFallback = () => <PageSkeleton />;
 
 interface MainContentProps {
   activeItem: NavItemId;
@@ -204,30 +212,33 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
             
             {/* Component Rendering - All screens are viewable by Strategic Partners (viewer role) */}
             {activeItem === 'dashboard' && <div className="animate-page-enter h-full"><Dashboard /></div>}
-            {activeItem === 'invoices' && <div className="animate-page-enter h-full"><InvoiceManager /></div>}
-            {activeItem === 'expenses' && <div className="animate-page-enter h-full"><ExpenseManager /></div>}
-            {activeItem === 'cycles' && <div className="animate-page-enter h-full"><CycleManager /></div>}
-            {activeItem === 'weekly_analysis' && <div className="animate-page-enter h-full"><WeeklyAnalysis /></div>}
-            {activeItem === 'treasury' && settings.systems.treasury && <div className="animate-page-enter h-full"><TreasuryManager /></div>}
+            
+            <Suspense fallback={<ViewLoadingFallback />}>
+              {activeItem === 'invoices' && <div className="animate-page-enter h-full"><InvoiceManager /></div>}
+              {activeItem === 'expenses' && <div className="animate-page-enter h-full"><ExpenseManager /></div>}
+              {activeItem === 'cycles' && <div className="animate-page-enter h-full"><CycleManager /></div>}
+              {activeItem === 'weekly_analysis' && <div className="animate-page-enter h-full"><WeeklyAnalysis /></div>}
+              {activeItem === 'treasury' && settings.systems.treasury && <div className="animate-page-enter h-full"><TreasuryManager /></div>}
 
-            {/* Standard Rendering for Secondary Pages */}
-            {activeItem === 'daily_logs' && <div className="animate-page-enter"><DailyLogManager /></div>}
-            {activeItem === 'assets' && <div className="animate-page-enter"><AssetManager /></div>}
-            {activeItem === 'labor' && settings.systems.labor && <div className="animate-page-enter"><LaborManager /></div>}
-            {activeItem === 'suppliers' && settings.systems.suppliers && <div className="animate-page-enter"><SupplierManager /></div>}
-            {activeItem === 'farmer_account' && settings.systems.farmer_account && <div className="animate-page-enter"><FarmerAccountManager /></div>}
-            {activeItem === 'advances' && settings.systems.advances && <div className="animate-page-enter"><AdvancesManager /></div>}
-            {activeItem === 'partners' && settings.systems.partners_wallet && <div className="animate-page-enter"><PartnersManager /></div>}
-            {activeItem === 'settings' && <div className="animate-page-enter"><SettingsManager /></div>}
-            {activeItem === 'users' && profile?.role === 'owner' && <div className="animate-page-enter"><UserManager /></div>}
-            {activeItem === 'subscription' && <div className="animate-page-enter"><SubscriptionPage /></div>}
+              {/* Standard Rendering for Secondary Pages */}
+              {activeItem === 'daily_logs' && <div className="animate-page-enter"><DailyLogManager /></div>}
+              {activeItem === 'assets' && <div className="animate-page-enter"><AssetManager /></div>}
+              {activeItem === 'labor' && settings.systems.labor && <div className="animate-page-enter"><LaborManager /></div>}
+              {activeItem === 'suppliers' && settings.systems.suppliers && <div className="animate-page-enter"><SupplierManager /></div>}
+              {activeItem === 'farmer_account' && settings.systems.farmer_account && <div className="animate-page-enter"><FarmerAccountManager /></div>}
+              {activeItem === 'advances' && settings.systems.advances && <div className="animate-page-enter"><AdvancesManager /></div>}
+              {activeItem === 'partners' && settings.systems.partners_wallet && <div className="animate-page-enter"><PartnersManager /></div>}
+              {activeItem === 'settings' && <div className="animate-page-enter"><SettingsManager /></div>}
+              {activeItem === 'users' && profile?.role === 'owner' && <div className="animate-page-enter"><UserManager /></div>}
+              {activeItem === 'subscription' && <div className="animate-page-enter"><SubscriptionPage /></div>}
+            </Suspense>
 
         </div>
       </div>
 
       {/* Global Modals - Strictly prevented from mounting/rendering if role is viewer */}
       {profile?.role !== 'viewer' && (
-        <>
+        <Suspense fallback={<ViewLoadingFallback />}>
           <Modal isOpen={activeModal === 'invoice'} onClose={() => setActiveModal(null)} title="إضافة فاتورة سريعة" size="3xl">
             <AddInvoiceForm onSave={(d) => handleGlobalSave('invoice', d)} onCancel={() => setActiveModal(null)} />
           </Modal>
@@ -251,7 +262,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
           <Modal isOpen={activeModal === 'advance'} onClose={() => setActiveModal(null)} title="إضافة سلفة شخصية" size="lg">
             <AddAdvanceForm onSave={(d) => handleGlobalSave('advance', d)} onCancel={() => setActiveModal(null)} persons={activePersons} cycles={cycles} onManagePersons={() => {}} />
           </Modal>
-        </>
+        </Suspense>
       )}
     </main>
   );

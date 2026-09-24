@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { XMarkIcon } from '../Icons';
+import { triggerLightHaptic } from '../../lib/haptics';
 
 interface ModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
 
   useEffect(() => {
     if (isOpen) {
+      triggerLightHaptic();
       window.history.pushState({ ...window.history.state, modal: modalIdRef.current }, '');
 
       const handlePopState = () => {

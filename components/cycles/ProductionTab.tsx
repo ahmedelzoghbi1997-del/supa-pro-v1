@@ -161,9 +161,29 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-        <Scale className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
-        <p className="text-neutral-500 font-bold dark:text-neutral-400">جاري تحليل بيانات الإنتاج الفعلي بالكيلو...</p>
+      <div className="space-y-6 py-4 animate-page-enter">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-white dark:bg-neutral-850 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 space-y-2">
+            <div className="h-3 w-20 bg-neutral-200 dark:bg-neutral-800 rounded shimmer-bg" />
+            <div className="h-6 w-28 bg-neutral-200 dark:bg-neutral-800 rounded shimmer-bg" />
+          </div>
+          <div className="bg-white dark:bg-neutral-850 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 space-y-2">
+            <div className="h-3 w-20 bg-neutral-200 dark:bg-neutral-800 rounded shimmer-bg" />
+            <div className="h-6 w-28 bg-neutral-200 dark:bg-neutral-800 rounded shimmer-bg" />
+          </div>
+          <div className="bg-white dark:bg-neutral-850 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 space-y-2">
+            <div className="h-3 w-20 bg-neutral-200 dark:bg-neutral-800 rounded shimmer-bg" />
+            <div className="h-6 w-28 bg-neutral-200 dark:bg-neutral-800 rounded shimmer-bg" />
+          </div>
+        </div>
+        <div className="bg-white dark:bg-neutral-850 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-800 space-y-3">
+          <div className="h-4 w-36 bg-neutral-200 dark:bg-neutral-800 rounded shimmer-bg" />
+          <div className="space-y-2.5 pt-2">
+            <div className="h-10 w-full bg-neutral-100 dark:bg-neutral-900 rounded-xl shimmer-bg" />
+            <div className="h-10 w-full bg-neutral-100 dark:bg-neutral-900 rounded-xl shimmer-bg" />
+            <div className="h-10 w-full bg-neutral-100 dark:bg-neutral-900 rounded-xl shimmer-bg" />
+          </div>
+        </div>
       </div>
     );
   }

@@ -48,7 +48,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 
       hasStartedRef.current = true;
 
-      // Calculate exact subpixel centers
+      // Calculate exact subpixel centers for pixel-perfect docking
       const sourceCenterX = logoRect.left + logoRect.width / 2;
       const sourceCenterY = logoRect.top + logoRect.height / 2;
       const targetCenterX = targetRect.left + targetRect.width / 2;
@@ -59,7 +59,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       const targetSize = Math.max(targetRect.width, targetRect.height) || 36;
       const scale = targetSize / logoRect.width;
 
-      // 1. Fluid, fast GPU background fadeout revealing the dashboard with zero delay
+      // Cleanly remove entrance animation and lock opacity to 1 before flight
+      logoEl.classList.remove('animate-splash-enter');
+      logoEl.style.opacity = '1';
+
+      // 1. Fluid GPU background fadeout revealing the dashboard content SIMULTANEOUSLY
       if (bgRef.current) {
         bgRef.current.animate(
           [
@@ -67,15 +71,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             { opacity: 0 }
           ],
           {
-            duration: 440,
-            easing: 'cubic-bezier(0.33, 1, 0.68, 1)',
+            duration: 380,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
             fill: 'forwards',
           }
         );
       }
 
-      // 2. Silky-smooth 144Hz compositor flight with spring-like organic deceleration
-      // Easing: cubic-bezier(0.16, 1, 0.3, 1) provides instantaneous acceleration and ultra-fluid settling
+      // 2. Silky-smooth flight starts in the EXACT SAME FRAME as the dashboard opens
       const flightAnim = logoEl.animate(
         [
           {
@@ -86,14 +89,14 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           }
         ],
         {
-          duration: 540,
+          duration: 520,
           easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
           fill: 'forwards',
         }
       );
 
       flightAnim.onfinish = () => {
-        // Direct DOM handoff: immediately reveal the header target image so it's already rendered
+        // Direct DOM handoff: immediately reveal the header target image
         const targetImg = targetEl.querySelector('img') || targetEl;
         targetImg.classList.remove('opacity-0');
         targetImg.classList.add('opacity-100');
@@ -105,13 +108,29 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
     };
 
     rafId = requestAnimationFrame(startFlight);
-    return () => cancelAnimationFrame(rafId);
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
   }, [isExiting]);
 
   return (
     <div
-      style={{ contain: 'layout paint' }}
-      className="fixed inset-0 z-[100] pointer-events-none select-none overflow-hidden"
+      style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        contain: 'layout paint',
+        zIndex: 9999,
+        backgroundColor: 'transparent',
+      }}
+      className="splash-critical-overlay fixed inset-0 z-[100] pointer-events-none select-none overflow-hidden"
     >
       {/* Background matching exact dashboard canvas (zero color-shift flash) */}
       <div
@@ -129,23 +148,47 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
       </div>
 
       {/* Direct Centered Flying Logo Element */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          margin: 'auto',
+        }}
+        className="splash-critical-center absolute inset-0 flex items-center justify-center pointer-events-none"
+      >
         <div
           ref={logoRef}
           style={{
-            willChange: 'transform',
+            willChange: 'transform, opacity',
             transformOrigin: 'center center',
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             transform: 'translate3d(0, 0, 0)',
             transformStyle: 'preserve-3d',
+            width: '16rem',
+            height: '16rem',
+            maxWidth: '75vw',
+            maxHeight: '75vw',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-          className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center pointer-events-none select-none"
+          className="splash-critical-box animate-splash-enter relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center pointer-events-none select-none"
         >
           <img
             src="/app-logo.png"
             alt="المحاسب الزراعي"
-            className="w-full h-full object-contain pointer-events-none select-none"
+            width={256}
+            height={256}
+            className="w-full h-full object-contain pointer-events-none select-none drop-shadow-sm"
             loading="eager"
             decoding="sync"
           />

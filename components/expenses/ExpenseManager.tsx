@@ -9,6 +9,7 @@ import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
 import { useUI } from '../../contexts/UIContext';
+import { triggerSaveHaptic } from '../../lib/haptics';
 
 const ExpenseManager: React.FC = () => {
     const [view, setView] = useState<'list' | 'supplier_details' | 'category_details'>(() => {
@@ -75,6 +76,7 @@ const ExpenseManager: React.FC = () => {
             } else {
                 await addExpense(expenseData);
             }
+            triggerSaveHaptic();
             showToast(isEditing ? 'تم تحديث المصروف.' : 'تم إضافة المصروف.');
             setEditingExpenseId(null);
             setFormModalOpen(false);

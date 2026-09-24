@@ -2341,3 +2341,6 @@ const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activeCycles
         document.body
     );
 };
+
+export default DailyLogManager;
+

@@ -8,6 +8,8 @@ export const triggerLightHaptic = async () => {
   try {
     if (Capacitor.isNativePlatform()) {
       await Haptics.impact({ style: ImpactStyle.Light });
+    } else if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(12);
     }
   } catch (_err) {
     // Ignore error silently on unsupported environments
@@ -22,6 +24,8 @@ export const triggerSaveHaptic = async () => {
   try {
     if (Capacitor.isNativePlatform()) {
       await Haptics.impact({ style: ImpactStyle.Medium });
+    } else if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(25);
     }
   } catch (_err) {
     // Ignore error silently on unsupported environments
@@ -35,6 +39,8 @@ export const triggerSuccessHaptic = async () => {
   try {
     if (Capacitor.isNativePlatform()) {
       await Haptics.notification({ type: NotificationType.Success });
+    } else if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate([20, 50, 20]);
     }
   } catch (_err) {
     // Fallback to medium impact

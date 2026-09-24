@@ -16,9 +16,103 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
   const cellClasses = "p-3.5 text-sm text-neutral-800 dark:text-neutral-200 align-middle";
 
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-none overflow-hidden">
-      <div className="max-h-[65vh] overflow-auto custom-scrollbar">
-        <table className="w-full min-w-[700px] border-collapse text-right">
+    <div className="w-full">
+      {/* 📱 Mobile View: Smart Cards (يظهر تلقائياً على الهواتف والشاشات الصغيرة) */}
+      <div className="md:hidden space-y-2.5">
+        {expenses.map((expense) => {
+          const amount = expense.amount || 0;
+          const categoryName = expenseCategories.find(c => c.id === expense.category_id)?.name || 'غير محدد';
+          const supplier = expense.supplier_id ? suppliers.find(s => s.id === expense.supplier_id) : null;
+          const supplierName = supplier?.name;
+
+          return (
+            <div
+              key={expense.id}
+              className="bg-white dark:bg-neutral-900 rounded-2xl p-3.5 border border-neutral-200/80 dark:border-neutral-800 shadow-sm transition-all"
+            >
+              {/* Header: Date, Category badge, Amount */}
+              <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-neutral-100 dark:border-neutral-800">
+                <div className="flex flex-col gap-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
+                      {categoryName}
+                    </span>
+                    {expense.cycle && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-700/60 truncate max-w-[100px]">
+                        {expense.cycle}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-mono text-[10px] text-neutral-400 font-medium">
+                    {expense.date}
+                  </span>
+                </div>
+
+                {/* Amount */}
+                <div className="text-left shrink-0">
+                  <div className="bg-rose-50 dark:bg-rose-950/30 px-2.5 py-1 rounded-xl border border-rose-100 dark:border-rose-900/30">
+                    <span dir="ltr" className="text-base font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                      {formatCurrency(amount).replace('EGP', '')}
+                    </span>
+                    <span className="text-[9px] font-bold text-rose-600/70 dark:text-rose-400/70 mr-1">ج.م</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description & Details */}
+              <div className="pt-2.5 flex items-center justify-between gap-2 text-xs">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-neutral-850 dark:text-neutral-200 truncate">
+                    {expense.description || 'بدون بيان'}
+                  </p>
+                  {supplierName && (
+                    <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold block mt-0.5">
+                      المورد: {supplierName}
+                    </span>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(`${expense.date} - ${expense.description || ''} - ${amount}`);
+                      }
+                    }}
+                    className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+                    aria-label="نسخ"
+                    title="نسخ"
+                  >
+                    <ClipboardIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onEdit(expense.id)}
+                    className="p-2 rounded-lg text-neutral-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    aria-label="تعديل"
+                    title="تعديل"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onDelete(expense.id)}
+                    className="p-2 rounded-lg text-neutral-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                    aria-label="حذف"
+                    title="حذف"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 💻 Desktop View: Classic Table (يظهر على شاشات md وما فوق) */}
+      <div className="hidden md:block bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-none overflow-hidden">
+        <div className="max-h-[65vh] overflow-auto custom-scrollbar">
+          <table className="w-full min-w-[700px] border-collapse text-right">
           <thead className="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-900 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)]">
             <tr>
               <th className={headClasses}>التاريخ</th>
@@ -109,6 +203,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
         </table>
       </div>
     </div>
+  </div>
   );
 };
 

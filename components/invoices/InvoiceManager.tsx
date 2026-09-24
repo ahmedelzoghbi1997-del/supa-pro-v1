@@ -7,6 +7,7 @@ import InvoiceDetailsModal from './InvoiceDetailsModal';
 import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
+import { triggerSaveHaptic } from '../../lib/haptics';
 
 const InvoiceManager: React.FC = () => {
     const [isFormModalOpen, setFormModalOpen] = useState(false);
@@ -49,9 +50,11 @@ const InvoiceManager: React.FC = () => {
         try {
             if (isEditing) {
                 await updateInvoice(invoiceData as Invoice);
+                triggerSaveHaptic();
                 showToast('تم التحديث بنجاح.');
             } else {
                 await addInvoice(invoiceData as Omit<Invoice, 'id'>);
+                triggerSaveHaptic();
                 showToast('تمت الإضافة بنجاح.');
             }
             setEditingInvoiceId(null);

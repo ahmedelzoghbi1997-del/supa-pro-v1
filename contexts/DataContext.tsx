@@ -7,7 +7,6 @@ import { sanitizePayloadForTable } from '../lib/payloadWhitelist';
 import { addToSyncQueue, isNetworkError, processSyncQueue } from '../lib/syncQueue';
 import { markLocalAction, isLocalAction } from '../lib/recentActions';
 import { supabase } from '../lib/supabase';
-import { db } from '../lib/db';
 import { useFinancialCalculations } from '../hooks/useFinancialCalculations';
 import type {
     DataContextType,
@@ -33,85 +32,14 @@ import type {
     PartnerDebt
 } from '../types';
 
+import { safeArray, generateStableId, getCache, setCache, getCustomCache, setCustomCache } from '../lib/dataCache';
+
 const DataContext = createContext<DataContextType | undefined>(undefined);
-
-const safeArray = <T,>(arr: unknown): T[] => Array.isArray(arr) ? arr : [];
-export const safeNum = (val: unknown): number => {
-    const n = parseFloat(String(val));
-    return isNaN(n) ? 0 : n;
-};
-
-const generateStableId = () => `sid-${Math.random().toString(36).substr(2, 9)}`;
-
-
-// Async Dexie IndexedDB caching helpers (non-blocking for UI)
-const getCache = async <T,>(userId: string, table: string): Promise<T[] | null> => {
-    try {
-        const key = `app_cache_${userId}_${table}`;
-        const item = await (db as any).cache.get(key);
-        if (item && item.data) {
-            return item.data as T[];
-        }
-        // One-time fallback & migration from localStorage if exists
-        const local = localStorage.getItem(key);
-        if (local) {
-            try {
-                const parsed = JSON.parse(local) as T[];
-                (db as any).cache.put({ key, data: parsed, updated_at: Date.now() }).catch(() => {});
-                return parsed;
-            } catch {
-                // ignore JSON parse error
-            }
-        }
-    } catch (err) {
-        console.warn(`[Dexie] Failed to get cache for ${table}:`, err);
-    }
-    return null;
-};
-
-const setCache = async <T,>(userId: string, table: string, data: T[]): Promise<void> => {
-    try {
-        const key = `app_cache_${userId}_${table}`;
-        await (db as any).cache.put({ key, data, updated_at: Date.now() });
-    } catch (err) {
-        console.warn(`[Dexie] Failed to set cache for ${table}:`, err);
-    }
-};
-
-const getCustomCache = async <T,>(key: string): Promise<T | null> => {
-    try {
-        const item = await (db as any).cache.get(key);
-        if (item && item.data) {
-            return item.data as T;
-        }
-        const local = localStorage.getItem(key);
-        if (local) {
-            try {
-                const parsed = JSON.parse(local) as T;
-                (db as any).cache.put({ key, data: parsed, updated_at: Date.now() }).catch(() => {});
-                return parsed;
-            } catch {
-                // ignore JSON parse error
-            }
-        }
-    } catch (err) {
-        console.warn(`[Dexie] Failed to get custom cache for ${key}:`, err);
-    }
-    return null;
-};
-
-const setCustomCache = async <T,>(key: string, data: T): Promise<void> => {
-    try {
-        await (db as any).cache.put({ key, data, updated_at: Date.now() });
-    } catch (err) {
-        console.warn(`[Dexie] Failed to set custom cache for ${key}:`, err);
-    }
-};
 
 export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item: NavItemId) => void; profile: Profile | null }> = ({ children, setActiveItem, profile }) => {
     const { settings, updateSettings } = useSettings();
 
-    const isExternalLabor = useCallback((e: any) => {
+    const isExternalLabor = useCallback((e: { description?: string }) => {
         if (!e.description) return false;
         
         const currentGhs = settings?.greenhouses || [

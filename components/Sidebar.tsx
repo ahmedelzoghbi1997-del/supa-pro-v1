@@ -64,14 +64,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
     bg-neutral-0 dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 h-screen 
     fixed lg:relative inset-y-0 right-0 z-50 lg:z-40
     w-72 flex-shrink-0
-    transform-gpu transition-transform duration-300 ease-out will-change-transform
+    transform-gpu transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform
     ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
   `;
 
   return (
     <>
       <div 
-          className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          className={`fixed inset-0 bg-black/50 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
           onClick={onClose} 
       />
       <aside className={sidebarClasses}>

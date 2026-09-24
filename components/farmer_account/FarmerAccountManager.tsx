@@ -9,6 +9,7 @@ import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
 import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
+import { triggerSaveHaptic } from '../../lib/haptics';
 
 const FarmerAccountManager: React.FC = () => {
     const { farmers, addFarmer, updateFarmer, deleteFarmer, addFarmerWithdrawal, updateFarmerWithdrawal, deleteFarmerWithdrawal, cycles, lastFarmerAddedId, setLastFarmerAddedId, profile } = useData();
@@ -37,9 +38,11 @@ const FarmerAccountManager: React.FC = () => {
         try {
             if (editingFarmer) {
                 await updateFarmer({ ...editingFarmer, name });
+                triggerSaveHaptic();
                 showToast('تم تحديث بيانات المزارع.');
             } else {
                 await addFarmer(name);
+                triggerSaveHaptic();
                 showToast('تم إضافة المزارع.');
             }
             setFarmerModalOpen(false);
@@ -89,6 +92,7 @@ const FarmerAccountManager: React.FC = () => {
             } else {
                 await addFarmerWithdrawal(withdrawal);
             }
+            triggerSaveHaptic();
             showToast(isEditing ? 'تم تحديث السحب.' : 'تم إضافة السحب.');
             setEditingWithdrawal(null);
             setWithdrawalModalOpen(false);

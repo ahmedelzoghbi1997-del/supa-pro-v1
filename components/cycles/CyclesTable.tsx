@@ -106,54 +106,132 @@ const CyclesTable: React.FC<CyclesTableProps> = ({ cycles, onEdit, onDelete, onV
   const cellClasses = "p-4 text-sm text-neutral-800 dark:text-neutral-200 whitespace-nowrap";
   
   return (
-    <div className="bg-neutral-0 dark:bg-neutral-800 rounded-lg shadow-soft overflow-x-auto border border-neutral-200 dark:border-neutral-700">
-      <table className="w-full min-w-[800px]">
-        <thead>
-          <tr className="bg-neutral-50 dark:bg-neutral-900/50">
-            <th className={headClasses}>اسم العروة</th>
-            <th className={headClasses}>الأصل</th>
-            <th className={headClasses}>المزارع</th>
-            <th className={headClasses}>الإيرادات</th>
-            <th className={headClasses}>المصروفات</th>
-            <th className={headClasses}>ربح المالك</th>
-            <th className={headClasses}>الحالة</th>
-            <th className={headClasses}></th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
-          {cycles.map((cycle) => {
-              const assetName = assets.find(g => g.id === cycle.asset_id)?.name || '-';
-              const farmerName = farmers.find(f => f.id === cycle.responsible_farmer_id)?.name;
-              return (
-                  <tr key={cycle.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50">
-                  <td className={cellClasses}>
-                      <p className="font-bold">{cycle.name}</p>
-                      <p className="text-xs text-neutral-500">{cycle.seed_type}</p>
-                  </td>
-                  <td className={cellClasses}>{assetName}</td>
-                  <td className={cellClasses}>
-                      {farmerName
-                      ? farmerName
-                      : <span className="text-neutral-500">لا يوجد</span>
-                      }
-                  </td>
-                  <td className={`${cellClasses} font-semibold text-accent-success`}>{formatCurrency(cycle.revenue)}</td>
-                  <td className={`${cellClasses} font-semibold text-accent-danger`}>{formatCurrency(cycle.expenses)}</td>
-                  <td className={`${cellClasses} font-bold text-accent-info`}>{formatCurrency(cycle.profit)}</td>
-                  <td className={cellClasses}><StatusBadge status={cycle.status} /></td>
-                  <td className={`${cellClasses} text-left`}>
-                      <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => onViewReport(cycle.id)} className="p-2 rounded-md text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors" aria-label="عرض التقرير">
-                              <ClipboardDocumentIcon className="h-5 w-5" />
-                          </button>
-                          <ActionsMenu cycle={cycle} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
-                      </div>
-                  </td>
-                  </tr>
-              )
-          })}
-        </tbody>
-      </table>
+    <div className="w-full">
+      {/* 📱 Mobile View: Smart Cards (يظهر تلقائياً على الهواتف والشاشات الصغيرة) */}
+      <div className="md:hidden space-y-3">
+        {cycles.map((cycle) => {
+          const assetName = assets.find(g => g.id === cycle.asset_id)?.name || '-';
+          const farmerName = farmers.find(f => f.id === cycle.responsible_farmer_id)?.name;
+
+          return (
+            <div
+              key={cycle.id}
+              className="bg-white dark:bg-neutral-900 rounded-2xl p-4 border border-neutral-200/80 dark:border-neutral-800 shadow-sm transition-all"
+            >
+              {/* Header: Cycle name, status, actions */}
+              <div className="flex items-start justify-between gap-2 pb-3 border-b border-neutral-100 dark:border-neutral-800">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-black text-sm text-neutral-900 dark:text-neutral-100 truncate">
+                      {cycle.name}
+                    </h3>
+                    <StatusBadge status={cycle.status} />
+                  </div>
+                  <p className="text-[11px] text-neutral-400 font-medium mt-0.5">
+                    {cycle.seed_type ? `نوع التقاوي: ${cycle.seed_type}` : 'العروة الحالية'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => onViewReport(cycle.id)}
+                    className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+                    aria-label="عرض التقرير"
+                    title="التقرير"
+                  >
+                    <ClipboardDocumentIcon className="h-5 w-5" />
+                  </button>
+                  <ActionsMenu cycle={cycle} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
+                </div>
+              </div>
+
+              {/* Sub-info: Greenhouse & Farmer */}
+              <div className="py-2.5 flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 border-b border-neutral-100 dark:border-neutral-800">
+                <span className="flex items-center gap-1 font-semibold">
+                  <span>الأصل:</span>
+                  <strong className="text-neutral-800 dark:text-neutral-200 font-bold">{assetName}</strong>
+                </span>
+                <span className="flex items-center gap-1 font-semibold">
+                  <span>المزارع:</span>
+                  <strong className="text-neutral-800 dark:text-neutral-200 font-bold">{farmerName || 'لا يوجد'}</strong>
+                </span>
+              </div>
+
+              {/* Financial Mini Strip: Revenue, Expenses, Profit */}
+              <div className="grid grid-cols-3 gap-2 pt-3 text-center">
+                <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-2 rounded-xl border border-emerald-100/60 dark:border-emerald-900/30">
+                  <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 block mb-0.5">الإيرادات</span>
+                  <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                    {formatCurrency(cycle.revenue).replace('EGP', '')}
+                  </span>
+                </div>
+                <div className="bg-rose-50/70 dark:bg-rose-950/20 p-2 rounded-xl border border-rose-100/60 dark:border-rose-900/30">
+                  <span className="text-[9px] font-bold text-rose-700 dark:text-rose-400 block mb-0.5">المصروفات</span>
+                  <span className="text-xs font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                    {formatCurrency(cycle.expenses).replace('EGP', '')}
+                  </span>
+                </div>
+                <div className="bg-blue-50/70 dark:bg-blue-950/20 p-2 rounded-xl border border-blue-100/60 dark:border-blue-900/30">
+                  <span className="text-[9px] font-bold text-blue-700 dark:text-blue-400 block mb-0.5">ربح المالك</span>
+                  <span className="text-xs font-black text-blue-600 dark:text-blue-400 tabular-nums">
+                    {formatCurrency(cycle.profit).replace('EGP', '')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 💻 Desktop View: Classic Table (يظهر على شاشات md وما فوق) */}
+      <div className="hidden md:block bg-neutral-0 dark:bg-neutral-800 rounded-lg shadow-soft overflow-x-auto border border-neutral-200 dark:border-neutral-700">
+        <table className="w-full min-w-[800px]">
+          <thead>
+            <tr className="bg-neutral-50 dark:bg-neutral-900/50">
+              <th className={headClasses}>اسم العروة</th>
+              <th className={headClasses}>الأصل</th>
+              <th className={headClasses}>المزارع</th>
+              <th className={headClasses}>الإيرادات</th>
+              <th className={headClasses}>المصروفات</th>
+              <th className={headClasses}>ربح المالك</th>
+              <th className={headClasses}>الحالة</th>
+              <th className={headClasses}></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
+            {cycles.map((cycle) => {
+                const assetName = assets.find(g => g.id === cycle.asset_id)?.name || '-';
+                const farmerName = farmers.find(f => f.id === cycle.responsible_farmer_id)?.name;
+                return (
+                    <tr key={cycle.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50">
+                    <td className={cellClasses}>
+                        <p className="font-bold">{cycle.name}</p>
+                        <p className="text-xs text-neutral-500">{cycle.seed_type}</p>
+                    </td>
+                    <td className={cellClasses}>{assetName}</td>
+                    <td className={cellClasses}>
+                        {farmerName
+                        ? farmerName
+                        : <span className="text-neutral-500">لا يوجد</span>
+                        }
+                    </td>
+                    <td className={`${cellClasses} font-semibold text-accent-success`}>{formatCurrency(cycle.revenue)}</td>
+                    <td className={`${cellClasses} font-semibold text-accent-danger`}>{formatCurrency(cycle.expenses)}</td>
+                    <td className={`${cellClasses} font-bold text-accent-info`}>{formatCurrency(cycle.profit)}</td>
+                    <td className={cellClasses}><StatusBadge status={cycle.status} /></td>
+                    <td className={`${cellClasses} text-left`}>
+                        <div className="flex items-center justify-end gap-1">
+                            <button onClick={() => onViewReport(cycle.id)} className="p-2 rounded-md text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors" aria-label="عرض التقرير">
+                                <ClipboardDocumentIcon className="h-5 w-5" />
+                            </button>
+                            <ActionsMenu cycle={cycle} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />
+                        </div>
+                    </td>
+                    </tr>
+                )
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

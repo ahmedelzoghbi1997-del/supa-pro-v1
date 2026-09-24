@@ -10,6 +10,7 @@ import { formatNumber } from '../../utils/helpers';
 import { useData } from '../../contexts/DataContext';
 import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
+import { triggerSaveHaptic } from '../../lib/haptics';
 import SupplierStatement from './SupplierStatement';
 import EmptyState from '../shared/EmptyState';
 import { EmptySuppliersIllustration } from '../Illustrations';
@@ -397,9 +398,11 @@ const SupplierManager: React.FC = () => {
         try {
             if (editingSupplierId) {
                 await updateSupplier({ ...editingSupplier!, name, opening_balance: openingBalance });
+                triggerSaveHaptic();
                 showToast('تم تحديث المورد بنجاح.');
             } else {
                 await addSupplier(name, openingBalance);
+                triggerSaveHaptic();
                 showToast('تم إضافة المورد بنجاح.');
             }
             setSupplierModalOpen(false);
@@ -435,9 +438,11 @@ const SupplierManager: React.FC = () => {
         try {
             if ('id' in payment && payment.id) {
                 await updateSupplierPayment(payment as SupplierPayment);
+                triggerSaveHaptic();
                 showToast('تم تحديث الدفعة بنجاح.');
             } else {
                 await addSupplierPayment(payment);
+                triggerSaveHaptic();
                 showToast('تم إضافة الدفعة بنجاح.');
             }
             setPaymentModalOpen(false);

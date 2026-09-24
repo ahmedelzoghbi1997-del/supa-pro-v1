@@ -701,7 +701,7 @@ const Dashboard: React.FC = () => {
   }, [partnerDebts, advances]);
 
   return (
-    <div className="space-y-3.5 sm:space-y-4 relative">
+    <div id="dashboard-page" className="space-y-3.5 sm:space-y-4 relative">
       <canvas id="dashboard-confetti-canvas" className="fixed inset-0 w-full h-full pointer-events-none z-[10000]" />
       <div className="flex flex-row justify-between items-center gap-3 animate-enter px-0.5 relative z-20">
           <div className="min-w-0">
