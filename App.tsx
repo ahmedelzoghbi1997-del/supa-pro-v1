@@ -459,51 +459,6 @@ const App: React.FC = () => {
           return;
         }
 
-        // If no session, try auto-login for virtual accounts only
-        const { value: loggedOut } = await Preferences.get({
-          key: "was_explicitly_logged_out",
-        });
-        if (loggedOut !== "true") {
-          const accounts = await getSavedAccounts();
-          const { value: lastId } = await Preferences.get({
-            key: "last_active_account_id",
-          });
-
-          let targetAcc = accounts.find((a) => a.id === lastId);
-          if (!targetAcc && accounts.length > 0) targetAcc = accounts[0];
-
-          if (
-            targetAcc &&
-            targetAcc.isVirtual &&
-            targetAcc.username &&
-            targetAcc.password
-          ) {
-            const { data: virtualData, error: virtualError } =
-              await supabase.rpc("virtual_login", {
-                p_username: targetAcc.username,
-                p_password: targetAcc.password,
-              });
-            const vMember = Array.isArray(virtualData) ? virtualData[0] : virtualData;
-            if (vMember && vMember.id && !virtualError) {
-              await Preferences.remove({ key: "was_explicitly_logged_out" });
-              const virtualUser = {
-                id: `virtual_${vMember.id}`,
-                full_name: vMember.full_name,
-                role: vMember.role,
-                parent_id: vMember.owner_id,
-                username: vMember.username,
-              };
-              await Preferences.set({
-                key: "virtual_auth",
-                value: JSON.stringify(virtualUser),
-              });
-              localStorage.setItem("virtual_auth", JSON.stringify(virtualUser));
-              window.location.reload();
-              return;
-            }
-          }
-        }
-
         setSession(null);
         setLoading(false);
       } catch (err: any) {

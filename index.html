@@ -3,6 +3,24 @@
 <html lang="ar" dir="rtl" class="antialiased">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function() {
+        const filterViteMsg = function(fn) {
+          return function(...args) {
+            if (args.length > 0) {
+              const msg = args[0];
+              const text = typeof msg === 'string' ? msg : (msg && msg.message ? msg.message : '');
+              if (typeof text === 'string' && (text.includes('[vite]') || text.includes('WebSocket') || text.includes('websocket'))) {
+                return;
+              }
+            }
+            return fn.apply(console, args);
+          };
+        };
+        console.error = filterViteMsg(console.error);
+        console.warn = filterViteMsg(console.warn);
+      })();
+    </script>
     <link rel="icon" type="image/png" href="/app-logo.png" />
     
     <!-- PWA Optimized Viewport: Prevents user scaling, enables cover fit -->

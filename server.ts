@@ -362,9 +362,10 @@ async function startServer() {
   });
 
   // Vite middleware for development
+  let vite: any = null;
   if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
+    vite = await createViteServer({
+      server: { middlewareMode: true, hmr: false },
       appType: "spa",
     });
     app.use(vite.middlewares);
@@ -373,8 +374,8 @@ async function startServer() {
     app.use(express.static(distPath));
   }
 
-  // Middleware نهائي: إرجاع 404 JSON لمسارات API غير المعرفة، وخدمة index.html في وضع الإنتاج
-  app.use((req, res) => {
+  // Middleware نهائي: إرجاع 404 JSON لمسارات API غير المعرفة، وخدمة index.html
+  app.use(async (req, res, next) => {
     if (req.path.startsWith('/api/') || req.path === '/api') {
       return res.status(404).json({ error: "المسار غير موجود (Endpoint not found)" });
     }
@@ -382,6 +383,17 @@ async function startServer() {
     if (process.env.NODE_ENV === "production") {
       const distPath = path.join(process.cwd(), 'dist');
       return res.sendFile(path.join(distPath, 'index.html'));
+    }
+
+    if (vite) {
+      try {
+        const indexPath = path.join(process.cwd(), 'index.html');
+        let template = fs.readFileSync(indexPath, 'utf-8');
+        template = await vite.transformIndexHtml(req.originalUrl, template);
+        return res.status(200).set({ 'Content-Type': 'text/html' }).send(template);
+      } catch (e) {
+        return next(e);
+      }
     }
 
     res.status(404).send("Not Found");

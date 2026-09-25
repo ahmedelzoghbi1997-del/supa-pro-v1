@@ -192,7 +192,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 await saveAccount({
                   id: virtualUser.id,
                   username: identifier,
-                  password,
                   fullName: vMember.full_name,
                   role: vMember.role,
                   isVirtual: true,
@@ -265,38 +264,29 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         }
 
         if (acc.isVirtual) {
-            const { data, error: supabaseError } = await supabase.rpc('virtual_login', {
-                p_username: acc.username || '',
-                p_password: acc.password || ''
-            });
-
-            const vMember = Array.isArray(data) ? data[0] : data;
-
-            if (supabaseError) {
-                console.error("Virtual Login Error from Saved Accounts Selection:", supabaseError);
-                setError('حدث خطأ في الاتصال بقاعدة البيانات');
-            } else if (!vMember || !vMember.id) {
-                setError('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور هذا الحساب.');
-            } else {
-                const virtualUser = {
-                  id: `virtual_${vMember.id}`,
-                  full_name: vMember.full_name,
-                  role: vMember.role,
-                  parent_id: vMember.owner_id,
-                  username: vMember.username
-                };
-                localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
-                await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
-                
-                await saveAccount({
-                  ...acc,
-                  fullName: vMember.full_name,
-                  role: vMember.role
-                });
-                await setLastActiveAccount(virtualUser.id);
-                
-                window.location.reload();
+            const { value: vAuthStr } = await Preferences.get({ key: 'virtual_auth' });
+            let isCurrentVirtual = false;
+            if (vAuthStr) {
+                try {
+                    const parsed = JSON.parse(vAuthStr);
+                    if (parsed.id === acc.id || `virtual_${parsed.id}` === acc.id || (parsed.username && parsed.username === acc.username)) {
+                        isCurrentVirtual = true;
+                    }
+                } catch {}
             }
+
+            if (isCurrentVirtual) {
+                await Preferences.remove({ key: 'was_explicitly_logged_out' });
+                await setLastActiveAccount(acc.id);
+                window.location.reload();
+                return;
+            }
+
+            // في حال عدم وجود جلسة نشطة مطابقة للحساب الافتراضي، نطلب كلمة المرور
+            setIdentifier(acc.username || '');
+            setPassword('');
+            setView('login');
+            setMessage('يرجى إدخال كلمة المرور لتسجيل الدخول إلى هذا الحساب.');
         } else {
             // التحقق إذا كانت جلسة Supabase الحالية مطابقة للحساب المختار
             const { data: sessionData } = await supabase.auth.getSession();

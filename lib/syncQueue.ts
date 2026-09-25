@@ -39,7 +39,19 @@ export const addToSyncQueue = async (item: Omit<SyncQueueItem, 'id' | 'created_a
 
 export const getPendingSyncCount = async (): Promise<number> => {
     try {
-        return await (db as any).sync_queue.count();
+        return await (db as any).sync_queue
+            .filter((item: SyncQueueItem) => item.status !== 'failed')
+            .count();
+    } catch {
+        return 0;
+    }
+};
+
+export const getFailedSyncCount = async (): Promise<number> => {
+    try {
+        return await (db as any).sync_queue
+            .filter((item: SyncQueueItem) => item.status === 'failed')
+            .count();
     } catch {
         return 0;
     }
@@ -144,6 +156,52 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     if (targetId) {
                         const res = await supabase.from(table).delete().eq('id', targetId);
                         error = res.error;
+                    }
+                }
+
+                // عند معالجة عنصر insert أو update لجدول invoices ووجود _offline_price_items أو _offline_deductions في الحمولة
+                if (!error && table === 'invoices' && (action === 'insert' || action === 'update')) {
+                    if (payload && (payload._offline_price_items !== undefined || payload._offline_deductions !== undefined)) {
+                        const targetId = recordId || payload.id || cleanPayload?.id;
+                        if (targetId) {
+                            const invoiceUserId = payload.user_id || cleanPayload?.user_id;
+
+                            // حذف كل البنود القديمة عبر .delete().eq('invoice_id', targetId)
+                            const delPrices = await supabase.from('invoice_price_items').delete().eq('invoice_id', targetId);
+                            if (delPrices.error) error = delPrices.error;
+
+                            if (!error) {
+                                const delDeds = await supabase.from('invoice_deductions').delete().eq('invoice_id', targetId);
+                                if (delDeds.error) error = delDeds.error;
+                            }
+
+                            // إدراج البنود الجديدة مع invoice_id الصحيح
+                            if (!error && payload._offline_price_items && payload._offline_price_items.length > 0) {
+                                const itemsToInsert = payload._offline_price_items.map((pi: any) => {
+                                    const { id: _unused_id, invoice_id: _unused_inv_id, user_id: _unused_uid, ...cleanItem } = pi;
+                                    return {
+                                        ...cleanItem,
+                                        invoice_id: targetId,
+                                        ...(invoiceUserId ? { user_id: invoiceUserId } : {})
+                                    };
+                                });
+                                const insPrices = await supabase.from('invoice_price_items').insert(itemsToInsert);
+                                if (insPrices.error) error = insPrices.error;
+                            }
+
+                            if (!error && payload._offline_deductions && payload._offline_deductions.length > 0) {
+                                const dedsToInsert = payload._offline_deductions.map((ded: any) => {
+                                    const { id: _unused_id, invoice_id: _unused_inv_id, user_id: _unused_uid, ...cleanDed } = ded;
+                                    return {
+                                        ...cleanDed,
+                                        invoice_id: targetId,
+                                        ...(invoiceUserId ? { user_id: invoiceUserId } : {})
+                                    };
+                                });
+                                const insDeds = await supabase.from('invoice_deductions').insert(dedsToInsert);
+                                if (insDeds.error) error = insDeds.error;
+                            }
+                        }
                     }
                 }
 

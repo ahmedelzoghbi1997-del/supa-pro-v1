@@ -8,6 +8,8 @@ export default defineConfig(() => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        hmr: false,
+        ws: false,
       },
       plugins: [
         react(),
@@ -61,8 +63,7 @@ export default defineConfig(() => {
             importScripts: ['/service-worker.js'],
           },
           devOptions: {
-            enabled: true,
-            type: 'module',
+            enabled: false,
           },
         }),
       ],

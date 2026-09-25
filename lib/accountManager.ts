@@ -51,7 +51,7 @@ function deobfuscate(text: string): string {
 function obfuscateAccount(acc: SavedAccount): SavedAccount {
   return {
     ...acc,
-    password: acc.isVirtual && acc.password ? obfuscate(acc.password) : undefined,
+    password: undefined, // لا يتم تخزين أي كلمة مرور لأي حساب محلياً
     pinCode: acc.pinCode ? obfuscate(acc.pinCode) : undefined,
   };
 }
@@ -64,17 +64,15 @@ export async function getSavedAccounts(): Promise<SavedAccount[]> {
       let needsCleanup = false;
       const cleaned: SavedAccount[] = parsed.map(acc => {
         const pinCode = acc.pinCode ? deobfuscate(acc.pinCode) : undefined;
-        let password = acc.password ? deobfuscate(acc.password) : undefined;
         
-        // تنظيف كلمات المرور القديمة لحسابات Supabase (غير الافتراضية) لحمايتها
-        if (!acc.isVirtual && (password || acc.password)) {
-          password = undefined;
+        // تنظيف وحذف أي كلمات مرور قديمة مخزنة لكافة أنواع الحسابات
+        if (acc.password || 'password' in acc) {
           needsCleanup = true;
         }
 
         return {
           ...acc,
-          password: acc.isVirtual ? password : undefined,
+          password: undefined,
           pinCode,
         };
       });
@@ -96,7 +94,7 @@ export async function setSavedAccountsList(accounts: SavedAccount[]) {
   try {
     const sanitized = accounts.map(acc => ({
       ...acc,
-      password: acc.isVirtual ? acc.password : undefined
+      password: undefined
     }));
     const obfuscatedList = sanitized.map(obfuscateAccount);
     await Preferences.set({ key: 'saved_accounts_list', value: JSON.stringify(obfuscatedList) });
@@ -116,7 +114,7 @@ export async function saveAccount(account: SavedAccount) {
     
     const sanitizedAccount: SavedAccount = {
       ...account,
-      password: account.isVirtual ? account.password : undefined
+      password: undefined
     };
 
     if (existingIndex >= 0) {
@@ -212,4 +210,3 @@ export async function setSavedAccountPin(accountId: string, pinCode: string | nu
     console.error("Error setting PIN for saved account:", error);
   }
 }
-

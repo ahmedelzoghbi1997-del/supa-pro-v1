@@ -1134,27 +1134,27 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 const { error: invError } = await supabase.from('invoices').update(sanitizePayloadForTable('invoices', finalUpdateData)).eq('id', invoiceId);
                 if (invError) { 
                     if (isNetworkError(invError)) {
-                        await addToSyncQueue({ table: 'invoices', action: 'update', payload: finalUpdateData, recordId: invoiceId });
-                        if (price_items && price_items.length > 0) {
-                            for (const pi of price_items) {
-                                const { id: _unused_id, invoice_id: _unused_invoice_id, user_id: _unused_user_id, ...cleanItem } = pi;
-                                await addToSyncQueue({
-                                    table: 'invoice_price_items',
-                                    action: 'insert',
-                                    payload: { ...cleanItem, invoice_id: invoiceId, user_id: effectiveUserId }
-                                });
-                            }
-                        }
-                        if (deductions && deductions.length > 0) {
-                            for (const ded of deductions) {
-                                const { id: _unused_id, invoice_id: _unused_invoice_id, user_id: _unused_user_id, ...cleanDed } = ded;
-                                await addToSyncQueue({
-                                    table: 'invoice_deductions',
-                                    action: 'insert',
-                                    payload: { ...cleanDed, invoice_id: invoiceId, user_id: effectiveUserId }
-                                });
-                            }
-                        }
+                        const cleanOfflinePriceItems = (price_items || []).map((pi: any) => {
+                            const { id: _unused_id, invoice_id: _unused_invoice_id, user_id: _unused_user_id, ...cleanItem } = pi;
+                            return cleanItem;
+                        });
+                        const cleanOfflineDeductions = (deductions || []).map((ded: any) => {
+                            const { id: _unused_id, invoice_id: _unused_invoice_id, user_id: _unused_user_id, ...cleanDed } = ded;
+                            return cleanDed;
+                        });
+
+                        await addToSyncQueue({
+                            table: 'invoices',
+                            action: 'update',
+                            payload: {
+                                ...finalUpdateData,
+                                id: invoiceId,
+                                _offline_price_items: cleanOfflinePriceItems,
+                                _offline_deductions: cleanOfflineDeductions
+                            },
+                            recordId: invoiceId
+                        });
+
                         try {
                             setInvoices(prev => prev.map(item => (item._stable_id === invoiceId || item.id === invoiceId) ? { ...item, pending_sync: true } as any : item));
                         } catch (_e) {} 
@@ -1693,6 +1693,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             return true;
         },
         deletePerson: async (id) => {
+            setPersons(prev => prev.filter(p => p.id !== id));
             const currentMappings = settings.person_partner_mappings || {};
             const currentPercentages = settings.person_partner_percentages || {};
             const newMappings = { ...currentMappings };
@@ -1723,9 +1724,20 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 });
             }
 
-            await refreshGlobalData();
-            broadcastChange('persons', { id }, 'DELETE');
-            return true;
+            try {
+                const { error } = await supabase.from('persons').delete().eq('id', id);
+                if (error) throw error;
+                await refreshGlobalData();
+                broadcastChange('persons', { id }, 'DELETE');
+                return true;
+            } catch (error) {
+                if (isNetworkError(error)) {
+                    await addToSyncQueue({ table: 'persons', action: 'delete', payload: {}, recordId: id });
+                    return true;
+                } else {
+                    throw error;
+                }
+            }
         },
         virtualMembers,
         advances: hydratedAdvances, 
