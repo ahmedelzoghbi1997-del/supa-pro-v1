@@ -40,6 +40,10 @@ describe('Sync Queue Manager (lib/syncQueue.ts)', () => {
                         executionOrder.push(table);
                         return Promise.resolve({ data: null, error: null });
                     }),
+                    upsert: vi.fn().mockImplementation(() => {
+                        executionOrder.push(table);
+                        return Promise.resolve({ data: null, error: null });
+                    }),
                     update: vi.fn().mockReturnValue({
                         eq: vi.fn().mockImplementation(() => {
                             executionOrder.push(`${table}:update`);
@@ -105,7 +109,8 @@ describe('Sync Queue Manager (lib/syncQueue.ts)', () => {
             const dbError = { message: 'violates check constraint valid_amount' };
 
             vi.spyOn(supabase, 'from').mockReturnValue({
-                insert: vi.fn().mockResolvedValue({ data: null, error: dbError })
+                insert: vi.fn().mockResolvedValue({ data: null, error: dbError }),
+                upsert: vi.fn().mockResolvedValue({ data: null, error: dbError })
             } as any);
 
             const itemId = await db.sync_queue.add({
@@ -142,7 +147,8 @@ describe('Sync Queue Manager (lib/syncQueue.ts)', () => {
             const networkError = new Error('Failed to fetch from Supabase');
 
             vi.spyOn(supabase, 'from').mockReturnValue({
-                insert: vi.fn().mockResolvedValue({ data: null, error: networkError })
+                insert: vi.fn().mockResolvedValue({ data: null, error: networkError }),
+                upsert: vi.fn().mockResolvedValue({ data: null, error: networkError })
             } as any);
 
             const itemId = await db.sync_queue.add({
@@ -164,7 +170,8 @@ describe('Sync Queue Manager (lib/syncQueue.ts)', () => {
 
         it('successfully removes items from queue upon successful sync', async () => {
             vi.spyOn(supabase, 'from').mockReturnValue({
-                insert: vi.fn().mockResolvedValue({ data: null, error: null })
+                insert: vi.fn().mockResolvedValue({ data: null, error: null }),
+                upsert: vi.fn().mockResolvedValue({ data: null, error: null })
             } as any);
 
             await addToSyncQueue({
@@ -182,6 +189,41 @@ describe('Sync Queue Manager (lib/syncQueue.ts)', () => {
 
             const countAfter = await db.sync_queue.count();
             expect(countAfter).toBe(0);
+        });
+    });
+
+    describe('Idempotent Upsert for UUID tables', () => {
+        it('uses upsert with onConflict id for UUID tables and insert for numeric id tables', async () => {
+            const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
+            const insertMock = vi.fn().mockResolvedValue({ data: null, error: null });
+
+            vi.spyOn(supabase, 'from').mockImplementation((table: string) => {
+                return {
+                    insert: insertMock,
+                    upsert: upsertMock
+                } as any;
+            });
+
+            // 1. UUID Table: invoices -> should call upsert with onConflict: 'id'
+            await db.sync_queue.add({
+                table: 'invoices',
+                action: 'insert',
+                payload: { id: 'inv-test-id', date: '2026-03-25' },
+                created_at: Date.now()
+            });
+
+            // 2. Numeric Table: invoice_deductions -> should call insert
+            await db.sync_queue.add({
+                table: 'invoice_deductions',
+                action: 'insert',
+                payload: { id: 123, invoice_id: 'inv-test-id', amount: 50 },
+                created_at: Date.now() + 10
+            });
+
+            await processSyncQueue();
+
+            expect(upsertMock).toHaveBeenCalledWith([{ id: 'inv-test-id', date: '2026-03-25' }], { onConflict: 'id' });
+            expect(insertMock).toHaveBeenCalledWith([{ id: 123, invoice_id: 'inv-test-id', amount: 50 }]);
         });
     });
 });
