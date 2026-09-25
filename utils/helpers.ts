@@ -132,16 +132,16 @@ export const formatTimeAgo = (dateString: string | null | undefined): string => 
 };
 
 export const calculateInvoiceTotal = (
-  priceItems: { quantity: number; price_per_kg: number }[],
-  deductions: { name: string; amount: number }[]
+  priceItems?: { quantity: number; price_per_kg: number }[] | null,
+  deductions?: { name: string; amount: number }[] | null
 ): number => {
-  const itemsTotal = priceItems.reduce((acc, item) => {
-    const quantity = item.quantity || 0;
-    const price = item.price_per_kg || 0;
+  const itemsTotal = (priceItems || []).reduce((acc, item) => {
+    const quantity = item?.quantity || 0;
+    const price = item?.price_per_kg || 0;
     return acc + quantity * price;
   }, 0);
-  const deductionsTotal = deductions.reduce((acc, item) => {
-    return acc + (item.amount || 0);
+  const deductionsTotal = (deductions || []).reduce((acc, item) => {
+    return acc + (item?.amount || 0);
   }, 0);
   return Math.round((itemsTotal - deductionsTotal) * 100) / 100;
 };

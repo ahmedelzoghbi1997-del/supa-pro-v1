@@ -181,6 +181,9 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
     }
 
     const handlePopState = (event: PopStateEvent) => {
+      if (isAnyModalOpen()) {
+        return;
+      }
       if (event.state?.page) {
         setActiveItem(event.state.page);
       } else {
@@ -189,7 +192,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  }, [isAnyModalOpen]);
 
   const handleNavigation = useCallback(
     (newItemId: NavItemId) => {

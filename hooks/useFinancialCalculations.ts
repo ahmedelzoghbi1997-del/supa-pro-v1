@@ -119,10 +119,11 @@ export function useFinancialCalculations({
         const map = new Map<string, Invoice[]>();
         for (const inv of hydratedInvoices) {
             if (!inv.cycle_id) continue;
-            let list = map.get(inv.cycle_id);
+            const key = String(inv.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(inv.cycle_id, list);
+                map.set(key, list);
             }
             list.push(inv);
         }
@@ -133,10 +134,11 @@ export function useFinancialCalculations({
         const map = new Map<string, typeof rawExpensesHydrated>();
         for (const exp of rawExpensesHydrated) {
             if (!exp.cycle_id) continue;
-            let list = map.get(exp.cycle_id);
+            const key = String(exp.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(exp.cycle_id, list);
+                map.set(key, list);
             }
             list.push(exp);
         }
@@ -147,10 +149,11 @@ export function useFinancialCalculations({
         const map = new Map<string, Expense[]>();
         for (const exp of hydratedExpenses) {
             if (!exp.cycle_id) continue;
-            let list = map.get(exp.cycle_id);
+            const key = String(exp.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(exp.cycle_id, list);
+                map.set(key, list);
             }
             list.push(exp);
         }
@@ -161,10 +164,11 @@ export function useFinancialCalculations({
         const map = new Map<string, Advance[]>();
         for (const adv of advances) {
             if (!adv.cycle_id) continue;
-            let list = map.get(adv.cycle_id);
+            const key = String(adv.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(adv.cycle_id, list);
+                map.set(key, list);
             }
             list.push(adv);
         }
@@ -175,10 +179,11 @@ export function useFinancialCalculations({
         const map = new Map<string, BankTransaction[]>();
         for (const tx of bankTransactions) {
             if (!tx.cycle_id) continue;
-            let list = map.get(tx.cycle_id);
+            const key = String(tx.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(tx.cycle_id, list);
+                map.set(key, list);
             }
             list.push(tx);
         }
@@ -189,10 +194,11 @@ export function useFinancialCalculations({
         const map = new Map<string, FarmerWithdrawal[]>();
         for (const fw of farmerWithdrawals) {
             if (!fw.cycle_id) continue;
-            let list = map.get(fw.cycle_id);
+            const key = String(fw.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(fw.cycle_id, list);
+                map.set(key, list);
             }
             list.push(fw);
         }
@@ -203,10 +209,11 @@ export function useFinancialCalculations({
         const map = new Map<string, SupplierPayment[]>();
         for (const sp of supplierPayments) {
             if (!sp.cycle_id) continue;
-            let list = map.get(sp.cycle_id);
+            const key = String(sp.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(sp.cycle_id, list);
+                map.set(key, list);
             }
             list.push(sp);
         }
@@ -217,10 +224,11 @@ export function useFinancialCalculations({
         const map = new Map<string, PartnerDebt[]>();
         for (const pd of partnerDebts || []) {
             if (!pd.cycle_id) continue;
-            let list = map.get(pd.cycle_id);
+            const key = String(pd.cycle_id);
+            let list = map.get(key);
             if (!list) {
                 list = [];
-                map.set(pd.cycle_id, list);
+                map.set(key, list);
             }
             list.push(pd);
         }
@@ -230,7 +238,7 @@ export function useFinancialCalculations({
     const farmersMap = useMemo(() => {
         const map = new Map<string, Farmer>();
         for (const f of farmers) {
-            map.set(f.id, f);
+            map.set(String(f.id), f);
         }
         return map;
     }, [farmers]);
@@ -238,10 +246,11 @@ export function useFinancialCalculations({
     // 2. High-performance calculation for cyclesWithCalculations
     const cyclesWithCalculations: Cycle[] = useMemo(() => {
         return cycles.map(cycle => {
-            const allCycleInvoices = invoicesByCycle.get(cycle.id) || [];
+            const cycleIdKey = String(cycle.id);
+            const allCycleInvoices = invoicesByCycle.get(cycleIdKey) || [];
             const cycleInvoices = allCycleInvoices.filter(i => i.market !== 'رصيد منقول' && i.market !== 'تمويل يدوي');
 
-            const allCycleRawExpenses = rawExpensesByCycle.get(cycle.id) || [];
+            const allCycleRawExpenses = rawExpensesByCycle.get(cycleIdKey) || [];
             const cycleAllExpenses = allCycleRawExpenses.filter(e => 
                 !isExternalLabor(e) && 
                 !e.isAdvanceTaken && 
@@ -250,7 +259,7 @@ export function useFinancialCalculations({
                 !isExpenseJointDebt(e)
             );
 
-            const allCycleOpExpenses = operationalExpensesByCycle.get(cycle.id) || [];
+            const allCycleOpExpenses = operationalExpensesByCycle.get(cycleIdKey) || [];
             const cycleOperationalExpenses = allCycleOpExpenses.filter(e => 
                 !isExpenseJointDebt(e)
             );
@@ -261,7 +270,7 @@ export function useFinancialCalculations({
             const hasFarmerAssigned = Boolean(cycle.responsible_farmer_id) && safeNum(cycle.farmer_share_percentage) > 0;
             const fshare = hasFarmerAssigned ? totalRev * (safeNum(cycle.farmer_share_percentage) / 100) : 0;
             const profit = totalRev - totalAllExp - fshare;
-            const totalProductionKg = cycleInvoices.reduce((s, inv) => s + inv.price_items.reduce((ss, it) => ss + safeNum(it.quantity), 0), 0);
+            const totalProductionKg = cycleInvoices.reduce((s, inv) => s + (inv.price_items || []).reduce((ss, it) => ss + safeNum(it.quantity), 0), 0);
 
             const unitDivisor = cycle.unit_of_measure === 'plants' ? safeNum(cycle.plant_count) : safeNum(cycle.area_in_feddans);
             const totalCartons = cycleInvoices.filter(i => i.packaging_type === 'carton').reduce((s, i) => s + safeNum(i.packaging_count), 0);
@@ -299,7 +308,7 @@ export function useFinancialCalculations({
             // Breakdown of sales deductions
             const dedGroups: Record<string, number> = {};
             cycleInvoices.forEach(inv => {
-                inv.deductions.forEach(d => {
+                (inv.deductions || []).forEach(d => {
                     dedGroups[d.name] = (dedGroups[d.name] || 0) + d.amount;
                 });
             });
@@ -350,11 +359,12 @@ export function useFinancialCalculations({
 
         if (rpcData && rpcData.cycles && Array.isArray(rpcData.cycles)) {
             return activeCycles.map(cycle => {
-                const cRpc = rpcData.cycles.find((rc: any) => rc.id === cycle.id);
-                const allCycleInvoices = invoicesByCycle.get(cycle.id) || [];
-                const allCycleRawExpenses = rawExpensesByCycle.get(cycle.id) || [];
-                const allCycleAdvances = advancesByCycle.get(cycle.id) || [];
-                const allCyclePartnerDebts = partnerDebtsByCycle.get(cycle.id) || [];
+                const cIdKey = String(cycle.id);
+                const cRpc = rpcData.cycles.find((rc: any) => String(rc.id) === cIdKey);
+                const allCycleInvoices = invoicesByCycle.get(cIdKey) || [];
+                const allCycleRawExpenses = rawExpensesByCycle.get(cIdKey) || [];
+                const allCycleAdvances = advancesByCycle.get(cIdKey) || [];
+                const allCyclePartnerDebts = partnerDebtsByCycle.get(cIdKey) || [];
 
                 if (cRpc) {
                     const salesInvoices = allCycleInvoices.filter(i =>
@@ -458,51 +468,55 @@ export function useFinancialCalculations({
                 }
 
                 // Fallback calculations for cycles not in rpc
-                const realInvoices = allCycleInvoices.filter(i =>
+                const cIdKeyFallback = String(cycle.id);
+                const realInvoices = (invoicesByCycle.get(cIdKeyFallback) || []).filter(i =>
                     i.market !== 'رصيد منقول' &&
                     i.market !== 'تمويل يدوي'
                 );
                 const rev = realInvoices.reduce((s, i) => s + getInvoiceCashRevenue(i), 0);
 
-                const transferInvoices = allCycleInvoices.filter(i =>
+                const transferInvoices = (invoicesByCycle.get(cIdKeyFallback) || []).filter(i =>
                     i.market === 'رصيد منقول'
                 );
                 const transferredBal = transferInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
-                const fundingInvoices = allCycleInvoices.filter(i =>
+                const fundingInvoices = (invoicesByCycle.get(cIdKeyFallback) || []).filter(i =>
                     i.market === 'تمويل يدوي'
                 );
                 const manualFunding = fundingInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
-                const cycleBankTx = bankTxByCycle.get(cycle.id) || [];
+                const cycleBankTx = bankTxByCycle.get(cIdKeyFallback) || [];
                 const bankWithdrawals = cycleBankTx.filter(t => t.type === 'withdrawal').reduce((s, t) => s + safeNum(t.amount), 0);
                 const bankDeposits = cycleBankTx.filter(t => t.type === 'deposit').reduce((s, t) => s + safeNum(t.amount), 0);
 
-                const cycleLocalCashExpenses = allCycleRawExpenses
+                const fallbackRawExpenses = rawExpensesByCycle.get(cIdKeyFallback) || [];
+                const cycleLocalCashExpenses = fallbackRawExpenses
                     .filter(e => e.payment_method === 'cash' && !isExternalLabor(e))
                     .reduce((s, e) => s + safeNum(e.amount), 0);
 
-                const fatherLaborExpsSum = allCycleRawExpenses.filter(e =>
+                const fatherLaborExpsSum = fallbackRawExpenses.filter(e =>
                     e.payment_method === 'cash' &&
                     isExternalLabor(e)
                 ).reduce((s, e) => s + safeNum(e.amount), 0);
 
-                const sumAdv = allCycleAdvances
+                const fallbackAdvances = advancesByCycle.get(cIdKeyFallback) || [];
+                const sumAdv = fallbackAdvances
                     .filter(a => !isAdvanceExternalDebt(a) && !isAdvanceInvoiceRepayment(a))
                     .reduce((s, a) => s + safeNum(a.amount), 0);
-                const sumFarmer = (farmerWithdrawalsByCycle.get(cycle.id) || []).reduce((s, w) => s + safeNum(w.amount), 0);
-                const sumSuppliers = (supplierPaymentsByCycle.get(cycle.id) || []).reduce((s, p) => s + safeNum(p.amount), 0);
+                const sumFarmer = (farmerWithdrawalsByCycle.get(cIdKeyFallback) || []).reduce((s, w) => s + safeNum(w.amount), 0);
+                const sumSuppliers = (supplierPaymentsByCycle.get(cIdKeyFallback) || []).reduce((s, p) => s + safeNum(p.amount), 0);
 
-                const jointDebtsFunding = allCyclePartnerDebts
+                const fallbackPartnerDebts = partnerDebtsByCycle.get(cIdKeyFallback) || [];
+                const jointDebtsFunding = fallbackPartnerDebts
                     .filter(d => d.entered_treasury)
                     .reduce((s, d) => s + (d.total_amount ?? d.totalAmount ?? 0), 0);
 
-                const individualDebtsFunding = allCycleAdvances
+                const individualDebtsFunding = fallbackAdvances
                     .filter(a => {
                         if (a.amount <= 0) return false;
                         if (!isAdvanceExternalDebt(a)) return false;
                         if (!isAdvanceEnteredTreasury(a)) return false;
-                        const isCancelled = allCycleAdvances.some(dep =>
+                        const isCancelled = fallbackAdvances.some(dep =>
                             dep.person_id === a.person_id &&
                             dep.amount === -a.amount &&
                             dep.date === a.date
@@ -511,7 +525,7 @@ export function useFinancialCalculations({
                     })
                     .reduce((s, a) => s + safeNum(a.amount), 0);
 
-                const individualDebtsRepaymentFromTreasury = allCycleAdvances
+                const individualDebtsRepaymentFromTreasury = fallbackAdvances
                     .filter(a => {
                         if (a.amount >= 0) return false;
                         if (!isAdvanceExternalDebt(a)) return false;
@@ -659,10 +673,11 @@ export function useFinancialCalculations({
 
     // 4. Cycle Cash Balances calculations
     const getCycleCashBalance = (cycleId: string) => {
-        const allCycleInvoices = invoicesByCycle.get(cycleId) || [];
-        const allCycleRawExpenses = rawExpensesByCycle.get(cycleId) || [];
-        const allCycleAdvances = advancesByCycle.get(cycleId) || [];
-        const allCyclePartnerDebts = partnerDebtsByCycle.get(cycleId) || [];
+        const cKey = String(cycleId);
+        const allCycleInvoices = invoicesByCycle.get(cKey) || [];
+        const allCycleRawExpenses = rawExpensesByCycle.get(cKey) || [];
+        const allCycleAdvances = advancesByCycle.get(cKey) || [];
+        const allCyclePartnerDebts = partnerDebtsByCycle.get(cKey) || [];
 
         const salesInvoices = allCycleInvoices.filter(i =>
             i.market !== 'رصيد منقول' &&
@@ -676,7 +691,7 @@ export function useFinancialCalculations({
         const fundingInvoices = allCycleInvoices.filter(i => i.market === 'تمويل يدوي');
         const manualFunding = fundingInvoices.reduce((s, i) => s + calculateInvoiceTotal(i.price_items, i.deductions), 0);
 
-        const cycleBankTx = bankTxByCycle.get(cycleId) || [];
+        const cycleBankTx = bankTxByCycle.get(cKey) || [];
         const bankWithdrawals = cycleBankTx.filter(t => t.type === 'withdrawal').reduce((s, t) => s + safeNum(t.amount), 0);
         const bankDeposits = cycleBankTx.filter(t => t.type === 'deposit').reduce((s, t) => s + safeNum(t.amount), 0);
 
@@ -692,8 +707,8 @@ export function useFinancialCalculations({
         const sumAdv = allCycleAdvances
             .filter(a => !isAdvanceExternalDebt(a) && !isAdvanceInvoiceRepayment(a))
             .reduce((s, a) => s + safeNum(a.amount), 0);
-        const sumFarmer = (farmerWithdrawalsByCycle.get(cycleId) || []).reduce((s, w) => s + safeNum(w.amount), 0);
-        const sumSuppliers = (supplierPaymentsByCycle.get(cycleId) || []).reduce((s, p) => s + safeNum(p.amount), 0);
+        const sumFarmer = (farmerWithdrawalsByCycle.get(cKey) || []).reduce((s, w) => s + safeNum(w.amount), 0);
+        const sumSuppliers = (supplierPaymentsByCycle.get(cKey) || []).reduce((s, p) => s + safeNum(p.amount), 0);
 
         const jointDebtsFunding = allCyclePartnerDebts
             .filter(d => d.entered_treasury)
@@ -729,7 +744,7 @@ export function useFinancialCalculations({
 
     const getCycleTotalBalance = (cycleId: string) => {
         const cash = getCycleCashBalance(cycleId);
-        const cycleBankTx = bankTxByCycle.get(cycleId) || [];
+        const cycleBankTx = bankTxByCycle.get(String(cycleId)) || [];
         const bankDeposits = cycleBankTx.filter(t => t.type === 'deposit').reduce((s, t) => s + safeNum(t.amount), 0);
         const bankWithdrawals = cycleBankTx.filter(t => t.type === 'withdrawal').reduce((s, t) => s + safeNum(t.amount), 0);
         const bank = bankDeposits - bankWithdrawals;
