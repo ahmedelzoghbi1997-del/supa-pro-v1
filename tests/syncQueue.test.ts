@@ -197,7 +197,7 @@ describe('Sync Queue Manager (lib/syncQueue.ts)', () => {
             const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
             const insertMock = vi.fn().mockResolvedValue({ data: null, error: null });
 
-            vi.spyOn(supabase, 'from').mockImplementation((table: string) => {
+            vi.spyOn(supabase, 'from').mockImplementation((_table: string) => {
                 return {
                     insert: insertMock,
                     upsert: upsertMock

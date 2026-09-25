@@ -273,9 +273,10 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
 
     // Presence tracking
     useEffect(() => {
-        if (!profile?.id) return;
+        if (!profile?.id || !effectiveUserId) return;
 
-        const channel = supabase.channel('online-users', {
+        const channelName = `online-users-${effectiveUserId}`;
+        const channel = supabase.channel(channelName, {
             config: {
                 presence: {
                     key: profile.id,
@@ -315,7 +316,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [profile?.id, profile?.full_name, setPresences]);
+    }, [profile?.id, profile?.full_name, setPresences, effectiveUserId]);
 
     // Heartbeat to update last_seen
     useEffect(() => {

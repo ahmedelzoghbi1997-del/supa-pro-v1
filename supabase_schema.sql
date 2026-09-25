@@ -471,7 +471,7 @@ BEGIN
         RAISE EXCEPTION 'الفاتورة غير موجودة أو تم حذفها';
     END IF;
 
-    IF auth.uid() IS NOT NULL AND v_invoice_owner_id <> auth.uid() THEN
+    IF v_actual_user_id <> v_invoice_owner_id THEN
         RAISE EXCEPTION 'غير مصرح: لا تملك صلاحية تعديل بنود هذه الفاتورة';
     END IF;
 
@@ -720,5 +720,61 @@ CREATE POLICY "Users can view their own invoice_deductions." ON public.invoice_d
 CREATE POLICY "Users can insert their own invoice_deductions." ON public.invoice_deductions FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update their own invoice_deductions." ON public.invoice_deductions FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete their own invoice_deductions." ON public.invoice_deductions FOR DELETE USING (auth.uid() = user_id);
+
+
+-- ==============================================================================
+-- 16. جدول اشتراكات الإشعارات (Push Subscriptions)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.push_subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL,
+    endpoint TEXT NOT NULL,
+    p256dh_key TEXT,
+    auth_key TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- الفهارس
+CREATE UNIQUE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON public.push_subscriptions (endpoint);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON public.push_subscriptions (user_id);
+
+-- تفعيل RLS
+ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- السياسات الأمنية
+DROP POLICY IF EXISTS "push_subscriptions_select" ON public.push_subscriptions;
+DROP POLICY IF EXISTS "push_subscriptions_delete" ON public.push_subscriptions;
+DROP POLICY IF EXISTS "push_subscriptions_insert" ON public.push_subscriptions;
+
+-- أ) سياسة القراءة (SELECT)
+CREATE POLICY "push_subscriptions_select" ON public.push_subscriptions
+FOR SELECT USING (
+    user_id = auth.uid()::text OR 
+    EXISTS (
+        SELECT 1 FROM public.virtual_members vm
+        WHERE ('virtual_' || vm.id::text) = user_id AND vm.owner_id = auth.uid()
+    )
+);
+
+-- ب) سياسة الحذف (DELETE)
+CREATE POLICY "push_subscriptions_delete" ON public.push_subscriptions
+FOR DELETE USING (
+    user_id = auth.uid()::text OR 
+    EXISTS (
+        SELECT 1 FROM public.virtual_members vm
+        WHERE ('virtual_' || vm.id::text) = user_id AND vm.owner_id = auth.uid()
+    )
+);
+
+-- ج) سياسة الإدراج (INSERT)
+CREATE POLICY "push_subscriptions_insert" ON public.push_subscriptions
+FOR INSERT WITH CHECK (
+    user_id = auth.uid()::text OR 
+    EXISTS (
+        SELECT 1 FROM public.virtual_members vm
+        WHERE ('virtual_' || vm.id::text) = user_id AND vm.owner_id = auth.uid()
+    )
+);
+
 
 
