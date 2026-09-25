@@ -24,7 +24,8 @@ import {
   toggleSavedAccountBiometrics,
   setSavedAccountPin,
   setSavedAccountsList,
-  setLastActiveAccount
+  setLastActiveAccount,
+  verifyPin
 } from '../../lib/accountManager';
 import { 
   authenticateBiometrically, 
@@ -237,7 +238,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 await saveAccount({
                     id: authData.user.id,
                     email: identifier,
-                    password: password,
+                    accessToken: authData.session?.access_token,
+                    refreshToken: authData.session?.refresh_token,
                     fullName: profData?.full_name || 'مالك',
                     role: profData?.role || 'owner',
                     isVirtual: false,
@@ -342,19 +344,19 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 return;
             }
 
-            // محاولة تسجيل الدخول بكلمة المرور المحفوظة تلقائياً
-            if (acc.email && acc.password) {
+            // محاولة تسجيل الدخول باستخدام الرموز المحفوظة في الحساب إن لم تكن مسجلة في التفضيلات
+            if (acc.accessToken && acc.refreshToken) {
                 try {
-                    const { data: logRes, error: logErr } = await supabase.auth.signInWithPassword({
-                        email: acc.email,
-                        password: acc.password
+                    const { data: setRes, error: setErr } = await supabase.auth.setSession({
+                        access_token: acc.accessToken,
+                        refresh_token: acc.refreshToken
                     });
-                    if (!logErr && logRes?.session) {
+                    if (!setErr && setRes?.session) {
                         await Preferences.set({
                             key: `supabase_session_${acc.id}`,
-                            value: JSON.stringify(logRes.session)
+                            value: JSON.stringify(setRes.session)
                         });
-                        localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(logRes.session));
+                        localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
                         await setLastActiveAccount(acc.id);
                         window.location.reload();
                         return;
@@ -382,7 +384,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
       if (newValue.length <= 4) {
         setPinValue(newValue);
         if (newValue.length === 4) {
-          if (newValue === activePinAccount.pinCode) {
+          const isValid = await verifyPin(newValue, activePinAccount.pinCode);
+          if (isValid) {
             const targetAcc = activePinAccount;
             setActivePinAccount(null);
             setPinValue('');
@@ -401,7 +404,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         if (newValue.length <= 4) {
           setPinValue(newValue);
           if (newValue.length === 4) {
-            if (newValue === pinSetupAccount.pinCode) {
+            const isValid = await verifyPin(newValue, pinSetupAccount.pinCode);
+            if (isValid) {
               await setSavedAccountPin(pinSetupAccount.id, null);
               const updated = await getSavedAccounts();
               setSavedAccounts(updated);

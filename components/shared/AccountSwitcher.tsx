@@ -160,26 +160,26 @@ const AccountSwitcher: React.FC = () => {
                     return;
                 }
 
-                // 3. محاولة تسجيل الدخول التلقائي في الخلفية بكلمة المرور إن توفرت
-                if (acc.email && acc.password) {
+                // 3. محاولة استعادة الجلسة بالرموز المحفوظة في الحساب إن وجدت
+                if (acc.accessToken && acc.refreshToken) {
                     try {
-                        const { data: logRes, error: logErr } = await supabase.auth.signInWithPassword({
-                            email: acc.email,
-                            password: acc.password
+                        const { data: setRes, error: setErr } = await supabase.auth.setSession({
+                            access_token: acc.accessToken,
+                            refresh_token: acc.refreshToken
                         });
-                        if (!logErr && logRes?.session) {
+                        if (!setErr && setRes?.session) {
                             await setLastActiveAccount(acc.id);
                             await Preferences.set({
                                 key: `supabase_session_${acc.id}`,
-                                value: JSON.stringify(logRes.session)
+                                value: JSON.stringify(setRes.session)
                             });
-                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(logRes.session));
+                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
                             await new Promise(r => setTimeout(r, 200));
                             window.location.reload();
                             return;
                         }
                     } catch (e) {
-                        console.warn("Auto re-auth error:", e);
+                        console.warn("Auto token re-auth error:", e);
                     }
                 }
 

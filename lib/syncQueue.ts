@@ -59,6 +59,27 @@ export const getFailedSyncCount = async (): Promise<number> => {
 
 let isProcessingQueue = false;
 
+const KNOWN_TABLES = new Set([
+    'profiles',
+    'cycles',
+    'assets',
+    'expense_categories',
+    'suppliers',
+    'farmers',
+    'persons',
+    'bank_accounts',
+    'invoices',
+    'expenses',
+    'advances',
+    'daily_logs',
+    'invoice_price_items',
+    'invoice_deductions',
+    'supplier_payments',
+    'farmer_withdrawals',
+    'bank_transactions',
+    'partner_debts'
+]);
+
 const getTablePriority = (table: string): number => {
     switch (table) {
         case 'profiles':
@@ -126,17 +147,42 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
 
             try {
                 const { table, action, recordId, payload } = item;
+
+                // التحقق من صحة الجدول
+                if (!table || !KNOWN_TABLES.has(table)) {
+                    const currentRetry = (item.retryCount || 0) + 1;
+                    const errorMsg = !table ? 'Missing table for sync operation' : `Unknown table '${table}' for sync operation`;
+                    console.error(`[SyncQueue] ${errorMsg} for item ${item.id}`);
+                    await (db as any).sync_queue.update(item.id!, {
+                        retryCount: currentRetry,
+                        error: errorMsg,
+                        status: currentRetry >= 5 ? 'failed' : 'pending'
+                    });
+                    failed++;
+                    continue;
+                }
+
                 const cleanPayload = sanitizePayloadForTable(table, payload);
 
                 let error: any = null;
 
                 if (action === 'insert') {
+                    if (!cleanPayload || (typeof cleanPayload === 'object' && Object.keys(cleanPayload).length === 0)) {
+                        const currentRetry = (item.retryCount || 0) + 1;
+                        await (db as any).sync_queue.update(item.id!, {
+                            retryCount: currentRetry,
+                            error: 'Empty payload for insert operation',
+                            status: currentRetry >= 5 ? 'failed' : 'pending'
+                        });
+                        failed++;
+                        continue;
+                    }
                     const res = await supabase.from(table).insert([cleanPayload]);
                     error = res.error;
                 } else if (action === 'update') {
                     // ملاحظة: الجداول التابعة مثل invoice_price_items و invoice_deductions تستخدم معرفات رقمية محلية (++id تلقائي في Dexie/IndexedDB)
                     // بينما السحابة (Supabase) تولد معرفات مختلفة، وعمليات المزامنة والتحديث ترتبط أساساً بـ invoice_id وليس بالـ id الرقمي المحلي.
-                    const targetId = recordId || payload.id;
+                    const targetId = recordId || payload?.id;
                     if (!targetId) {
                         // في حال عدم وجود معرف للتحديث
                         const currentRetry = (item.retryCount || 0) + 1;
@@ -152,11 +198,29 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     error = res.error;
                 } else if (action === 'delete') {
                     // استخدام recordId ثم payload.id لتحديد السجل المراد حذفه
-                    const targetId = recordId || payload.id;
-                    if (targetId) {
-                        const res = await supabase.from(table).delete().eq('id', targetId);
-                        error = res.error;
+                    const targetId = recordId || payload?.id;
+                    if (!targetId) {
+                        // في حال عدم وجود معرف للحذف
+                        const currentRetry = (item.retryCount || 0) + 1;
+                        await (db as any).sync_queue.update(item.id!, {
+                            retryCount: currentRetry,
+                            error: 'Missing targetId for delete operation',
+                            status: currentRetry >= 5 ? 'failed' : 'pending'
+                        });
+                        failed++;
+                        continue;
                     }
+                    const res = await supabase.from(table).delete().eq('id', targetId);
+                    error = res.error;
+                } else {
+                    const currentRetry = (item.retryCount || 0) + 1;
+                    await (db as any).sync_queue.update(item.id!, {
+                        retryCount: currentRetry,
+                        error: `Unknown action '${action}' for sync operation`,
+                        status: currentRetry >= 5 ? 'failed' : 'pending'
+                    });
+                    failed++;
+                    continue;
                 }
 
                 // عند معالجة عنصر insert أو update لجدول invoices ووجود _offline_price_items أو _offline_deductions في الحمولة

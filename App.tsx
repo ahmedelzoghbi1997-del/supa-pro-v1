@@ -448,12 +448,13 @@ const App: React.FC = () => {
 
       // Real auth
       try {
-        let {
-          data: { session },
-          error,
+        const {
+          data: { session: initialSession },
+          error: sessionError,
         } = await supabase.auth.getSession();
-        if (error && !error.message?.toLowerCase().includes("refresh token")) {
-          console.error("Session error:", error);
+        let session = initialSession;
+        if (sessionError && !sessionError.message?.toLowerCase().includes("refresh token")) {
+          console.error("Session error:", sessionError);
         }
 
         // Check if there is a target active account from account switcher or previous session
@@ -461,35 +462,37 @@ const App: React.FC = () => {
         const targetId = lastActiveId || localStorage.getItem('last_active_account_id');
 
         if (targetId && !targetId.startsWith('virtual_') && session?.user?.id !== targetId) {
-          const { value: prefTarget } = await Preferences.get({ key: `supabase_session_${targetId}` });
-          const localTarget = localStorage.getItem(`supabase_session_${targetId}`);
-          const targetStr = prefTarget || localTarget;
-          if (targetStr) {
+          const accounts = await getSavedAccounts();
+          const targetAcc = accounts.find((a) => a.id === targetId);
+          if (targetAcc?.refreshToken) {
             try {
-              const sessObj = JSON.parse(targetStr);
-              if (sessObj?.access_token && sessObj?.refresh_token) {
-                const { data: setRes, error: setErr } = await supabase.auth.setSession({
-                  access_token: sessObj.access_token,
-                  refresh_token: sessObj.refresh_token
-                });
-                if (!setErr && setRes?.session) {
-                  session = setRes.session;
-                }
+              const { data: setRes, error: setErr } = await supabase.auth.setSession({
+                access_token: targetAcc.accessToken || '',
+                refresh_token: targetAcc.refreshToken,
+              });
+              if (!setErr && setRes?.session) {
+                session = setRes.session;
               }
             } catch (e) {
-              console.warn("Could not restore target session in App.tsx:", e);
+              console.warn("Could not restore target session via refresh token:", e);
             }
+          }
+        }
+
+        if (!session) {
+          try {
+            const { data: refreshRes, error: refreshErr } = await supabase.auth.refreshSession();
+            if (!refreshErr && refreshRes?.session) {
+              session = refreshRes.session;
+            }
+          } catch (_e) {
+            // No refresh token available or expired
           }
         }
 
         if (session) {
           await Preferences.remove({ key: "was_explicitly_logged_out" });
           localStorage.removeItem("was_explicitly_logged_out");
-          await Preferences.set({
-            key: `supabase_session_${session.user.id}`,
-            value: JSON.stringify(session),
-          });
-          localStorage.setItem(`supabase_session_${session.user.id}`, JSON.stringify(session));
           setSession(session);
           fetchProfile(session.user.id);
           return;
@@ -559,13 +562,6 @@ const App: React.FC = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user?.id) {
-        await Preferences.set({
-          key: `supabase_session_${session.user.id}`,
-          value: JSON.stringify(session),
-        });
-        localStorage.setItem(`supabase_session_${session.user.id}`, JSON.stringify(session));
-      }
       const { value: virtualAuthString } = await Preferences.get({
         key: "virtual_auth",
       });
