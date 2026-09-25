@@ -33,7 +33,7 @@ const CommunicationSettings: React.FC = () => {
     const inputBaseClasses = "w-full bg-neutral-100 dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition placeholder:text-neutral-500";
 
     return (
-        <Card padding="p-6">
+        <Card>
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">إعدادات التواصل والتخصيص</h3>
             <div className="space-y-6">
                  <div>

@@ -1,0 +1,236 @@
+@import "@fontsource/cairo/400.css";
+@import "@fontsource/cairo/500.css";
+@import "@fontsource/cairo/600.css";
+@import "@fontsource/cairo/700.css";
+@import "@fontsource/cairo/800.css";
+
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+html[data-ui-scale="xs"] { font-size: 12px; }
+html[data-ui-scale="sm"] { font-size: 13px; }
+html, html[data-ui-scale="md"] { font-size: 14px; }
+html[data-ui-scale="lg"] { font-size: 15px; }
+html[data-ui-scale="xl"] { font-size: 16px; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+
+:root, html[data-theme-color="emerald"] {
+  --color-primary-400: #34D399;
+  --color-primary-500: #10B981;
+  --color-primary-600: #059669;
+}
+html[data-theme-color="blue"] {
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+}
+html[data-theme-color="violet"] {
+  --color-primary-400: #A78BFA;
+  --color-primary-500: #8B5CF6;
+  --color-primary-600: #7C3AED;
+}
+html[data-theme-color="amber"] {
+  --color-primary-400: #FBBF24;
+  --color-primary-500: #F59E0B;
+  --color-primary-600: #D97706;
+}
+html[data-theme-color="rose"] {
+  --color-primary-400: #FB7185;
+  --color-primary-500: #F43F5E;
+  --color-primary-600: #E11D48;
+}
+
+body {
+    background-color: #F8FAFC;
+    background-image: linear-gradient(to bottom, #F8FAFC, #F1F5F9);
+    overflow-x: hidden;
+    overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+    font-family: 'Cairo', sans-serif;
+}
+.dark body {
+    background-color: #020617;
+    background-image: linear-gradient(to bottom, #020617, #0F172A);
+}
+
+::-webkit-scrollbar { width: 0px; height: 0px; }
+.scrollbar-hide::-webkit-scrollbar { display: none; width: 0 !important; height: 0 !important; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-enter { 
+  animation: enter 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+  will-change: transform, opacity;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-page-enter { 
+  animation: page-enter 0.2s ease-out forwards; 
+  will-change: opacity;
+}
+
+@keyframes menu-enter {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+.animate-menu-snappy { animation: menu-enter 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.shimmer-bg { position: relative; overflow: hidden; background-color: #e2e8f0; }
+.dark .shimmer-bg { background-color: #334155; }
+.shimmer-bg::after {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0.1) 20%, rgba(255, 255, 255, 0.2) 60%, rgba(255, 255, 255, 0) );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes stagger-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-stagger-in {
+  animation: stagger-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+@keyframes modal-spring-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.93) translateY(14px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.015) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.animate-modal-enter {
+  animation: modal-spring-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Ripple Effect for Buttons */
+.ripple-effect { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+@keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+.glow-on-hover-success:hover { box-shadow: 0 0 20px 0 rgba(16, 185, 129, 0.3); }
+.glow-on-hover-danger:hover { box-shadow: 0 0 20px 0 rgba(244, 63, 94, 0.3); }
+.glow-on-hover-info:hover { box-shadow: 0 0 20px 0 rgba(59, 130, 246, 0.3); }
+.glow-on-hover-purple:hover { box-shadow: 0 0 20px 0 rgba(139, 92, 246, 0.3); }
+
+@keyframes spectacularGlow {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); transform: scale(1); border-color: rgba(59, 130, 246, 0.6); }
+  20% { box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.8), inset 0 0 20px rgba(59, 130, 246, 0.1); transform: scale(1.015); border-color: rgba(59, 130, 246, 1); }
+  50% { box-shadow: 0 5px 25px -5px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(59, 130, 246, 0.05); transform: scale(1.005); border-color: rgba(59, 130, 246, 0.8); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); transform: scale(1); border-color: transparent; }
+}
+
+@keyframes spectacularGlowDark {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); transform: scale(1); border-color: rgba(99, 102, 241, 0.6); }
+  20% { box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.8), inset 0 0 20px rgba(99, 102, 241, 0.15); transform: scale(1.015); border-color: rgba(99, 102, 241, 1); }
+  50% { box-shadow: 0 5px 25px -5px rgba(99, 102, 241, 0.5), inset 0 0 10px rgba(99, 102, 241, 0.08); transform: scale(1.005); border-color: rgba(99, 102, 241, 0.8); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); transform: scale(1); border-color: transparent; }
+}
+
+.animate-highlight {
+  animation: spectacularGlow 8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+  position: relative;
+  z-index: 50;
+}
+
+.dark .animate-highlight {
+  animation: spectacularGlowDark 8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+}
+
+/* Critical Splash Screen Geometry & Centering - Guarantees 100% center placement from frame 0 */
+.splash-critical-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  background-color: transparent !important;
+}
+.dark .splash-critical-overlay {
+  background-color: transparent !important;
+}
+.splash-critical-center {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: auto !important;
+}
+.splash-critical-box {
+  width: 256px !important;
+  height: 256px !important;
+  max-width: 75vw !important;
+  max-height: 75vw !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+@media (min-width: 640px) {
+  .splash-critical-box {
+    width: 288px !important;
+    height: 288px !important;
+  }
+}
+@media (min-width: 768px) {
+  .splash-critical-box {
+    width: 320px !important;
+    height: 320px !important;
+  }
+}
+
+/* Elegant, professional logo entrance animation */
+@keyframes splash-logo-enter {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+.animate-splash-enter {
+  animation: splash-logo-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  will-change: transform, opacity;
+}

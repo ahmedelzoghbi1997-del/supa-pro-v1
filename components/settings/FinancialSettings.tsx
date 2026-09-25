@@ -37,7 +37,7 @@ const FinancialSettings: React.FC = () => {
                 <h2 className="text-xl font-bold text-slate-800 dark:text-white">الإعدادات المالية</h2>
                 
                 <div className="space-y-4">
-                    <Card padding="p-6">
+                    <Card>
                         <div className="flex flex-col gap-4">
                             <div>
                                 <h4 className="font-semibold text-lg text-slate-800 dark:text-white mb-1">نوع الخصم في الفواتير</h4>
@@ -62,7 +62,7 @@ const FinancialSettings: React.FC = () => {
                         </div>
                     </Card>
 
-                    <Card padding="p-6">
+                    <Card>
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                             <div className="flex-1">
                                 <h4 className="font-semibold text-lg text-slate-800 dark:text-white">إدارة فئات المصروفات</h4>
@@ -74,7 +74,7 @@ const FinancialSettings: React.FC = () => {
                         </div>
                     </Card>
 
-                    <Card padding="p-6">
+                    <Card>
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                             <div className="flex-1">
                                 <h4 className="font-semibold text-lg text-slate-800 dark:text-white">إدارة أسواق البيع</h4>
@@ -86,7 +86,7 @@ const FinancialSettings: React.FC = () => {
                         </div>
                     </Card>
 
-                    <Card padding="p-6">
+                    <Card>
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                             <div className="flex-1">
                                 <h4 className="font-semibold text-lg text-slate-800 dark:text-white">إدارة بنود الخصومات</h4>

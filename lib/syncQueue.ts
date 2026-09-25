@@ -4,7 +4,7 @@ import { sanitizePayloadForTable } from './payloadWhitelist';
 
 export const isNetworkError = (error: unknown): boolean => {
     if (!error) return false;
-    if (typeof navigator !== 'undefined' && !navigator.onLine) return true;
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
     
     const err = error as { message?: string; details?: string; hint?: string; name?: string };
     const message = (err.message || err.details || err.hint || String(error)).toLowerCase();
@@ -29,7 +29,7 @@ export const addToSyncQueue = async (item: Omit<SyncQueueItem, 'id' | 'created_a
             created_at: Date.now(),
             retryCount: 0
         };
-        const id = await (db as any).sync_queue.add(queueItem);
+        const id = await db.sync_queue.add(queueItem);
         console.log(`[SyncQueue] Added item to queue (id: ${id}, table: ${item.table}, action: ${item.action})`);
         return id;
     } catch (e) {
@@ -39,7 +39,7 @@ export const addToSyncQueue = async (item: Omit<SyncQueueItem, 'id' | 'created_a
 
 export const getPendingSyncCount = async (): Promise<number> => {
     try {
-        return await (db as any).sync_queue
+        return await db.sync_queue
             .filter((item: SyncQueueItem) => item.status !== 'failed')
             .count();
     } catch {
@@ -49,7 +49,7 @@ export const getPendingSyncCount = async (): Promise<number> => {
 
 export const getFailedSyncCount = async (): Promise<number> => {
     try {
-        return await (db as any).sync_queue
+        return await db.sync_queue
             .filter((item: SyncQueueItem) => item.status === 'failed')
             .count();
     } catch {
@@ -112,7 +112,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
     if (isProcessingQueue) {
         return { processed: 0, failed: 0 };
     }
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         return { processed: 0, failed: 0 };
     }
 
@@ -121,7 +121,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
     let failed = 0;
 
     try {
-        const rawItems: SyncQueueItem[] = await (db as any).sync_queue.orderBy('created_at').toArray();
+        const rawItems: SyncQueueItem[] = await db.sync_queue.orderBy('created_at').toArray();
         if (!rawItems || rawItems.length === 0) {
             isProcessingQueue = false;
             return { processed: 0, failed: 0 };
@@ -153,7 +153,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     const currentRetry = (item.retryCount || 0) + 1;
                     const errorMsg = !table ? 'Missing table for sync operation' : `Unknown table '${table}' for sync operation`;
                     console.error(`[SyncQueue] ${errorMsg} for item ${item.id}`);
-                    await (db as any).sync_queue.update(item.id!, {
+                    await db.sync_queue.update(item.id!, {
                         retryCount: currentRetry,
                         error: errorMsg,
                         status: currentRetry >= 5 ? 'failed' : 'pending'
@@ -169,7 +169,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                 if (action === 'insert') {
                     if (!cleanPayload || (typeof cleanPayload === 'object' && Object.keys(cleanPayload).length === 0)) {
                         const currentRetry = (item.retryCount || 0) + 1;
-                        await (db as any).sync_queue.update(item.id!, {
+                        await db.sync_queue.update(item.id!, {
                             retryCount: currentRetry,
                             error: 'Empty payload for insert operation',
                             status: currentRetry >= 5 ? 'failed' : 'pending'
@@ -186,7 +186,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     if (!targetId) {
                         // في حال عدم وجود معرف للتحديث
                         const currentRetry = (item.retryCount || 0) + 1;
-                        await (db as any).sync_queue.update(item.id!, {
+                        await db.sync_queue.update(item.id!, {
                             retryCount: currentRetry,
                             error: 'Missing targetId for update operation',
                             status: currentRetry >= 5 ? 'failed' : 'pending'
@@ -202,7 +202,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     if (!targetId) {
                         // في حال عدم وجود معرف للحذف
                         const currentRetry = (item.retryCount || 0) + 1;
-                        await (db as any).sync_queue.update(item.id!, {
+                        await db.sync_queue.update(item.id!, {
                             retryCount: currentRetry,
                             error: 'Missing targetId for delete operation',
                             status: currentRetry >= 5 ? 'failed' : 'pending'
@@ -214,7 +214,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     error = res.error;
                 } else {
                     const currentRetry = (item.retryCount || 0) + 1;
-                    await (db as any).sync_queue.update(item.id!, {
+                    await db.sync_queue.update(item.id!, {
                         retryCount: currentRetry,
                         error: `Unknown action '${action}' for sync operation`,
                         status: currentRetry >= 5 ? 'failed' : 'pending'
@@ -224,46 +224,20 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                 }
 
                 // عند معالجة عنصر insert أو update لجدول invoices ووجود _offline_price_items أو _offline_deductions في الحمولة
+                // يتم تنفيذ الحذف والإدراج في معاملة ذرية واحدة عبر دالة upsert_invoice_items
                 if (!error && table === 'invoices' && (action === 'insert' || action === 'update')) {
                     if (payload && (payload._offline_price_items !== undefined || payload._offline_deductions !== undefined)) {
                         const targetId = recordId || payload.id || cleanPayload?.id;
                         if (targetId) {
                             const invoiceUserId = payload.user_id || cleanPayload?.user_id;
-
-                            // حذف كل البنود القديمة عبر .delete().eq('invoice_id', targetId)
-                            const delPrices = await supabase.from('invoice_price_items').delete().eq('invoice_id', targetId);
-                            if (delPrices.error) error = delPrices.error;
-
-                            if (!error) {
-                                const delDeds = await supabase.from('invoice_deductions').delete().eq('invoice_id', targetId);
-                                if (delDeds.error) error = delDeds.error;
-                            }
-
-                            // إدراج البنود الجديدة مع invoice_id الصحيح
-                            if (!error && payload._offline_price_items && payload._offline_price_items.length > 0) {
-                                const itemsToInsert = payload._offline_price_items.map((pi: any) => {
-                                    const { id: _unused_id, invoice_id: _unused_inv_id, user_id: _unused_uid, ...cleanItem } = pi;
-                                    return {
-                                        ...cleanItem,
-                                        invoice_id: targetId,
-                                        ...(invoiceUserId ? { user_id: invoiceUserId } : {})
-                                    };
-                                });
-                                const insPrices = await supabase.from('invoice_price_items').insert(itemsToInsert);
-                                if (insPrices.error) error = insPrices.error;
-                            }
-
-                            if (!error && payload._offline_deductions && payload._offline_deductions.length > 0) {
-                                const dedsToInsert = payload._offline_deductions.map((ded: any) => {
-                                    const { id: _unused_id, invoice_id: _unused_inv_id, user_id: _unused_uid, ...cleanDed } = ded;
-                                    return {
-                                        ...cleanDed,
-                                        invoice_id: targetId,
-                                        ...(invoiceUserId ? { user_id: invoiceUserId } : {})
-                                    };
-                                });
-                                const insDeds = await supabase.from('invoice_deductions').insert(dedsToInsert);
-                                if (insDeds.error) error = insDeds.error;
+                            const rpcRes = await supabase.rpc('upsert_invoice_items', {
+                                p_invoice_id: targetId,
+                                p_price_items: payload._offline_price_items || [],
+                                p_deductions: payload._offline_deductions || [],
+                                p_user_id: invoiceUserId || null
+                            });
+                            if (rpcRes.error) {
+                                error = rpcRes.error;
                             }
                         }
                     }
@@ -279,7 +253,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                         const errorMsg = error.message || error.details || String(error);
                         console.error(`[SyncQueue] Non-network error for item ${item.id} (attempt ${nextRetry}/5):`, errorMsg);
                         
-                        await (db as any).sync_queue.update(item.id!, {
+                        await db.sync_queue.update(item.id!, {
                             retryCount: nextRetry,
                             error: errorMsg,
                             status: nextRetry >= 5 ? 'failed' : 'pending'
@@ -288,7 +262,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     }
                 } else {
                     // الحذف يتم فقط عند نجاح المزامنة
-                    await (db as any).sync_queue.delete(item.id!);
+                    await db.sync_queue.delete(item.id!);
                     processed++;
                     if (onItemSynced) {
                         onItemSynced(item);
@@ -303,7 +277,7 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     const errorMsg = err.message || String(err);
                     console.error(`[SyncQueue] Unexpected error processing item ${item.id} (attempt ${nextRetry}/5):`, errorMsg);
                     
-                    await (db as any).sync_queue.update(item.id!, {
+                    await db.sync_queue.update(item.id!, {
                         retryCount: nextRetry,
                         error: errorMsg,
                         status: nextRetry >= 5 ? 'failed' : 'pending'

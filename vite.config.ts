@@ -1,6 +1,7 @@
 import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
@@ -12,6 +13,7 @@ export default defineConfig(() => {
         ws: false,
       },
       plugins: [
+        tailwindcss(),
         react(),
         VitePWA({
           registerType: 'autoUpdate',
@@ -82,6 +84,10 @@ export default defineConfig(() => {
               'react-vendor': ['react', 'react-dom'],
               'supabase-vendor': ['@supabase/supabase-js'],
               'db-vendor': ['dexie'],
+              'charts-vendor': ['recharts'],
+              'pdf-vendor': ['jspdf', 'html2canvas'],
+              'animation-vendor': ['motion'],
+              'icons-vendor': ['lucide-react'],
             }
           }
         }

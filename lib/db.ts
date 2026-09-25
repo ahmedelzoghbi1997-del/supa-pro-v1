@@ -1,5 +1,5 @@
 
-import { Dexie, type Table } from 'dexie';
+import Dexie, { type Table } from 'dexie';
 import type { 
     Invoice, Expense, Cycle, Person, Advance, Supplier, SupplierPayment, Farmer, FarmerWithdrawal, 
     ExpenseCategory, Asset, InvoicePriceItem, InvoiceDeductionItem,
@@ -49,8 +49,7 @@ export class AlMohasebLocalDB extends Dexie {
 
     constructor() {
         super('AlMohaseb_Local_V11');
-        // FIX: Casting this to any to access the version method, as inheritance may not be correctly resolved by the compiler.
-        (this as any).version(11).stores({
+        this.version(11).stores({
             invoices: 'id, cycle_id, date, market',
             invoice_price_items: '++id, invoice_id',
             invoice_deductions: '++id, invoice_id',
@@ -65,7 +64,7 @@ export class AlMohasebLocalDB extends Dexie {
             expense_categories: 'id, name, is_establishment',
             assets: 'id, name',
         });
-        (this as any).version(12).stores({
+        this.version(12).stores({
             bank_accounts: 'id, name',
             bank_transactions: 'id, account_id, date',
             daily_logs: 'id, date',
@@ -73,7 +72,7 @@ export class AlMohasebLocalDB extends Dexie {
             partner_debts: 'id, partner_id',
             cache: 'key'
         });
-        (this as any).version(13).stores({
+        this.version(13).stores({
             sync_queue: '++id, table, action, created_at'
         });
     }
@@ -83,8 +82,7 @@ export const db = new AlMohasebLocalDB();
 
 export const hardResetLocalDB = async () => {
     try {
-        // FIX: Casting db to any to access the Dexie instance method delete().
-        await (db as any).delete();
+        await db.delete();
         window.localStorage.clear();
         const dbs = await window.indexedDB.databases();
         for (const database of dbs) {

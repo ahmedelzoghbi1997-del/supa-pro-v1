@@ -17,7 +17,7 @@ import {
   WalletIcon,
 } from './components/Icons';
 
-export const CURRENT_APP_VERSION = '1.1';
+export const CURRENT_APP_VERSION = '1.1.0';
 
 export const navItems: NavSection[] = [
   {

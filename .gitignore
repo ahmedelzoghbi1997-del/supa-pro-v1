@@ -28,3 +28,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build outputs
+android/app/src/main/assets/public/
+www/

@@ -34,14 +34,25 @@ if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
 
 const capacitorStorageAdapter = {
   getItem: async (key: string): Promise<string | null> => {
-    const { value } = await Preferences.get({ key });
-    return value;
+    if (typeof window === 'undefined') return null;
+    try {
+      const { value } = await Preferences.get({ key });
+      return value;
+    } catch {
+      return null;
+    }
   },
   setItem: async (key: string, value: string): Promise<void> => {
-    await Preferences.set({ key, value });
+    if (typeof window === 'undefined') return;
+    try {
+      await Preferences.set({ key, value });
+    } catch {}
   },
   removeItem: async (key: string): Promise<void> => {
-    await Preferences.remove({ key });
+    if (typeof window === 'undefined') return;
+    try {
+      await Preferences.remove({ key });
+    } catch {}
   },
 };
 

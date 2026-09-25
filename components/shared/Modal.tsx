@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { XMarkIcon } from '../Icons';
 import { triggerLightHaptic } from '../../lib/haptics';
+import { useOpenModals } from '../../contexts/OpenModalsContext';
 
 interface ModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
   const backdropRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const preventCloseRef = useRef(preventClose);
+  const { registerModal, unregisterModal } = useOpenModals();
 
   // Keep the ref updated with the latest onClose and preventClose functions
   useEffect(() => {
@@ -23,8 +25,23 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
     preventCloseRef.current = preventClose;
   }, [onClose, preventClose]);
 
-  // History management for back button
+  // History and Context management for open modals / back button
   const modalIdRef = useRef(`modal_${Math.random().toString(36).substring(2, 9)}`);
+
+  useEffect(() => {
+    if (isOpen) {
+      registerModal(modalIdRef.current, () => {
+        if (!preventCloseRef.current) {
+          onCloseRef.current();
+        }
+      });
+      return () => {
+        unregisterModal(modalIdRef.current);
+      };
+    } else {
+      unregisterModal(modalIdRef.current);
+    }
+  }, [isOpen, registerModal, unregisterModal]);
 
   useEffect(() => {
     if (isOpen) {

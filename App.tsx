@@ -15,9 +15,12 @@ import WelcomePage from "./components/auth/WelcomePage";
 import { Onboarding } from "./components/Onboarding";
 import SplashScreen from "./components/shared/SplashScreen";
 import { SplashTransitionProvider } from "./contexts/SplashTransitionContext";
-import SharedReport from "./components/shared/SharedReport";
 import SharedReportErrorBoundary from "./src/components/shared/SharedReportErrorBoundary";
+import PageSkeleton from "./components/shared/PageSkeleton";
 import AppUpdateModal from "./components/shared/AppUpdateModal";
+import OfflineBanner from "./components/shared/OfflineBanner";
+
+const SharedReport = React.lazy(() => import("./components/shared/SharedReport"));
 
 import { triggerLightHaptic } from "./lib/haptics";
 import { StatusBar, Style } from "@capacitor/status-bar";
@@ -31,6 +34,34 @@ import { getSavedAccounts } from "./lib/accountManager";
 
 import { useData } from "./contexts/DataContext";
 import { RealtimeNotificationProvider } from "./contexts/RealtimeNotificationContext";
+import { OpenModalsProvider, useOpenModals } from "./contexts/OpenModalsContext";
+
+async function parseVirtualProfile(str: string): Promise<Profile | null> {
+  try {
+    const virtualProfile = JSON.parse(str);
+    if (!virtualProfile || !virtualProfile.id || String(virtualProfile.id).includes("undefined")) {
+      return null;
+    }
+    const normalizedProfile = {
+      ...virtualProfile,
+      id: String(virtualProfile.id).startsWith("virtual_")
+        ? virtualProfile.id
+        : `virtual_${virtualProfile.id}`,
+      full_name: virtualProfile.full_name,
+      role: virtualProfile.role || "viewer",
+    } as Profile;
+
+    const accounts = await getSavedAccounts();
+    const savedAcc = accounts.find((a) => a.id === normalizedProfile.id);
+    if (savedAcc && savedAcc.greenhouseName) {
+      normalizedProfile.full_name = savedAcc.greenhouseName;
+    }
+
+    return normalizedProfile;
+  } catch {
+    return null;
+  }
+}
 
 const NotificationListener: React.FC = () => {
   const { setActiveItem } = useData();
@@ -126,10 +157,13 @@ class GlobalErrorBoundary extends React.Component<{children: React.ReactNode}, {
 const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
   const [activeItem, setActiveItem] = useState<NavItemId>("dashboard");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [exitCountdown, setExitCountdown] = useState<number | null>(null);
+  const exitTimerRef = React.useRef<any>(null);
 
   const activeItemRef = React.useRef(activeItem);
   const { settings } = useSettings();
   const { showToast } = useToast();
+  const { isAnyModalOpen } = useOpenModals();
   const lastBackPressTime = React.useRef<number>(0);
 
   useEffect(() => {
@@ -189,31 +223,34 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
       if (Capacitor.isNativePlatform()) {
         backListener = await CapApp.addListener(
           "backButton",
-         
           ({ canGoBack }) => {
-            // Check for open modals
-            const openModal = document.querySelector('[role="dialog"], .fixed.z-50');
-            if (openModal) {
-              const closeBtn = openModal.querySelector('button[aria-label="Close"], button[aria-label="إغلاق"], .close-btn') || openModal.querySelector('button');
-              if (closeBtn) {
-                 closeBtn.click();
-              } else {
-                 window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-              }
+            // If any modal is currently registered and open, let the modal close handler handle it
+            if (isAnyModalOpen()) {
               return;
             }
 
             if (canGoBack) {
-
               window.history.back();
             } else {
               if (activeItemRef.current === "dashboard") {
                 const now = Date.now();
                 if (now - lastBackPressTime.current < 2000) {
+                  if (exitTimerRef.current) clearInterval(exitTimerRef.current);
                   CapApp.exitApp();
                 } else {
                   lastBackPressTime.current = now;
-                  showToast("اضغط مرة أخرى للخروج من التطبيق", "info");
+                  if (exitTimerRef.current) clearInterval(exitTimerRef.current);
+                  setExitCountdown(2);
+                  let remaining = 2;
+                  exitTimerRef.current = setInterval(() => {
+                    remaining -= 1;
+                    if (remaining <= 0) {
+                      clearInterval(exitTimerRef.current);
+                      setExitCountdown(null);
+                    } else {
+                      setExitCountdown(remaining);
+                    }
+                  }, 1000);
                 }
               } else {
                 handleNavigation("dashboard");
@@ -266,6 +303,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
     return () => {
       if (backListener) backListener.remove();
       if (appStateListener) appStateListener.remove();
+      if (exitTimerRef.current) clearInterval(exitTimerRef.current);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [settings, handleNavigation, showToast]);
@@ -276,26 +314,39 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
         <RealtimeNotificationProvider>
           <NotificationListener />
           <AppUpdateModal />
-          <div className="flex h-screen font-sans bg-white dark:bg-[#0f172a] pt-[env(safe-area-inset-top)]">
-            <Sidebar
-              activeItem={activeItem}
-              setActiveItem={handleNavigation}
-              isOpen={isSidebarOpen}
-              onClose={() => {
-                triggerLightHaptic();
-                setSidebarOpen(false);
-              }}
-            />
-            <main className="flex-1 overflow-hidden relative pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
-              <MainContent
+          {exitCountdown !== null && (
+            <div className="fixed bottom-20 sm:bottom-8 inset-x-0 z-[300] flex justify-center items-center px-4 pointer-events-none animate-enter">
+              <div className="bg-neutral-900/95 dark:bg-neutral-800/95 backdrop-blur-md text-white px-4 py-2.5 rounded-full shadow-2xl border border-neutral-700/60 flex items-center gap-3 text-xs font-semibold">
+                <span>اضغط مرة أخرى للخروج من التطبيق</span>
+                <span className="w-5 h-5 rounded-full bg-emerald-500 text-white font-black text-[11px] flex items-center justify-center animate-pulse">
+                  {exitCountdown}
+                </span>
+              </div>
+            </div>
+          )}
+          <div className="flex flex-col h-screen font-sans bg-white dark:bg-[#0f172a] pt-[env(safe-area-inset-top)]">
+            <OfflineBanner />
+            <div className="flex flex-1 overflow-hidden relative">
+              <Sidebar
                 activeItem={activeItem}
-                onOpenSidebar={() => {
+                setActiveItem={handleNavigation}
+                isOpen={isSidebarOpen}
+                onClose={() => {
                   triggerLightHaptic();
-                  setSidebarOpen(true);
+                  setSidebarOpen(false);
                 }}
               />
-            </main>
-            <BottomNav activeItem={activeItem} setActiveItem={handleNavigation} />
+              <main className="flex-1 overflow-hidden relative pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+                <MainContent
+                  activeItem={activeItem}
+                  onOpenSidebar={() => {
+                    triggerLightHaptic();
+                    setSidebarOpen(true);
+                  }}
+                />
+              </main>
+              <BottomNav activeItem={activeItem} setActiveItem={handleNavigation} />
+            </div>
           </div>
         </RealtimeNotificationProvider>
       </DataProvider>
@@ -368,26 +419,8 @@ const App: React.FC = () => {
         key: "virtual_auth",
       });
       if (virtualAuthString) {
-        try {
-          const virtualProfile = JSON.parse(virtualAuthString);
-          if (!virtualProfile || !virtualProfile.id || virtualProfile.id.includes("undefined")) {
-            throw new Error("Invalid virtual profile");
-          }
-          const normalizedProfile = {
-            ...virtualProfile,
-            id: virtualProfile.id.startsWith("virtual_")
-              ? virtualProfile.id
-              : `virtual_${virtualProfile.id}`,
-            full_name: virtualProfile.full_name,
-            role: virtualProfile.role || "viewer",
-          } as Profile;
-
-          const accounts = await getSavedAccounts();
-          const savedAcc = accounts.find((a) => a.id === normalizedProfile.id);
-          if (savedAcc && savedAcc.greenhouseName) {
-            normalizedProfile.full_name = savedAcc.greenhouseName;
-          }
-
+        const normalizedProfile = await parseVirtualProfile(virtualAuthString);
+        if (normalizedProfile) {
           setProfile(normalizedProfile);
           setSession({ user: { id: normalizedProfile.id } } as any);
           await Preferences.set({
@@ -396,7 +429,7 @@ const App: React.FC = () => {
           });
           setLoading(false);
           return true;
-        } catch (_err) {
+        } else {
           await Preferences.remove({ key: "virtual_auth" });
           localStorage.removeItem("virtual_auth");
         }
@@ -404,35 +437,14 @@ const App: React.FC = () => {
         // Check local storage as a fallback, then move it to preferences
         const fallbackStr = localStorage.getItem("virtual_auth");
         if (fallbackStr) {
-          try {
-            const virtualProfile = JSON.parse(fallbackStr);
-            if (!virtualProfile || !virtualProfile.id || virtualProfile.id.includes("undefined")) {
-              throw new Error("Invalid virtual profile");
-            }
-            const normalizedProfile = {
-              ...virtualProfile,
-              id: virtualProfile.id.startsWith("virtual_")
-                ? virtualProfile.id
-                : `virtual_${virtualProfile.id}`,
-              full_name: virtualProfile.full_name,
-              role: virtualProfile.role || "viewer",
-            } as Profile;
-
-            const accounts = await getSavedAccounts();
-            const savedAcc = accounts.find(
-              (a) => a.id === normalizedProfile.id,
-            );
-            if (savedAcc && savedAcc.greenhouseName) {
-              normalizedProfile.full_name = savedAcc.greenhouseName;
-            }
-
+          const normalizedProfile = await parseVirtualProfile(fallbackStr);
+          if (normalizedProfile) {
             await Preferences.set({ key: "virtual_auth", value: fallbackStr });
-
             setProfile(normalizedProfile);
             setSession({ user: { id: normalizedProfile.id } } as any);
             setLoading(false);
             return true;
-          } catch (_err) {
+          } else {
             localStorage.removeItem("virtual_auth");
           }
         }
@@ -650,7 +662,9 @@ const App: React.FC = () => {
       <ToastProvider>
         <SettingsProvider>
           <SharedReportErrorBoundary>
-            <SharedReport />
+            <React.Suspense fallback={<PageSkeleton />}>
+              <SharedReport />
+            </React.Suspense>
           </SharedReportErrorBoundary>
         </SettingsProvider>
       </ToastProvider>
@@ -688,7 +702,9 @@ const App: React.FC = () => {
               >
                 <GlobalErrorBoundary>
                   <SplashTransitionProvider value={splashTransitionValue}>
-                    <AppContent profile={profile} />
+                    <OpenModalsProvider>
+                      <AppContent profile={profile} />
+                    </OpenModalsProvider>
                   </SplashTransitionProvider>
                 </GlobalErrorBoundary>
               </SettingsProvider>

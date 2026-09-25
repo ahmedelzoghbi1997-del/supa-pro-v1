@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import { BellIcon, SunIcon, MoonIcon, LogoIcon } from './Icons';
 import type { NavItemId, Invoice, Expense, Cycle, SupplierPayment, FarmerWithdrawal, Advance } from '../types';
-import Dashboard from './dashboard/Dashboard';
 import NotificationsPanel from './shared/NotificationsPanel';
 import { useSplashTransition } from '../contexts/SplashTransitionContext';
 import { navItems } from '../constants';
@@ -15,7 +14,8 @@ import Modal from './shared/Modal';
 import { useToast } from '../hooks/useToast';
 import { triggerLightHaptic, triggerSaveHaptic } from '../lib/haptics';
 
-// Lazy loaded secondary screens
+// Lazy loaded views & managers
+const Dashboard = lazy(() => import('./dashboard/Dashboard'));
 const InvoiceManager = lazy(() => import('./invoices/InvoiceManager'));
 const ExpenseManager = lazy(() => import('./expenses/ExpenseManager'));
 const AssetManager = lazy(() => import('./greenhouses/GreenhouseManager'));
@@ -211,9 +211,8 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
         >
             
             {/* Component Rendering - All screens are viewable by Strategic Partners (viewer role) */}
-            {activeItem === 'dashboard' && <div className="animate-page-enter h-full"><Dashboard /></div>}
-            
-            <Suspense fallback={<ViewLoadingFallback />}>
+            <Suspense fallback={<PageSkeleton />}>
+              {activeItem === 'dashboard' && <div className="animate-page-enter h-full"><Dashboard /></div>}
               {activeItem === 'invoices' && <div className="animate-page-enter h-full"><InvoiceManager /></div>}
               {activeItem === 'expenses' && <div className="animate-page-enter h-full"><ExpenseManager /></div>}
               {activeItem === 'cycles' && <div className="animate-page-enter h-full"><CycleManager /></div>}

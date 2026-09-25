@@ -3,6 +3,7 @@ import React, { ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { hardResetLocalDB } from './lib/db';
+import './src/index.css';
 
 if (typeof window !== 'undefined') {
   (window as any).process = (window as any).process || { env: { NODE_ENV: 'production' } };

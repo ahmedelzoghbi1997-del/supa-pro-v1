@@ -33,6 +33,12 @@ import type {
 } from '../types';
 
 import { safeArray, generateStableId, getCache, setCache, getCustomCache, setCustomCache } from '../lib/dataCache';
+import { InvoicesProvider, useInvoicesData, InvoicesContext } from './InvoicesContext';
+import { ExpensesProvider, useExpensesData, ExpensesContext } from './ExpensesContext';
+import { CyclesProvider, useCyclesData, CyclesContext } from './CyclesContext';
+import { TreasuryProvider, useTreasuryData, TreasuryContext } from './TreasuryContext';
+import { PersonsProvider, usePersonsData, PersonsContext } from './PersonsContext';
+import { DailyLogsProvider, useDailyLogsData, DailyLogsContext } from './DailyLogsContext';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -2350,11 +2356,175 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         setActiveItem
     ]);
 
-    return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+    // Create decoupled memoized values for sub-contexts to isolate re-renders
+    const invoicesValue = useMemo(() => ({
+        invoices: value.invoices,
+        lastInvoiceAddedId: value.lastInvoiceAddedId,
+        setLastInvoiceAddedId: value.setLastInvoiceAddedId,
+        addInvoice: value.addInvoice,
+        updateInvoice: value.updateInvoice,
+        deleteInvoice: value.deleteInvoice
+    }), [value.invoices, value.lastInvoiceAddedId, value.setLastInvoiceAddedId, value.addInvoice, value.updateInvoice, value.deleteInvoice]);
+
+    const expensesValue = useMemo(() => ({
+        expenses: value.expenses,
+        rawExpenses: value.rawExpenses,
+        lastExpenseAddedId: value.lastExpenseAddedId,
+        setLastExpenseAddedId: value.setLastExpenseAddedId,
+        addExpense: value.addExpense,
+        updateExpense: value.updateExpense,
+        deleteExpense: value.deleteExpense,
+        expenseCategories: value.expenseCategories,
+        allExpenseCategories: value.allExpenseCategories,
+        addExpenseCategory: value.addExpenseCategory,
+        updateExpenseCategory: value.updateExpenseCategory,
+        deleteExpenseCategory: value.deleteExpenseCategory,
+        lastExpenseCategoryAddedId: value.lastExpenseCategoryAddedId,
+        setLastExpenseCategoryAddedId: value.setLastExpenseCategoryAddedId,
+        isExternalLabor: value.isExternalLabor
+    }), [
+        value.expenses, value.rawExpenses, value.lastExpenseAddedId, value.setLastExpenseAddedId,
+        value.addExpense, value.updateExpense, value.deleteExpense,
+        value.expenseCategories, value.allExpenseCategories,
+        value.addExpenseCategory, value.updateExpenseCategory, value.deleteExpenseCategory,
+        value.lastExpenseCategoryAddedId, value.setLastExpenseCategoryAddedId,
+        value.isExternalLabor
+    ]);
+
+    const cyclesValue = useMemo(() => ({
+        cycles: value.cycles,
+        cyclesWithCalculations: value.cyclesWithCalculations,
+        lastCycleAddedId: value.lastCycleAddedId,
+        setLastCycleAddedId: value.setLastCycleAddedId,
+        addCycle: value.addCycle,
+        updateCycle: value.updateCycle,
+        deleteCycle: value.deleteCycle,
+        getCycleCashBalance: value.getCycleCashBalance,
+        getCycleTotalBalance: value.getCycleTotalBalance
+    }), [
+        value.cycles, value.cyclesWithCalculations, value.lastCycleAddedId, value.setLastCycleAddedId,
+        value.addCycle, value.updateCycle, value.deleteCycle,
+        value.getCycleCashBalance, value.getCycleTotalBalance
+    ]);
+
+    const treasuryValue = useMemo(() => ({
+        bankAccounts: value.bankAccounts,
+        addBankAccount: value.addBankAccount,
+        updateBankAccount: value.updateBankAccount,
+        deleteBankAccount: value.deleteBankAccount,
+        bankTransactions: value.bankTransactions,
+        addBankTransaction: value.addBankTransaction,
+        updateBankTransaction: value.updateBankTransaction,
+        deleteBankTransaction: value.deleteBankTransaction,
+        partnerDebts: value.partnerDebts,
+        addPartnerDebt: value.addPartnerDebt,
+        updatePartnerDebt: value.updatePartnerDebt,
+        deletePartnerDebt: value.deletePartnerDebt,
+        treasuryFunds: value.treasuryFunds
+    }), [
+        value.bankAccounts, value.addBankAccount, value.updateBankAccount, value.deleteBankAccount,
+        value.bankTransactions, value.addBankTransaction, value.updateBankTransaction, value.deleteBankTransaction,
+        value.partnerDebts, value.addPartnerDebt, value.updatePartnerDebt, value.deletePartnerDebt,
+        value.treasuryFunds
+    ]);
+
+    const personsValue = useMemo(() => ({
+        persons: value.persons,
+        activePersons: value.activePersons,
+        virtualMembers: value.virtualMembers,
+        addPerson: value.addPerson,
+        updatePerson: value.updatePerson,
+        deletePerson: value.deletePerson,
+        advances: value.advances,
+        addAdvance: value.addAdvance,
+        updateAdvance: value.updateAdvance,
+        deleteAdvance: value.deleteAdvance,
+        lastAdvanceAddedId: value.lastAdvanceAddedId,
+        setLastAdvanceAddedId: value.setLastAdvanceAddedId,
+        suppliers: value.suppliers,
+        addSupplier: value.addSupplier,
+        updateSupplier: value.updateSupplier,
+        deleteSupplier: value.deleteSupplier,
+        lastSupplierAddedId: value.lastSupplierAddedId,
+        setLastSupplierAddedId: value.setLastSupplierAddedId,
+        supplierPayments: value.supplierPayments,
+        addSupplierPayment: value.addSupplierPayment,
+        updateSupplierPayment: value.updateSupplierPayment,
+        deleteSupplierPayment: value.deleteSupplierPayment,
+        farmers: value.farmers,
+        addFarmer: value.addFarmer,
+        updateFarmer: value.updateFarmer,
+        deleteFarmer: value.deleteFarmer,
+        lastFarmerAddedId: value.lastFarmerAddedId,
+        setLastFarmerAddedId: value.setLastFarmerAddedId,
+        farmerWithdrawals: value.farmerWithdrawals,
+        addFarmerWithdrawal: value.addFarmerWithdrawal,
+        updateFarmerWithdrawal: value.updateFarmerWithdrawal,
+        deleteFarmerWithdrawal: value.deleteFarmerWithdrawal
+    }), [
+        value.persons, value.activePersons, value.virtualMembers,
+        value.addPerson, value.updatePerson, value.deletePerson,
+        value.advances, value.addAdvance, value.updateAdvance, value.deleteAdvance,
+        value.lastAdvanceAddedId, value.setLastAdvanceAddedId,
+        value.suppliers, value.addSupplier, value.updateSupplier, value.deleteSupplier,
+        value.lastSupplierAddedId, value.setLastSupplierAddedId,
+        value.supplierPayments, value.addSupplierPayment, value.updateSupplierPayment, value.deleteSupplierPayment,
+        value.farmers, value.addFarmer, value.updateFarmer, value.deleteFarmer,
+        value.lastFarmerAddedId, value.setLastFarmerAddedId,
+        value.farmerWithdrawals, value.addFarmerWithdrawal, value.updateFarmerWithdrawal, value.deleteFarmerWithdrawal
+    ]);
+
+    const dailyLogsValue = useMemo(() => ({
+        dailyLogs: value.dailyLogs,
+        addDailyLog: value.addDailyLog,
+        updateDailyLog: value.updateDailyLog,
+        deleteDailyLog: value.deleteDailyLog,
+        assets: value.assets,
+        addAsset: value.addAsset,
+        updateAsset: value.updateAsset,
+        deleteAsset: value.deleteAsset
+    }), [
+        value.dailyLogs, value.addDailyLog, value.updateDailyLog, value.deleteDailyLog,
+        value.assets, value.addAsset, value.updateAsset, value.deleteAsset
+    ]);
+
+    return (
+        <InvoicesProvider value={invoicesValue}>
+            <ExpensesProvider value={expensesValue}>
+                <CyclesProvider value={cyclesValue}>
+                    <TreasuryProvider value={treasuryValue}>
+                        <PersonsProvider value={personsValue}>
+                            <DailyLogsProvider value={dailyLogsValue}>
+                                <DataContext.Provider value={value}>
+                                    {children}
+                                </DataContext.Provider>
+                            </DailyLogsProvider>
+                        </PersonsProvider>
+                    </TreasuryProvider>
+                </CyclesProvider>
+            </ExpensesProvider>
+        </InvoicesProvider>
+    );
 };
 
 export const useData = () => {
     const context = useContext(DataContext);
     if (!context) throw new Error('useData must be used within DataProvider');
     return context;
+};
+
+export {
+    useInvoicesData,
+    useExpensesData,
+    useCyclesData,
+    useTreasuryData,
+    usePersonsData,
+    useDailyLogsData,
+    InvoicesContext,
+    ExpensesContext,
+    CyclesContext,
+    TreasuryContext,
+    PersonsContext,
+    DailyLogsContext,
+    DataContext
 };
