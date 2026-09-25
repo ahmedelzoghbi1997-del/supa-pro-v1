@@ -34,20 +34,32 @@ const rawServerUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL |
 const supabaseUrl = (typeof rawServerUrl === 'string' && (rawServerUrl.startsWith('http://') || rawServerUrl.startsWith('https://')))
   ? rawServerUrl.trim()
   : '';
-const supabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
+// حظر استخدام Anon Key على مستوى الخادم - العمليات الإدارية تتطلب حصراً مفتاح الخدمة
+const supabaseServiceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
 if (!supabaseUrl) {
-  console.warn("⚠️ تحذير: SUPABASE_URL غير معرّف أو غير صالح في متغيرات البيئة (process.env.SUPABASE_URL أو process.env.VITE_SUPABASE_URL).");
+  console.warn("⚠️ تحذير: SUPABASE_URL غير معرّف أو غير صالح في متغيرات البيئة.");
 }
 
-if (!supabaseKey) {
-  console.warn("⚠️ تحذير: لم يتم العثور على مفتاح Supabase في متغيرات البيئة (SUPABASE_SERVICE_ROLE_KEY أو SUPABASE_ANON_KEY أو VITE_SUPABASE_ANON_KEY).");
-} else if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.warn("⚠️ تحذير: السيرفر يعمل بمفتاح Anon Key. يوصى بتعيين SUPABASE_SERVICE_ROLE_KEY لإدارة الحسابات وتجاوز RLS.");
+if (!supabaseServiceRoleKey) {
+  console.warn("⚠️ تحذير أمني: لم يتم العثور على SUPABASE_SERVICE_ROLE_KEY في متغيرات البيئة. تم إيقاف استخدام Anon Key في السيرفر وسترفض نقاط النهاية الإدارية العمل بدونه.");
 }
 
-// Note: Using service role key is recommended for creating users without logging out.
-const supabase = createClient(supabaseUrl || 'https://placeholder.supabase.co', supabaseKey || 'placeholder-key');
+// إنشاء عميل Supabase الخاص بالخادم بمفتاح الخدمة فقط
+const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseServiceRoleKey || 'placeholder-key'
+);
+
+// Middleware: التحقق من وجود مفتاح SUPABASE_SERVICE_ROLE_KEY لنقاط النهاية الإدارية
+function requireServiceRoleKey(_req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!supabaseServiceRoleKey) {
+    return res.status(503).json({
+      error: "العمليات الإدارية على الخادم معطلة لعدم تكوين SUPABASE_SERVICE_ROLE_KEY في متغيرات البيئة."
+    });
+  }
+  next();
+}
 
 // Middleware: Authenticate user using Bearer Token via supabase.auth.getUser
 async function authenticateUser(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -129,8 +141,17 @@ async function startServer() {
     legacyHeaders: false,
   });
 
+  // Rate Limiter for logging frontend errors (20 requests per minute)
+  const logErrorLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 20, // Limit each IP to 20 requests per minute
+    message: { error: "تم تجاوز الحد المسموح لتسجيل الأخطاء" },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   // API Route: Login for Virtual Members
-  app.post("/api/auth/virtual-login", loginLimiter, async (req, res) => {
+  app.post("/api/auth/virtual-login", requireServiceRoleKey, loginLimiter, async (req, res) => {
     const { username, password } = req.body;
     try {
       const { data, error } = await supabase.rpc('virtual_login', {
@@ -169,7 +190,7 @@ async function startServer() {
   });
 
   // API Route: Create Virtual Member
-  app.post("/api/auth/create-virtual", virtualManageLimiter, authenticateUser, verifyOwnerRole, async (req, res) => {
+  app.post("/api/auth/create-virtual", requireServiceRoleKey, virtualManageLimiter, authenticateUser, verifyOwnerRole, async (req, res) => {
     const authUser = (req as any).user;
     const { owner_id, username, password, full_name, role } = req.body;
 
@@ -198,7 +219,7 @@ async function startServer() {
   });
 
   // API Route: List Virtual Members
-  app.get("/api/auth/list-virtual/:ownerId", authenticateUser, verifyOwnerRole, async (req, res) => {
+  app.get("/api/auth/list-virtual/:ownerId", requireServiceRoleKey, authenticateUser, verifyOwnerRole, async (req, res) => {
     const authUser = (req as any).user;
     const { ownerId } = req.params;
 
@@ -225,7 +246,7 @@ async function startServer() {
   });
 
   // API Route: Delete Virtual Member
-  app.delete("/api/auth/delete-virtual/:id", virtualManageLimiter, authenticateUser, verifyOwnerRole, async (req, res) => {
+  app.delete("/api/auth/delete-virtual/:id", requireServiceRoleKey, virtualManageLimiter, authenticateUser, verifyOwnerRole, async (req, res) => {
     const authUser = (req as any).user;
     const { id } = req.params;
 
@@ -262,7 +283,7 @@ async function startServer() {
   });
 
   // API Route: Log Frontend Errors to Server Console securely
-  app.post("/api/log-error", (req, res) => {
+  app.post("/api/log-error", logErrorLimiter, (req, res) => {
     console.error("=== FRONTEND ERROR RECEIVED ===");
     // Truncate payload to 500 characters to prevent log flooding / memory exhaustion
     const safePayload = JSON.stringify(req.body).substring(0, 500);
@@ -273,7 +294,7 @@ async function startServer() {
   });
 
   // API Route: Get Settings for User (Proxy / Fallback for iframe/CORS issues)
-  app.get("/api/settings/:userId", authenticateUser, async (req, res) => {
+  app.get("/api/settings/:userId", requireServiceRoleKey, authenticateUser, async (req, res) => {
     const authUser = (req as any).user;
     const { userId } = req.params;
 
@@ -299,7 +320,7 @@ async function startServer() {
   });
 
   // API Route: Update Settings for User (Proxy / Fallback)
-  app.post("/api/settings/:userId", authenticateUser, async (req, res) => {
+  app.post("/api/settings/:userId", requireServiceRoleKey, authenticateUser, async (req, res) => {
     const authUser = (req as any).user;
     const { userId } = req.params;
     const { settings } = req.body;
@@ -345,8 +366,6 @@ async function startServer() {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
-      root: process.cwd(),
-      configFile: path.resolve(process.cwd(), 'vite.config.ts'),
     });
     app.use(vite.middlewares);
   } else {

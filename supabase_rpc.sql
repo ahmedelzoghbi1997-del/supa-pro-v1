@@ -2,7 +2,28 @@ CREATE OR REPLACE FUNCTION public.get_financial_totals(p_user_id uuid)
 RETURNS jsonb AS $$
 DECLARE
     result jsonb;
+    v_caller_id uuid := auth.uid();
+    v_is_authorized boolean := false;
 BEGIN
+    -- التحقق الأمني: لا يُسمح بقراءة البيانات إلا لصاحب الحساب نفسه أو الشركاء/الأعضاء المرتبطين بحسابه
+    IF v_caller_id IS NULL THEN
+        RAISE EXCEPTION 'غير مصرح: يجب تسجيل الدخول أولاً';
+    END IF;
+
+    IF v_caller_id = p_user_id THEN
+        v_is_authorized := true;
+    ELSE
+        -- التحقق إن كان المستخدم الحالي مرتبطاً بهذا المالك (حساب فرعي أو شريك)
+        SELECT EXISTS (
+            SELECT 1 FROM public.profiles 
+            WHERE id = v_caller_id AND parent_id = p_user_id
+        ) INTO v_is_authorized;
+    END IF;
+
+    IF NOT v_is_authorized THEN
+        RAISE EXCEPTION 'غير مصرح: ليس لديك صلاحية للوصول إلى بيانات هذا المستخدم';
+    END IF;
+
     WITH cycle_stats AS (
         SELECT 
             c.id,

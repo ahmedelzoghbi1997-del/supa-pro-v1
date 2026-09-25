@@ -51,7 +51,7 @@ function deobfuscate(text: string): string {
 function obfuscateAccount(acc: SavedAccount): SavedAccount {
   return {
     ...acc,
-    password: acc.password ? obfuscate(acc.password) : undefined,
+    password: acc.isVirtual && acc.password ? obfuscate(acc.password) : undefined,
     pinCode: acc.pinCode ? obfuscate(acc.pinCode) : undefined,
   };
 }
@@ -61,11 +61,30 @@ export async function getSavedAccounts(): Promise<SavedAccount[]> {
     const { value } = await Preferences.get({ key: 'saved_accounts_list' });
     if (value) {
       const parsed: SavedAccount[] = JSON.parse(value);
-      return parsed.map(acc => ({
-        ...acc,
-        password: acc.password ? deobfuscate(acc.password) : undefined,
-        pinCode: acc.pinCode ? deobfuscate(acc.pinCode) : undefined,
-      }));
+      let needsCleanup = false;
+      const cleaned: SavedAccount[] = parsed.map(acc => {
+        const pinCode = acc.pinCode ? deobfuscate(acc.pinCode) : undefined;
+        let password = acc.password ? deobfuscate(acc.password) : undefined;
+        
+        // تنظيف كلمات المرور القديمة لحسابات Supabase (غير الافتراضية) لحمايتها
+        if (!acc.isVirtual && (password || acc.password)) {
+          password = undefined;
+          needsCleanup = true;
+        }
+
+        return {
+          ...acc,
+          password: acc.isVirtual ? password : undefined,
+          pinCode,
+        };
+      });
+
+      if (needsCleanup) {
+        const sanitized = cleaned.map(obfuscateAccount);
+        await Preferences.set({ key: 'saved_accounts_list', value: JSON.stringify(sanitized) });
+      }
+
+      return cleaned;
     }
   } catch (error) {
     console.error("Error reading saved accounts:", error);
@@ -75,7 +94,11 @@ export async function getSavedAccounts(): Promise<SavedAccount[]> {
 
 export async function setSavedAccountsList(accounts: SavedAccount[]) {
   try {
-    const obfuscatedList = accounts.map(obfuscateAccount);
+    const sanitized = accounts.map(acc => ({
+      ...acc,
+      password: acc.isVirtual ? acc.password : undefined
+    }));
+    const obfuscatedList = sanitized.map(obfuscateAccount);
     await Preferences.set({ key: 'saved_accounts_list', value: JSON.stringify(obfuscatedList) });
   } catch (error) {
     console.error("Error saving accounts list:", error);
@@ -91,12 +114,17 @@ export async function saveAccount(account: SavedAccount) {
       account.avatarSeed = Math.random().toString(36).substring(7);
     }
     
+    const sanitizedAccount: SavedAccount = {
+      ...account,
+      password: account.isVirtual ? account.password : undefined
+    };
+
     if (existingIndex >= 0) {
       const existing = list[existingIndex];
-      const merged = { ...existing, ...account, avatarSeed: account.avatarSeed || existing.avatarSeed };
+      const merged = { ...existing, ...sanitizedAccount, avatarSeed: sanitizedAccount.avatarSeed || existing.avatarSeed };
       list[existingIndex] = merged;
     } else {
-      list.push(account);
+      list.push(sanitizedAccount);
     }
     
     const obfuscatedList = list.map(obfuscateAccount);

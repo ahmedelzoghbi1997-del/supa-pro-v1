@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import ToastContainer from '../components/shared/Toast';
 
 type ToastMessage = {
@@ -23,6 +22,12 @@ export const useToast = () => {
     return context;
 };
 
+export function emitToast(message: string, type: 'success' | 'error' = 'success', duration?: number | null) {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('app-toast', { detail: { message, type, duration } }));
+    }
+}
+
 export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -42,6 +47,17 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             return [...filtered, { id, message, type, duration: finalDuration }];
         });
     }, []);
+
+    useEffect(() => {
+        const handleCustomToast = (e: any) => {
+            if (e.detail?.message) {
+                showToast(e.detail.message, e.detail.type || 'success', e.detail.duration);
+            }
+        };
+
+        window.addEventListener('app-toast', handleCustomToast);
+        return () => window.removeEventListener('app-toast', handleCustomToast);
+    }, [showToast]);
 
     return React.createElement(
         ToastContext.Provider,

@@ -44,12 +44,15 @@ jobs:
           VERSION_CODE: ${{ vars.VERSION_CODE || secrets.VERSION_CODE || '6' }}
           VERSION_NAME: ${{ vars.VERSION_NAME || secrets.VERSION_NAME || '1.6' }}
         run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::error::Secret GOOGLE_SERVICES_JSON is missing or empty. Please set GOOGLE_SERVICES_JSON in repository secrets to build the Android app."
+            exit 1
+          fi
+
           rm -rf android
           npx cap add android
           
-          cat << EOF > android/app/google-services.json
-          $GOOGLE_SERVICES_JSON
-          EOF
+          echo "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
           
           # إضافة Google Services باستخدام Plugins DSL المتوافقة مع Gradle الحديث
           if grep -q "plugins {" android/build.gradle; then
@@ -64,7 +67,6 @@ jobs:
             echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
           fi
           
-          echo "configurations.all { resolutionStrategy.eachDependency { if (requested.group == 'org.jetbrains.kotlin') { useVersion '1.8.22' } } }" >> android/app/build.gradle
           sed -i '/<uses-permission android:name="android.permission.INTERNET"/a \    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />' android/app/src/main/AndroidManifest.xml
           
           # قراءة رقم وإصدار التطبيق من المتغيرات أو Secrets

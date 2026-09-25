@@ -922,7 +922,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             const invoiceData = { ...data, isRetained };
 
             const { price_items, deductions, ...inv } = data;
-            const stableId = generateStableId();
+            const stableId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : generateStableId();
             const cycleName = cycles.find(c => c.id === inv.cycle_id)?.name || '...';
             const optimisticCreatedAt = new Date().toISOString();
             
@@ -944,20 +944,54 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
             setInvoices(prev => [optimisticInv, ...prev]);
             setLastInvoiceAddedId(stableId);
 
+            const queueOfflineInvoice = async () => {
+                // (أ) invoices بإجمالي بيانات الفاتورة مع id المولد
+                await addToSyncQueue({ 
+                    table: 'invoices', 
+                    action: 'insert', 
+                    payload: { ...inv, id: stableId, user_id: effectiveUserId } 
+                });
+                // (ب) عنصر لكل صف في invoice_price_items مع invoice_id = نفس UUID
+                if (price_items && price_items.length > 0) {
+                    for (const pi of price_items) {
+                        const { id: _unused_id, invoice_id: _unused_inv_id, ...cleanPrice } = pi;
+                        await addToSyncQueue({
+                            table: 'invoice_price_items',
+                            action: 'insert',
+                            payload: { ...cleanPrice, invoice_id: stableId, user_id: effectiveUserId }
+                        });
+                    }
+                }
+                // (ج) عنصر لكل صف في invoice_deductions مع invoice_id = نفس UUID
+                if (deductions && deductions.length > 0) {
+                    for (const ded of deductions) {
+                        const { id: _unused_id, invoice_id: _unused_inv_id, ...cleanDed } = ded;
+                        await addToSyncQueue({
+                            table: 'invoice_deductions',
+                            action: 'insert',
+                            payload: { ...cleanDed, invoice_id: stableId, user_id: effectiveUserId }
+                        });
+                    }
+                }
+                try {
+                    setInvoices(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
+                } catch (_e) {}
+            };
+
             try {
                 if (!invoiceData.isRetained) {
                     // كود إدخال الخزينة هنا (الفاتورة العادية تُسجل ديناميكياً في تدفقات الخزينة بالخارج)
                 }
 
-                const { data: newInv, error } = await supabase.from('invoices').insert([sanitizePayloadForTable('invoices', { ...inv, user_id: effectiveUserId })]).select().single();
-                if (error) { if (isNetworkError(error)) {
-                  addToSyncQueue({ table: 'invoices', action: 'insert', payload: data }).catch(console.error);
-                  try {
-                    setInvoices(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (_e) {} return;
-                } else {
-                  throw error;
-                } }
+                const { data: newInv, error } = await supabase.from('invoices').insert([sanitizePayloadForTable('invoices', { ...inv, id: stableId, user_id: effectiveUserId })]).select().single();
+                if (error) { 
+                    if (isNetworkError(error)) {
+                        await queueOfflineInvoice();
+                        return;
+                    } else {
+                        throw error;
+                    } 
+                }
                 
                 // Notification handled by Edge Function to avoid sender duplication
 
@@ -1028,15 +1062,13 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                             setAdvances(prev => [...prev, ...createdAdvances]);
                         }
                     } catch (jsonErr) {
-                if (isNetworkError(jsonErr)) {
-                  await addToSyncQueue({ table: 'invoices', action: 'insert', payload: data });
-                  try {
-                    setInvoices(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (_e) {} return;
-                } else {
-                  console.error("Failed to parse or save retained debt allocations:", jsonErr);
-                }
-                }
+                        if (isNetworkError(jsonErr)) {
+                            await queueOfflineInvoice();
+                            return;
+                        } else {
+                            console.error("Failed to parse or save retained debt allocations:", jsonErr);
+                        }
+                    }
                 }
 
                 await refreshGlobalData();
@@ -1044,18 +1076,16 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                     broadcastChange('invoices', newInv, 'INSERT');
                 }
             } catch (error) {
-        if (isNetworkError(error)) {
-          await addToSyncQueue({ table: 'invoices', action: 'insert', payload: data });
-          try {
-            setInvoices(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-          } catch (_e) {} return;
-        } else {
-          setInvoices(prev => prev.filter(i => i._stable_id !== stableId));
-                        setInvoicePriceItems(prev => prev.filter(p => p.invoice_id !== stableId));
-                        setInvoiceDeductions(prev => prev.filter(d => d.invoice_id !== stableId));
-                        throw error;
-        }
-        }
+                if (isNetworkError(error)) {
+                    await queueOfflineInvoice();
+                    return;
+                } else {
+                    setInvoices(prev => prev.filter(i => i._stable_id !== stableId));
+                    setInvoicePriceItems(prev => prev.filter(p => p.invoice_id !== stableId));
+                    setInvoiceDeductions(prev => prev.filter(d => d.invoice_id !== stableId));
+                    throw error;
+                }
+            }
         },
         updateInvoice: async (d) => {
             const isRetained = d.description?.includes('[مرصودة]') || d.description?.includes('[RETAINED_DEBT]');
@@ -1102,14 +1132,37 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 }
 
                 const { error: invError } = await supabase.from('invoices').update(sanitizePayloadForTable('invoices', finalUpdateData)).eq('id', invoiceId);
-                if (invError) { if (isNetworkError(invError)) {
-                  addToSyncQueue({ table: 'invoices', action: 'update', payload: d }).catch(console.error);
-                  try {
-                    setInvoices(prev => prev.map(item => (item._stable_id === invoiceId || item.id === invoiceId) ? { ...item, pending_sync: true } as any : item));
-                  } catch (_e) {} return;
-                } else {
-                  throw invError;
-                } }
+                if (invError) { 
+                    if (isNetworkError(invError)) {
+                        await addToSyncQueue({ table: 'invoices', action: 'update', payload: finalUpdateData, recordId: invoiceId });
+                        if (price_items && price_items.length > 0) {
+                            for (const pi of price_items) {
+                                const { id: _unused_id, invoice_id: _unused_invoice_id, user_id: _unused_user_id, ...cleanItem } = pi;
+                                await addToSyncQueue({
+                                    table: 'invoice_price_items',
+                                    action: 'insert',
+                                    payload: { ...cleanItem, invoice_id: invoiceId, user_id: effectiveUserId }
+                                });
+                            }
+                        }
+                        if (deductions && deductions.length > 0) {
+                            for (const ded of deductions) {
+                                const { id: _unused_id, invoice_id: _unused_invoice_id, user_id: _unused_user_id, ...cleanDed } = ded;
+                                await addToSyncQueue({
+                                    table: 'invoice_deductions',
+                                    action: 'insert',
+                                    payload: { ...cleanDed, invoice_id: invoiceId, user_id: effectiveUserId }
+                                });
+                            }
+                        }
+                        try {
+                            setInvoices(prev => prev.map(item => (item._stable_id === invoiceId || item.id === invoiceId) ? { ...item, pending_sync: true } as any : item));
+                        } catch (_e) {} 
+                        return;
+                    } else {
+                        throw invError;
+                    } 
+                }
 
                 await supabase.from('invoice_price_items').delete().eq('invoice_id', invoiceId);
                 await supabase.from('invoice_deductions').delete().eq('invoice_id', invoiceId);
@@ -1764,16 +1817,40 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         lastAdvanceAddedId, setLastAdvanceAddedId,
         suppliers, 
         addSupplier: async (name, opening_balance = 0) => {
+            const stableId = generateStableId();
+            const optimisticSupplier = {
+                id: stableId,
+                _stable_id: stableId,
+                name,
+                opening_balance,
+                user_id: effectiveUserId,
+                created_at: new Date().toISOString()
+            } as unknown as Supplier;
+            setSuppliers(prev => [optimisticSupplier, ...prev]);
+            setLastSupplierAddedId(stableId);
+
             const { data, error } = await supabase.from('suppliers').insert([sanitizePayloadForTable('suppliers', {name, opening_balance, user_id: effectiveUserId})]).select().single();
-            if (error) { if (isNetworkError(error)) {
-              addToSyncQueue({ table: 'suppliers', action: 'insert', payload: { name, opening_balance } }).catch(console.error);
-              try {
-                setSuppliers(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
-              } catch (_e) {} return;
-            } else {
-              throw error;
-            } }
-            if (data) { setSuppliers(prev => [{...data, _stable_id: data.id}, ...prev]); setLastSupplierAddedId(data.id); }
+            if (error) { 
+                if (isNetworkError(error)) {
+                    addToSyncQueue({ table: 'suppliers', action: 'insert', payload: { name, opening_balance } }).catch(console.error);
+                    try {
+                        setSuppliers(prev => prev.map(item => (item._stable_id === stableId || item.id === stableId) ? { ...item, pending_sync: true } as any : item));
+                    } catch (_e) {} 
+                    return;
+                } else {
+                    setSuppliers(prev => prev.filter(s => s._stable_id !== stableId));
+                    throw error;
+                } 
+            }
+            if (data) { 
+                recentlyAddedIds.current.add(data.id);
+                markLocalAction(data.id);
+                markLocalAction(stableId);
+                setTimeout(() => recentlyAddedIds.current.delete(data.id), 10000);
+
+                setSuppliers(prev => prev.map(s => s._stable_id === stableId ? { ...data, _stable_id: stableId } : s));
+                setLastSupplierAddedId(data.id);
+            }
             await refreshGlobalData();
             if (data) broadcastChange('suppliers', data, 'INSERT');
         },

@@ -93,22 +93,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body = `تم تسجيل معاملة بالخزنة بقيمة ${record.amount || 0} ج.م`;
     }
 
-    // ارسال اشعار للخادم اللحظي على القنوات المشتقة من ownerId فقط
-    const notifChannel = `realtime_notifs_${ownerId}`;
-    const dataChannel = `realtime_data_${ownerId}`;
-    const syncChannel = `realtime_sync_${ownerId}`;
-    const bPayload = { table, record, new: record, eventType: payload.eventType || 'INSERT', user_id: ownerId };
-    
-    try {
-      await Promise.allSettled([
-        supabase.channel(notifChannel).send({ type: 'broadcast', event: 'new_transaction', payload: bPayload }),
-        supabase.channel(dataChannel).send({ type: 'broadcast', event: 'new_transaction', payload: bPayload }),
-        supabase.channel(syncChannel).send({ type: 'broadcast', event: 'new_transaction', payload: bPayload })
-      ]);
-    } catch (_bErr) {
-      console.warn("Broadcast in send-push error:", _bErr);
-    }
-    
     // إحضار الحسابات لمعرفة أدوار المستخدمين والشركاء التابعين لهذا المالك
     const { data: profiles } = await supabase
       .from('profiles')
@@ -145,43 +129,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     const promises = validSubscriptions.map(async (sub) => {
-      // 1. التعامل مع توكنات FCM الأصلية لأجهزة أندرويد
-      if (sub.auth_key === 'native_fcm' || sub.endpoint?.includes('fcm.googleapis.com/fcm/send/')) {
-        const fcmToken = sub.endpoint.replace('https://fcm.googleapis.com/fcm/send/', '');
-        const serverKey = process.env.FCM_SERVER_KEY;
-        if (serverKey) {
-          try {
-            await fetch('https://fcm.googleapis.com/fcm/send', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `key=${serverKey}`
-              },
-              body: JSON.stringify({
-                to: fcmToken,
-                priority: 'high',
-                notification: {
-                  title,
-                  body,
-                  sound: 'default',
-                  icon: 'ic_notification',
-                  color: '#10B981'
-                },
-                data: {
-                  title,
-                  body,
-                  route: '/'
-                }
-              })
-            });
-          } catch (fcmErr) {
-            console.warn('[FCM Send Error]:', fcmErr);
-          }
-        }
+      // إشعارات متصفحات الويب والـ PWA عبر Web Push
+      if (!sub.endpoint || !sub.p256dh_key || !sub.auth_key || sub.auth_key === 'native_fcm') {
         return;
       }
 
-      // 2. إشعارات متصفحات الويب والـ PWA
       try {
         await webpush.sendNotification({
           endpoint: sub.endpoint,

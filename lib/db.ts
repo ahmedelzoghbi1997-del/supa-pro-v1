@@ -21,6 +21,7 @@ export interface SyncQueueItem {
     created_at: number;
     retryCount?: number;
     error?: string;
+    status?: 'pending' | 'failed' | 'synced';
 }
 
 // v13: دعم الـ Sync Queue وإدارة البيانات غير المرفوعة أثناء عدم توفر الإنترنت (Offline-First)

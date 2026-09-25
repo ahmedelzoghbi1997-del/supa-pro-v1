@@ -47,6 +47,34 @@ export const getPendingSyncCount = async (): Promise<number> => {
 
 let isProcessingQueue = false;
 
+const getTablePriority = (table: string): number => {
+    switch (table) {
+        case 'profiles':
+        case 'cycles':
+        case 'assets':
+        case 'expense_categories':
+        case 'suppliers':
+        case 'farmers':
+        case 'persons':
+        case 'bank_accounts':
+            return 1;
+        case 'invoices':
+        case 'expenses':
+        case 'advances':
+        case 'daily_logs':
+            return 2;
+        case 'invoice_price_items':
+        case 'invoice_deductions':
+        case 'supplier_payments':
+        case 'farmer_withdrawals':
+        case 'bank_transactions':
+        case 'partner_debts':
+            return 3;
+        default:
+            return 4;
+    }
+};
+
 export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => void): Promise<{ processed: number; failed: number }> => {
     if (isProcessingQueue) {
         return { processed: 0, failed: 0 };
@@ -60,15 +88,30 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
     let failed = 0;
 
     try {
-        const items: SyncQueueItem[] = await (db as any).sync_queue.orderBy('created_at').toArray();
-        if (!items || items.length === 0) {
+        const rawItems: SyncQueueItem[] = await (db as any).sync_queue.orderBy('created_at').toArray();
+        if (!rawItems || rawItems.length === 0) {
             isProcessingQueue = false;
             return { processed: 0, failed: 0 };
         }
 
-        console.log(`[SyncQueue] Processing ${items.length} pending items...`);
+        // ترتيب العمليات بحيث تُعالج الجداول الأساسية (مثل invoices) قبل الجداول التابعة (مثل invoice_price_items و invoice_deductions)
+        const items = [...rawItems].sort((a, b) => {
+            const prioA = getTablePriority(a.table);
+            const prioB = getTablePriority(b.table);
+            if (prioA !== prioB) {
+                return prioA - prioB;
+            }
+            return (a.created_at || 0) - (b.created_at || 0);
+        });
+
+        console.log(`[SyncQueue] Processing ${items.length} pending items in priority order...`);
 
         for (const item of items) {
+            // تخطي العناصر التي بلغت الحد الأقصى للمحاولات وتم تعليمها كفاشلة نهائياً لتجنب إيقاف الطابور
+            if (item.status === 'failed' || (item.retryCount && item.retryCount >= 5)) {
+                continue;
+            }
+
             try {
                 const { table, action, recordId, payload } = item;
                 const cleanPayload = sanitizePayloadForTable(table, payload);
@@ -83,8 +126,14 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     // بينما السحابة (Supabase) تولد معرفات مختلفة، وعمليات المزامنة والتحديث ترتبط أساساً بـ invoice_id وليس بالـ id الرقمي المحلي.
                     const targetId = recordId || payload.id;
                     if (!targetId) {
-                        // Skip unidentifiable update
-                        await (db as any).sync_queue.delete(item.id!);
+                        // في حال عدم وجود معرف للتحديث
+                        const currentRetry = (item.retryCount || 0) + 1;
+                        await (db as any).sync_queue.update(item.id!, {
+                            retryCount: currentRetry,
+                            error: 'Missing targetId for update operation',
+                            status: currentRetry >= 5 ? 'failed' : 'pending'
+                        });
+                        failed++;
                         continue;
                     }
                     const res = await supabase.from(table).update(cleanPayload).eq('id', targetId);
@@ -102,13 +151,21 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     if (isNetworkError(error)) {
                         console.warn(`[SyncQueue] Network error for item ${item.id}, will retry later:`, error.message);
                         failed++;
-                        break; // Stop loop if still offline / network fails
+                        break; // التوقف مؤقتاً عند فشل الشبكة
                     } else {
-                        console.error(`[SyncQueue] Permanent error for item ${item.id}, dropping:`, error);
-                        await (db as any).sync_queue.delete(item.id!);
+                        const nextRetry = (item.retryCount || 0) + 1;
+                        const errorMsg = error.message || error.details || String(error);
+                        console.error(`[SyncQueue] Non-network error for item ${item.id} (attempt ${nextRetry}/5):`, errorMsg);
+                        
+                        await (db as any).sync_queue.update(item.id!, {
+                            retryCount: nextRetry,
+                            error: errorMsg,
+                            status: nextRetry >= 5 ? 'failed' : 'pending'
+                        });
                         failed++;
                     }
                 } else {
+                    // الحذف يتم فقط عند نجاح المزامنة
                     await (db as any).sync_queue.delete(item.id!);
                     processed++;
                     if (onItemSynced) {
@@ -120,8 +177,15 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                     failed++;
                     break;
                 } else {
-                    console.error(`[SyncQueue] Unexpected error processing item ${item.id}:`, err);
-                    await (db as any).sync_queue.delete(item.id!);
+                    const nextRetry = (item.retryCount || 0) + 1;
+                    const errorMsg = err.message || String(err);
+                    console.error(`[SyncQueue] Unexpected error processing item ${item.id} (attempt ${nextRetry}/5):`, errorMsg);
+                    
+                    await (db as any).sync_queue.update(item.id!, {
+                        retryCount: nextRetry,
+                        error: errorMsg,
+                        status: nextRetry >= 5 ? 'failed' : 'pending'
+                    });
                     failed++;
                 }
             }

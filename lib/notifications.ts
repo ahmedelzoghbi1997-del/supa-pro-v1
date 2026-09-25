@@ -3,6 +3,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { supabase } from './supabase';
+import { emitToast } from '../hooks/useToast';
 
 export async function requestNotificationPermissions(): Promise<boolean> {
   if (Capacitor.isNativePlatform()) {
@@ -432,17 +433,17 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
     if (Capacitor.isNativePlatform()) {
       const nativeRes = await subscribeNativePushNotifications(userId);
       if (nativeRes.success) {
-        alert('تم تفعيل إشعارات أندرويد الأصلية بنجاح وحفظ الـ FCM Token في السيرفر!');
+        emitToast('تم تفعيل إشعارات أندرويد الأصلية بنجاح وحفظ الـ FCM Token في السيرفر!', 'success');
         return { native: true, token: nativeRes.token };
       } else {
-        alert('فشل تفعيل إشعارات أندرويد: ' + (nativeRes.error || 'يرجى التحقق من صلاحيات النظام'));
+        emitToast('فشل تفعيل إشعارات أندرويد: ' + (nativeRes.error || 'يرجى التحقق من صلاحيات النظام'), 'error');
         return null;
       }
     }
 
     // 1. فحص دعم المتصفح (Web / PWA)
     if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-      alert('المتصفح الحالي لا يدعم تقنية Web Push API أو PushManager');
+      emitToast('المتصفح الحالي لا يدعم تقنية Web Push API أو PushManager', 'error');
       return null;
     }
 
@@ -452,19 +453,16 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
       currentPerm = await Notification.requestPermission();
     }
     if (currentPerm !== 'granted') {
-      alert('تم رفض إذن الإشعارات من المتصفح. يرجى تفعيل الإذن من إعدادات الموقع.');
+      emitToast('تم رفض إذن الإشعارات من المتصفح. يرجى تفعيل الإذن من إعدادات الموقع.', 'error');
       return null;
     }
 
     // 3. مفتاح VAPID العام (VAPID Public Key)
     const DEFAULT_VAPID_PUBLIC_KEY = 'BP101sEliba9o7qrqxHPriHkFkTS5OhokFOu0-G7wf1UmP---IP3WYsagVoozyRAyCdSoXt-TrQianQOuhMh5Xk';
-    let vapidKey = vapidPublicKey || (import.meta.env.VITE_VAPID_PUBLIC_KEY as string) || DEFAULT_VAPID_PUBLIC_KEY;
+    const vapidKey = vapidPublicKey || (import.meta.env.VITE_VAPID_PUBLIC_KEY as string) || DEFAULT_VAPID_PUBLIC_KEY;
     if (!vapidKey) {
-      vapidKey = prompt('يرجى إدخال VAPID Public Key لتفعيل إشعارات الويب:') || '';
-      if (!vapidKey) {
-        alert('لم يتم إدخال مفتاح VAPID العام، لا يمكن إتمام الاشتراك.');
-        return null;
-      }
+      emitToast('مفتاح VAPID العام مفقود في متغيرات البيئة. لا يمكن إتمام الاشتراك.', 'error');
+      return null;
     }
 
     // 4. تحويل المفتاح والاشتراك عبر Service Worker
@@ -480,12 +478,9 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
     }
 
     if (!subscription) {
-      alert('فشل إنشاء كائن الاشتراك pushManager.subscribe في المتصفح');
+      emitToast('فشل إنشاء كائن الاشتراك pushManager.subscribe في المتصفح', 'error');
       return null;
     }
-
-    // تنبيه نجاح الاشتراك المحلي
-    alert('نجح الاشتراك محلياً. جاري الحفظ في السيرفر...');
 
     // 5. استخراج endpoint ومفاتيح p256dh و auth
     const subJson = subscription.toJSON();
@@ -517,16 +512,16 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
     ]);
 
     if (error) {
-      alert('خطأ قاعدة البيانات: ' + error.message);
+      emitToast('خطأ قاعدة البيانات: ' + error.message, 'error');
       console.error('Supabase push_subscriptions error:', error);
     } else {
-      alert('تم حفظ الاشتراك في السيرفر بنجاح!');
+      emitToast('تم حفظ الاشتراك في السيرفر بنجاح!', 'success');
       console.log('Saved push subscription successfully:', data);
     }
 
     return subscription;
   } catch (err: any) {
-    alert('حدث خطأ تقني: ' + (err?.message || String(err)));
+    emitToast('حدث خطأ تقني: ' + (err?.message || String(err)), 'error');
     console.error('Technical error in subscribeToWebPush:', err);
     return null;
   }

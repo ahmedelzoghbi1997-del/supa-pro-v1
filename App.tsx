@@ -304,19 +304,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
 };
 
 const App: React.FC = () => {
-  // Check for shared report route immediately
   const isSharedRoute = window.location.pathname.includes("/shared-report/");
-  if (isSharedRoute) {
-    return (
-      <ToastProvider>
-        <SettingsProvider>
-          <SharedReportErrorBoundary>
-            <SharedReport />
-          </SharedReportErrorBoundary>
-        </SettingsProvider>
-      </ToastProvider>
-    );
-  }
 
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -471,7 +459,7 @@ const App: React.FC = () => {
           return;
         }
 
-        // If no session, try auto-login from saved accounts
+        // If no session, try auto-login for virtual accounts only
         const { value: loggedOut } = await Preferences.get({
           key: "was_explicitly_logged_out",
         });
@@ -485,24 +473,6 @@ const App: React.FC = () => {
           if (!targetAcc && accounts.length > 0) targetAcc = accounts[0];
 
           if (
-            targetAcc &&
-            !targetAcc.isVirtual &&
-            targetAcc.email &&
-            targetAcc.password
-          ) {
-            const { data: signInData, error: signInError } =
-              await supabase.auth.signInWithPassword({
-                email: targetAcc.email,
-                password: targetAcc.password,
-              });
-
-            if (signInData.session && !signInError) {
-              await Preferences.remove({ key: "was_explicitly_logged_out" });
-              setSession(signInData.session);
-              fetchProfile(signInData.user.id);
-              return;
-            }
-          } else if (
             targetAcc &&
             targetAcc.isVirtual &&
             targetAcc.username &&
@@ -680,6 +650,18 @@ const App: React.FC = () => {
     hasTransitionCompleted,
     completeTransition: handleSplashTransitionComplete,
   }), [isTransitioning, hasTransitionCompleted, handleSplashTransitionComplete]);
+
+  if (isSharedRoute) {
+    return (
+      <ToastProvider>
+        <SettingsProvider>
+          <SharedReportErrorBoundary>
+            <SharedReport />
+          </SharedReportErrorBoundary>
+        </SettingsProvider>
+      </ToastProvider>
+    );
+  }
 
   return (
     <>

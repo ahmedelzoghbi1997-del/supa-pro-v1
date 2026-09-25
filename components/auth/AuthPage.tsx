@@ -228,7 +228,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 await saveAccount({
                     id: authData.user.id,
                     email: identifier,
-                    password,
                     fullName: profData?.full_name || 'مالك',
                     role: profData?.role || 'owner',
                     isVirtual: false,
@@ -299,29 +298,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 window.location.reload();
             }
         } else {
-            const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-                email: acc.email || '',
-                password: acc.password || ''
-            });
-            
-            if (signInError) {
-                setError('فشل الدخول التلقائي: قد تكون تم تغيير كلمة مرور البريد الإلكتروني.');
-            } else if (authData?.user) {
-                const { data: profData } = await supabase
-                    .from('profiles')
-                    .select('full_name, role')
-                    .eq('id', authData.user.id)
-                    .single();
-                
-                await saveAccount({
-                    ...acc,
-                    fullName: profData?.full_name || 'مالك',
-                    role: profData?.role || 'owner'
-                });
-                await setLastActiveAccount(authData.user.id);
-                
+            // التحقق إذا كانت جلسة Supabase الحالية مطابقة للحساب المختار
+            const { data: sessionData } = await supabase.auth.getSession();
+            if (sessionData?.session?.user?.id === acc.id) {
+                await Preferences.remove({ key: 'was_explicitly_logged_out' });
+                await setLastActiveAccount(acc.id);
                 window.location.reload();
+                return;
             }
+
+            // في حال عدم وجود جلسة نشطة للحساب، توجيه المستخدم لصفحة تسجيل الدخول مع ملء البريد
+            setIdentifier(acc.email || '');
+            setPassword('');
+            setView('login');
+            setMessage('يرجى إدخال كلمة المرور لتسجيل الدخول إلى هذا الحساب.');
         }
     } catch (_err) {
         setError('خطأ في الاتصال بالخادم أثناء تسجيل الدخول التلقائي.');
