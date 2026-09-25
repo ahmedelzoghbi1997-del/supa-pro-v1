@@ -828,7 +828,7 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         return () => window.removeEventListener('online', handleOnline);
     }, [refreshGlobalData]);
 
-    const hydratedInvoicesList = useMemo(() => invoices.map(inv => {
+    const _hydratedInvoicesList = useMemo(() => invoices.map(inv => {
         const invIdStr = String(inv.id);
         const stableIdStr = inv._stable_id ? String(inv._stable_id) : null;
         return {

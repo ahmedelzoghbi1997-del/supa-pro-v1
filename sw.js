@@ -129,6 +129,7 @@ self.addEventListener('push', (event) => {
 // 5. Notification Click
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  const targetUrl = event.notification.data?.url || '/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
@@ -136,14 +137,14 @@ self.addEventListener('notificationclick', (event) => {
           const clientUrl = new URL(client.url, self.location.origin);
           if (clientUrl.origin === self.location.origin) {
             if ('navigate' in client) {
-              client.navigate('/');
+              client.navigate(targetUrl);
             }
             return client.focus();
           }
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow(targetUrl);
       }
     })
   );

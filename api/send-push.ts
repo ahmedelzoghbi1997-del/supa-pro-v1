@@ -1,15 +1,16 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
+import crypto from 'crypto';
 
 const pushSupabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const pushSupabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '').trim();
+const pushSupabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
 if (!pushSupabaseUrl) {
   console.warn("⚠️ تحذير: SUPABASE_URL أو VITE_SUPABASE_URL غير معرّف في api/send-push.");
 }
 if (!pushSupabaseKey) {
-  console.warn("⚠️ تحذير: لم يتم العثور على مفتاح Supabase في متغيرات البيئة في api/send-push.");
+  console.warn("⚠️ تحذير: لم يتم العثور على مفتاح SUPABASE_SERVICE_ROLE_KEY في متغيرات البيئة في api/send-push.");
 }
 
 // يتم استخدام المفتاح المتاح للاتصال بقاعدة البيانات
@@ -18,14 +19,34 @@ const supabase = createClient(
   pushSupabaseKey || 'placeholder-key'
 );
 
+function verifySecret(provided: string, expected: string): boolean {
+  if (typeof provided !== "string" || typeof expected !== "string") {
+    return false;
+  }
+  if (provided.length !== expected.length) {
+    return false;
+  }
+  const providedBuffer = Buffer.from(provided, "utf-8");
+  const expectedBuffer = Buffer.from(expected, "utf-8");
+  if (providedBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  if (!pushSupabaseKey) {
+    return res.status(500).json({ error: 'SUPABASE_SERVICE_ROLE_KEY غير مهيأ' });
+  }
+
   // التحقق من المفتاح السري الداخلي للأمان
   const internalSecret = process.env.PUSH_INTERNAL_SECRET;
   const providedSecret = req.headers['x-internal-secret'] || (req.headers as any)['X-Internal-Secret'];
-  if (!internalSecret || !providedSecret || providedSecret !== internalSecret) {
+  const providedStr = Array.isArray(providedSecret) ? providedSecret[0] : (providedSecret as string || "");
+  if (!internalSecret || !providedSecret || !verifySecret(providedStr, internalSecret)) {
     return res.status(401).json({ error: 'Unauthorized: Invalid or missing internal secret' });
   }
 
@@ -102,7 +123,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const associatedUserIds = new Set<string>([ownerId, ...(profiles || []).map((p: any) => p.id)]);
     const ownerIds = (profiles || []).filter((p: any) => p.role === 'owner').map((p: any) => p.id);
 
-    const { data: subscriptions } = await supabase.from('push_subscriptions').select('*');
+    const validUserIds = [ownerId, ...(profiles || []).map((p: any) => p.id)];
+    const { data: subscriptions } = await supabase
+      .from('push_subscriptions')
+      .select('*')
+      .in('user_id', validUserIds);
     if (!subscriptions || subscriptions.length === 0) {
       return res.status(200).json({ success: true, message: 'No subscriptions' });
     }

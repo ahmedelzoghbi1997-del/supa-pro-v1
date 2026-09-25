@@ -177,7 +177,29 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
                         failed++;
                         continue;
                     }
-                    const res = await supabase.from(table).insert([cleanPayload]);
+                    
+                    const IDEMPOTENT_UUID_TABLES = new Set([
+                        'invoices',
+                        'expenses',
+                        'cycles',
+                        'persons',
+                        'advances',
+                        'suppliers',
+                        'farmers',
+                        'farmer_withdrawals',
+                        'supplier_payments',
+                        'bank_accounts',
+                        'bank_transactions',
+                        'partner_debts',
+                        'daily_logs',
+                        'expense_categories',
+                        'assets'
+                    ]);
+
+                    const res = IDEMPOTENT_UUID_TABLES.has(table)
+                        ? await supabase.from(table).upsert([cleanPayload], { onConflict: 'id' })
+                        : await supabase.from(table).insert([cleanPayload]);
+
                     error = res.error;
                 } else if (action === 'update') {
                     // ملاحظة: الجداول التابعة مثل invoice_price_items و invoice_deductions تستخدم معرفات رقمية محلية (++id تلقائي في Dexie/IndexedDB)

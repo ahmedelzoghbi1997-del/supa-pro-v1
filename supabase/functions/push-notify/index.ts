@@ -241,10 +241,12 @@ serve(async (req: Request) => {
     const associatedUserIds = new Set<string>([ownerId, ...(profiles || []).map((p: any) => p.id)]);
     const ownerIds = (profiles || []).filter((p: any) => p.role === "owner").map((p: any) => p.id);
 
+    const validUserIds = [ownerId, ...(profiles || []).map((p: any) => p.id)];
     // جلب اشتراكات الـ Push
     const { data: subscriptions, error: subError } = await supabase
       .from("push_subscriptions")
-      .select("*");
+      .select("*")
+      .in("user_id", validUserIds);
 
     if (subError || !subscriptions || subscriptions.length === 0) {
       return new Response(

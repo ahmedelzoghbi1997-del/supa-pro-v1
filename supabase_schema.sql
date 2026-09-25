@@ -507,3 +507,218 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 REVOKE ALL ON FUNCTION public.upsert_invoice_items(UUID, JSONB, JSONB, UUID) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.upsert_invoice_items(UUID, JSONB, JSONB, UUID) TO authenticated, service_role;
 
+-- ==============================================================================
+-- 9. تفعيل Row Level Security (RLS) وسياسات الأمان للجداول الأساسية الأخرى
+-- ==============================================================================
+
+-- ------------------------------------------------------------------------------
+-- 1) invoices
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own invoices." ON public.invoices;
+DROP POLICY IF EXISTS "Users can insert their own invoices." ON public.invoices;
+DROP POLICY IF EXISTS "Users can update their own invoices." ON public.invoices;
+DROP POLICY IF EXISTS "Users can delete their own invoices." ON public.invoices;
+
+CREATE POLICY "Users can view their own invoices." ON public.invoices FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own invoices." ON public.invoices FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own invoices." ON public.invoices FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own invoices." ON public.invoices FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 2) expenses
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own expenses." ON public.expenses;
+DROP POLICY IF EXISTS "Users can insert their own expenses." ON public.expenses;
+DROP POLICY IF EXISTS "Users can update their own expenses." ON public.expenses;
+DROP POLICY IF EXISTS "Users can delete their own expenses." ON public.expenses;
+
+CREATE POLICY "Users can view their own expenses." ON public.expenses FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own expenses." ON public.expenses FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own expenses." ON public.expenses FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own expenses." ON public.expenses FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 3) advances
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.advances ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own advances." ON public.advances;
+DROP POLICY IF EXISTS "Users can insert their own advances." ON public.advances;
+DROP POLICY IF EXISTS "Users can update their own advances." ON public.advances;
+DROP POLICY IF EXISTS "Users can delete their own advances." ON public.advances;
+
+CREATE POLICY "Users can view their own advances." ON public.advances FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own advances." ON public.advances FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own advances." ON public.advances FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own advances." ON public.advances FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 4) cycles
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.cycles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own cycles." ON public.cycles;
+DROP POLICY IF EXISTS "Users can insert their own cycles." ON public.cycles;
+DROP POLICY IF EXISTS "Users can update their own cycles." ON public.cycles;
+DROP POLICY IF EXISTS "Users can delete their own cycles." ON public.cycles;
+
+CREATE POLICY "Users can view their own cycles." ON public.cycles FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own cycles." ON public.cycles FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own cycles." ON public.cycles FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own cycles." ON public.cycles FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 5) persons
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.persons ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own persons." ON public.persons;
+DROP POLICY IF EXISTS "Users can insert their own persons." ON public.persons;
+DROP POLICY IF EXISTS "Users can update their own persons." ON public.persons;
+DROP POLICY IF EXISTS "Users can delete their own persons." ON public.persons;
+
+CREATE POLICY "Users can view their own persons." ON public.persons FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own persons." ON public.persons FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own persons." ON public.persons FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own persons." ON public.persons FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 6) farmers
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.farmers ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own farmers." ON public.farmers;
+DROP POLICY IF EXISTS "Users can insert their own farmers." ON public.farmers;
+DROP POLICY IF EXISTS "Users can update their own farmers." ON public.farmers;
+DROP POLICY IF EXISTS "Users can delete their own farmers." ON public.farmers;
+
+CREATE POLICY "Users can view their own farmers." ON public.farmers FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own farmers." ON public.farmers FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own farmers." ON public.farmers FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own farmers." ON public.farmers FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 7) suppliers
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.suppliers ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own suppliers." ON public.suppliers;
+DROP POLICY IF EXISTS "Users can insert their own suppliers." ON public.suppliers;
+DROP POLICY IF EXISTS "Users can update their own suppliers." ON public.suppliers;
+DROP POLICY IF EXISTS "Users can delete their own suppliers." ON public.suppliers;
+
+CREATE POLICY "Users can view their own suppliers." ON public.suppliers FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own suppliers." ON public.suppliers FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own suppliers." ON public.suppliers FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own suppliers." ON public.suppliers FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 8) supplier_payments
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.supplier_payments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own supplier_payments." ON public.supplier_payments;
+DROP POLICY IF EXISTS "Users can insert their own supplier_payments." ON public.supplier_payments;
+DROP POLICY IF EXISTS "Users can update their own supplier_payments." ON public.supplier_payments;
+DROP POLICY IF EXISTS "Users can delete their own supplier_payments." ON public.supplier_payments;
+
+CREATE POLICY "Users can view their own supplier_payments." ON public.supplier_payments FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own supplier_payments." ON public.supplier_payments FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own supplier_payments." ON public.supplier_payments FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own supplier_payments." ON public.supplier_payments FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 9) farmer_withdrawals
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.farmer_withdrawals ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own farmer_withdrawals." ON public.farmer_withdrawals;
+DROP POLICY IF EXISTS "Users can insert their own farmer_withdrawals." ON public.farmer_withdrawals;
+DROP POLICY IF EXISTS "Users can update their own farmer_withdrawals." ON public.farmer_withdrawals;
+DROP POLICY IF EXISTS "Users can delete their own farmer_withdrawals." ON public.farmer_withdrawals;
+
+CREATE POLICY "Users can view their own farmer_withdrawals." ON public.farmer_withdrawals FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own farmer_withdrawals." ON public.farmer_withdrawals FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own farmer_withdrawals." ON public.farmer_withdrawals FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own farmer_withdrawals." ON public.farmer_withdrawals FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 10) bank_accounts
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.bank_accounts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own bank_accounts." ON public.bank_accounts;
+DROP POLICY IF EXISTS "Users can insert their own bank_accounts." ON public.bank_accounts;
+DROP POLICY IF EXISTS "Users can update their own bank_accounts." ON public.bank_accounts;
+DROP POLICY IF EXISTS "Users can delete their own bank_accounts." ON public.bank_accounts;
+
+CREATE POLICY "Users can view their own bank_accounts." ON public.bank_accounts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own bank_accounts." ON public.bank_accounts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own bank_accounts." ON public.bank_accounts FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own bank_accounts." ON public.bank_accounts FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 11) bank_transactions
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.bank_transactions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own bank_transactions." ON public.bank_transactions;
+DROP POLICY IF EXISTS "Users can insert their own bank_transactions." ON public.bank_transactions;
+DROP POLICY IF EXISTS "Users can update their own bank_transactions." ON public.bank_transactions;
+DROP POLICY IF EXISTS "Users can delete their own bank_transactions." ON public.bank_transactions;
+
+CREATE POLICY "Users can view their own bank_transactions." ON public.bank_transactions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own bank_transactions." ON public.bank_transactions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own bank_transactions." ON public.bank_transactions FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own bank_transactions." ON public.bank_transactions FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 12) partner_debts
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.partner_debts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own partner_debts." ON public.partner_debts;
+DROP POLICY IF EXISTS "Users can insert their own partner_debts." ON public.partner_debts;
+DROP POLICY IF EXISTS "Users can update their own partner_debts." ON public.partner_debts;
+DROP POLICY IF EXISTS "Users can delete their own partner_debts." ON public.partner_debts;
+
+CREATE POLICY "Users can view their own partner_debts." ON public.partner_debts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own partner_debts." ON public.partner_debts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own partner_debts." ON public.partner_debts FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own partner_debts." ON public.partner_debts FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 13) assets
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.assets ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own assets." ON public.assets;
+DROP POLICY IF EXISTS "Users can insert their own assets." ON public.assets;
+DROP POLICY IF EXISTS "Users can update their own assets." ON public.assets;
+DROP POLICY IF EXISTS "Users can delete their own assets." ON public.assets;
+
+CREATE POLICY "Users can view their own assets." ON public.assets FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own assets." ON public.assets FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own assets." ON public.assets FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own assets." ON public.assets FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 14) invoice_price_items
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.invoice_price_items ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own invoice_price_items." ON public.invoice_price_items;
+DROP POLICY IF EXISTS "Users can insert their own invoice_price_items." ON public.invoice_price_items;
+DROP POLICY IF EXISTS "Users can update their own invoice_price_items." ON public.invoice_price_items;
+DROP POLICY IF EXISTS "Users can delete their own invoice_price_items." ON public.invoice_price_items;
+
+CREATE POLICY "Users can view their own invoice_price_items." ON public.invoice_price_items FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own invoice_price_items." ON public.invoice_price_items FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own invoice_price_items." ON public.invoice_price_items FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own invoice_price_items." ON public.invoice_price_items FOR DELETE USING (auth.uid() = user_id);
+
+-- ------------------------------------------------------------------------------
+-- 15) invoice_deductions
+-- ------------------------------------------------------------------------------
+ALTER TABLE public.invoice_deductions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can view their own invoice_deductions." ON public.invoice_deductions;
+DROP POLICY IF EXISTS "Users can insert their own invoice_deductions." ON public.invoice_deductions;
+DROP POLICY IF EXISTS "Users can update their own invoice_deductions." ON public.invoice_deductions;
+DROP POLICY IF EXISTS "Users can delete their own invoice_deductions." ON public.invoice_deductions;
+
+CREATE POLICY "Users can view their own invoice_deductions." ON public.invoice_deductions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own invoice_deductions." ON public.invoice_deductions FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own invoice_deductions." ON public.invoice_deductions FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own invoice_deductions." ON public.invoice_deductions FOR DELETE USING (auth.uid() = user_id);
+
+

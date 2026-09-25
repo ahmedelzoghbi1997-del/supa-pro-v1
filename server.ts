@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import { createClient } from "@supabase/supabase-js";
 import sendPushHandler from "./api/send-push";
+import crypto from "crypto";
 
 if (typeof (process as any).loadEnvFile === 'function') {
   try { (process as any).loadEnvFile(); } catch {}
@@ -117,16 +118,31 @@ async function verifyOwnerRole(req: express.Request, res: express.Response, next
   }
 }
 
+function verifySecret(provided: string, expected: string): boolean {
+  if (typeof provided !== "string" || typeof expected !== "string") {
+    return false;
+  }
+  if (provided.length !== expected.length) {
+    return false;
+  }
+  const providedBuffer = Buffer.from(provided, "utf-8");
+  const expectedBuffer = Buffer.from(expected, "utf-8");
+  if (providedBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+}
+
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
 
   // Rate Limiter for virtual login (5 requests per 15 minutes)
   const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 requests per windowMs
+    limit: 5, // Limit each IP to 5 requests per windowMs
     message: { error: "تم تجاوز عدد محاولات تسجيل الدخول المسموح بها، يرجى المحاولة لاحقاً" },
     standardHeaders: true,
     legacyHeaders: false,
@@ -135,7 +151,7 @@ async function startServer() {
   // Rate Limiter for virtual member management (10 requests per 15 minutes)
   const virtualManageLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit each IP to 10 requests per windowMs
+    limit: 10, // Limit each IP to 10 requests per windowMs
     message: { error: "تم تجاوز الحد المسموح من عمليات إدارة الحسابات، يرجى المحاولة لاحقاً" },
     standardHeaders: true,
     legacyHeaders: false,
@@ -144,7 +160,7 @@ async function startServer() {
   // Rate Limiter for logging frontend errors (20 requests per minute)
   const logErrorLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 20, // Limit each IP to 20 requests per minute
+    limit: 20, // Limit each IP to 20 requests per minute
     message: { error: "تم تجاوز الحد المسموح لتسجيل الأخطاء" },
     standardHeaders: true,
     legacyHeaders: false,
@@ -199,7 +215,20 @@ async function startServer() {
       return res.status(403).json({ error: "غير مصرح لك بإنشاء حساب لمالك آخر" });
     }
 
+    // 1. تحقق أن كلمة المرور طولها 6 أحرف على الأقل
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      return res.status(400).json({ error: "يجب أن تكون كلمة المرور مكونة من 6 أحرف على الأقل" });
+    }
+
+    // 2. تحقق أن role قادمة من قائمة مسموحة فقط: 'viewer' أو 'editor'، وارفض غير ذلك برسالة 400
+    const allowedRoles = ['viewer', 'editor'];
+    if (!role || !allowedRoles.includes(role)) {
+      return res.status(400).json({ error: "الصلاحية المحددة غير صالحة. الصلاحيات المسموح بها هي: 'viewer' أو 'editor'" });
+    }
+
     try {
+      // 3. ملاحظة تعليقية: التشفير يتم عبر الـ Trigger في قاعدة البيانات (trigger_hash_virtual_member_password).
+      // أي فشل في الإدراج يجب أن يرجع رسالة الخطأ الفعلية من Supabase للمستخدم.
       const { data, error } = await supabase
         .from('virtual_members')
         .insert([{ owner_id: authUser.id, username, password, full_name, role }])
@@ -208,13 +237,13 @@ async function startServer() {
 
       if (error) {
         console.error("Create Virtual Supabase Error:", JSON.stringify(error, null, 2));
-        throw error;
+        return res.status(400).json({ error: error.message });
       }
       console.log("Create Virtual Supabase Success:", data);
       res.json(data);
     } catch (err: any) {
       console.error("Create Virtual Server Error:", err);
-      res.status(500).json({ error: "فشل إنشاء الحساب الافتراضي - تأكد من إعداد قاعدة البيانات" });
+      res.status(500).json({ error: err.message || "فشل إنشاء الحساب الافتراضي" });
     }
   });
 
@@ -330,6 +359,22 @@ async function startServer() {
       return res.status(403).json({ error: "غير مصرح لك بتعديل إعدادات هذا الحساب" });
     }
 
+    // 1. تحقق أن settings كائن (typeof === 'object') وليس null، وارفض غير ذلك برسالة 400.
+    if (!settings || typeof settings !== 'object') {
+      return res.status(400).json({ error: "يجب أن تكون الإعدادات كائنًا صالحًا" });
+    }
+
+    // 2. حدد حجم الحمولة: إذا تجاوز JSON.stringify(settings) حجم 100 كيلوبايت، ارفض برسالة 413 "حجم الإعدادات كبير جدًا".
+    try {
+      const settingsStr = JSON.stringify(settings);
+      const byteLength = Buffer.byteLength(settingsStr, 'utf8');
+      if (byteLength > 100 * 1024) {
+        return res.status(413).json({ error: "حجم الإعدادات كبير جدًا" });
+      }
+    } catch (_e) {
+      return res.status(400).json({ error: "فشل في تحويل الإعدادات إلى JSON" });
+    }
+
     try {
       const { error } = await supabase
         .from("profiles")
@@ -349,7 +394,8 @@ async function startServer() {
   app.all("/api/send-push", async (req, res) => {
     const internalSecret = process.env.PUSH_INTERNAL_SECRET;
     const providedSecret = req.headers['x-internal-secret'] || (req.headers as any)['X-Internal-Secret'];
-    if (!internalSecret || !providedSecret || providedSecret !== internalSecret) {
+    const providedStr = Array.isArray(providedSecret) ? providedSecret[0] : (providedSecret as string || "");
+    if (!internalSecret || !providedSecret || !verifySecret(providedStr, internalSecret)) {
       return res.status(401).json({ error: 'Unauthorized: Invalid or missing internal secret' });
     }
 
