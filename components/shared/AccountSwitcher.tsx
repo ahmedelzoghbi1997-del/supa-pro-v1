@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { User, Check, Plus, Shield, Eye, X, Loader2 } from 'lucide-react';
+import { User, Check, Plus, Shield, X, Loader2, Eye } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useData } from '../../contexts/DataContext';
 import { Preferences } from '@capacitor/preferences';
 import { SavedAccount, getSavedAccounts, setLastActiveAccount } from '../../lib/accountManager';
 import { authenticateBiometrically } from '../../lib/biometrics';
+import { emitToast } from '../../hooks/useToast';
 
 const AccountSwitcher: React.FC = () => {
     const { profile } = useData();
@@ -38,79 +39,170 @@ const AccountSwitcher: React.FC = () => {
     }, [profile?.id]);
 
     const handleSwitchAccount = async (acc: SavedAccount) => {
-        setIsOpen(false);
-        setSwitching(true);
-        window.dispatchEvent(new CustomEvent('account_switching'));
         try {
+            // فحص البصمة إذا كانت مفعلة لهذا الحساب
             if (acc.biometricEnabled) {
                 const authOk = await authenticateBiometrically(`الدخول السريع إلى حساب: ${acc.greenhouseName || acc.fullName}`);
                 if (!authOk) {
-                    setSwitching(false);
-                    return; // User cancelled or failed biometric check
+                    return; // المستخدم ألغى أو فشل التحقق الحيوي
                 }
             }
 
-            let success = false;
-            if (acc.isVirtual) {
-                const { data, error: supabaseError } = await supabase.rpc('virtual_login', {
-                    p_username: acc.username || '',
-                    p_password: acc.password || ''
-                });
+            setIsOpen(false);
+            setSwitching(true);
+            window.dispatchEvent(new CustomEvent('account_switching'));
 
-                const vMember = Array.isArray(data) ? data[0] : data;
-
-                if (supabaseError || !vMember || !vMember.id) {
-                    alert('فشل الدخول السريع: بيانات الدخول المحفوظة لم تعد صالحة وعليك إعادة تسجيل الدخول يدوياً.');
-                    setSwitching(false);
-                } else {
-                    const virtualUser = {
-                      id: `virtual_${vMember.id}`,
-                      full_name: vMember.full_name,
-                      role: vMember.role,
-                      parent_id: vMember.owner_id,
-                      username: vMember.username
-                    };
-                    localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
-                    await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
-                    success = true;
+            // حفظ الجلسة الحالية قبل الانتقال إن وُجدت
+            try {
+                const { data: curSess } = await supabase.auth.getSession();
+                if (curSess?.session?.user?.id) {
+                    const sessStr = JSON.stringify(curSess.session);
+                    await Preferences.set({
+                        key: `supabase_session_${curSess.session.user.id}`,
+                        value: sessStr
+                    });
+                    localStorage.setItem(`supabase_session_${curSess.session.user.id}`, sessStr);
                 }
+                const { value: curVAuth } = await Preferences.get({ key: 'virtual_auth' });
+                if (curVAuth) {
+                    const parsed = JSON.parse(curVAuth);
+                    if (parsed?.id) {
+                        await Preferences.set({ key: `virtual_auth_${parsed.id}`, value: curVAuth });
+                        localStorage.setItem(`virtual_auth_${parsed.id}`, curVAuth);
+                    }
+                }
+                const localVAuth = localStorage.getItem('virtual_auth');
+                if (localVAuth) {
+                    const parsed = JSON.parse(localVAuth);
+                    if (parsed?.id) {
+                        await Preferences.set({ key: `virtual_auth_${parsed.id}`, value: localVAuth });
+                        localStorage.setItem(`virtual_auth_${parsed.id}`, localVAuth);
+                    }
+                }
+            } catch {}
+
+            if (acc.isVirtual) {
+                // فتح الحساب الافتراضي مباشرة دون طلب كلمة مرور ودون فتح صفحة تسجيل الدخول
+                let virtualUser: any = null;
+                const { value: storedVAuth } = await Preferences.get({ key: `virtual_auth_${acc.id}` });
+                const localStored = localStorage.getItem(`virtual_auth_${acc.id}`);
+                if (storedVAuth) {
+                    try { virtualUser = JSON.parse(storedVAuth); } catch {}
+                }
+                if (!virtualUser && localStored) {
+                    try { virtualUser = JSON.parse(localStored); } catch {}
+                }
+                if (!virtualUser) {
+                    virtualUser = {
+                        id: acc.id.startsWith('virtual_') ? acc.id : `virtual_${acc.id}`,
+                        full_name: acc.greenhouseName || acc.fullName,
+                        role: acc.role || 'viewer',
+                        parent_id: acc.parentId || (acc as any).parent_id,
+                        username: acc.username
+                    };
+                }
+
+                localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
+                await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
+                localStorage.setItem(`virtual_auth_${virtualUser.id}`, JSON.stringify(virtualUser));
+                await Preferences.set({ key: `virtual_auth_${virtualUser.id}`, value: JSON.stringify(virtualUser) });
+                await Preferences.remove({ key: 'was_explicitly_logged_out' });
+                localStorage.removeItem('was_explicitly_logged_out');
+                await setLastActiveAccount(acc.id);
+
+                await new Promise(r => setTimeout(r, 200));
+                window.location.reload();
+                return;
             } else {
-                await supabase.auth.signOut();
+                // فتح حساب المالك مباشرة دون طلب كلمة مرور ودون فتح صفحة تسجيل الدخول
                 localStorage.removeItem('virtual_auth');
                 await Preferences.remove({ key: 'virtual_auth' });
+                await Preferences.remove({ key: 'was_explicitly_logged_out' });
+                localStorage.removeItem('was_explicitly_logged_out');
 
-                const { error: signInError } = await supabase.auth.signInWithPassword({
-                    email: acc.email || '',
-                    password: acc.password || ''
-                });
-                
-                if (signInError) {
-                    alert('فشل الدخول السريع: بيانات المالك المحفوظة لم تعد صالحة وعليك إعادة تسجيل الدخول يدوياً.');
-                    setSwitching(false);
-                } else {
-                    success = true;
+                // 1. استرجاع الجلسة المحفوظة
+                let sessionObj: any = null;
+                const { value: storedPref } = await Preferences.get({ key: `supabase_session_${acc.id}` });
+                const localStored = localStorage.getItem(`supabase_session_${acc.id}`);
+                const sessStr = storedPref || localStored;
+                if (sessStr) {
+                    try { sessionObj = JSON.parse(sessStr); } catch {}
                 }
-            }
 
-            if (success) {
+                if (sessionObj?.access_token && sessionObj?.refresh_token) {
+                    try {
+                        const { data: setRes, error: setErr } = await supabase.auth.setSession({
+                            access_token: sessionObj.access_token,
+                            refresh_token: sessionObj.refresh_token
+                        });
+                        if (!setErr && setRes?.session) {
+                            await Preferences.set({
+                                key: `supabase_session_${acc.id}`,
+                                value: JSON.stringify(setRes.session)
+                            });
+                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
+                            await setLastActiveAccount(acc.id);
+                            await new Promise(r => setTimeout(r, 200));
+                            window.location.reload();
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn("setSession error:", e);
+                    }
+                }
+
+                // 2. فحص إذا كانت جلسة Supabase الحالية مطابقة للحساب
+                const { data: sessionData } = await supabase.auth.getSession();
+                if (sessionData?.session?.user?.id === acc.id) {
+                    await setLastActiveAccount(acc.id);
+                    await new Promise(r => setTimeout(r, 200));
+                    window.location.reload();
+                    return;
+                }
+
+                // 3. محاولة تسجيل الدخول التلقائي في الخلفية بكلمة المرور إن توفرت
+                if (acc.email && acc.password) {
+                    try {
+                        const { data: logRes, error: logErr } = await supabase.auth.signInWithPassword({
+                            email: acc.email,
+                            password: acc.password
+                        });
+                        if (!logErr && logRes?.session) {
+                            await setLastActiveAccount(acc.id);
+                            await Preferences.set({
+                                key: `supabase_session_${acc.id}`,
+                                value: JSON.stringify(logRes.session)
+                            });
+                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(logRes.session));
+                            await new Promise(r => setTimeout(r, 200));
+                            window.location.reload();
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn("Auto re-auth error:", e);
+                    }
+                }
+
+                // في حال تعذر التبديل التلقائي
+                emitToast('يرجى تسجيل الدخول إلى هذا الحساب لحفظ جلسته للتبديل الفوري', 'info');
                 await setLastActiveAccount(acc.id);
-                // Show loading spinner for 1 second to give illusion of session change
-                await new Promise(r => setTimeout(r, 1000));
+                await Preferences.set({ key: 'was_explicitly_logged_out', value: 'true' });
+                await supabase.auth.signOut({ scope: 'local' });
                 window.location.reload();
             }
         } catch (err) {
             console.error("Error switching accounts in header:", err);
-            alert('حدث خطأ أثناء التنقل بين الحسابات.');
+            emitToast('حدث خطأ أثناء التنقل بين الحسابات.', 'error');
             setSwitching(false);
         }
     };
 
     const handleAddNewAccount = async () => {
-        // Logging out to allow logging into a new account which will then be appended to saved list
+        // Logging out locally to allow logging into a new account which will then be appended to saved list
         localStorage.removeItem('virtual_auth');
         await Preferences.remove({ key: 'virtual_auth' });
         await Preferences.set({ key: 'was_explicitly_logged_out', value: 'true' });
-        await supabase.auth.signOut();
+        await supabase.auth.signOut({ scope: 'local' });
         window.location.reload();
     };
 

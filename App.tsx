@@ -390,6 +390,10 @@ const App: React.FC = () => {
 
           setProfile(normalizedProfile);
           setSession({ user: { id: normalizedProfile.id } } as any);
+          await Preferences.set({
+            key: `virtual_auth_${normalizedProfile.id}`,
+            value: virtualAuthString,
+          });
           setLoading(false);
           return true;
         } catch (_err) {
@@ -444,7 +448,7 @@ const App: React.FC = () => {
 
       // Real auth
       try {
-        const {
+        let {
           data: { session },
           error,
         } = await supabase.auth.getSession();
@@ -452,8 +456,40 @@ const App: React.FC = () => {
           console.error("Session error:", error);
         }
 
+        // Check if there is a target active account from account switcher or previous session
+        const { value: lastActiveId } = await Preferences.get({ key: 'last_active_account_id' });
+        const targetId = lastActiveId || localStorage.getItem('last_active_account_id');
+
+        if (targetId && !targetId.startsWith('virtual_') && session?.user?.id !== targetId) {
+          const { value: prefTarget } = await Preferences.get({ key: `supabase_session_${targetId}` });
+          const localTarget = localStorage.getItem(`supabase_session_${targetId}`);
+          const targetStr = prefTarget || localTarget;
+          if (targetStr) {
+            try {
+              const sessObj = JSON.parse(targetStr);
+              if (sessObj?.access_token && sessObj?.refresh_token) {
+                const { data: setRes, error: setErr } = await supabase.auth.setSession({
+                  access_token: sessObj.access_token,
+                  refresh_token: sessObj.refresh_token
+                });
+                if (!setErr && setRes?.session) {
+                  session = setRes.session;
+                }
+              }
+            } catch (e) {
+              console.warn("Could not restore target session in App.tsx:", e);
+            }
+          }
+        }
+
         if (session) {
           await Preferences.remove({ key: "was_explicitly_logged_out" });
+          localStorage.removeItem("was_explicitly_logged_out");
+          await Preferences.set({
+            key: `supabase_session_${session.user.id}`,
+            value: JSON.stringify(session),
+          });
+          localStorage.setItem(`supabase_session_${session.user.id}`, JSON.stringify(session));
           setSession(session);
           fetchProfile(session.user.id);
           return;
@@ -523,6 +559,13 @@ const App: React.FC = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user?.id) {
+        await Preferences.set({
+          key: `supabase_session_${session.user.id}`,
+          value: JSON.stringify(session),
+        });
+        localStorage.setItem(`supabase_session_${session.user.id}`, JSON.stringify(session));
+      }
       const { value: virtualAuthString } = await Preferences.get({
         key: "virtual_auth",
       });

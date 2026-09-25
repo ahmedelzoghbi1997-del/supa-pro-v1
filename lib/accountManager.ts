@@ -13,6 +13,7 @@ export interface SavedAccount {
   biometricEnabled?: boolean; // Enable biometric unlock for this specific account
   pinEnabled?: boolean; // Enable PIN lock for this account
   pinCode?: string; // 4-digit secure code
+  parentId?: string;
 }
 
 function obfuscate(text: string): string {
@@ -51,7 +52,7 @@ function deobfuscate(text: string): string {
 function obfuscateAccount(acc: SavedAccount): SavedAccount {
   return {
     ...acc,
-    password: undefined, // لا يتم تخزين أي كلمة مرور لأي حساب محلياً
+    password: acc.password ? obfuscate(acc.password) : undefined,
     pinCode: acc.pinCode ? obfuscate(acc.pinCode) : undefined,
   };
 }
@@ -61,26 +62,15 @@ export async function getSavedAccounts(): Promise<SavedAccount[]> {
     const { value } = await Preferences.get({ key: 'saved_accounts_list' });
     if (value) {
       const parsed: SavedAccount[] = JSON.parse(value);
-      let needsCleanup = false;
       const cleaned: SavedAccount[] = parsed.map(acc => {
         const pinCode = acc.pinCode ? deobfuscate(acc.pinCode) : undefined;
-        
-        // تنظيف وحذف أي كلمات مرور قديمة مخزنة لكافة أنواع الحسابات
-        if (acc.password || 'password' in acc) {
-          needsCleanup = true;
-        }
-
+        const password = acc.password ? deobfuscate(acc.password) : undefined;
         return {
           ...acc,
-          password: undefined,
+          password,
           pinCode,
         };
       });
-
-      if (needsCleanup) {
-        const sanitized = cleaned.map(obfuscateAccount);
-        await Preferences.set({ key: 'saved_accounts_list', value: JSON.stringify(sanitized) });
-      }
 
       return cleaned;
     }
@@ -92,11 +82,7 @@ export async function getSavedAccounts(): Promise<SavedAccount[]> {
 
 export async function setSavedAccountsList(accounts: SavedAccount[]) {
   try {
-    const sanitized = accounts.map(acc => ({
-      ...acc,
-      password: undefined
-    }));
-    const obfuscatedList = sanitized.map(obfuscateAccount);
+    const obfuscatedList = accounts.map(obfuscateAccount);
     await Preferences.set({ key: 'saved_accounts_list', value: JSON.stringify(obfuscatedList) });
   } catch (error) {
     console.error("Error saving accounts list:", error);
@@ -114,12 +100,17 @@ export async function saveAccount(account: SavedAccount) {
     
     const sanitizedAccount: SavedAccount = {
       ...account,
-      password: undefined
+      password: account.password || undefined
     };
 
     if (existingIndex >= 0) {
       const existing = list[existingIndex];
-      const merged = { ...existing, ...sanitizedAccount, avatarSeed: sanitizedAccount.avatarSeed || existing.avatarSeed };
+      const merged = { 
+        ...existing, 
+        ...sanitizedAccount, 
+        password: sanitizedAccount.password || existing.password,
+        avatarSeed: sanitizedAccount.avatarSeed || existing.avatarSeed 
+      };
       list[existingIndex] = merged;
     } else {
       list.push(sanitizedAccount);

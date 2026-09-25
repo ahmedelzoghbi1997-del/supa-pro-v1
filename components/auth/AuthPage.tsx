@@ -186,6 +186,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 };
                 localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
                 await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
+                await Preferences.set({ key: `virtual_auth_${virtualUser.id}`, value: JSON.stringify(virtualUser) });
+                await Preferences.remove({ key: 'was_explicitly_logged_out' });
                 
                 // Save/update this account to saved accounts list automatically
                 const gName = (vMember.full_name && (vMember.full_name.includes('صوبة') || vMember.full_name.includes('مشاهد') || vMember.full_name.includes('مطلع'))) ? vMember.full_name : undefined;
@@ -195,7 +197,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                   fullName: vMember.full_name,
                   role: vMember.role,
                   isVirtual: true,
-                  greenhouseName: gName
+                  greenhouseName: gName,
+                  parentId: vMember.owner_id
                 });
                 await setLastActiveAccount(virtualUser.id);
                 
@@ -217,6 +220,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             }
         } else if (authData?.user) {
             await Preferences.remove({ key: 'was_explicitly_logged_out' });
+            if (authData.session) {
+                await Preferences.set({
+                    key: `supabase_session_${authData.user.id}`,
+                    value: JSON.stringify(authData.session)
+                });
+                localStorage.setItem(`supabase_session_${authData.user.id}`, JSON.stringify(authData.session));
+            }
             try {
                 const { data: profData } = await supabase
                     .from('profiles')
@@ -227,6 +237,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 await saveAccount({
                     id: authData.user.id,
                     email: identifier,
+                    password: password,
                     fullName: profData?.full_name || 'مالك',
                     role: profData?.role || 'owner',
                     isVirtual: false,
@@ -264,40 +275,94 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         }
 
         if (acc.isVirtual) {
-            const { value: vAuthStr } = await Preferences.get({ key: 'virtual_auth' });
-            let isCurrentVirtual = false;
-            if (vAuthStr) {
+            let virtualUser: any = null;
+            const { value: storedVAuth } = await Preferences.get({ key: `virtual_auth_${acc.id}` });
+            const localStored = localStorage.getItem(`virtual_auth_${acc.id}`);
+            if (storedVAuth) {
+                try { virtualUser = JSON.parse(storedVAuth); } catch {}
+            }
+            if (!virtualUser && localStored) {
+                try { virtualUser = JSON.parse(localStored); } catch {}
+            }
+            if (!virtualUser) {
+                virtualUser = {
+                    id: acc.id.startsWith('virtual_') ? acc.id : `virtual_${acc.id}`,
+                    full_name: acc.greenhouseName || acc.fullName,
+                    role: acc.role || 'viewer',
+                    parent_id: acc.parentId || (acc as any).parent_id,
+                    username: acc.username
+                };
+            }
+
+            localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
+            await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
+            localStorage.setItem(`virtual_auth_${virtualUser.id}`, JSON.stringify(virtualUser));
+            await Preferences.set({ key: `virtual_auth_${virtualUser.id}`, value: JSON.stringify(virtualUser) });
+            await Preferences.remove({ key: 'was_explicitly_logged_out' });
+            localStorage.removeItem('was_explicitly_logged_out');
+            await setLastActiveAccount(acc.id);
+            window.location.reload();
+            return;
+        } else {
+            localStorage.removeItem('virtual_auth');
+            await Preferences.remove({ key: 'virtual_auth' });
+            await Preferences.remove({ key: 'was_explicitly_logged_out' });
+            localStorage.removeItem('was_explicitly_logged_out');
+
+            const { value: storedSession } = await Preferences.get({ key: `supabase_session_${acc.id}` });
+            const localSession = localStorage.getItem(`supabase_session_${acc.id}`);
+            const sessStr = storedSession || localSession;
+            if (sessStr) {
                 try {
-                    const parsed = JSON.parse(vAuthStr);
-                    if (parsed.id === acc.id || `virtual_${parsed.id}` === acc.id || (parsed.username && parsed.username === acc.username)) {
-                        isCurrentVirtual = true;
+                    const sessionObj = JSON.parse(sessStr);
+                    if (sessionObj?.access_token && sessionObj?.refresh_token) {
+                        const { data: setRes, error: setErr } = await supabase.auth.setSession({
+                            access_token: sessionObj.access_token,
+                            refresh_token: sessionObj.refresh_token
+                        });
+                        if (!setErr && setRes?.session) {
+                            await Preferences.set({
+                                key: `supabase_session_${acc.id}`,
+                                value: JSON.stringify(setRes.session)
+                            });
+                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
+                            await setLastActiveAccount(acc.id);
+                            window.location.reload();
+                            return;
+                        }
                     }
                 } catch {}
             }
 
-            if (isCurrentVirtual) {
-                await Preferences.remove({ key: 'was_explicitly_logged_out' });
-                await setLastActiveAccount(acc.id);
-                window.location.reload();
-                return;
-            }
-
-            // في حال عدم وجود جلسة نشطة مطابقة للحساب الافتراضي، نطلب كلمة المرور
-            setIdentifier(acc.username || '');
-            setPassword('');
-            setView('login');
-            setMessage('يرجى إدخال كلمة المرور لتسجيل الدخول إلى هذا الحساب.');
-        } else {
             // التحقق إذا كانت جلسة Supabase الحالية مطابقة للحساب المختار
             const { data: sessionData } = await supabase.auth.getSession();
             if (sessionData?.session?.user?.id === acc.id) {
-                await Preferences.remove({ key: 'was_explicitly_logged_out' });
                 await setLastActiveAccount(acc.id);
                 window.location.reload();
                 return;
             }
 
-            // في حال عدم وجود جلسة نشطة للحساب، توجيه المستخدم لصفحة تسجيل الدخول مع ملء البريد
+            // محاولة تسجيل الدخول بكلمة المرور المحفوظة تلقائياً
+            if (acc.email && acc.password) {
+                try {
+                    const { data: logRes, error: logErr } = await supabase.auth.signInWithPassword({
+                        email: acc.email,
+                        password: acc.password
+                    });
+                    if (!logErr && logRes?.session) {
+                        await Preferences.set({
+                            key: `supabase_session_${acc.id}`,
+                            value: JSON.stringify(logRes.session)
+                        });
+                        localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(logRes.session));
+                        await setLastActiveAccount(acc.id);
+                        window.location.reload();
+                        return;
+                    }
+                } catch {}
+            }
+
+            // في حال عدم وجود جلسة محفوظة إطلاقاً، توجيه المستخدم لصفحة تسجيل الدخول مع ملء البريد
             setIdentifier(acc.email || '');
             setPassword('');
             setView('login');
