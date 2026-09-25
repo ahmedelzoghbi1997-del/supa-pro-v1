@@ -60,28 +60,35 @@ export async function saveFCMTokenToPushSubscriptions(fcmToken: string, targetUs
     : `https://fcm.googleapis.com/fcm/send/${fcmToken}`;
 
   try {
-    // 1. تنظيف أي اشتراك سابق بنفس التوكن لهذا الجهاز لتجنب التكرار
-    await supabase
-      .from('push_subscriptions')
-      .delete()
-      .eq('endpoint', endpoint);
+    // 1. إرسال التوكن لـ API السيرفر بدلاً من الإدراج المباشر لتجاوز RLS للأعضاء الافتراضيين
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
 
-    // 2. إدراج التوكن في جدول push_subscriptions
-    const { error: insertError } = await supabase
-      .from('push_subscriptions')
-      .insert([
-        {
-          user_id: targetUserId,
-          endpoint: endpoint,
-          auth_key: 'native_fcm',
-          p256dh_key: 'native_fcm',
-        },
-      ]);
+    if (!targetUserId.startsWith('virtual_')) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+    }
 
-    if (insertError) {
-      console.error('[Capacitor Push] Failed to save to push_subscriptions:', insertError);
+    const response = await fetch('/api/push-subscriptions', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        user_id: targetUserId,
+        endpoint: endpoint,
+        auth_key: 'native_fcm',
+        p256dh_key: 'native_fcm'
+      })
+    });
+
+    if (!response.ok) {
+      const errRes = await response.json().catch(() => ({}));
+      console.error('[Capacitor Push] Failed to save push subscription via API:', errRes.error || response.statusText);
     } else {
-      console.log('[Capacitor Push] Successfully saved FCM token to push_subscriptions for user:', targetUserId);
+      console.log('[Capacitor Push] Successfully saved FCM token to push_subscriptions via API for user:', targetUserId);
     }
 
     // 3. تحديث حقل push_token في جدول profiles أو virtual_members للضمان المزدوج
@@ -501,22 +508,37 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
       }
     }
 
-    // 6. إرسال البيانات لـ Supabase
-    const { data, error } = await supabase.from('push_subscriptions').insert([
-      {
+    // 6. إرسال البيانات للـ API
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+
+    if (!targetUserId.startsWith('virtual_')) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+    }
+
+    const response = await fetch('/api/push-subscriptions', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
         user_id: targetUserId,
         endpoint: endpoint,
         auth_key: auth_key,
-        p256dh_key: p256dh_key,
-      },
-    ]);
+        p256dh_key: p256dh_key
+      })
+    });
 
-    if (error) {
-      emitToast('خطأ قاعدة البيانات: ' + error.message, 'error');
-      console.error('Supabase push_subscriptions error:', error);
+    if (!response.ok) {
+      const errRes = await response.json().catch(() => ({}));
+      emitToast('خطأ في حفظ الاشتراك: ' + (errRes.error || response.statusText), 'error');
+      console.error('API push_subscriptions error:', errRes.error);
     } else {
       emitToast('تم حفظ الاشتراك في السيرفر بنجاح!', 'success');
-      console.log('Saved push subscription successfully:', data);
+      console.log('Saved push subscription successfully via API');
     }
 
     return subscription;

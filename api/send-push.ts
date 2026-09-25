@@ -120,10 +120,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .select('id, role, parent_id')
       .or(`id.eq.${ownerId},parent_id.eq.${ownerId}`);
 
-    const associatedUserIds = new Set<string>([ownerId, ...(profiles || []).map((p: any) => p.id)]);
+    const { data: virtualMembers } = await supabase
+      .from('virtual_members')
+      .select('id')
+      .eq('owner_id', ownerId);
+
+    const virtualIds = (virtualMembers || []).map((vm: any) => `virtual_${vm.id}`);
+
+    const associatedUserIds = new Set<string>([ownerId, ...(profiles || []).map((p: any) => p.id), ...virtualIds]);
     const ownerIds = (profiles || []).filter((p: any) => p.role === 'owner').map((p: any) => p.id);
 
-    const validUserIds = [ownerId, ...(profiles || []).map((p: any) => p.id)];
+    const validUserIds = [ownerId, ...(profiles || []).map((p: any) => p.id), ...virtualIds];
     const { data: subscriptions } = await supabase
       .from('push_subscriptions')
       .select('*')

@@ -686,22 +686,6 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
                 payload
             }).catch(err => console.warn('[Realtime Data Broadcast send error]:', err));
         }
-
-        if (typeof window !== 'undefined') {
-            try {
-                fetch('/api/send-push', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        table,
-                        record,
-                        eventType,
-                        owner_id: effectiveUserId,
-                        effectiveUserId
-                    })
-                }).catch(() => {});
-            } catch (_e) {}
-        }
     }, [effectiveUserId, profile?.id]);
 
     // Realtime subscriptions
