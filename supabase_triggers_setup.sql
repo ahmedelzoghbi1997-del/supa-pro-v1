@@ -35,7 +35,7 @@ BEGIN
 
   RETURN v_secret;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 -- تقييد صلاحية تنفيذ دالة قراءة المفتاح للـ postgres و service_role فقط ومنع الوصول العام
 REVOKE ALL ON FUNCTION public.get_push_service_key() FROM PUBLIC;
@@ -89,7 +89,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 -- 4. تنظيف أي مشغلات سابقة لضمان عدم وجود تكرار
 DROP TRIGGER IF EXISTS trg_push_notify_invoices ON public.invoices;

@@ -73,21 +73,26 @@ export async function saveFCMTokenToPushSubscriptions(fcmToken: string, targetUs
       }
     }
 
-    const response = await fetch('/api/push-subscriptions', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        user_id: targetUserId,
-        endpoint: endpoint,
-        auth_key: 'native_fcm',
-        p256dh_key: 'native_fcm'
-      })
-    });
+    let response: Response | null = null;
+    try {
+      response = await fetch('/api/push-subscriptions', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          user_id: targetUserId,
+          endpoint: endpoint,
+          auth_key: 'native_fcm',
+          p256dh_key: 'native_fcm'
+        })
+      });
+    } catch (netErr) {
+      console.warn('[Capacitor Push] Network error contacting push API:', netErr);
+    }
 
-    if (!response.ok) {
+    if (response && !response.ok) {
       const errRes = await response.json().catch(() => ({}));
       console.error('[Capacitor Push] Failed to save push subscription via API:', errRes.error || response.statusText);
-    } else {
+    } else if (response && response.ok) {
       console.log('[Capacitor Push] Successfully saved FCM token to push_subscriptions via API for user:', targetUserId);
     }
 
@@ -521,22 +526,27 @@ export async function subscribeToWebPush(userId?: string, vapidPublicKey?: strin
       }
     }
 
-    const response = await fetch('/api/push-subscriptions', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        user_id: targetUserId,
-        endpoint: endpoint,
-        auth_key: auth_key,
-        p256dh_key: p256dh_key
-      })
-    });
+    let response: Response | null = null;
+    try {
+      response = await fetch('/api/push-subscriptions', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          user_id: targetUserId,
+          endpoint: endpoint,
+          auth_key: auth_key,
+          p256dh_key: p256dh_key
+        })
+      });
+    } catch (netErr) {
+      console.warn('[Web Push] Network error contacting push API:', netErr);
+    }
 
-    if (!response.ok) {
+    if (response && !response.ok) {
       const errRes = await response.json().catch(() => ({}));
       emitToast('خطأ في حفظ الاشتراك: ' + (errRes.error || response.statusText), 'error');
       console.error('API push_subscriptions error:', errRes.error);
-    } else {
+    } else if (response && response.ok) {
       emitToast('تم حفظ الاشتراك في السيرفر بنجاح!', 'success');
       console.log('Saved push subscription successfully via API');
     }

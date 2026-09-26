@@ -28,6 +28,7 @@ import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
 import { useToast } from "./hooks/useToast";
 import { registerForPushNotifications } from "./lib/notifications";
+import { initOTAUpdate } from "./lib/otaUpdate";
 import { Preferences } from "@capacitor/preferences";
 import { getSavedAccounts } from "./lib/accountManager";
 import { useStatusBarSync } from "./hooks/useStatusBarSync";
@@ -262,8 +263,8 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
       await registerForPushNotifications(profile.id);
     };
 
-    // Initialize immediately to ensure tap listeners catch cached intents, removing the 2s delay
     initNotifications();
+    initOTAUpdate();
 
     // Session Expiry Listeners (Double Guarantee)
     const handleInactive = () => {

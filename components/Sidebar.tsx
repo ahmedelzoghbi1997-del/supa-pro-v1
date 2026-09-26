@@ -56,15 +56,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
   
   if (!profile) return null;
 
-  const baseItemClasses = "flex relative items-center w-full p-3 my-1 rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 hover:text-primary dark:hover:text-neutral-0 transition-colors duration-200 gap-4";
+  const baseItemClasses = "flex relative items-center w-full p-3 my-1 rounded-lg text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 hover:text-primary dark:hover:text-neutral-0 transition-colors duration-200 gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900";
   const activeItemClasses = "text-primary bg-gradient-to-l from-primary/10 to-transparent dark:from-primary/20 dark:to-transparent font-semibold";
 
   const sidebarClasses = `
     flex flex-col
     bg-neutral-0 dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 h-screen 
     fixed lg:relative inset-y-0 right-0 z-50 lg:z-40
-    w-72 flex-shrink-0
-    transform-gpu transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform
+    w-72 flex-shrink-0 in-app-select-none select-none
+    transform-gpu transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
     ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
   `;
 

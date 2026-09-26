@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import webpush from 'web-push';
 import crypto from 'crypto';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const pushSupabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
 const pushSupabaseKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 
@@ -81,9 +83,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const ownerId = payload.owner_id || payload.effectiveUserId || record.owner_id || record.user_id;
     const actionCreatorId = record.created_by || record.user_id;
 
-    // إذا كان ownerId غير موجود أرجع نجاحًا دون إرسال لأي أحد
-    if (!ownerId) {
-      return res.status(200).json({ success: true, message: 'No ownerId provided, skipped' });
+    if (!ownerId || !UUID_RE.test(ownerId)) {
+      return res.status(400).json({ error: 'Invalid or missing ownerId' });
     }
 
     let title = "حركة جديدة 🧾";

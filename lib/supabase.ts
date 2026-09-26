@@ -1,16 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 import { Preferences } from '@capacitor/preferences';
 
-// مفتاح anon عام بطبيعة التصميم في Supabase ومحمي عبر سياسات RLS - مفتاح service_role محظور تماماً من كود الواجهة الأمامية
-const defaultUrl = 'https://ibudczfescwpmldarfbi.supabase.co';
-const defaultAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw';
+export const isSupabaseConfigured = Boolean(
+  typeof import.meta.env.VITE_SUPABASE_URL === 'string' &&
+  (import.meta.env.VITE_SUPABASE_URL.startsWith('http://') || import.meta.env.VITE_SUPABASE_URL.startsWith('https://')) &&
+  !import.meta.env.VITE_SUPABASE_URL.includes('your-project-id') &&
+  !import.meta.env.VITE_SUPABASE_URL.includes('placeholder.supabase.co') &&
+  typeof import.meta.env.VITE_SUPABASE_ANON_KEY === 'string' &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY.trim().length > 20 &&
+  !import.meta.env.VITE_SUPABASE_ANON_KEY.includes('your_supabase_anon')
+);
 
 const getValidSupabaseUrl = (): string => {
   const envUrl = import.meta.env.VITE_SUPABASE_URL;
   if (typeof envUrl === 'string' && (envUrl.startsWith('http://') || envUrl.startsWith('https://'))) {
     return envUrl.trim();
   }
-  return defaultUrl;
+  return 'https://placeholder.supabase.co';
 };
 
 const getValidSupabaseKey = (): string => {
@@ -18,19 +24,11 @@ const getValidSupabaseKey = (): string => {
   if (typeof envKey === 'string' && envKey.trim().length > 20) {
     return envKey.trim();
   }
-  return defaultAnonKey;
+  return 'placeholder-anon-key-with-valid-length';
 };
 
 const supabaseUrl = getValidSupabaseUrl();
 const supabaseKey = getValidSupabaseKey();
-
-if (!import.meta.env.VITE_SUPABASE_URL) {
-  console.warn("⚠️ VITE_SUPABASE_URL is not set in environment variables; using configured default.");
-}
-
-if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn("⚠️ VITE_SUPABASE_ANON_KEY is not set in environment variables; using configured default.");
-}
 
 const capacitorStorageAdapter = {
   getItem: async (key: string): Promise<string | null> => {
@@ -56,11 +54,32 @@ const capacitorStorageAdapter = {
   },
 };
 
-export const supabase = createClient(supabaseUrl.trim(), supabaseKey.trim(), {
+const safeCustomFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  if (!isSupabaseConfigured) {
+    return new Response(JSON.stringify({ error: 'Supabase is not configured' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  try {
+    return await fetch(input, init);
+  } catch (err) {
+    console.warn('Network request failed in Supabase client:', err);
+    return new Response(JSON.stringify({ error: 'Network error' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+};
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
     auth: {
-        autoRefreshToken: true,
-        persistSession: true,
+        autoRefreshToken: isSupabaseConfigured,
+        persistSession: isSupabaseConfigured,
         detectSessionInUrl: false,
         storage: capacitorStorageAdapter,
+    },
+    global: {
+        fetch: safeCustomFetch,
     },
 });

@@ -27,6 +27,7 @@
     "dexie": "^4.2.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.2",
+    "helmet": "^8.3.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.7.0",

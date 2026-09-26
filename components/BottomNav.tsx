@@ -74,7 +74,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
     return (
         <>
             <div 
-                className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] pb-[env(safe-area-inset-bottom)]"
+                className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] pb-[env(safe-area-inset-bottom)] in-app-select-none select-none"
             >
                 <div className="flex items-center justify-around px-2 py-1.5 relative">
                     {bottomBarItems.map(item => {
@@ -83,7 +83,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeItem, setActiveItem }) => {
                             <button
                                 key={item.id}
                                 onClick={() => handleItemClick(item.id)}
-                                className="relative flex flex-col items-center justify-center flex-1 h-[56px] transition-transform duration-200 active:scale-90 group outline-none select-none"
+                                className="relative flex flex-col items-center justify-center flex-1 h-[56px] transition-transform duration-200 active:scale-90 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 rounded-xl select-none"
                             >
                                 <div className={`relative z-10 flex flex-col items-center justify-center gap-1 w-full max-w-[72px] py-1.5 mx-auto transition-colors duration-200 ${isActive ? 'bg-primary/10 dark:bg-primary/15 rounded-2xl' : ''}`}>
                                     <item.icon className={`w-6 h-6 transition-colors duration-200 ${isActive ? 'text-primary dark:text-primary-light' : 'text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-400'}`} />

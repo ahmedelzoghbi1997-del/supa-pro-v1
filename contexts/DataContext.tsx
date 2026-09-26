@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo, ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import { useSettings } from './SettingsContext';
 import { useUI } from './UIContext';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { processSyncQueue } from '../lib/syncQueue';
 import { isLocalAction } from '../lib/recentActions';
 import { safeArray, getCache, setCache, getCustomCache, setCustomCache } from '../lib/dataCache';
@@ -525,30 +525,52 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         }
 
         const fetchTable = async (table: string) => {
-            const { data, error } = await supabase.from(table).select('*').eq('user_id', effectiveUserId);
-            if (error) {
+            if (!isSupabaseConfigured) {
                 setIsOffline(true);
                 const cached = await getCache(effectiveUserId, table);
                 return cached || [];
             }
-            const formatted = safeArray(data).map((item: Record<string, unknown>) => ({ ...item, _stable_id: item.id }));
-            setCache(effectiveUserId, table, formatted);
-            return formatted;
+            try {
+                const { data, error } = await supabase.from(table).select('*').eq('user_id', effectiveUserId);
+                if (error) {
+                    setIsOffline(true);
+                    const cached = await getCache(effectiveUserId, table);
+                    return cached || [];
+                }
+                const formatted = safeArray(data).map((item: Record<string, unknown>) => ({ ...item, _stable_id: item.id }));
+                setCache(effectiveUserId, table, formatted);
+                return formatted;
+            } catch (_err) {
+                setIsOffline(true);
+                const cached = await getCache(effectiveUserId, table);
+                return cached || [];
+            }
         };
 
         const fetchVirtualMembers = async () => {
-            const { data, error } = await supabase
-                .from('virtual_members')
-                .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
-                .eq('owner_id', effectiveUserId);
-            if (error) {
+            if (!isSupabaseConfigured) {
                 setIsOffline(true);
                 const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
                 return cached || [];
             }
-            const formatted = safeArray(data);
-            setCache(effectiveUserId, 'virtual_members', formatted);
-            return formatted;
+            try {
+                const { data, error } = await supabase
+                    .from('virtual_members')
+                    .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
+                    .eq('owner_id', effectiveUserId);
+                if (error) {
+                    setIsOffline(true);
+                    const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
+                    return cached || [];
+                }
+                const formatted = safeArray(data);
+                setCache(effectiveUserId, 'virtual_members', formatted);
+                return formatted;
+            } catch (_err) {
+                setIsOffline(true);
+                const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
+                return cached || [];
+            }
         };
 
         try {

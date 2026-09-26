@@ -20,10 +20,10 @@ export const Button: React.FC<ButtonProps> = ({
   type = 'button',
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-bold rounded-2xl transition-all duration-200 focus:outline-none select-none active:scale-95 disabled:pointer-events-none disabled:opacity-50';
+  const baseClasses = 'inline-flex items-center justify-center font-bold rounded-button transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900 select-none active:scale-95 disabled:pointer-events-none disabled:opacity-50';
 
   const variantClasses = {
-    primary: 'bg-primary text-white hover:bg-primary-dark shadow-soft',
+    primary: 'bg-primary text-white hover:bg-primary-dark shadow-elevation-1',
     danger: 'bg-accent-danger text-white hover:bg-accent-danger/90',
     ghost: 'bg-transparent text-primary hover:bg-primary/10 dark:text-primary-light dark:hover:bg-primary/15',
     neutral: 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700',

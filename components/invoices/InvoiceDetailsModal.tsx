@@ -61,7 +61,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
         }));
 
     const InvoiceContent = ({ isForPrint = false }) => (
-        <div className={`${isForPrint ? 'space-y-6' : 'space-y-4'} w-full overflow-hidden`} dir="rtl">
+        <div className={`${isForPrint ? 'space-y-6' : 'space-y-4'} w-full overflow-hidden allow-select`} dir="rtl">
             {isForPrint && (
                 <div className="flex items-center justify-between mb-8 pb-6 border-b-4 border-emerald-500">
                     <div className="flex items-center gap-4">

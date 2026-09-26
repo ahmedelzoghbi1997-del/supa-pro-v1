@@ -118,13 +118,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, size = 
   const modalContent = (
     <div
       ref={backdropRef}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-page-enter p-4 will-change-opacity"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-page-enter p-4"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
     >
       <div
-        className={`relative w-full ${sizeClasses[size]} transform-gpu translate-z-0 will-change-transform will-change-[opacity,transform] flex flex-col rounded-xl bg-neutral-0 dark:bg-neutral-800 text-left shadow-xl transition-all animate-modal-enter max-h-[95vh]`}
+        className={`relative w-full ${sizeClasses[size]} transform-gpu translate-z-0 flex flex-col rounded-modal bg-neutral-0 dark:bg-neutral-800 text-left shadow-elevation-3 transition-all animate-modal-enter max-h-[95vh]`}
       >
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-700 shrink-0">

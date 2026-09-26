@@ -93,12 +93,14 @@ const TeamSettings: React.FC = () => {
 
             if (error) {
                 // Fallback to server API if needed
-                const res = await fetch(`/api/auth/list-virtual/${profile.id}`);
-                if (res.ok) {
-                    const serverMembers = await res.json();
-                    setSubUsers(serverMembers);
-                    return;
-                }
+                try {
+                    const res = await fetch(`/api/auth/list-virtual/${profile.id}`);
+                    if (res && res.ok) {
+                        const serverMembers = await res.json();
+                        setSubUsers(serverMembers);
+                        return;
+                    }
+                } catch {}
                 throw error;
             }
             if (data) setSubUsers(data as any);

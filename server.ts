@@ -1,4 +1,5 @@
 import express from "express";
+import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { createServer as createViteServer } from "vite";
 import path from "path";
@@ -136,6 +137,30 @@ function verifySecret(provided: string, expected: string): boolean {
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
+
+  // Helmet security headers (as first middleware)
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
+    originAgentCluster: false,
+    frameguard: false
+  }));
+
+  // CORS headers
+  app.use((_req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Internal-Secret");
+    if (_req.method === "OPTIONS") {
+      return res.status(200).end();
+    }
+    next();
+  });
+
+  // Trust proxy for reverse proxy environments (Vercel / Railway)
+  app.set('trust proxy', 1);
 
   app.use(express.json());
 

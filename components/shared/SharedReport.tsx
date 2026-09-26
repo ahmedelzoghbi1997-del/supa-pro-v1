@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Rocket } from "lucide-react";
-import { supabase } from "../../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import {
   TrendingUpIcon,
   TrendingDownIcon,
@@ -117,9 +117,9 @@ const SharedReport = () => {
   const hasTracked = useRef(false);
 
   useEffect(() => {
-    if (seasonId && !hasTracked.current) {
+    if (seasonId && !hasTracked.current && isSupabaseConfigured) {
       const trackVisit = async () => {
-        if (hasTracked.current) return;
+        if (hasTracked.current || !isSupabaseConfigured) return;
         hasTracked.current = true;
 
         const {
@@ -608,6 +608,12 @@ const SharedReport = () => {
 
   useEffect(() => {
     if (!seasonId) return;
+
+    if (!isSupabaseConfigured) {
+      setError("الخدمة السحابية غير مهيأة حالياً");
+      setLoading(false);
+      return;
+    }
 
     const fetchData = async () => {
       try {

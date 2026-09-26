@@ -13,33 +13,122 @@ export interface SavedAccount {
   avatarSeed?: string; // For dynamic aesthetic avatar generations
   biometricEnabled?: boolean; // Enable biometric unlock for this specific account
   pinEnabled?: boolean; // Enable PIN lock for this account
-  pinCode?: string; // One-way SHA-256 hashed code
+  pinCode?: string; // One-way PBKDF2 with Salt hashed code (pbkdf2$100000$salt$hash)
   parentId?: string;
 }
 
 /**
- * Hash PIN using one-way SHA-256 via Web Crypto API (crypto.subtle.digest).
+ * Constant-time comparison of two strings to prevent timing attacks.
  */
-export async function hashPin(pin: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+function constantTimeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 /**
- * Verify entered PIN against stored SHA-256 hash (with backwards compatibility).
+ * Hash PIN using PBKDF2 with Salt (100,000 iterations, SHA-256).
+ * Output format: pbkdf2$100000$<saltHex>$<hashHex>
+ */
+export async function hashPin(pin: string): Promise<string> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const encoder = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(pin),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    256
+  );
+  const saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+  const hashHex = Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return `pbkdf2$100000$${saltHex}$${hashHex}`;
+}
+
+/**
+ * Verify entered PIN against stored PBKDF2 hash.
+ * Strictly supports only the format: pbkdf2$<iterations>$<saltHex>$<hashHex>
+ * Plain-text and legacy SHA-256 comparisons are strictly rejected.
  */
 export async function verifyPin(enteredPin: string, storedHash?: string): Promise<boolean> {
   if (!storedHash || !enteredPin) return false;
+
   try {
-    const enteredHash = await hashPin(enteredPin);
-    return enteredHash === storedHash || enteredPin === storedHash;
+    const parts = storedHash.split('$');
+    // Must strictly follow pbkdf2$<iterations>$<saltHex>$<hashHex>
+    if (parts.length !== 4 || parts[0] !== 'pbkdf2') {
+      return false;
+    }
+
+    const iterations = parseInt(parts[1], 10);
+    const saltHex = parts[2];
+    const expectedHashHex = parts[3];
+
+    if (isNaN(iterations) || iterations <= 0 || !saltHex || !expectedHashHex) {
+      return false;
+    }
+
+    // Convert salt hex to Uint8Array
+    if (saltHex.length % 2 !== 0) return false;
+    const salt = new Uint8Array(saltHex.length / 2);
+    for (let i = 0; i < saltHex.length; i += 2) {
+      const byteVal = parseInt(saltHex.substring(i, i + 2), 16);
+      if (isNaN(byteVal)) return false;
+      salt[i / 2] = byteVal;
+    }
+
+    const encoder = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(enteredPin),
+      'PBKDF2',
+      false,
+      ['deriveBits']
+    );
+
+    const bits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: iterations,
+        hash: 'SHA-256'
+      },
+      keyMaterial,
+      256
+    );
+
+    const computedHashHex = Array.from(new Uint8Array(bits))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    return constantTimeCompare(computedHashHex, expectedHashHex);
   } catch (err) {
     console.error("Error verifying PIN:", err);
     return false;
   }
+}
+
+/**
+ * Check if a stored PIN is in legacy SHA-256 or invalid format.
+ */
+export function isLegacyPinHash(storedHash?: string): boolean {
+  if (!storedHash) return false;
+  return !storedHash.startsWith('pbkdf2$');
 }
 
 export async function getSavedAccounts(): Promise<SavedAccount[]> {

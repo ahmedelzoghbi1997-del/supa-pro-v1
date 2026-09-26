@@ -8,9 +8,9 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 const Card: React.FC<CardProps> = ({ children, className = 'p-6', ...props }) => {
   const baseClasses = `
     bg-neutral-0 dark:bg-neutral-800 
-    rounded-xl shadow-soft 
+    rounded-card shadow-elevation-1 hover:shadow-elevation-2
     border border-neutral-200 dark:border-neutral-700
-    transition-all duration-300
+    transition-all duration-200 active:scale-[0.985] cursor-pointer
   `;
 
   return (

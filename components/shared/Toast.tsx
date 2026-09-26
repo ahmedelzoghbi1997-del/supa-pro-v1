@@ -39,7 +39,7 @@ const Toast: React.FC<ToastProps> = ({ id, message, type, duration, removeToast 
             </div>
 
             {/* Content Text */}
-            <p className="text-[11px] font-black whitespace-nowrap leading-none tracking-tight">
+            <p className="text-sm font-bold leading-snug max-w-[80vw] sm:max-w-xs">
                 {message}
             </p>
             
@@ -64,7 +64,10 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) 
     if (toasts.length === 0) return null;
 
     return (
-        <div className="fixed top-4 inset-x-0 z-[250] flex flex-col items-center gap-2 px-4 pointer-events-none">
+        <div 
+            className="fixed top-4 inset-x-0 z-[250] flex flex-col items-center gap-2 px-4 pointer-events-none"
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        >
             {toasts.map(toast => (
                 <Toast key={toast.id} {...toast} removeToast={removeToast} />
             ))}

@@ -1,5 +1,5 @@
 import { db, type SyncQueueItem } from './db';
-import { supabase } from './supabase';
+import { supabase, isSupabaseConfigured } from './supabase';
 import { sanitizePayloadForTable } from './payloadWhitelist';
 
 export const isNetworkError = (error: unknown): boolean => {
@@ -109,6 +109,9 @@ const getTablePriority = (table: string): number => {
 };
 
 export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => void): Promise<{ processed: number; failed: number }> => {
+    if (!isSupabaseConfigured) {
+        return { processed: 0, failed: 0 };
+    }
     if (isProcessingQueue) {
         return { processed: 0, failed: 0 };
     }

@@ -44,9 +44,17 @@ export default {
           purple: '#8B5CF6', 
         }
       },
+      borderRadius: {
+        input: '0.5rem',
+        card: '0.75rem',
+        button: '1rem',
+        modal: '1rem',
+        pill: '9999px',
+      },
       boxShadow: {
-        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03)',
-        'soft-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.03)',
+        'elevation-1': '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        'elevation-2': '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05)',
+        'elevation-3': '0 12px 32px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.06)',
       },
       animation: {
         'shimmer': 'shimmer 2s linear infinite',

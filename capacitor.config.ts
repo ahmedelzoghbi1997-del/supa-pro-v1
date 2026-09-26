@@ -4,10 +4,6 @@ const config: CapacitorConfig = {
   appId: 'com.ahmed.supapro',
   appName: 'المحاسب الزراعي',
   webDir: 'dist',
-  server: {
-    url: 'https://supa-pro-v1.vercel.app',
-    cleartext: true,
-  },
   plugins: {
     LocalNotifications: {
       smallIcon: "ic_notification",

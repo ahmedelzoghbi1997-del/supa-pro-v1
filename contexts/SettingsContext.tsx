@@ -6,7 +6,7 @@ import React, {
   useEffect,
 } from "react";
 import type { AppSettings, Terminology } from "../types";
-import { supabase } from "../lib/supabase";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 export const terminology: Record<
   Terminology,
@@ -96,7 +96,7 @@ export const SettingsProvider: React.FC<{
       const storageKey = getStorageKey(userId);
       setLoadingSettings(true);
 
-      if (!userId || userId.includes("undefined")) {
+      if (!userId || userId.includes("undefined") || !isSupabaseConfigured) {
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           try {
@@ -188,10 +188,14 @@ export const SettingsProvider: React.FC<{
             localStorage.setItem(storageKey, JSON.stringify(initial));
           }
           // حفظها في قاعدة البيانات لأول مرة
-          await supabase
-            .from("profiles")
-            .update({ app_settings: initial })
-            .eq("id", userId);
+          if (isSupabaseConfigured) {
+            try {
+              await supabase
+                .from("profiles")
+                .update({ app_settings: initial })
+                .eq("id", userId);
+            } catch {}
+          }
         } else {
           // There was a network or server error loading remote settings; fallback to local storage
           throw loadError;
@@ -239,6 +243,30 @@ export const SettingsProvider: React.FC<{
     root.classList.add(activeTheme);
     root.style.colorScheme = activeTheme;
 
+    // تطبيق اللون المخصص وحجم الواجهة
+    const accent = settings.accentColor || "emerald";
+    root.setAttribute("data-theme-color", accent);
+
+    if (settings.uiScale) {
+      root.setAttribute("data-ui-scale", settings.uiScale);
+    }
+
+    // تحديث ديناميكي لوسوم meta theme-color لتتناسق مع شريط المتصفح والأجهزة المحمولة
+    const colorHexMap: Record<string, { 500: string; 600: string }> = {
+      emerald: { 500: "#10B981", 600: "#064e3b" },
+      blue: { 500: "#3B82F6", 600: "#1e3a8a" },
+      violet: { 500: "#8B5CF6", 600: "#4c1d95" },
+      amber: { 500: "#F59E0B", 600: "#78350f" },
+      rose: { 500: "#F43F5E", 600: "#881337" },
+    };
+
+    const newThemeColor500 = colorHexMap[accent]?.['500'] || "#10B981";
+    const newThemeColor600 = colorHexMap[accent]?.['600'] || "#064e3b";
+
+    document.querySelector('meta[name="theme-color"]:not([media])')?.setAttribute('content', newThemeColor500);
+    document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')?.setAttribute('content', newThemeColor500);
+    document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')?.setAttribute('content', newThemeColor600);
+
     // حفظ نسخة محلية خاصة بالمستخدم
     const storageKey = getStorageKey(userId);
     localStorage.setItem(storageKey, JSON.stringify(settings));
@@ -254,8 +282,8 @@ export const SettingsProvider: React.FC<{
     const storageKey = getStorageKey(userId);
     localStorage.setItem(storageKey, JSON.stringify(updated));
 
-    // حفظ في Supabase إذا كان المستخدم مسجلاً
-    if (userId && !userId.includes("undefined")) {
+    // حفظ في Supabase إذا كان المستخدم مسجلاً وكان Supabase مهيأ
+    if (isSupabaseConfigured && userId && !userId.includes("undefined")) {
       try {
         const { error } = await supabase
           .from("profiles")

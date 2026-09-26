@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { CURRENT_APP_VERSION } from '../../constants';
 import { isUpdateAvailable } from '../../utils/helpers';
 import { SparklesIcon, XMarkIcon } from '../Icons';
@@ -19,7 +19,7 @@ const AppUpdateModal: React.FC = () => {
 
     useEffect(() => {
         const checkUpdate = async () => {
-            if (!Capacitor.isNativePlatform()) {
+            if (!Capacitor.isNativePlatform() || !isSupabaseConfigured) {
                 return;
             }
 

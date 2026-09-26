@@ -15,9 +15,9 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
   const cellClasses = "p-3.5 text-sm text-neutral-800 dark:text-neutral-200 align-middle";
   
   return (
-    <div>
+    <div className="allow-select">
       {/* 📱 Mobile View: Responsive Data Cards (تمنع التمرير الأفقي تماماً على الجوال) */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden space-y-3 allow-select">
         {invoices.map((invoice) => {
           const total = calculateInvoiceTotal(invoice.price_items, invoice.deductions);
           const totalWeight = invoice.price_items?.reduce((s, i) => s + (i.quantity || 0), 0) || 0;
@@ -133,9 +133,9 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
       </div>
 
       {/* 💻 Desktop / Tablet View: Classic Table (يظهر على شاشات md وما فوق) */}
-      <div className="hidden md:block bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-none overflow-hidden">
+      <div className="hidden md:block bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-none overflow-hidden allow-select">
         <div className="max-h-[65vh] overflow-auto custom-scrollbar">
-          <table className="w-full min-w-[650px] border-collapse text-right">
+          <table className="w-full min-w-[650px] border-collapse text-right allow-select">
             <thead className="sticky top-0 z-10 bg-neutral-100 dark:bg-neutral-900 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.05)]">
               <tr>
                 <th className={headClasses}>التاريخ</th>

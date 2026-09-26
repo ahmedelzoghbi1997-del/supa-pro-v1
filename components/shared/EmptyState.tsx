@@ -7,12 +7,13 @@ interface EmptyStateProps {
   message: string;
   actionText?: string;
   onAction?: () => void;
+  iconClassName?: string;
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ icon: Icon, title, message, actionText, onAction }) => {
+const EmptyState: React.FC<EmptyStateProps> = ({ icon: Icon, title, message, actionText, onAction, iconClassName = 'h-24 w-24' }) => {
   return (
-    <div className="text-center py-16 px-6 bg-neutral-50 dark:bg-neutral-900/50 rounded-lg border-2 border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center">
-      <Icon className="h-40 w-40 text-neutral-300 dark:text-neutral-600 mb-4" />
+    <div className="text-center py-16 px-6 bg-neutral-50 dark:bg-neutral-900/50 rounded-card border-2 border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center">
+      <Icon className={`${iconClassName} text-neutral-300 dark:text-neutral-600 mb-4`} />
       <h3 className="mt-4 text-xl font-semibold text-neutral-800 dark:text-neutral-100">{title}</h3>
       <p className="mt-2 text-base text-neutral-500 dark:text-neutral-400 max-w-sm">{message}</p>
       {actionText && onAction && (

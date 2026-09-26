@@ -211,7 +211,7 @@ BEGIN
     RETURN QUERY
     SELECT v_member.id, v_member.owner_id, v_member.username, v_member.full_name, v_member.role;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 GRANT EXECUTE ON FUNCTION public.virtual_login(TEXT, TEXT) TO anon, authenticated, service_role;
 
@@ -240,7 +240,7 @@ BEGIN
     SET last_seen = NOW()
     WHERE id = member_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 REVOKE ALL ON FUNCTION public.update_virtual_member_last_seen(UUID) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.update_virtual_member_last_seen(UUID) TO authenticated, service_role;
@@ -349,7 +349,7 @@ BEGIN
     -- إرجاع الكود الصريح مرة واحدة في الاستجابة
     RETURN QUERY SELECT v_code, v_expires;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 GRANT EXECUTE ON FUNCTION public.generate_owner_linking_code() TO authenticated;
 REVOKE EXECUTE ON FUNCTION public.generate_owner_linking_code() FROM anon;
@@ -436,7 +436,7 @@ BEGIN
         'owner_name', v_owner.full_name
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 GRANT EXECUTE ON FUNCTION public.link_account_to_owner(TEXT) TO authenticated;
 REVOKE EXECUTE ON FUNCTION public.link_account_to_owner(TEXT) FROM anon;
@@ -502,7 +502,7 @@ BEGIN
         FROM jsonb_array_elements(p_deductions) AS item;
     END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 REVOKE ALL ON FUNCTION public.upsert_invoice_items(UUID, JSONB, JSONB, UUID) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.upsert_invoice_items(UUID, JSONB, JSONB, UUID) TO authenticated, service_role;

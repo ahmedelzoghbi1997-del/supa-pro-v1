@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { 
   LogoIcon, 
   UserIcon, 
@@ -210,46 +210,77 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             setError('بيانات الدخول غير صحيحة');
         }
     } else {
-        const { data: authData, error } = await supabase.auth.signInWithPassword({ email: identifier, password });
-        if (error) {
-            if (error.message.includes('Email not confirmed')) {
-                setError('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.');
-                setOtpFlow('signup');
-                setView('verify_otp');
-            } else {
-                setError('بيانات الدخول غير صحيحة');
-            }
-        } else if (authData?.user) {
+        if (!isSupabaseConfigured) {
+            // تسجيل الدخول المحلي للوضع غير المتصل / بدون إعدادات سحابية
+            const localUserId = `virtual_owner_${identifier.replace(/[^a-zA-Z0-9]/g, '_') || 'main'}`;
+            const localUser = {
+                id: localUserId,
+                full_name: identifier.split('@')[0] || 'المالك الرئيسي',
+                role: 'owner',
+                username: identifier,
+                isVirtual: true
+            };
+            localStorage.setItem('virtual_auth', JSON.stringify(localUser));
+            await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(localUser) });
+            await Preferences.set({ key: `virtual_auth_${localUser.id}`, value: JSON.stringify(localUser) });
             await Preferences.remove({ key: 'was_explicitly_logged_out' });
-            if (authData.session) {
-                await Preferences.set({
-                    key: `supabase_session_${authData.user.id}`,
-                    value: JSON.stringify(authData.session)
-                });
-                localStorage.setItem(`supabase_session_${authData.user.id}`, JSON.stringify(authData.session));
-            }
-            try {
-                const { data: profData } = await supabase
-                    .from('profiles')
-                    .select('full_name, role')
-                    .eq('id', authData.user.id)
-                    .single();
-                
-                await saveAccount({
-                    id: authData.user.id,
-                    email: identifier,
-                    accessToken: authData.session?.access_token,
-                    refreshToken: authData.session?.refresh_token,
-                    fullName: profData?.full_name || 'مالك',
-                    role: profData?.role || 'owner',
-                    isVirtual: false,
-                    greenhouseName: profData?.full_name || 'المالك الرئيسي'
-                });
-                await setLastActiveAccount(authData.user.id);
-            } catch (err) {
-                console.error("Error saving real auth profile:", err);
-            }
+            await saveAccount({
+                id: localUser.id,
+                email: identifier,
+                fullName: localUser.full_name,
+                role: 'owner',
+                isVirtual: true,
+                greenhouseName: localUser.full_name
+            });
+            await setLastActiveAccount(localUser.id);
             window.location.reload();
+            return;
+        }
+        try {
+            const { data: authData, error } = await supabase.auth.signInWithPassword({ email: identifier, password });
+            if (error) {
+                if (error.message.includes('Email not confirmed')) {
+                    setError('لم يتم تأكيد بريدك الإلكتروني. يرجى إدخال الرمز الذي تم إرساله.');
+                    setOtpFlow('signup');
+                    setView('verify_otp');
+                } else {
+                    setError('بيانات الدخول غير صحيحة');
+                }
+            } else if (authData?.user) {
+                await Preferences.remove({ key: 'was_explicitly_logged_out' });
+                if (authData.session) {
+                    await Preferences.set({
+                        key: `supabase_session_${authData.user.id}`,
+                        value: JSON.stringify(authData.session)
+                    });
+                    localStorage.setItem(`supabase_session_${authData.user.id}`, JSON.stringify(authData.session));
+                }
+                try {
+                    const { data: profData } = await supabase
+                        .from('profiles')
+                        .select('full_name, role')
+                        .eq('id', authData.user.id)
+                        .single();
+                    
+                    await saveAccount({
+                        id: authData.user.id,
+                        email: identifier,
+                        accessToken: authData.session?.access_token,
+                        refreshToken: authData.session?.refresh_token,
+                        fullName: profData?.full_name || 'مالك',
+                        role: profData?.role || 'owner',
+                        isVirtual: false,
+                        greenhouseName: profData?.full_name || 'المالك الرئيسي'
+                    });
+                    await setLastActiveAccount(authData.user.id);
+                } catch (err) {
+                    console.error("Error saving real auth profile:", err);
+                }
+                window.location.reload();
+            }
+        } catch (err: any) {
+            console.error("Login Exception:", err);
+            setError('تعذر الاتصال بخادم المصادقة. يرجى التحقق من اتصالك بالإنترنت.');
         }
     }
     setLoading(false);
@@ -505,20 +536,54 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setLoading(true);
     setError(null);
     setMessage(null);
-    const { error: signUpError } = await supabase.auth.signUp({
-        email: identifier,
-        password,
-        options: { data: { full_name: fullName } }
-    });
 
-    if (signUpError) {
-        setError(signUpError.message === 'User already registered' ? 'هذا البريد الإلكتروني مسجل بالفعل.' : signUpError.message);
-    } else {
-        setMessage('تم إرسال رمز التحقق إلى بريدك الإلكتروني.');
-        setOtpFlow('signup');
-        setView('verify_otp');
+    if (!isSupabaseConfigured) {
+      // إنشاء حساب محلي عند عدم تكوين السحابة
+      const localUserId = `virtual_owner_${identifier.replace(/[^a-zA-Z0-9]/g, '_') || 'main'}`;
+      const localUser = {
+          id: localUserId,
+          full_name: fullName || identifier.split('@')[0] || 'المالك الرئيسي',
+          role: 'owner',
+          username: identifier,
+          isVirtual: true
+      };
+      localStorage.setItem('virtual_auth', JSON.stringify(localUser));
+      await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(localUser) });
+      await Preferences.set({ key: `virtual_auth_${localUser.id}`, value: JSON.stringify(localUser) });
+      await Preferences.remove({ key: 'was_explicitly_logged_out' });
+      await saveAccount({
+          id: localUser.id,
+          email: identifier,
+          fullName: localUser.full_name,
+          role: 'owner',
+          isVirtual: true,
+          greenhouseName: localUser.full_name
+      });
+      await setLastActiveAccount(localUser.id);
+      window.location.reload();
+      return;
     }
-    setLoading(false);
+
+    try {
+      const { error: signUpError } = await supabase.auth.signUp({
+          email: identifier,
+          password,
+          options: { data: { full_name: fullName } }
+      });
+
+      if (signUpError) {
+          setError(signUpError.message === 'User already registered' ? 'هذا البريد الإلكتروني مسجل بالفعل.' : signUpError.message);
+      } else {
+          setMessage('تم إرسال رمز التحقق إلى بريدك الإلكتروني.');
+          setOtpFlow('signup');
+          setView('verify_otp');
+      }
+    } catch (err: any) {
+      console.error("SignUp Exception:", err);
+      setError('تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة لاحقاً.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePasswordResetRequest = async (e: React.FormEvent) => {
@@ -526,27 +591,53 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     setLoading(true);
     setError(null);
     setMessage(null);
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(identifier);
-    if (resetError) {
-        setError(resetError.message);
-    } else {
-        setMessage('تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني.');
-        setOtpFlow('password_reset');
-        setView('verify_otp');
+
+    if (!isSupabaseConfigured) {
+      setError('خدمة استعادة كلمة المرور غير متوفرة حالياً.');
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(identifier);
+      if (resetError) {
+          setError(resetError.message);
+      } else {
+          setMessage('تم إرسال رمز استعادة كلمة المرور إلى بريدك الإلكتروني.');
+          setOtpFlow('password_reset');
+          setView('verify_otp');
+      }
+    } catch (err: any) {
+      console.error("Password Reset Exception:", err);
+      setError('تعذر الاتصال بالخادم. يرجى المحاولة لاحقاً.');
+    } finally {
+      setLoading(false);
+    }
   };
   
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const type = otpFlow === 'signup' ? 'signup' : 'recovery';
-    const { error: verifyError } = await supabase.auth.verifyOtp({ email: identifier, token, type });
-    if (verifyError) {
-        setError('الرمز غير صالح أو منتهي الصلاحية.');
+
+    if (!isSupabaseConfigured) {
+      setError('خدمة تأكيد الرمز غير متوفرة حالياً.');
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    try {
+      const type = otpFlow === 'signup' ? 'signup' : 'recovery';
+      const { error: verifyError } = await supabase.auth.verifyOtp({ email: identifier, token, type });
+      if (verifyError) {
+          setError('الرمز غير صالح أو منتهي الصلاحية.');
+      }
+    } catch (err: any) {
+      console.error("Verify OTP Exception:", err);
+      setError('فشل التحقق من الرمز بسبب مشكلة في الاتصال.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
@@ -557,15 +648,28 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
     }
     setLoading(true);
     setError(null);
-    const { error: updateError } = await supabase.auth.updateUser({ password });
-    if (updateError) {
-      setError(updateError.message);
-    } else {
-      await supabase.auth.signOut();
-      if (onAuthComplete) onAuthComplete();
-      window.location.search = '?password_updated=true';
+
+    if (!isSupabaseConfigured) {
+      setError('خدمة تحديث كلمة المرور غير متوفرة حالياً.');
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) {
+        setError(updateError.message);
+      } else {
+        await supabase.auth.signOut();
+        if (onAuthComplete) onAuthComplete();
+        window.location.search = '?password_updated=true';
+      }
+    } catch (err: any) {
+      console.error("Update Password Exception:", err);
+      setError('تعذر تحديث كلمة المرور بسبب مشكلة في الاتصال.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderContent = () => {
