@@ -43,18 +43,22 @@ async function parseVirtualProfile(str: string): Promise<Profile | null> {
     if (!virtualProfile || !virtualProfile.id || String(virtualProfile.id).includes("undefined")) {
       return null;
     }
+    let displayName = virtualProfile.full_name;
+    if (displayName && displayName.includes("@")) {
+      displayName = displayName.split("@")[0];
+    }
     const normalizedProfile = {
       ...virtualProfile,
       id: String(virtualProfile.id).startsWith("virtual_")
         ? virtualProfile.id
         : `virtual_${virtualProfile.id}`,
-      full_name: virtualProfile.full_name,
+      full_name: displayName || "المستخدم",
       role: virtualProfile.role || "viewer",
     } as Profile;
 
     const accounts = await getSavedAccounts();
     const savedAcc = accounts.find((a) => a.id === normalizedProfile.id);
-    if (savedAcc && savedAcc.greenhouseName) {
+    if ((!displayName || displayName.includes("@")) && savedAcc && savedAcc.greenhouseName && !savedAcc.greenhouseName.includes("@")) {
       normalizedProfile.full_name = savedAcc.greenhouseName;
     }
 
@@ -593,48 +597,102 @@ const App: React.FC = () => {
   const fetchProfile = async (userId: string) => {
     try {
       if (profileIdRef.current !== userId) {
-        setLoading(true); // التأكد من تفعيل حالة التحميل للمستخدم الجديد فقط
+        setLoading(true);
       }
+      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+      const userMetaName = session?.user?.user_metadata?.full_name;
+      const userEmail = session?.user?.email;
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
-      if (error && error.code !== "PGRST116") throw error;
+      if (error && error.code !== "PGRST116") {
+        console.warn("Profile fetch warning:", error);
+      }
 
       if (!data) {
-        // إنشاء بروفايل إذا كان المستخدم جديداً تماماً
-        const { data: newProfile, error: createError } = await supabase
-          .from("profiles")
-          .insert([
-            {
-              id: userId,
-              full_name: "مستخدم جديد",
-              status: "active",
-              role: "owner",
-            },
-          ])
-          .select()
-          .single();
-        if (createError) throw createError;
-        setProfile(newProfile);
+        const fallbackName = (userMetaName && !userMetaName.includes("@"))
+          ? userMetaName
+          : (userEmail ? userEmail.split("@")[0] : "مستخدم جديد");
+
+        let newProfile: Profile | null = null;
+        try {
+          const { data: inserted } = await supabase
+            .from("profiles")
+            .insert([
+              {
+                id: userId,
+                full_name: fallbackName,
+                email: userEmail,
+                status: "active",
+                role: "owner",
+              },
+            ])
+            .select()
+            .single();
+          newProfile = inserted;
+        } catch (_err) {
+          // Fallback handled below
+        }
+
+        const activeProfile: Profile = newProfile || {
+          id: userId,
+          full_name: fallbackName,
+          email: userEmail,
+          status: "active",
+          role: "owner",
+          app_settings: null,
+        };
+
+        setProfile(activeProfile);
         profileIdRef.current = userId;
         setIsFirstLogin(true);
       } else {
-        const accounts = await getSavedAccounts();
-        const savedAcc = accounts.find((a) => a.id === data.id);
-        if (savedAcc && savedAcc.greenhouseName) {
-          data.full_name = savedAcc.greenhouseName;
+        let cleanName = data.full_name;
+
+        if (!cleanName || cleanName === "مستخدم جديد" || cleanName.includes("@")) {
+          const accounts = await getSavedAccounts();
+          const savedAcc = accounts.find((a) => a.id === data.id);
+          if (userMetaName && !userMetaName.includes("@")) {
+            cleanName = userMetaName;
+          } else if (savedAcc && savedAcc.greenhouseName && !savedAcc.greenhouseName.includes("@")) {
+            cleanName = savedAcc.greenhouseName;
+          } else if (cleanName && cleanName.includes("@")) {
+            cleanName = cleanName.split("@")[0];
+          } else if (userEmail) {
+            cleanName = userEmail.split("@")[0];
+          }
         }
 
+        data.full_name = cleanName || "المستخدم";
         setProfile(data);
         profileIdRef.current = userId;
       }
     } catch (e) {
       console.error("Profile Fetch Error:", e);
-      setProfile(null); // التأكد من تصفير البروفايل في حال الخطأ
-      profileIdRef.current = null;
+      const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+      const userMetaName = session?.user?.user_metadata?.full_name;
+      const userEmail = session?.user?.email;
+      const accounts = await getSavedAccounts();
+      const savedAcc = accounts.find((a) => a.id === userId);
+      const fallbackName = (userMetaName && !userMetaName.includes("@"))
+        ? userMetaName
+        : (savedAcc && savedAcc.greenhouseName && !savedAcc.greenhouseName.includes("@"))
+        ? savedAcc.greenhouseName
+        : (userEmail ? userEmail.split("@")[0] : "المستخدم");
+
+      setProfile({
+        id: userId,
+        full_name: fallbackName,
+        email: userEmail,
+        status: "active",
+        role: "owner",
+        app_settings: null,
+      });
+      profileIdRef.current = userId;
     } finally {
       setLoading(false);
     }

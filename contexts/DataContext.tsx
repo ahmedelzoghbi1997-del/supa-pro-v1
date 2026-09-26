@@ -525,50 +525,69 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         }
 
         const fetchTable = async (table: string) => {
-            if (!isSupabaseConfigured) {
+            const cached = await getCache(effectiveUserId, table);
+
+            if (!isSupabaseConfigured || profile?.id?.startsWith('virtual_')) {
                 setIsOffline(true);
-                const cached = await getCache(effectiveUserId, table);
                 return cached || [];
             }
             try {
+                const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+                if (!session?.access_token) {
+                    return cached || [];
+                }
+
                 const { data, error } = await supabase.from(table).select('*').eq('user_id', effectiveUserId);
                 if (error) {
                     setIsOffline(true);
-                    const cached = await getCache(effectiveUserId, table);
                     return cached || [];
                 }
                 const formatted = safeArray(data).map((item: Record<string, unknown>) => ({ ...item, _stable_id: item.id }));
+
+                // Preserve local cache if Supabase query yields empty array while local cache has records
+                if (formatted.length === 0 && cached && cached.length > 0) {
+                    return cached;
+                }
+
                 setCache(effectiveUserId, table, formatted);
                 return formatted;
             } catch (_err) {
                 setIsOffline(true);
-                const cached = await getCache(effectiveUserId, table);
                 return cached || [];
             }
         };
 
         const fetchVirtualMembers = async () => {
-            if (!isSupabaseConfigured) {
+            const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
+
+            if (!isSupabaseConfigured || profile?.id?.startsWith('virtual_')) {
                 setIsOffline(true);
-                const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
                 return cached || [];
             }
             try {
+                const { data: { session } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+                if (!session?.access_token) {
+                    return cached || [];
+                }
+
                 const { data, error } = await supabase
                     .from('virtual_members')
                     .select('id, owner_id, username, full_name, role, last_seen, push_token, created_at')
                     .eq('owner_id', effectiveUserId);
                 if (error) {
                     setIsOffline(true);
-                    const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
                     return cached || [];
                 }
                 const formatted = safeArray(data);
+
+                if (formatted.length === 0 && cached && cached.length > 0) {
+                    return cached;
+                }
+
                 setCache(effectiveUserId, 'virtual_members', formatted);
                 return formatted;
             } catch (_err) {
                 setIsOffline(true);
-                const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
                 return cached || [];
             }
         };

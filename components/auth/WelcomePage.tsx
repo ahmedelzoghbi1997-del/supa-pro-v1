@@ -12,13 +12,18 @@ interface WelcomePageProps {
 const WelcomePage: React.FC<WelcomePageProps> = ({ profile, onContinue }) => {
   const { settings } = useSettings();
 
+  const rawName = profile.full_name;
+  const displayName = rawName && !rawName.includes('@') && rawName !== 'مستخدم جديد'
+    ? rawName
+    : (rawName?.split('@')[0] || profile.email?.split('@')[0] || 'المستخدم');
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-neutral-100 dark:bg-neutral-900 text-center p-6 animate-page-enter">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center bg-white dark:bg-neutral-800 p-8 rounded-2xl shadow-soft-lg border border-neutral-200 dark:border-neutral-700">
           <CheckCircleIcon className="w-20 h-20 text-primary mb-5" />
           <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
-            أهلاً بك يا {profile.full_name}!
+            أهلاً بك يا {displayName}!
           </h1>
           <p className="mt-3 text-neutral-600 dark:text-neutral-300">
             {settings.welcome_message}

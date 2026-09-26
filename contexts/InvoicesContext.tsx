@@ -75,22 +75,63 @@ export const InvoicesProvider: React.FC<InvoicesProviderProps> = ({
   const invoiceDeductions = propsInvoiceDeductions !== undefined ? propsInvoiceDeductions : internalInvoiceDeductions;
   const setInvoiceDeductions = propsSetInvoiceDeductions || setInternalInvoiceDeductions;
 
+  const priceItemsMap = useMemo(() => {
+    const map = new Map<string, InvoicePriceItem[]>();
+    for (const item of invoicePriceItems) {
+      if (item.invoice_id === undefined || item.invoice_id === null) continue;
+      const key = String(item.invoice_id);
+      const list = map.get(key);
+      if (list) {
+        list.push(item);
+      } else {
+        map.set(key, [item]);
+      }
+    }
+    return map;
+  }, [invoicePriceItems]);
+
+  const deductionsMap = useMemo(() => {
+    const map = new Map<string, InvoiceDeductionItem[]>();
+    for (const item of invoiceDeductions) {
+      if (item.invoice_id === undefined || item.invoice_id === null) continue;
+      const key = String(item.invoice_id);
+      const list = map.get(key);
+      if (list) {
+        list.push(item);
+      } else {
+        map.set(key, [item]);
+      }
+    }
+    return map;
+  }, [invoiceDeductions]);
+
   const hydratedInvoices = useMemo(() => invoices.map(inv => {
     const isRetained = inv.is_retained_debt || 
         Boolean(inv.description?.includes('[مرصودة]')) || 
         Boolean(inv.description?.includes('[RETAINED_DEBT]'));
     const invIdStr = String(inv.id);
     const stableIdStr = inv._stable_id ? String(inv._stable_id) : null;
+
+    let price_items = priceItemsMap.get(invIdStr) || [];
+    if (price_items.length === 0 && stableIdStr && stableIdStr !== invIdStr) {
+      price_items = priceItemsMap.get(stableIdStr) || [];
+    }
+
+    let deductions = deductionsMap.get(invIdStr) || [];
+    if (deductions.length === 0 && stableIdStr && stableIdStr !== invIdStr) {
+      deductions = deductionsMap.get(stableIdStr) || [];
+    }
+
     return {
         ...inv,
         cycle: inv.cycle || cycles.find(c => String(c.id) === String(inv.cycle_id))?.name || '...',
         is_retained_debt: isRetained,
         source_type: 'invoice' as const,
         source_ref_id: inv.source_ref_id || inv.id,
-        price_items: invoicePriceItems.filter(item => String(item.invoice_id) === invIdStr || (stableIdStr && String(item.invoice_id) === stableIdStr)),
-        deductions: invoiceDeductions.filter(item => String(item.invoice_id) === invIdStr || (stableIdStr && String(item.invoice_id) === stableIdStr))
+        price_items,
+        deductions
     };
-  }), [invoices, cycles, invoicePriceItems, invoiceDeductions]);
+  }), [invoices, cycles, priceItemsMap, deductionsMap]);
 
   const addInvoice = useCallback(async (data: InvoiceInput) => {
     const isRetained = data.description?.includes('[مرصودة]') || data.description?.includes('[RETAINED_DEBT]');

@@ -262,15 +262,23 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                         .eq('id', authData.user.id)
                         .single();
                     
+                    const userMetaName = authData.user.user_metadata?.full_name;
+                    let cleanName = profData?.full_name;
+                    if (!cleanName || cleanName === 'مستخدم جديد' || cleanName.includes('@')) {
+                      cleanName = (userMetaName && !userMetaName.includes('@'))
+                        ? userMetaName
+                        : (identifier.split('@')[0] || 'المالك الرئيسي');
+                    }
+
                     await saveAccount({
                         id: authData.user.id,
                         email: identifier,
                         accessToken: authData.session?.access_token,
                         refreshToken: authData.session?.refresh_token,
-                        fullName: profData?.full_name || 'مالك',
+                        fullName: cleanName,
                         role: profData?.role || 'owner',
                         isVirtual: false,
-                        greenhouseName: profData?.full_name || 'المالك الرئيسي'
+                        greenhouseName: cleanName
                     });
                     await setLastActiveAccount(authData.user.id);
                 } catch (err) {
