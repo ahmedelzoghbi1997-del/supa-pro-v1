@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { BellIcon, SunIcon, MoonIcon, LogoIcon } from './Icons';
 import type { NavItemId, Invoice, Expense, Cycle, SupplierPayment, FarmerWithdrawal, Advance } from '../types';
 import NotificationsPanel from './shared/NotificationsPanel';
@@ -212,24 +213,35 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
             
             {/* Component Rendering - All screens are viewable by Strategic Partners (viewer role) */}
             <Suspense fallback={<PageSkeleton />}>
-              {activeItem === 'dashboard' && <div className="animate-page-enter h-full"><Dashboard /></div>}
-              {activeItem === 'invoices' && <div className="animate-page-enter h-full"><InvoiceManager /></div>}
-              {activeItem === 'expenses' && <div className="animate-page-enter h-full"><ExpenseManager /></div>}
-              {activeItem === 'cycles' && <div className="animate-page-enter h-full"><CycleManager /></div>}
-              {activeItem === 'weekly_analysis' && <div className="animate-page-enter h-full"><WeeklyAnalysis /></div>}
-              {activeItem === 'treasury' && settings.systems.treasury && <div className="animate-page-enter h-full"><TreasuryManager /></div>}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeItem}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="h-full w-full"
+                >
+                  {activeItem === 'dashboard' && <div className="h-full"><Dashboard /></div>}
+                  {activeItem === 'invoices' && <div className="h-full"><InvoiceManager /></div>}
+                  {activeItem === 'expenses' && <div className="h-full"><ExpenseManager /></div>}
+                  {activeItem === 'cycles' && <div className="h-full"><CycleManager /></div>}
+                  {activeItem === 'weekly_analysis' && <div className="h-full"><WeeklyAnalysis /></div>}
+                  {activeItem === 'treasury' && settings.systems.treasury && <div className="h-full"><TreasuryManager /></div>}
 
-              {/* Standard Rendering for Secondary Pages */}
-              {activeItem === 'daily_logs' && <div className="animate-page-enter"><DailyLogManager /></div>}
-              {activeItem === 'assets' && <div className="animate-page-enter"><AssetManager /></div>}
-              {activeItem === 'labor' && settings.systems.labor && <div className="animate-page-enter"><LaborManager /></div>}
-              {activeItem === 'suppliers' && settings.systems.suppliers && <div className="animate-page-enter"><SupplierManager /></div>}
-              {activeItem === 'farmer_account' && settings.systems.farmer_account && <div className="animate-page-enter"><FarmerAccountManager /></div>}
-              {activeItem === 'advances' && settings.systems.advances && <div className="animate-page-enter"><AdvancesManager /></div>}
-              {activeItem === 'partners' && settings.systems.partners_wallet && <div className="animate-page-enter"><PartnersManager /></div>}
-              {activeItem === 'settings' && <div className="animate-page-enter"><SettingsManager /></div>}
-              {activeItem === 'users' && profile?.role === 'owner' && <div className="animate-page-enter"><UserManager /></div>}
-              {activeItem === 'subscription' && <div className="animate-page-enter"><SubscriptionPage /></div>}
+                  {/* Standard Rendering for Secondary Pages */}
+                  {activeItem === 'daily_logs' && <div><DailyLogManager /></div>}
+                  {activeItem === 'assets' && <div><AssetManager /></div>}
+                  {activeItem === 'labor' && settings.systems.labor && <div><LaborManager /></div>}
+                  {activeItem === 'suppliers' && settings.systems.suppliers && <div><SupplierManager /></div>}
+                  {activeItem === 'farmer_account' && settings.systems.farmer_account && <div><FarmerAccountManager /></div>}
+                  {activeItem === 'advances' && settings.systems.advances && <div><AdvancesManager /></div>}
+                  {activeItem === 'partners' && settings.systems.partners_wallet && <div><PartnersManager /></div>}
+                  {activeItem === 'settings' && <div><SettingsManager /></div>}
+                  {activeItem === 'users' && profile?.role === 'owner' && <div><UserManager /></div>}
+                  {activeItem === 'subscription' && <div><SubscriptionPage /></div>}
+                </motion.div>
+              </AnimatePresence>
             </Suspense>
 
         </div>
