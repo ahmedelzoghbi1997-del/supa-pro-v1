@@ -4,49 +4,16 @@ import { useSettings } from '../../contexts/SettingsContext';
 import { formatNumber, getLocalDateString } from '../../utils/helpers';
 import { useToast } from '../../hooks/useToast';
 import { 
-    PlusIcon, 
-    TrashIcon, 
-    ScaleIcon, 
-    InfoIcon,
     WalletIcon, 
-    PencilIcon,
-    CheckCircleIcon
+    PlusIcon, 
+    PencilIcon, 
+    TrashIcon, 
+    ScaleIcon 
 } from '../Icons';
 import Modal from '../shared/Modal';
 import { MarketDebtCenter } from './MarketDebtCenter';
+import { WalletTab, LedgerTab, DetailsTab } from './tabs';
 import type { PartnerDebt } from '../../types';
-
-const getCycleBadgeStyles = (cycleId: string, cycleName: string) => {
-    const colors = [
-        { bg: 'bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 border border-indigo-100/50 dark:border-indigo-900/30' },
-        { bg: 'bg-cyan-50/80 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-300 border border-cyan-100/50 dark:border-cyan-900/30' },
-        { bg: 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 border border-amber-100/50 dark:border-amber-900/30' },
-        { bg: 'bg-purple-50/80 dark:bg-purple-950/40 text-purple-600 dark:text-purple-300 border border-purple-100/50 dark:border-purple-900/30' },
-        { bg: 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border border-emerald-100/50 dark:border-emerald-900/30' },
-        { bg: 'bg-sky-50/80 dark:bg-sky-950/40 text-sky-600 dark:text-sky-300 border border-sky-100/50 dark:border-sky-900/30' },
-        { bg: 'bg-rose-50/80 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 border border-rose-100/50 dark:border-rose-900/30' },
-        { bg: 'bg-teal-50/80 dark:bg-teal-950/40 text-teal-600 dark:text-teal-300 border border-teal-100/50 dark:border-teal-900/30' },
-    ];
-    let hash = 0;
-    const str = cycleId + cycleName;
-    for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash) % colors.length;
-    return colors[index].bg;
-};
-
-const ChevronDownIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-    </svg>
-);
-
-const ChevronUpIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" {...props}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-    </svg>
-);
 
 const PartnersManager: React.FC = () => {
     const { settings, updateSettings } = useSettings();
@@ -1120,200 +1087,17 @@ const PartnersManager: React.FC = () => {
 
             {/* VIEW 1: THE PARTNERS CARDS GRID */}
             {activeView === 'wallets' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {partnersFinancials.length === 0 && (
-                        <div className="col-span-full py-12 text-center rounded-[2rem] border-2 border-dashed border-neutral-300 dark:border-neutral-750 bg-neutral-50/50 dark:bg-neutral-900/20">
-                            <p className="text-sm text-neutral-500 dark:text-neutral-400 font-bold mb-3">لا يوجد شركاء محددين لعرض ذممهم المالية</p>
-                            <p className="text-xs text-neutral-400 dark:text-neutral-500 mb-6 max-w-md mx-auto leading-relaxed">
-                                لتفعيل حسابات الشركاء وإدارة أرصدتهم، يرجى التوجه إلى لوحة الإعدادات، ثم الأشخاص والمستخدمين، وإدخال نسبة كل شريك في المزارع.
-                            </p>
-                            {!isViewer && (
-                                <button
-                                    onClick={() => setConfigModalOpen(true)}
-                                    className="bg-primary text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-primary-dark transition-colors shadow-sm"
-                                >
-                                    تحديد نسب الشراكة الجارية
-                                </button>
-                            )}
-                        </div>
-                    )}
-                    
-                    {partnersFinancials.map((partner) => {
-                        const isOwed = partner.finalBalance >= 0;
-
-                        return (
-                            <div 
-                                key={partner.id}
-                                className={`bg-white dark:bg-neutral-900 p-5 rounded-2xl border ${
-                                    isOwed 
-                                        ? 'border-emerald-200 dark:border-emerald-900/60' 
-                                        : 'border-rose-200 dark:border-rose-900/60'
-                                } shadow-sm flex flex-col justify-between transition-all duration-200 relative`}
-                            >
-                                <div>
-                                    {/* Header: Partner Label & Percentage */}
-                                    <div className="flex justify-between items-center mb-4">
-                                        <div>
-                                            <h3 className="text-base font-bold text-neutral-900 dark:text-white">
-                                                {partner.label}
-                                            </h3>
-                                            <span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
-                                                النسبة: {partner.percentage}%
-                                            </span>
-                                        </div>
-                                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                                            isOwed 
-                                                ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40' 
-                                                : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40'
-                                        }`}>
-                                            {isOwed ? 'رصيد دائن' : 'رصيد مدين'}
-                                        </span>
-                                    </div>
-
-                                    {/* Hero Balance */}
-                                    <div className="text-center my-4 py-3 bg-neutral-50/60 dark:bg-neutral-850 rounded-xl border border-neutral-100 dark:border-neutral-800">
-                                        <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 block mb-1">
-                                            {isOwed ? 'الصافي المستحق للشريك (دائن)' : 'إجمالي المديونية والمستحقات (مدين)'}
-                                        </span>
-                                        <div className={`text-3xl sm:text-4xl font-black tracking-tight tabular-nums flex items-baseline justify-center gap-1.5 ${
-                                            isOwed ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                                        }`} dir="ltr">
-                                            <span>{isOwed ? '+' : '-'}{formatNumber(Math.abs(partner.finalBalance))}</span>
-                                            <span className="text-xs font-bold text-neutral-400" dir="rtl">ج.م</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Mini Ledger (List) */}
-                                    <div className="bg-neutral-50 dark:bg-neutral-950/50 rounded-xl border border-neutral-200/60 dark:border-neutral-800 divide-y divide-neutral-200/60 dark:divide-neutral-800 text-xs text-neutral-700 dark:text-neutral-300">
-                                        {/* أرباح عروات مقفلة */}
-                                        <div className="flex justify-between items-center px-3.5 py-2.5">
-                                            <span className="font-medium text-neutral-600 dark:text-neutral-400">أرباح عروات مقفلة</span>
-                                            <span className="font-bold text-neutral-900 dark:text-white tabular-nums">
-                                                {formatNumber(partner.closedCyclesProfit)} <span className="text-[10px] text-neutral-400 font-normal">ج.م</span>
-                                            </span>
-                                        </div>
-
-                                        {/* إجمالي مسحوبات نقدية */}
-                                        <div className="flex justify-between items-center px-3.5 py-2.5">
-                                            <span className="font-medium text-neutral-600 dark:text-neutral-400">إجمالي مسحوبات نقدية</span>
-                                            <span className="font-bold text-rose-600 dark:text-rose-400 tabular-nums" dir="ltr">
-                                                -{formatNumber(partner.totalDrawings)} <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">ج.م</span>
-                                            </span>
-                                        </div>
-
-                                        {/* مسدد مرصود (Only if > 0) */}
-                                        {partner.nonCashRepayments > 0 && (
-                                            <div className="flex justify-between items-center px-3.5 py-2.5">
-                                                <span className="font-medium text-neutral-600 dark:text-neutral-400">مسدد مرصود</span>
-                                                <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums" dir="ltr">
-                                                    +{formatNumber(partner.nonCashRepayments)} <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">ج.م</span>
-                                                </span>
-                                            </div>
-                                        )}
-
-                                        {/* التزامات وديون متبقية (Only if > 0) */}
-                                        {partner.outstandingDebts > 0 && (
-                                            <div className="flex justify-between items-center px-3.5 py-2.5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium text-neutral-600 dark:text-neutral-400">التزامات وديون متبقية</span>
-                                                    {partner.totalExternalDebt > 0 && !isViewer && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleStartSettleMerchant(partner.id)}
-                                                            className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition-colors"
-                                                        >
-                                                            سداد جهة التمويل
-                                                        </button>
-                                                    )}
-                                                </div>
-                                                <span className="font-bold text-rose-600 dark:text-rose-400 tabular-nums" dir="ltr">
-                                                    -{formatNumber(partner.outstandingDebts)} <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">ج.م</span>
-                                                </span>
-                                            </div>
-                                        )}
-
-                                        {/* إيداع تمويل شخصي معتمد */}
-                                        {partner.totalPersonalFunding > 0 && (
-                                            <div className="flex justify-between items-center px-3.5 py-2.5">
-                                                <span className="font-medium text-neutral-600 dark:text-neutral-400">إيداع تمويل شخصي معتمَد</span>
-                                                <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums" dir="ltr">
-                                                    +{formatNumber(partner.totalPersonalFunding)} <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">ج.م</span>
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Live Profit Tracker */}
-                                {(() => {
-                                    const hasActiveCycle = cycles.some(c => c.status === 'active');
-                                    if (!hasActiveCycle) return null;
-
-                                    const hasProfit = activeCyclesNetProfit > 0;
-                                    const partnerActiveShare = activeCyclesNetProfit * ((partner.percentage || 50) / 100);
-
-                                    return (
-                                        <div className="mt-3 pt-2.5 border-t border-neutral-150 dark:border-neutral-800 flex justify-between items-center text-xs">
-                                            <span className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400">
-                                                <span className={`w-1.5 h-1.5 rounded-full ${hasProfit ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-400'}`} />
-                                                <span>أرباح الموسم النشط</span>
-                                            </span>
-                                            {hasProfit ? (
-                                                <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums" dir="ltr">
-                                                    +{formatNumber(partnerActiveShare)} <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">ج.م</span>
-                                                </span>
-                                            ) : (
-                                                <span className="text-neutral-400 text-[11px]">قيد التغطية</span>
-                                            )}
-                                        </div>
-                                    );
-                                })()}
-
-                                {/* Action Buttons */}
-                                <div className="space-y-2 mt-4">
-                                    {!isViewer && (
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleStartAddDraw(partner.id, 'draw')}
-                                                className="py-2 px-3 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 font-bold text-xs rounded-xl border border-rose-200/80 dark:border-rose-800/40 flex items-center justify-center gap-1 transition-colors"
-                                            >
-                                                <span>سحب نقدي</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleStartAddDraw(partner.id, 'deposit')}
-                                                className="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs rounded-xl border border-emerald-200/80 dark:border-emerald-800/40 flex items-center justify-center gap-1 transition-colors"
-                                            >
-                                                <span>إيداع / سداد</span>
-                                            </button>
-                                        </div>
-                                    )}
-                                    
-                                    <button
-                                        type="button"
-                                        onClick={() => setReportPartnerId(partner.id)}
-                                        className="w-full py-2 bg-neutral-900 dark:bg-neutral-100 hover:bg-neutral-800 dark:hover:bg-white text-white dark:text-neutral-900 font-bold text-xs rounded-xl transition-colors shadow-sm"
-                                    >
-                                        كشف الحساب
-                                    </button>
-
-                                    {!isViewer && (
-                                        <div className="flex justify-center pt-0.5">
-                                            <button
-                                                type="button"
-                                                onClick={handleStartProfitTransfer}
-                                                className="text-xs font-semibold text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors underline underline-offset-2"
-                                            >
-                                                تسوية الأرباح
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                <WalletTab
+                    partnersFinancials={partnersFinancials}
+                    isViewer={isViewer}
+                    cycles={cycles}
+                    activeCyclesNetProfit={activeCyclesNetProfit}
+                    onOpenConfig={() => setConfigModalOpen(true)}
+                    onAddDraw={handleStartAddDraw}
+                    onViewStatement={(partnerId) => setReportPartnerId(partnerId)}
+                    onProfitTransfer={handleStartProfitTransfer}
+                    onSettleMerchant={handleStartSettleMerchant}
+                />
             )}
 
             {/* VIEW 2: Market Debt Center */}
@@ -2397,252 +2181,22 @@ const PartnersManager: React.FC = () => {
 
                     return (
                         <div className="space-y-5 text-right font-sans" dir="rtl">
-                            <div className="flex justify-between items-center border-b border-neutral-150 dark:border-neutral-800 pb-4">
-                                <div className="flex items-center gap-2.5">
-                                    <span className="p-2 rounded-xl bg-primary/10 text-primary dark:text-primary">
-                                        <WalletIcon className="w-5 h-5" />
-                                    </span>
-                                    <div>
-                                        <h3 className="text-base font-black text-neutral-900 dark:text-white">
-                                            كشف الحساب والتقارير: {reportPartner.label}
-                                        </h3>
-                                        <p className="text-[11px] text-slate-455 dark:text-neutral-440 font-extrabold">الحصة الشريكة الحالية: {reportPartner.percentage}%</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setReportPartnerId(null)}
-                                        className="w-8 h-8 rounded-full flex items-center justify-center bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-600 dark:text-neutral-300 transition-colors font-extrabold"
-                                    >
-                                        ✕
-                                    </button>
-                                </div>
-                            </div>
+                            <DetailsTab partner={reportPartner} />
 
-                            {/* PREMIUM FINTECH RECEIPT LAYOUT */}
-                            <div className="bg-slate-50 dark:bg-neutral-900/40 rounded-2xl border border-neutral-200/80 dark:border-neutral-800 p-4 space-y-4">
-                                <div className="space-y-3 divide-y divide-neutral-200/60 dark:divide-neutral-800/80">
-                                    
-                                    {/* Line 1: Closed Cycles Profit */}
-                                    <div className="space-y-1 py-1">
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="font-bold text-neutral-800 dark:text-neutral-200">أرباح ومستحقات العروات المغلقة</span>
-                                            <span dir="ltr" className={`font-black tracking-tight ${reportPartner.closedCyclesProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'} inline-flex items-center gap-0.5`}>
-                                                <span>{reportPartner.closedCyclesProfit >= 0 ? '+' : '-'}</span>
-                                                <span>{formatNumber(Math.abs(reportPartner.closedCyclesProfit))}</span>
-                                                <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">ج.م</span>
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Line 2: Cash Withdrawn */}
-                                    <div className="space-y-1 pt-3">
-                                        <div className="flex justify-between items-center text-xs">
-                                            <span className="font-bold text-neutral-800 dark:text-neutral-200">إجمالي السحب النقدي المباشر</span>
-                                            <span dir="ltr" className="font-bold text-rose-500 tracking-tight inline-flex items-center gap-0.5">
-                                                <span>-</span>
-                                                <span>{formatNumber(reportPartner.totalCashWithdrawn)}</span>
-                                                <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">ج.م</span>
-                                            </span>
-                                        </div>
-                                        <p className="text-[10px] text-slate-455 dark:text-neutral-440">
-                                            التمويلات والسلف النقدية المسحوبة من الخزينة لحسابك
-                                        </p>
-                                    </div>
-
-                                    {/* Line 3: Outstanding Debts */}
-                                    {reportPartner.outstandingDebts > 0 && (
-                                        <div className="space-y-1 pt-3">
-                                            <div className="flex justify-between items-center text-xs">
-                                                <span className="font-bold text-neutral-800 dark:text-neutral-200">التزامات وديون مشتركة متبقية</span>
-                                                <span dir="ltr" className="font-black text-rose-550 tracking-tight inline-flex items-center gap-0.5">
-                                                    <span>-</span>
-                                                    <span>{formatNumber(reportPartner.outstandingDebts)}</span>
-                                                    <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">ج.م</span>
-                                                </span>
-                                            </div>
-                                            <p className="text-[10px] text-slate-455 dark:text-neutral-440">
-                                                صافي المتبقي من الديون والالتزامات المشتركة المخصصة لحسابك
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    {/* Line 4: Personal Funding / Deposits */}
-                                    {reportPartner.totalPersonalFunding > 0 && (
-                                        <div className="space-y-1 pt-3">
-                                            <div className="flex justify-between items-center text-xs">
-                                                <span className="font-bold text-neutral-800 dark:text-neutral-200">إيداعات كاش وتمويل شخصي للخزنة</span>
-                                                <span dir="ltr" className="font-black text-emerald-500 tracking-tight inline-flex items-center gap-0.5">
-                                                    <span>+</span>
-                                                    <span>{formatNumber(reportPartner.totalPersonalFunding)}</span>
-                                                    <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">ج.م</span>
-                                                </span>
-                                            </div>
-                                            <p className="text-[10px] text-slate-450 dark:text-neutral-450">
-                                                تسويات نقدية أو تمويل شخصي تم إيداعه بالخزنة لتعزيز رصيدك
-                                            </p>
-                                        </div>
-                                    )}
-
-                                </div>
-
-                                {/* Divider dotted before total */}
-                                <div className="border-t border-dashed border-neutral-300 dark:border-neutral-700 my-2" />
-
-                                {/* Highlighted Total Hero Row */}
-                                <div className="bg-white dark:bg-neutral-950 p-4 rounded-xl border border-neutral-150 dark:border-neutral-800 shadow-sm flex justify-between items-center">
-                                    <div>
-                                        <p className="text-xs font-black text-neutral-900 dark:text-white">صافي مستحقات الذمة النهائية</p>
-                                        <span className={`inline-block text-[10px] font-black px-2 py-0.5 rounded-md mt-1 ${reportPartner.finalBalance >= 0 ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600' : 'bg-rose-50 dark:bg-rose-955/20 text-rose-500'}`}>
-                                            {reportPartner.finalBalance >= 0 ? 'دائن (لك مستحقات تصفية جارية)' : 'مدين (مستوجب سداد العجز للخزنة)'}
-                                        </span>
-                                    </div>
-                                    <div dir="ltr" className="text-right">
-                                        <span className={`text-2xl font-black ${reportPartner.finalBalance >= 0 ? 'text-emerald-500' : 'text-rose-550'}`}>
-                                            {reportPartner.finalBalance >= 0 ? '+' : '-'}{formatNumber(Math.abs(reportPartner.finalBalance))}
-                                        </span>
-                                        <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400 ml-1" dir="rtl">ج.م</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Clean Ledger Timeline */}
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center pb-2 border-b border-neutral-100 dark:border-neutral-850">
-                                    <h4 className="text-xs font-black text-neutral-800 dark:text-neutral-200">سجل حركات السحب</h4>
-                                    <span className="text-[9.5px] bg-neutral-100 dark:bg-neutral-850 text-neutral-600 dark:text-neutral-400 font-extrabold px-2 py-0.5 rounded-lg">
-                                        {partnerLogs.length} حركة مسجلة
-                                    </span>
-                                </div>
-
-                                <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-1">
-                                    {partnerLogs.length === 0 ? (
-                                        <div className="text-center py-10 text-neutral-400 bg-neutral-50/50 dark:bg-neutral-900/10 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800">
-                                            <InfoIcon className="w-5 h-5 mx-auto mb-1.5 text-neutral-300" />
-                                            <p className="text-xs font-bold">لا توجد حركات سحب أو ترحيل أرباح مسجلة بعد لهذا الشريك.</p>
-                                        </div>
-                                    ) : (
-                                        groupedLogs.map(g => {
-                                            const isOpen = !!expandedCycles[g.key];
-
-                                            const badgeStyles = g.key !== 'general' 
-                                                ? getCycleBadgeStyles(g.key, g.cycleName) 
-                                                : 'bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-350 border border-neutral-150 dark:border-neutral-800';
-
-                                            return (
-                                                <div key={g.key} className="space-y-1.5">
-                                                    {/* Accordion Group Header - Accordion Toggle */}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setExpandedCycles(prev => ({
-                                                                ...prev,
-                                                                [g.key]: !prev[g.key]
-                                                            }));
-                                                        }}
-                                                        className={`w-full flex justify-between items-center p-3 rounded-lg transition-colors text-right cursor-pointer shadow-sm ${badgeStyles}`}
-                                                    >
-                                                        <div className="flex items-center gap-2">
-                                                             <div className="flex flex-col text-right">
-                                                                 <span className="text-xs font-black">
-                                                                     🌿 {g.cycleName}
-                                                                 </span>
-                                                                 <span className="text-[9.5px] opacity-75 font-bold mt-0.5">
-                                                                     {g.count} حركات مسجلة
-                                                                 </span>
-                                                             </div>
-                                                        </div>
-
-                                                        <div className="flex items-center gap-2.5">
-                                                            <span dir="ltr" className="font-black font-mono text-xs inline-flex items-center gap-0.5">
-                                                                <span>{g.totalAmount < 0 ? '-' : '+'}</span>
-                                                                <span>{formatNumber(Math.abs(g.totalAmount))}</span>
-                                                                <span className="text-[9.5px] font-sans ml-1" dir="rtl">ج.م</span>
-                                                            </span>
-                                                            {isOpen ? (
-                                                                <ChevronUpIcon className="w-4 h-4" />
-                                                            ) : (
-                                                                <ChevronDownIcon className="w-4 h-4" />
-                                                            )}
-                                                        </div>
-                                                    </button>
-
-                                                    {/* Accordion Content (Expanded State) */}
-                                                    {isOpen && (
-                                                        <div className="mr-2 pl-1 border-r-2 border-neutral-150 dark:border-neutral-800 divide-y divide-gray-100 dark:divide-neutral-800 bg-neutral-50/20 dark:bg-neutral-950/25 rounded-md p-1">
-                                                            {g.logs.map(draw => {
-                                                                const isDraw = draw.amount > 0;
-                                                                const isTransfer = draw.reason?.includes('ترحيل أرباح') || draw.reason?.includes('[TRANSFERRED]') || draw.reason?.includes('[AUTO_PROFIT]');
-                                                                const isExternalDebt = draw.funding_source === 'external_debt' || draw.reason?.includes('[EXTERNAL_DEBT]');
-                                                                const isAutoProfit = draw.reason?.includes('[AUTO_PROFIT]');
-                                                                const absoluteAmount = Math.abs(draw.amount);
-
-                                                                return (
-                                                                    <div 
-                                                                        key={draw.id} 
-                                                                        className="py-2 flex justify-between items-center text-xs hover:bg-neutral-50/40 dark:hover:bg-neutral-900/30 px-1 transition-colors"
-                                                                    >
-                                                                        <div className="flex items-center gap-2 text-right">
-                                                                            <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-colors ${
-                                                                                isTransfer 
-                                                                                    ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600' 
-                                                                                    : isExternalDebt 
-                                                                                        ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-650' 
-                                                                                        : isDraw 
-                                                                                            ? 'bg-rose-50 dark:bg-rose-955/30 text-rose-500' 
-                                                                                            : 'bg-amber-50 dark:bg-amber-955/30 text-amber-600'
-                                                                            }`}>
-                                                                                {isTransfer ? '💸' : isExternalDebt ? '🏮' : isDraw ? '📤' : '📥'}
-                                                                            </span>
-                                                                            <div className="space-y-0.5 text-right">
-                                                                                <div className="flex items-center gap-1.5 flex-wrap font-bold text-neutral-800 dark:text-neutral-200">
-                                                                                    <span>
-                                                                                        {isTransfer ? (isAutoProfit ? 'مستحق أرباح عروة' : 'إضافة أرباح للمحفظة') : isExternalDebt ? (draw.amount < 0 ? 'سداد دين جهة خارجية' : 'دين جهة خارجية') : isDraw ? 'سحب كاش شخصي' : 'إيداع كاش للمحفظة'}
-                                                                                    </span>
-                                                                                    <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-normal">({draw.date})</span>
-                                                                                </div>
-                                                                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">{draw.reason?.replace(' [AUTO_PROFIT]', '') || 'حركة مالية جارية'}</p>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span dir="ltr" className={`font-black font-mono text-xs ${isTransfer ? 'text-emerald-500' : isExternalDebt ? 'text-purple-600 dark:text-purple-400' : isDraw ? 'text-rose-500' : 'text-emerald-500'} inline-flex items-center gap-0.5`}>
-                                                                                <span>{isDraw ? '-' : '+'}</span>
-                                                                                <span>{formatNumber(absoluteAmount)}</span>
-                                                                                <span className="text-[9px] font-sans ml-1" dir="rtl">ج.م</span>
-                                                                            </span>
-                                                                            {!isViewer && (
-                                                                                <div className="flex gap-0.5">
-                                                                                    <button
-                                                                                        onClick={() => handleStartEditDraw(draw)}
-                                                                                        className="p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded transition-colors"
-                                                                                        title="تعديل"
-                                                                                        type="button"
-                                                                                    >
-                                                                                        <PencilIcon className="w-3.5 h-3.5" />
-                                                                                    </button>
-                                                                                    <button
-                                                                                        onClick={() => handleDeleteDraw(draw.id, draw)}
-                                                                                        className="p-1 text-rose-455 hover:text-rose-600 hover:bg-rose-50/50 dark:hover:bg-rose-955/20 rounded transition-colors"
-                                                                                        title="حذف"
-                                                                                        type="button"
-                                                                                    >
-                                                                                        <TrashIcon className="w-3.5 h-3.5" />
-                                                                                    </button>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                            </div>
+                            <LedgerTab
+                                partnerLogs={partnerLogs}
+                                groupedLogs={groupedLogs}
+                                isViewer={isViewer}
+                                onEditDraw={handleStartEditDraw}
+                                onDeleteDraw={(id, draw) => handleDeleteDraw(id, draw)}
+                                expandedCycles={expandedCycles}
+                                onToggleCycle={(key) => {
+                                    setExpandedCycles(prev => ({
+                                        ...prev,
+                                        [key]: !prev[key]
+                                    }));
+                                }}
+                            />
 
                             {/* Safe Read-Only Close Statement Button */}
                             <div className="pt-4 border-t border-neutral-150 dark:border-neutral-800 flex justify-center">

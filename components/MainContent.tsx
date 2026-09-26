@@ -202,7 +202,7 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
       {/* 4. Scroll Container with Hardware Acceleration */}
       <div 
         ref={scrollContainerRef} 
-        className="flex-grow overflow-y-auto overflow-x-hidden w-full scrollbar-hide will-change-scroll"
+        className="flex-grow overflow-y-auto overflow-x-hidden w-full scrollbar-hide"
         style={{ WebkitOverflowScrolling: 'touch' }} // Smooth scrolling for iOS
       >
         <div 

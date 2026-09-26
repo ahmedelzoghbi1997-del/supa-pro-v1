@@ -198,7 +198,7 @@ const AddCycleForm: React.FC<AddCycleFormProps> = ({ onSave, onCancel, initialDa
         }
     };
     
-    const inputBaseClasses = "w-full bg-neutral-100 dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition placeholder:text-neutral-500";
+    const inputBaseClasses = "w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition placeholder:text-neutral-500";
     const labelClasses = "block text-sm font-medium text-gray-500 dark:text-gray-300 mb-2 text-right";
     const ErrorMessage: React.FC<{ error?: string }> = ({ error }) => {
         if (!error) return null;
@@ -371,7 +371,7 @@ const AddCycleForm: React.FC<AddCycleFormProps> = ({ onSave, onCancel, initialDa
                                             value={adjustmentAmount}
                                             onChange={e => setAdjustmentAmount(e.target.value)}
                                             placeholder="مثال: 5000"
-                                            className="w-full bg-white dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2.5 text-sm font-bold text-left outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2.5 text-sm font-bold text-left outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
                                             dir="ltr"
                                         />
                                         <p className="text-[10px] font-bold text-amber-600 dark:text-amber-500 mt-1">
@@ -390,7 +390,7 @@ const AddCycleForm: React.FC<AddCycleFormProps> = ({ onSave, onCancel, initialDa
                                             value={adjustmentAmount}
                                             onChange={e => setAdjustmentAmount(e.target.value)}
                                             placeholder="مثال: 10000"
-                                            className="w-full bg-white dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2.5 text-sm font-bold text-left outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500"
+                                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2.5 text-sm font-bold text-left outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500"
                                             dir="ltr"
                                         />
                                         <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-1">

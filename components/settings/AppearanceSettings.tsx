@@ -26,18 +26,18 @@ const AppearanceSettings: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <div className="bg-white dark:bg-[#182134] p-6 rounded-lg">
-                <h3 className="font-semibold text-lg text-slate-800 dark:text-white">مظهر التطبيق</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">اختر المظهر المفضل لديك لواجهة التطبيق.</p>
-                <div className="bg-gray-100 dark:bg-[#0D1423] p-1.5 rounded-lg flex items-center justify-between gap-2">
+            <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-100 dark:border-neutral-800 shadow-soft">
+                <h3 className="font-semibold text-lg text-neutral-800 dark:text-neutral-0">مظهر التطبيق</h3>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">اختر المظهر المفضل لديك لواجهة التطبيق.</p>
+                <div className="bg-neutral-100 dark:bg-neutral-800/50 p-1.5 rounded-xl flex items-center justify-between gap-2">
                     {themeOptions.map((option) => (
                         <button
                             key={option.id}
                             onClick={() => setTheme(option.id)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-semibold transition-colors duration-300
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-300
                                 ${theme === option.id 
                                     ? 'bg-primary text-white shadow-sm' 
-                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800/50'}`
+                                    : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800/50'}`
                                 }
                         >
                             <option.icon className="w-5 h-5" />
@@ -47,9 +47,9 @@ const AppearanceSettings: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-[#182134] p-6 rounded-lg">
-                <h3 className="font-semibold text-lg text-slate-800 dark:text-white">اللون المميز</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">اختر اللون الرئيسي الذي يظهر في الأزرار والأيقونات والروابط.</p>
+            <div className="bg-white dark:bg-neutral-900 p-6 rounded-2xl border border-neutral-100 dark:border-neutral-800 shadow-soft">
+                <h3 className="font-semibold text-lg text-neutral-800 dark:text-neutral-0">اللون المميز</h3>
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">اختر اللون الرئيسي الذي يظهر في الأزرار والأيقونات والروابط.</p>
                 <div className="flex flex-wrap items-center gap-4">
                     {colorOptions.map((color) => (
                         <button
@@ -58,7 +58,7 @@ const AppearanceSettings: React.FC = () => {
                             className="flex flex-col items-center gap-2 group"
                             aria-label={`Set theme to ${color.label}`}
                         >
-                            <div className={`relative w-10 h-10 rounded-full ${color.bgClass} flex items-center justify-center transition-transform group-hover:scale-110 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-[#182134] ${accentColor === color.id ? 'ring-primary' : 'ring-transparent'}`}>
+                            <div className={`relative w-10 h-10 rounded-full ${color.bgClass} flex items-center justify-center transition-transform group-hover:scale-110 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900 ${accentColor === color.id ? 'ring-primary' : 'ring-transparent'}`}>
                                 {accentColor === color.id && (
                                     <CheckCircleIcon className="w-6 h-6 text-white" />
                                 )}

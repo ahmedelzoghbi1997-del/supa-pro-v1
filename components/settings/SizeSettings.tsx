@@ -17,10 +17,10 @@ const SizeSettings: React.FC = () => {
 
     return (
         <div className="space-y-8">
-            <div className="bg-white dark:bg-[#182134] p-6 rounded-lg">
+            <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg">
                 <h3 className="font-semibold text-lg text-slate-800 dark:text-white">حجم التطبيق</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">تحكم في حجم الخط وعناصر الواجهة لتناسب تفضيلاتك.</p>
-                <div className="bg-gray-100 dark:bg-[#0D1423] p-1.5 rounded-lg flex items-center justify-between gap-2">
+                <div className="bg-gray-100 dark:bg-neutral-800/50 p-1.5 rounded-lg flex items-center justify-between gap-2">
                     {scaleOptions.map((option) => (
                         <button
                             key={option.id}

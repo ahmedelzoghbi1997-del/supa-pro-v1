@@ -23,7 +23,6 @@ import OfflineBanner from "./components/shared/OfflineBanner";
 const SharedReport = React.lazy(() => import("./components/shared/SharedReport"));
 
 import { triggerLightHaptic } from "./lib/haptics";
-import { StatusBar, Style } from "@capacitor/status-bar";
 
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
@@ -31,6 +30,7 @@ import { useToast } from "./hooks/useToast";
 import { registerForPushNotifications } from "./lib/notifications";
 import { Preferences } from "@capacitor/preferences";
 import { getSavedAccounts } from "./lib/accountManager";
+import { useStatusBarSync } from "./hooks/useStatusBarSync";
 
 import { useData } from "./contexts/DataContext";
 import { RealtimeNotificationProvider } from "./contexts/RealtimeNotificationContext";
@@ -155,6 +155,7 @@ class GlobalErrorBoundary extends React.Component<{children: React.ReactNode}, {
 }
 
 const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
+  useStatusBarSync();
   const [activeItem, setActiveItem] = useState<NavItemId>("dashboard");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [exitCountdown, setExitCountdown] = useState<number | null>(null);
@@ -209,16 +210,6 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
     if (settings?.accentColor)
       root.setAttribute("data-theme-color", settings.accentColor);
     if (settings?.uiScale) root.setAttribute("data-ui-scale", settings.uiScale);
-
-    
-    // Status bar logic
-    if (Capacitor.isNativePlatform()) {
-      const isDark = document.documentElement.classList.contains('dark') || window.matchMedia('(prefers-color-scheme: dark)').matches;
-      StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light }).catch(()=> {});
-      if (settings?.accentColor) {
-        StatusBar.setBackgroundColor({ color: isDark ? '#0a0a0a' : '#ffffff' }).catch(()=> {});
-      }
-    }
 
     // Capacitor Hardware Back Button Handling
     let backListener: any;

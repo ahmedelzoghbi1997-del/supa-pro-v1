@@ -159,7 +159,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                                     if(errors.newName) setErrors({});
                                 }}
                                 placeholder="مثال: الحاج ربيع"
-                                className={`w-full bg-white dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition placeholder:text-neutral-500 ${errors.newName ? errorInputClasses : ''}`}
+                                className={`w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition placeholder:text-neutral-500 ${errors.newName ? errorInputClasses : ''}`}
                             />
                             {errors.newName && <p className="text-accent-danger text-xs mt-1 text-right">{errors.newName}</p>}
                         </div>
@@ -171,7 +171,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                             <select
                                 value={selectedVirtualId}
                                 onChange={(e) => setSelectedVirtualId(e.target.value)}
-                                className="w-full bg-white dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition"
+                                className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition"
                             >
                                 <option value="">بدون ربط (مستخدم غير مسجل)</option>
                                 <option value="shared_debt" className="text-rose-500 font-bold bg-rose-50 dark:bg-rose-900/20">
@@ -198,7 +198,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                                     value={partnerPercentage}
                                     onChange={(e) => setPartnerPercentage(e.target.value)}
                                     placeholder="مثال: 25 (اتركها فارغة لغير الشركاء)"
-                                    className="w-full bg-white dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                                 <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-1">
                                     تُستخدم لحساب الأرباح المستحقة والمتبقية للشريك على لوحة التحكم تلقائياً وتجعله يظهر في قائمة الشركاء.

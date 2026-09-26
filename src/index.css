@@ -1,11 +1,17 @@
 @import "@fontsource/cairo/400.css";
-@import "@fontsource/cairo/500.css";
 @import "@fontsource/cairo/600.css";
 @import "@fontsource/cairo/700.css";
-@import "@fontsource/cairo/800.css";
 
 @import "tailwindcss";
 @config "../tailwind.config.js";
+
+@theme {
+  --font-weight-medium: 600;
+}
+
+.font-medium {
+  font-weight: 600;
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -54,7 +60,13 @@ body {
     background-image: linear-gradient(to bottom, #020617, #0F172A);
 }
 
-::-webkit-scrollbar { width: 0px; height: 0px; }
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.7); }
+  .dark ::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.6); }
+}
 .scrollbar-hide::-webkit-scrollbar { display: none; width: 0 !important; height: 0 !important; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -233,4 +245,13 @@ body {
 .animate-splash-enter {
   animation: splash-logo-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .animate-highlight { animation: none !important; box-shadow: none !important; }
 }

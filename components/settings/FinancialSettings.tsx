@@ -44,7 +44,7 @@ const FinancialSettings: React.FC = () => {
                                 <p className="text-sm text-gray-500 dark:text-gray-400">اختر طريقة إدخال الخصومات في فواتير البيع.</p>
                             </div>
                             
-                            <div className="bg-gray-100 dark:bg-[#0D1423] p-1.5 rounded-lg flex items-center justify-between gap-2 max-w-sm">
+                            <div className="bg-gray-100 dark:bg-neutral-800/50 p-1.5 rounded-lg flex items-center justify-between gap-2 max-w-sm">
                                 {discountTypeOptions.map((option) => (
                                     <button
                                         key={option.id}

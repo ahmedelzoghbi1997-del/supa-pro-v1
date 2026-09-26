@@ -44,7 +44,7 @@ const AddSupplierForm: React.FC<AddSupplierFormProps> = ({ onSave, onCancel, ini
         }
     };
     
-    const inputClasses = "w-full bg-neutral-100 dark:bg-[#182134] border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition placeholder:text-neutral-500";
+    const inputClasses = "w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 focus:ring-2 focus:ring-primary focus:border-primary transition placeholder:text-neutral-500";
     const errorInputClasses = "border-accent-danger focus:border-accent-danger focus:ring-accent-danger/50";
 
     return (

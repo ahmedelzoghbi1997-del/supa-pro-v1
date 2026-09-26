@@ -44,7 +44,7 @@ const DataSettings: React.FC = () => {
             </Modal>
             
             <div className="space-y-8">
-                <div className="border-t-4 border-red-500/50 bg-white dark:bg-[#182134] p-6 rounded-lg">
+                <div className="border-t-4 border-red-500/50 bg-white dark:bg-neutral-900 p-6 rounded-lg">
                     <div className="flex items-start gap-4">
                         <WarningIcon className="w-8 h-8 text-red-500 flex-shrink-0" />
                         <div>
