@@ -75,7 +75,7 @@ export const InvoicesProvider: React.FC<InvoicesProviderProps> = ({
   const invoiceDeductions = propsInvoiceDeductions !== undefined ? propsInvoiceDeductions : internalInvoiceDeductions;
   const setInvoiceDeductions = propsSetInvoiceDeductions || setInternalInvoiceDeductions;
 
-  const priceItemsMap = useMemo(() => {
+  const priceItemsByInvoice = useMemo(() => {
     const map = new Map<string, InvoicePriceItem[]>();
     for (const item of invoicePriceItems) {
       if (item.invoice_id === undefined || item.invoice_id === null) continue;
@@ -90,7 +90,7 @@ export const InvoicesProvider: React.FC<InvoicesProviderProps> = ({
     return map;
   }, [invoicePriceItems]);
 
-  const deductionsMap = useMemo(() => {
+  const deductionsByInvoice = useMemo(() => {
     const map = new Map<string, InvoiceDeductionItem[]>();
     for (const item of invoiceDeductions) {
       if (item.invoice_id === undefined || item.invoice_id === null) continue;
@@ -112,14 +112,14 @@ export const InvoicesProvider: React.FC<InvoicesProviderProps> = ({
     const invIdStr = String(inv.id);
     const stableIdStr = inv._stable_id ? String(inv._stable_id) : null;
 
-    let price_items = priceItemsMap.get(invIdStr) || [];
-    if (price_items.length === 0 && stableIdStr && stableIdStr !== invIdStr) {
-      price_items = priceItemsMap.get(stableIdStr) || [];
+    let price_items = priceItemsByInvoice.get(invIdStr);
+    if ((!price_items || price_items.length === 0) && stableIdStr && stableIdStr !== invIdStr) {
+      price_items = priceItemsByInvoice.get(stableIdStr);
     }
 
-    let deductions = deductionsMap.get(invIdStr) || [];
-    if (deductions.length === 0 && stableIdStr && stableIdStr !== invIdStr) {
-      deductions = deductionsMap.get(stableIdStr) || [];
+    let deductions = deductionsByInvoice.get(invIdStr);
+    if ((!deductions || deductions.length === 0) && stableIdStr && stableIdStr !== invIdStr) {
+      deductions = deductionsByInvoice.get(stableIdStr);
     }
 
     return {
@@ -128,10 +128,10 @@ export const InvoicesProvider: React.FC<InvoicesProviderProps> = ({
         is_retained_debt: isRetained,
         source_type: 'invoice' as const,
         source_ref_id: inv.source_ref_id || inv.id,
-        price_items,
-        deductions
+        price_items: price_items ?? [],
+        deductions: deductions ?? []
     };
-  }), [invoices, cycles, priceItemsMap, deductionsMap]);
+  }), [invoices, cycles, priceItemsByInvoice, deductionsByInvoice]);
 
   const addInvoice = useCallback(async (data: InvoiceInput) => {
     const isRetained = data.description?.includes('[مرصودة]') || data.description?.includes('[RETAINED_DEBT]');

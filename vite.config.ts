@@ -9,8 +9,6 @@ export default defineConfig(() => {
       server: {
         port: 3000,
         host: '0.0.0.0',
-        hmr: false,
-        ws: false,
       },
       plugins: [
         tailwindcss(),
@@ -88,9 +86,7 @@ export default defineConfig(() => {
               'supabase-vendor': ['@supabase/supabase-js'],
               'db-vendor': ['dexie'],
               'charts-vendor': ['recharts'],
-              'pdf-vendor': ['jspdf', 'html2canvas'],
               'animation-vendor': ['motion'],
-              'icons-vendor': ['lucide-react'],
             }
           }
         }

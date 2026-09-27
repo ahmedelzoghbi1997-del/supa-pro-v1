@@ -75,6 +75,9 @@ export class AlMohasebLocalDB extends Dexie {
         this.version(13).stores({
             sync_queue: '++id, table, action, created_at'
         });
+        this.version(14).stores({
+            sync_queue: '++id, table, action, created_at, status'
+        });
     }
 }
 

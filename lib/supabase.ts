@@ -1,34 +1,34 @@
 import { createClient } from '@supabase/supabase-js';
 import { Preferences } from '@capacitor/preferences';
 
-export const isSupabaseConfigured = Boolean(
-  typeof import.meta.env.VITE_SUPABASE_URL === 'string' &&
-  (import.meta.env.VITE_SUPABASE_URL.startsWith('http://') || import.meta.env.VITE_SUPABASE_URL.startsWith('https://')) &&
-  !import.meta.env.VITE_SUPABASE_URL.includes('your-project-id') &&
-  !import.meta.env.VITE_SUPABASE_URL.includes('placeholder.supabase.co') &&
-  typeof import.meta.env.VITE_SUPABASE_ANON_KEY === 'string' &&
-  import.meta.env.VITE_SUPABASE_ANON_KEY.trim().length > 20 &&
-  !import.meta.env.VITE_SUPABASE_ANON_KEY.includes('your_supabase_anon')
-);
-
 const getValidSupabaseUrl = (): string => {
-  const envUrl = import.meta.env.VITE_SUPABASE_URL;
-  if (typeof envUrl === 'string' && (envUrl.startsWith('http://') || envUrl.startsWith('https://'))) {
-    return envUrl.trim();
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
+    return url.trim();
   }
-  return 'https://placeholder.supabase.co';
+  return 'https://ibudczfescwpmldarfbi.supabase.co';
 };
 
 const getValidSupabaseKey = (): string => {
-  const envKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  if (typeof envKey === 'string' && envKey.trim().length > 20) {
-    return envKey.trim();
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  if (typeof key === 'string' && key.trim().length > 20) {
+    return key.trim();
   }
-  return 'placeholder-anon-key-with-valid-length';
+  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw';
 };
 
 const supabaseUrl = getValidSupabaseUrl();
 const supabaseKey = getValidSupabaseKey();
+
+export const isSupabaseConfigured = Boolean(
+  typeof supabaseUrl === 'string' &&
+  (supabaseUrl.startsWith('http://') || supabaseUrl.startsWith('https://')) &&
+  !supabaseUrl.includes('your-project-id') &&
+  !supabaseUrl.includes('placeholder.supabase.co') &&
+  typeof supabaseKey === 'string' &&
+  supabaseKey.trim().length > 20 &&
+  !supabaseKey.includes('your_supabase_anon')
+);
 
 const capacitorStorageAdapter = {
   getItem: async (key: string): Promise<string | null> => {

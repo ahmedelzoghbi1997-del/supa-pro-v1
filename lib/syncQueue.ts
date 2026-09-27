@@ -26,6 +26,7 @@ export const addToSyncQueue = async (item: Omit<SyncQueueItem, 'id' | 'created_a
     try {
         const queueItem: SyncQueueItem = {
             ...item,
+            status: item.status || 'pending',
             created_at: Date.now(),
             retryCount: 0
         };
@@ -39,9 +40,17 @@ export const addToSyncQueue = async (item: Omit<SyncQueueItem, 'id' | 'created_a
 
 export const getPendingSyncCount = async (): Promise<number> => {
     try {
-        return await db.sync_queue
-            .filter((item: SyncQueueItem) => item.status !== 'failed')
-            .count();
+        // معالجة السجلات القديمة التي لا تحتوي على قيمة status وتعيينها كـ 'pending' افتراضياً
+        const unmigrated = await db.sync_queue
+            .filter((item: SyncQueueItem) => item.status === undefined || item.status === null)
+            .toArray();
+        if (unmigrated.length > 0) {
+            await Promise.all(
+                unmigrated.map(item => db.sync_queue.update(item.id!, { status: 'pending' }))
+            );
+        }
+
+        return await db.sync_queue.where('status').notEqual('failed').count();
     } catch {
         return 0;
     }
@@ -49,15 +58,31 @@ export const getPendingSyncCount = async (): Promise<number> => {
 
 export const getFailedSyncCount = async (): Promise<number> => {
     try {
-        return await db.sync_queue
-            .filter((item: SyncQueueItem) => item.status === 'failed')
-            .count();
+        return await db.sync_queue.where('status').equals('failed').count();
     } catch {
         return 0;
     }
 };
 
 let isProcessingQueue = false;
+
+const IDEMPOTENT_UUID_TABLES = new Set([
+    'invoices',
+    'expenses',
+    'cycles',
+    'persons',
+    'advances',
+    'suppliers',
+    'farmers',
+    'farmer_withdrawals',
+    'supplier_payments',
+    'bank_accounts',
+    'bank_transactions',
+    'partner_debts',
+    'daily_logs',
+    'expense_categories',
+    'assets'
+]);
 
 const KNOWN_TABLES = new Set([
     'profiles',
@@ -142,7 +167,151 @@ export const processSyncQueue = async (onItemSynced?: (item: SyncQueueItem) => v
 
         console.log(`[SyncQueue] Processing ${items.length} pending items in priority order...`);
 
+        // 1. تجميع العناصر ذات action === 'insert' للجداول الـ Idempotent حسب اسم الجدول مع الحفاظ على ترتيب الأولوية والترتيب الزمني
+        const idempotentBatches = new Map<string, SyncQueueItem[]>();
+        const remainingItems: SyncQueueItem[] = [];
+
         for (const item of items) {
+            if (item.status === 'failed' || (item.retryCount && item.retryCount >= 5)) {
+                continue;
+            }
+
+            if (item.action === 'insert' && IDEMPOTENT_UUID_TABLES.has(item.table)) {
+                const group = idempotentBatches.get(item.table);
+                if (group) {
+                    group.push(item);
+                } else {
+                    idempotentBatches.set(item.table, [item]);
+                }
+            } else {
+                remainingItems.push(item);
+            }
+        }
+
+        let networkHalted = false;
+
+        // 2. معالجة دفعات الجداول الـ Idempotent
+        for (const [table, batchItems] of idempotentBatches) {
+            const validBatchItems: SyncQueueItem[] = [];
+            const payloadsArray: any[] = [];
+
+            for (const item of batchItems) {
+                if (!table || !KNOWN_TABLES.has(table)) {
+                    const currentRetry = (item.retryCount || 0) + 1;
+                    const errorMsg = !table ? 'Missing table for sync operation' : `Unknown table '${table}' for sync operation`;
+                    console.error(`[SyncQueue] ${errorMsg} for item ${item.id}`);
+                    await db.sync_queue.update(item.id!, {
+                        retryCount: currentRetry,
+                        error: errorMsg,
+                        status: currentRetry >= 5 ? 'failed' : 'pending'
+                    });
+                    failed++;
+                    continue;
+                }
+
+                const cleanPayload = sanitizePayloadForTable(table, item.payload);
+                if (!cleanPayload || (typeof cleanPayload === 'object' && Object.keys(cleanPayload).length === 0)) {
+                    const currentRetry = (item.retryCount || 0) + 1;
+                    await db.sync_queue.update(item.id!, {
+                        retryCount: currentRetry,
+                        error: 'Empty payload for insert operation',
+                        status: currentRetry >= 5 ? 'failed' : 'pending'
+                    });
+                    failed++;
+                    continue;
+                }
+
+                validBatchItems.push(item);
+                payloadsArray.push(cleanPayload);
+            }
+
+            if (validBatchItems.length === 0) {
+                continue;
+            }
+
+            try {
+                const res = await supabase.from(table).upsert(payloadsArray, { onConflict: 'id' });
+                let error = res.error;
+
+                // أبقِ منطق upsert_invoice_items (RPC) بعد نجاح مزامنة invoices كما هو تماماً
+                if (!error && table === 'invoices') {
+                    for (const invItem of validBatchItems) {
+                        const payload = invItem.payload;
+                        if (payload && (payload._offline_price_items !== undefined || payload._offline_deductions !== undefined)) {
+                            const targetId = invItem.recordId || payload.id;
+                            if (targetId) {
+                                const invoiceUserId = payload.user_id;
+                                const rpcRes = await supabase.rpc('upsert_invoice_items', {
+                                    p_invoice_id: targetId,
+                                    p_price_items: payload._offline_price_items || [],
+                                    p_deductions: payload._offline_deductions || [],
+                                    p_user_id: invoiceUserId || null
+                                });
+                                if (rpcRes.error) {
+                                    error = rpcRes.error;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (error) {
+                    if (isNetworkError(error)) {
+                        console.warn(`[SyncQueue] Network error for batch in table ${table}, will retry later:`, error.message);
+                        failed += validBatchItems.length;
+                        networkHalted = true;
+                        break;
+                    } else {
+                        const errorMsg = error.message || error.details || String(error);
+                        console.error(`[SyncQueue] Non-network error for batch in table ${table}:`, errorMsg);
+                        for (const item of validBatchItems) {
+                            const nextRetry = (item.retryCount || 0) + 1;
+                            await db.sync_queue.update(item.id!, {
+                                retryCount: nextRetry,
+                                error: errorMsg,
+                                status: nextRetry >= 5 ? 'failed' : 'pending'
+                            });
+                            failed++;
+                        }
+                    }
+                } else {
+                    // 3. عند نجاح الدفعة: احذف العناصر بـ db.sync_queue.bulkDelete(ids) واستدعِ onItemSynced لكل عنصر
+                    const idsToDelete = validBatchItems.map(i => i.id!).filter((id): id is number => typeof id === 'number');
+                    await db.sync_queue.bulkDelete(idsToDelete);
+                    processed += validBatchItems.length;
+                    if (onItemSynced) {
+                        validBatchItems.forEach(item => onItemSynced(item));
+                    }
+                }
+            } catch (batchErr: any) {
+                if (isNetworkError(batchErr)) {
+                    failed += validBatchItems.length;
+                    networkHalted = true;
+                    break;
+                } else {
+                    const errorMsg = batchErr.message || String(batchErr);
+                    console.error(`[SyncQueue] Unexpected error processing batch in table ${table}:`, errorMsg);
+                    for (const item of validBatchItems) {
+                        const nextRetry = (item.retryCount || 0) + 1;
+                        await db.sync_queue.update(item.id!, {
+                            retryCount: nextRetry,
+                            error: errorMsg,
+                            status: nextRetry >= 5 ? 'failed' : 'pending'
+                        });
+                        failed++;
+                    }
+                }
+            }
+        }
+
+        if (networkHalted) {
+            isProcessingQueue = false;
+            return { processed, failed };
+        }
+
+        // 3. معالجة باقي العناصر (update, delete, أو insert للجداول غير الـ Idempotent) عنصراً عنصراً
+        for (const item of remainingItems) {
             // تخطي العناصر التي بلغت الحد الأقصى للمحاولات وتم تعليمها كفاشلة نهائياً لتجنب إيقاف الطابور
             if (item.status === 'failed' || (item.retryCount && item.retryCount >= 5)) {
                 continue;

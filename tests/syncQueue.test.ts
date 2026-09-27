@@ -225,5 +225,76 @@ describe('Sync Queue Manager (lib/syncQueue.ts)', () => {
             expect(upsertMock).toHaveBeenCalledWith([{ id: 'inv-test-id', date: '2026-03-25' }], { onConflict: 'id' });
             expect(insertMock).toHaveBeenCalledWith([{ id: 123, invoice_id: 'inv-test-id', amount: 50 }]);
         });
+
+        it('batches multiple insert items of the same idempotent table into a single upsert call', async () => {
+            const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
+
+            vi.spyOn(supabase, 'from').mockImplementation((_table: string) => {
+                return {
+                    upsert: upsertMock
+                } as any;
+            });
+
+            await db.sync_queue.add({
+                table: 'expenses',
+                action: 'insert',
+                payload: { id: 'exp-1', description: 'سماد', amount: 100, date: '2026-03-25', category_id: 'cat-1', cycle_id: 'c-1' },
+                created_at: 1000
+            });
+            await db.sync_queue.add({
+                table: 'expenses',
+                action: 'insert',
+                payload: { id: 'exp-2', description: 'مبيد', amount: 200, date: '2026-03-26', category_id: 'cat-1', cycle_id: 'c-1' },
+                created_at: 2000
+            });
+
+            const res = await processSyncQueue();
+
+            expect(res.processed).toBe(2);
+            expect(res.failed).toBe(0);
+            expect(upsertMock).toHaveBeenCalledTimes(1);
+            expect(upsertMock).toHaveBeenCalledWith([
+                { id: 'exp-1', description: 'سماد', amount: 100, date: '2026-03-25', category_id: 'cat-1', cycle_id: 'c-1' },
+                { id: 'exp-2', description: 'مبيد', amount: 200, date: '2026-03-26', category_id: 'cat-1', cycle_id: 'c-1' }
+            ], { onConflict: 'id' });
+        });
+    });
+
+    describe('Pending and Failed Sync Counts with Status Index', () => {
+        it('accurately counts pending and failed items, migrating legacy items without status', async () => {
+            const { getPendingSyncCount, getFailedSyncCount } = await import('../lib/syncQueue');
+
+            // 1. Pending item with status
+            await db.sync_queue.add({
+                table: 'cycles',
+                action: 'insert',
+                payload: { id: 'c-pending', name: 'عروة' },
+                created_at: Date.now(),
+                status: 'pending'
+            });
+
+            // 2. Failed item
+            await db.sync_queue.add({
+                table: 'expenses',
+                action: 'insert',
+                payload: { id: 'exp-failed' },
+                created_at: Date.now(),
+                status: 'failed'
+            });
+
+            // 3. Legacy item without status field
+            await db.sync_queue.add({
+                table: 'suppliers',
+                action: 'insert',
+                payload: { id: 's-legacy', name: 'مورد قديم' },
+                created_at: Date.now()
+            });
+
+            const pendingCount = await getPendingSyncCount();
+            const failedCount = await getFailedSyncCount();
+
+            expect(pendingCount).toBe(2); // 1 explicitly pending + 1 legacy treated as pending
+            expect(failedCount).toBe(1);  // 1 failed
+        });
     });
 });
