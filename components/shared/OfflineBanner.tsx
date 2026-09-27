@@ -9,7 +9,6 @@ export const OfflineBanner: React.FC = () => {
   const [pendingCount, setPendingCount] = useState<number>(0);
   const [failedCount, setFailedCount] = useState<number>(0);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
-  const [supabaseDisconnected, setSupabaseDisconnected] = useState<boolean>(false);
 
   const updateCounts = useCallback(async () => {
     try {
@@ -35,16 +34,8 @@ export const OfflineBanner: React.FC = () => {
       updateCounts();
     };
 
-    const handleSupabaseConnection = (e: Event) => {
-      const customEvent = e as CustomEvent<{ connected?: boolean; reason?: string }>;
-      if (customEvent.detail && customEvent.detail.connected === false) {
-        setSupabaseDisconnected(true);
-      }
-    };
-
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    window.addEventListener('supabase-connection', handleSupabaseConnection);
 
     // Initial check
     updateCounts();
@@ -62,7 +53,6 @@ export const OfflineBanner: React.FC = () => {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('supabase-connection', handleSupabaseConnection);
       clearInterval(interval);
     };
   }, [isOnline, updateCounts]);
@@ -79,44 +69,6 @@ export const OfflineBanner: React.FC = () => {
       setIsSyncing(false);
     }
   };
-
-  if (supabaseDisconnected) {
-    return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="w-full bg-gradient-to-r from-amber-600 via-amber-500 to-orange-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold shadow-md flex items-center justify-between gap-2 z-[90] transition-all animate-enter"
-      >
-        <div className="flex items-center gap-2 overflow-hidden truncate">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0 animate-pulse text-amber-100" />
-          <span className="truncate">
-            التطبيق غير متصل بقاعدة البيانات السحابية — تحقق من الإعدادات
-          </span>
-          {pendingCount > 0 && (
-            <span className="inline-flex items-center gap-1 bg-black/20 text-amber-50 px-2 py-0.5 rounded-full text-[11px] font-bold">
-              <span>{pendingCount} معلّق</span>
-            </span>
-          )}
-          {failedCount > 0 && (
-            <span className="inline-flex items-center gap-1 bg-rose-900/40 text-rose-100 px-2 py-0.5 rounded-full text-[11px] font-bold">
-              <AlertTriangle className="w-3 h-3 text-rose-200" />
-              <span>{failedCount} متعثر</span>
-            </span>
-          )}
-        </div>
-
-        <button
-          onClick={handleSyncNow}
-          disabled={isSyncing}
-          className="flex-shrink-0 inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 active:scale-95 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
-          title="مزامنة التغييرات الآن"
-        >
-          <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
-          <span>{isSyncing ? 'جارٍ المزامنة...' : 'مزامنة الآن'}</span>
-        </button>
-      </div>
-    );
-  }
 
   if (isOnline) {
     return null;
