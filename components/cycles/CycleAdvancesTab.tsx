@@ -31,7 +31,7 @@ const PersonMiniCard: React.FC<{
     return (
         <div 
             className="group relative bg-white dark:bg-neutral-900 rounded-[1.75rem] p-4 shadow-soft border border-neutral-200 dark:border-neutral-800 hover:border-primary/40 transition-all duration-300 flex flex-col gap-4 animate-stagger-in"
-            style={{ animationDelay: `${index * 40}ms` }}
+            style={{ animationDelay: `${Math.min(index * 30, 600)}ms` }}
         >
             <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3 min-w-0">

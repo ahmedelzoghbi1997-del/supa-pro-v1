@@ -94,8 +94,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
             ref={cardRef}
             className={`group relative bg-white dark:bg-neutral-800 py-3 px-3.5 sm:px-4 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right active:scale-[0.99] flex items-center justify-between gap-3 w-full overflow-hidden ${animationClass}`}
             style={{ 
-                animationDelay: isNew ? '0ms' : `${index * 30}ms`,
-                willChange: 'transform, opacity'
+                animationDelay: isNew ? '0ms' : `${Math.min(index * 30, 600)}ms`
             }}
         >
             <div className="flex-1 min-w-0">
@@ -160,4 +159,16 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
     );
 };
 
-export default ExpenseCard;
+export default React.memo(ExpenseCard, (prevProps, nextProps) => {
+    return prevProps.expense.id === nextProps.expense.id &&
+           prevProps.isNew === nextProps.isNew &&
+           prevProps.isHighlighted === nextProps.isHighlighted &&
+           prevProps.index === nextProps.index &&
+           prevProps.expense.amount === nextProps.expense.amount &&
+           prevProps.expense.description === nextProps.expense.description &&
+           prevProps.expense.category_id === nextProps.expense.category_id &&
+           prevProps.expense.supplier_id === nextProps.expense.supplier_id &&
+           prevProps.expense.cycle === nextProps.expense.cycle &&
+           prevProps.expense.payment_method === nextProps.expense.payment_method &&
+           prevProps.expense.is_establishment === nextProps.expense.is_establishment;
+});

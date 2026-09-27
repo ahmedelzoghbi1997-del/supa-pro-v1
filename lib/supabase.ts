@@ -6,7 +6,7 @@ const getValidSupabaseUrl = (): string => {
   if (typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'))) {
     return url.trim();
   }
-  return 'https://ibudczfescwpmldarfbi.supabase.co';
+  return '';
 };
 
 const getValidSupabaseKey = (): string => {
@@ -14,7 +14,7 @@ const getValidSupabaseKey = (): string => {
   if (typeof key === 'string' && key.trim().length > 20) {
     return key.trim();
   }
-  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlidWRjemZlc2N3cG1sZGFyZmJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzczOTksImV4cCI6MjA3NjcxMzM5OX0.nleKjCMgO2cOhMFR8psjXPqHnUK8PoAvv5kcp22KDKw';
+  return '';
 };
 
 const supabaseUrl = getValidSupabaseUrl();
@@ -24,7 +24,7 @@ export const isSupabaseConfigured = Boolean(
   typeof supabaseUrl === 'string' &&
   (supabaseUrl.startsWith('http://') || supabaseUrl.startsWith('https://')) &&
   !supabaseUrl.includes('your-project-id') &&
-  !supabaseUrl.includes('placeholder.supabase.co') &&
+  !supabaseUrl.includes('placeholder.invalid') &&
   typeof supabaseKey === 'string' &&
   supabaseKey.trim().length > 20 &&
   !supabaseKey.includes('your_supabase_anon')
@@ -56,8 +56,15 @@ const capacitorStorageAdapter = {
 
 const safeCustomFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   if (!isSupabaseConfigured) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('supabase-connection', {
+          detail: { connected: false, reason: 'unconfigured' },
+        })
+      );
+    }
     return new Response(JSON.stringify({ error: 'Supabase is not configured' }), {
-      status: 200,
+      status: 503,
       headers: { 'Content-Type': 'application/json' },
     });
   }
@@ -65,6 +72,13 @@ const safeCustomFetch = async (input: RequestInfo | URL, init?: RequestInit): Pr
     return await fetch(input, init);
   } catch (err) {
     console.warn('Network request failed in Supabase client:', err);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('supabase-connection', {
+          detail: { connected: false, reason: 'network' },
+        })
+      );
+    }
     return new Response(JSON.stringify({ error: 'Network error' }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' },
@@ -72,14 +86,18 @@ const safeCustomFetch = async (input: RequestInfo | URL, init?: RequestInit): Pr
   }
 };
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.invalid',
+  supabaseKey || 'placeholder-anon-key-long-enough-to-pass',
+  {
     auth: {
-        autoRefreshToken: isSupabaseConfigured,
-        persistSession: isSupabaseConfigured,
-        detectSessionInUrl: false,
-        storage: capacitorStorageAdapter,
+      autoRefreshToken: isSupabaseConfigured,
+      persistSession: isSupabaseConfigured,
+      detectSessionInUrl: false,
+      storage: capacitorStorageAdapter,
     },
     global: {
-        fetch: safeCustomFetch,
+      fetch: safeCustomFetch,
     },
-});
+  }
+);

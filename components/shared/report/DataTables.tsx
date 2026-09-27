@@ -176,8 +176,7 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
       <div
         className={`group relative bg-white dark:bg-neutral-800 p-2.5 sm:p-3 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right active:scale-[0.99] flex items-center justify-between gap-3 w-full overflow-hidden animate-stagger-in`}
         style={{
-          animationDelay: `${Math.min(index * 30, 300)}ms`,
-          willChange: "transform, opacity",
+          animationDelay: `${Math.min(index * 30, 600)}ms`,
         }}
       >
         <div className="flex-1 min-w-0">

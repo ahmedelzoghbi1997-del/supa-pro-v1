@@ -31,7 +31,7 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
     
     // تثبيت كلاس الأنيميشن
     const animationClass = isHighlighted ? 'animate-highlight' : isNew ? 'animate-enter' : 'animate-stagger-in';
-    const delay = isNew ? '0ms' : `${index * 30}ms`;
+    const delay = isNew ? '0ms' : `${Math.min(index * 30, 600)}ms`;
 
     return (
         <div 
@@ -45,8 +45,7 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                 ${animationClass}
             `}
             style={{ 
-                animationDelay: delay,
-                willChange: 'transform, opacity, box-shadow'
+                animationDelay: delay
             }}
         >
             <div className="flex flex-col gap-1.5">

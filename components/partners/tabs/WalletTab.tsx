@@ -1,4 +1,5 @@
 import React from 'react';
+import StaggerItem from '../../shared/StaggerItem';
 import { formatNumber } from '../../../utils/helpers';
 import type { Cycle } from '../../../types';
 
@@ -60,12 +61,12 @@ export const WalletTab: React.FC<WalletTabProps> = ({
         </div>
       )}
 
-      {partnersFinancials.map((partner) => {
+      {partnersFinancials.map((partner, index) => {
         const isOwed = partner.finalBalance >= 0;
 
         return (
+          <StaggerItem key={partner.id} index={index}>
           <div
-            key={partner.id}
             className={`bg-white dark:bg-neutral-900 p-5 rounded-2xl border ${
               isOwed
                 ? 'border-emerald-200 dark:border-emerald-900/60'
@@ -295,6 +296,7 @@ export const WalletTab: React.FC<WalletTabProps> = ({
               )}
             </div>
           </div>
+          </StaggerItem>
         );
       })}
     </div>

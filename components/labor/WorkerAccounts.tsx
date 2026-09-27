@@ -4,6 +4,7 @@ import { formatNumber, formatWeekdayShort } from '../../utils/helpers';
 import { UserIcon, WalletIcon, ClipboardIcon, PencilIcon, TrashIcon } from '../Icons';
 import { useData } from '../../contexts/DataContext';
 import Modal from '../shared/Modal';
+import StaggerItem from '../shared/StaggerItem';
 import EditLaborForm from './EditLaborForm';
 import { renderShiftBadge } from './LaborLedger';
 
@@ -361,8 +362,8 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                         const hasAdvance = stat.creditUnpaid < 0;
 
                         return (
+                            <StaggerItem key={name || idx} index={idx} className={isExpanded ? 'col-span-1 md:col-span-2' : ''}>
                             <div 
-                                key={idx} 
                                 className={`bg-white dark:bg-neutral-900 border rounded-xl transition-all duration-200 overflow-hidden flex flex-col justify-between ${
                                     isExpanded 
                                         ? 'border-indigo-300 dark:border-indigo-700/70 shadow-sm col-span-1 md:col-span-2' 
@@ -592,6 +593,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                     </div>
                                 )}
                             </div>
+                            </StaggerItem>
                         );
                     })}
                 </div>

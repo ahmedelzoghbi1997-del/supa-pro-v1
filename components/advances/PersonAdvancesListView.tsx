@@ -37,7 +37,7 @@ const PersonCard: React.FC<PersonCardProps> = ({ person, personAdvances, onDelet
   return (
     <div 
         className={`group relative bg-white dark:bg-neutral-900 rounded-[1.75rem] p-4 shadow-soft border border-neutral-200 dark:border-neutral-800 hover:border-primary/40 transition-all duration-300 flex flex-col gap-4 ${isHighlighted ? 'animate-highlight' : 'animate-stagger-in'}`}
-        style={{ animationDelay: isHighlighted ? '0ms' : `${index * 40}ms` }}
+        style={{ animationDelay: isHighlighted ? '0ms' : `${Math.min(index * 30, 600)}ms` }}
     >
       <div className="flex justify-between items-center">
           <div className="flex items-center gap-3 min-w-0">

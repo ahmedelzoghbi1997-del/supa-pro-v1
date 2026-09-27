@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import StaggerItem from '../shared/StaggerItem';
 import { formatNumber } from '../../utils/helpers';
 import { ScaleIcon, PlusIcon, PencilIcon, TrashIcon, CheckCircleIcon } from '../Icons';
 import type { PartnerDebt, Advance, Invoice, Cycle } from '../../types';
@@ -297,7 +298,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                 <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 dark:bg-white" />
                                 الديون المشتركة الموزعة دفترياً بين الشركاء ({enrichedDebts.length})
                             </h4>
-                            {enrichedDebts.map(debt => {
+                            {enrichedDebts.map((debt, idx) => {
                                 const repayments = debt.partner_repayments ?? debt.partnerRepayments ?? {};
                                 const totalPaid = Object.values(repayments).reduce((s, v) => s + v, 0);
                                 const totalAmount = debt.total_amount ?? debt.totalAmount ?? 0;
@@ -305,7 +306,8 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                 const isFullyPaid = totalRemaining <= 0;
 
                                 return (
-                                    <div key={debt.id} className="p-4 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 text-xs space-y-3 shadow-sm">
+                                    <StaggerItem key={debt.id} index={idx}>
+                                    <div className="p-4 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 text-xs space-y-3 shadow-sm">
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2">
@@ -385,6 +387,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                             })}
                                         </div>
                                     </div>
+                                    </StaggerItem>
                                 );
                             })}
                         </div>
@@ -397,13 +400,14 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                                 ديون الشركاء الشخصية الفردية لجهات خارجية ({individualExternalDebts.length})
                             </h4>
-                            {individualExternalDebts.map(adv => {
+                            {individualExternalDebts.map((adv, idx) => {
                                 const partnerLabel = activePersons.find(p => p.id === adv.person_id)?.name || 'شريك مسجل';
                                 const isEntered = adv.reason?.includes('[ENTERED_TREASURY]') || 
                                                   (adv.reason?.includes('إيداع') && adv.reason?.includes('خارجية')) ||
                                                   /خزن|خزنة|الخزنة|دخل|إيداع|سيول|كاش|ودخلو|ميسرة من المعلم/.test(adv.reason || '');
                                 return (
-                                    <div key={adv.id} className="p-4 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 text-xs flex justify-between items-center shadow-sm">
+                                    <StaggerItem key={adv.id} index={idx}>
+                                    <div className="p-4 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 text-xs flex justify-between items-center shadow-sm">
                                         <div className="space-y-1 text-right w-2/3">
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="font-bold text-neutral-900 dark:text-white">الشريك: {partnerLabel}</span>
@@ -452,6 +456,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                             )}
                                         </div>
                                     </div>
+                                    </StaggerItem>
                                 );
                             })}
                         </div>

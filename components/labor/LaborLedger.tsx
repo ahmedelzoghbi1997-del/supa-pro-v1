@@ -4,6 +4,7 @@ import { formatNumber } from "../../utils/helpers";
 import { CalendarIcon, UserIcon, UsersIcon, PencilIcon, TrashIcon } from "../Icons";
 import { useData } from "../../contexts/DataContext";
 import Modal from "../shared/Modal";
+import StaggerItem from "../shared/StaggerItem";
 import EditLaborForm from "./EditLaborForm";
 import BatchDayLaborModal from "./BatchDayLaborModal";
 
@@ -337,10 +338,10 @@ const LaborLedger: React.FC<LaborLedgerProps> = ({ laborExpenses }) => {
       </div>
 
       {processedGroups.map((group, idx) => (
-        <div
-          key={idx}
-          className="bg-white dark:bg-neutral-900 rounded-3xl border-r-4 border-r-indigo-500 dark:border-r-indigo-400 border-y border-l border-neutral-200/70 dark:border-neutral-800 shadow-sm overflow-hidden transition-all hover:shadow-md"
-        >
+        <StaggerItem key={group.date || idx} index={idx}>
+          <div
+            className="bg-white dark:bg-neutral-900 rounded-3xl border-r-4 border-r-indigo-500 dark:border-r-indigo-400 border-y border-l border-neutral-200/70 dark:border-neutral-800 shadow-sm overflow-hidden transition-all hover:shadow-md"
+          >
           {/* Card Header (تاريخ اليوم - تعديل اليوم بالكامل - إجمالي اليوم) */}
           <div className="bg-neutral-50/70 dark:bg-neutral-900/45 py-2.5 px-3.5 sm:px-5 flex justify-between items-center border-b border-neutral-100 dark:border-neutral-800/80 flex-wrap gap-2">
             <div className="flex items-center gap-2">
@@ -706,6 +707,7 @@ const LaborLedger: React.FC<LaborLedgerProps> = ({ laborExpenses }) => {
             })}
           </div>
         </div>
+        </StaggerItem>
       ))}
 
       {/* Batch Day Labor Modal */}

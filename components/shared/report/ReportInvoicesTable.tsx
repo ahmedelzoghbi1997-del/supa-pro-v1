@@ -30,8 +30,7 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
           const totalAmount = (inv as any).totalAmount;
           const totalWeight = (inv as any).totalWeight;
           const animationClass = "animate-stagger-in";
-          // Limit max delay to 300ms to prevent lag on long lists
-          const delay = `${Math.min(index * 30, 300)}ms`;
+          const delay = `${Math.min(index * 30, 600)}ms`;
 
           return (
             <div
@@ -48,7 +47,6 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
               `}
               style={{
                 animationDelay: delay,
-                willChange: "transform, opacity",
               }}
             >
               <div className="flex flex-col gap-1.5">

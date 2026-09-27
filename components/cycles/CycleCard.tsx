@@ -173,8 +173,8 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
     return (
         <div 
             ref={cardRef}
-            className={`group relative bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-white/5 flex flex-col justify-between shadow-sm hover:shadow-2xl hover:-translate-y-1 hover:border-primary/30 dark:hover:border-primary/30 transition-all duration-300 ease-out will-change-transform overflow-hidden ${isNew ? 'animate-enter' : 'animate-stagger-in'}`}
-            style={{ animationDelay: isNew ? '0ms' : `${index * 60}ms` }}
+            className={`group relative bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/80 dark:border-white/5 flex flex-col justify-between shadow-sm hover:shadow-2xl hover:-translate-y-1 hover:border-primary/30 dark:hover:border-primary/30 transition-all duration-300 ease-out overflow-hidden ${isNew ? 'animate-enter' : 'animate-stagger-in'}`}
+            style={{ animationDelay: isNew ? '0ms' : `${Math.min(index * 30, 600)}ms` }}
         >
             {/* Top decorative gradient line */}
             <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${isProfitable ? 'from-emerald-400 to-teal-500' : (isLoss ? 'from-rose-400 to-red-500' : 'from-neutral-300 to-neutral-400')} opacity-80`} />

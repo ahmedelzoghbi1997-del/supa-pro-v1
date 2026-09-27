@@ -103,7 +103,7 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
     <div 
         ref={cardRef}
         className={`group relative bg-white dark:bg-neutral-900 rounded-[2rem] p-5 shadow-soft border border-neutral-200 dark:border-neutral-800/80 hover:border-primary/40 hover:shadow-lg transition-all duration-300 flex flex-col gap-4 ${animationClass}`}
-        style={{ animationDelay: isNew || isHighlighted ? '0ms' : `${index * 40}ms` }}
+        style={{ animationDelay: isNew || isHighlighted ? '0ms' : `${Math.min(index * 30, 600)}ms` }}
     >
       {/* Upper Section: Profile & Delete */}
       <div className="flex justify-between items-start">

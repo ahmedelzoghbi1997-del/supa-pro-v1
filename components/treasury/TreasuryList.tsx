@@ -13,6 +13,7 @@ import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
 import Skeleton from '../shared/Skeleton';
+import StaggerItem from '../shared/StaggerItem';
 import TreasuryReport from './TreasuryReport';
 
 interface FundCardProps {
@@ -335,8 +336,10 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                     <div className="space-y-8">
                         {funds.length > 0 && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {funds.map(fund => (
-                                    <FundCard key={fund.id} fund={fund} onViewDetails={onViewDetails} />
+                                {funds.map((fund, index) => (
+                                    <StaggerItem key={fund.id} index={index}>
+                                        <FundCard fund={fund} onViewDetails={onViewDetails} />
+                                    </StaggerItem>
                                 ))}
                             </div>
                         )}
@@ -380,13 +383,14 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                 ) : (
                     <div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            {realBankAccounts.map(account => (
-                                <BankCard 
-                                    key={account.id} 
-                                    account={account} 
-                                    balance={getBankBalance(account.id)}
-                                    onViewDetails={onViewBankDetails} 
-                                />
+                            {realBankAccounts.map((account, index) => (
+                                <StaggerItem key={account.id} index={index}>
+                                    <BankCard 
+                                        account={account} 
+                                        balance={getBankBalance(account.id)}
+                                        onViewDetails={onViewBankDetails} 
+                                    />
+                                </StaggerItem>
                             ))}
                         </div>
                         {realBankAccounts.length === 0 && (

@@ -76,7 +76,7 @@ const FarmerAccountTab: React.FC<{
             <div className="relative border-r-2 border-neutral-200 dark:border-neutral-700/50 pr-6 space-y-6 mt-6">
                 {cycleWithdrawals.length > 0 ? (
                     cycleWithdrawals.map((w, idx) => (
-                        <div key={w.id} className="relative animate-stagger-in" style={{ animationDelay: `${idx * 50}ms` }}>
+                        <div key={w.id} className="relative animate-stagger-in" style={{ animationDelay: `${Math.min(idx * 30, 600)}ms` }}>
                             {/* Timeline Dot */}
                             <div className="absolute -right-[31px] top-1.5 w-4 h-4 rounded-full border-4 border-white dark:border-neutral-900 bg-rose-500 shadow-sm z-10"></div>
                             
