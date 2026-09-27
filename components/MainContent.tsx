@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { BellIcon, SunIcon, MoonIcon, LogoIcon } from './Icons';
 import type { NavItemId, Invoice, Expense, Cycle, SupplierPayment, FarmerWithdrawal, Advance } from '../types';
 import NotificationsPanel from './shared/NotificationsPanel';
@@ -32,6 +32,25 @@ const PartnersManager = lazy(() => import('./partners/PartnersManager'));
 const UserManager = lazy(() => import('./users/UserManager'));
 const SubscriptionPage = lazy(() => import('./subscription/SubscriptionPage'));
 const LaborManager = lazy(() => import('./labor/LaborManager'));
+
+const lazyImports = [
+  Dashboard,
+  InvoiceManager,
+  ExpenseManager,
+  CycleManager,
+  WeeklyAnalysis,
+  TreasuryManager,
+  DailyLogManager,
+  AssetManager,
+  LaborManager,
+  SupplierManager,
+  FarmerAccountManager,
+  AdvancesManager,
+  PartnersManager,
+  SettingsManager,
+  UserManager,
+  SubscriptionPage
+];
 
 import PageSkeleton from './shared/PageSkeleton';
 
@@ -86,6 +105,29 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
   const [activeModal, setActiveModal] = useState<'invoice' | 'expense' | 'cycle' | 'payment' | 'withdrawal' | 'advance' | null>(null);
   
   const unreadCount = useMemo(() => notifications.filter(n => !n.isRead).length, [notifications]);
+
+  // Idle prefetch for lazy-loaded managers to eliminate first-click lag
+  useEffect(() => {
+    if (typeof requestIdleCallback === 'undefined') return;
+    const id = requestIdleCallback(() => {
+      lazyImports.forEach((loader: any) => {
+        try {
+          if (typeof loader === 'function') {
+            loader();
+          } else if (loader?._payload?._result) {
+            loader._payload._result();
+          } else {
+            loader();
+          }
+        } catch {}
+      });
+    }, { timeout: 4000 });
+    return () => {
+      if (typeof cancelIdleCallback !== 'undefined') {
+        cancelIdleCallback(id);
+      }
+    };
+  }, []);
 
   // Force load requested view immediately if not preloaded
   useEffect(() => {
@@ -213,35 +255,32 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
             
             {/* Component Rendering - All screens are viewable by Strategic Partners (viewer role) */}
             <Suspense fallback={<PageSkeleton />}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeItem}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.2 }}
-                  className="h-full w-full"
-                >
-                  {activeItem === 'dashboard' && <div className="h-full"><Dashboard /></div>}
-                  {activeItem === 'invoices' && <div className="h-full"><InvoiceManager /></div>}
-                  {activeItem === 'expenses' && <div className="h-full"><ExpenseManager /></div>}
-                  {activeItem === 'cycles' && <div className="h-full"><CycleManager /></div>}
-                  {activeItem === 'weekly_analysis' && <div className="h-full"><WeeklyAnalysis /></div>}
-                  {activeItem === 'treasury' && settings.systems.treasury && <div className="h-full"><TreasuryManager /></div>}
+              <motion.div
+                key={activeItem}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
+                className="h-full w-full"
+              >
+                {activeItem === 'dashboard' && <div className="h-full"><Dashboard /></div>}
+                {activeItem === 'invoices' && <div className="h-full"><InvoiceManager /></div>}
+                {activeItem === 'expenses' && <div className="h-full"><ExpenseManager /></div>}
+                {activeItem === 'cycles' && <div className="h-full"><CycleManager /></div>}
+                {activeItem === 'weekly_analysis' && <div className="h-full"><WeeklyAnalysis /></div>}
+                {activeItem === 'treasury' && settings.systems.treasury && <div className="h-full"><TreasuryManager /></div>}
 
-                  {/* Standard Rendering for Secondary Pages */}
-                  {activeItem === 'daily_logs' && <div><DailyLogManager /></div>}
-                  {activeItem === 'assets' && <div><AssetManager /></div>}
-                  {activeItem === 'labor' && settings.systems.labor && <div><LaborManager /></div>}
-                  {activeItem === 'suppliers' && settings.systems.suppliers && <div><SupplierManager /></div>}
-                  {activeItem === 'farmer_account' && settings.systems.farmer_account && <div><FarmerAccountManager /></div>}
-                  {activeItem === 'advances' && settings.systems.advances && <div><AdvancesManager /></div>}
-                  {activeItem === 'partners' && settings.systems.partners_wallet && <div><PartnersManager /></div>}
-                  {activeItem === 'settings' && <div><SettingsManager /></div>}
-                  {activeItem === 'users' && profile?.role === 'owner' && <div><UserManager /></div>}
-                  {activeItem === 'subscription' && <div><SubscriptionPage /></div>}
-                </motion.div>
-              </AnimatePresence>
+                {/* Standard Rendering for Secondary Pages */}
+                {activeItem === 'daily_logs' && <div><DailyLogManager /></div>}
+                {activeItem === 'assets' && <div><AssetManager /></div>}
+                {activeItem === 'labor' && settings.systems.labor && <div><LaborManager /></div>}
+                {activeItem === 'suppliers' && settings.systems.suppliers && <div><SupplierManager /></div>}
+                {activeItem === 'farmer_account' && settings.systems.farmer_account && <div><FarmerAccountManager /></div>}
+                {activeItem === 'advances' && settings.systems.advances && <div><AdvancesManager /></div>}
+                {activeItem === 'partners' && settings.systems.partners_wallet && <div><PartnersManager /></div>}
+                {activeItem === 'settings' && <div><SettingsManager /></div>}
+                {activeItem === 'users' && profile?.role === 'owner' && <div><UserManager /></div>}
+                {activeItem === 'subscription' && <div><SubscriptionPage /></div>}
+              </motion.div>
             </Suspense>
 
         </div>
