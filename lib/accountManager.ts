@@ -18,6 +18,105 @@ export interface SavedAccount {
 }
 
 /**
+ * In-memory Token Store (Module-Scope)
+ * Tokens are strictly kept in memory and optionally mirrored to temporary sessionStorage,
+ * completely eliminating any writing of access/refresh tokens to persistent localStorage.
+ */
+interface InMemoryTokens {
+  accessToken?: string;
+  refreshToken?: string;
+  sessionToken?: string;
+  session?: any;
+}
+
+const inMemoryTokenStore = new Map<string, InMemoryTokens>();
+
+export function setSessionTokenInMemory(accountId: string, tokens: InMemoryTokens) {
+  if (!accountId) return;
+  const current = inMemoryTokenStore.get(accountId) || {};
+  const updated = { ...current, ...tokens };
+  inMemoryTokenStore.set(accountId, updated);
+
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(`session_tokens_${accountId}`, JSON.stringify(updated));
+    }
+  } catch {}
+}
+
+export function getSessionTokenFromMemory(accountId: string): InMemoryTokens | null {
+  if (!accountId) return null;
+  if (inMemoryTokenStore.has(accountId)) {
+    return inMemoryTokenStore.get(accountId)!;
+  }
+
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      const val = sessionStorage.getItem(`session_tokens_${accountId}`);
+      if (val) {
+        const parsed = JSON.parse(val);
+        inMemoryTokenStore.set(accountId, parsed);
+        return parsed;
+      }
+    }
+  } catch {}
+
+  return null;
+}
+
+export function clearSessionTokenFromMemory(accountId: string) {
+  if (!accountId) return;
+  inMemoryTokenStore.delete(accountId);
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(`session_tokens_${accountId}`);
+      sessionStorage.removeItem(`supabase_session_${accountId}`);
+    }
+  } catch {}
+}
+
+export function setAccountSession(accountId: string, session: any) {
+  if (!accountId || !session) return;
+  setSessionTokenInMemory(accountId, {
+    accessToken: session.access_token,
+    refreshToken: session.refresh_token,
+    session
+  });
+
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(`supabase_session_${accountId}`, JSON.stringify(session));
+    }
+  } catch {}
+}
+
+export function getAccountSession(accountId: string): any | null {
+  if (!accountId) return null;
+  const mem = getSessionTokenFromMemory(accountId);
+  if (mem?.session) return mem.session;
+  if (mem?.accessToken && mem?.refreshToken) {
+    return { access_token: mem.accessToken, refresh_token: mem.refreshToken };
+  }
+
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      const val = sessionStorage.getItem(`supabase_session_${accountId}`);
+      if (val) {
+        const parsed = JSON.parse(val);
+        setSessionTokenInMemory(accountId, { session: parsed, accessToken: parsed.access_token, refreshToken: parsed.refresh_token });
+        return parsed;
+      }
+    }
+  } catch {}
+
+  return null;
+}
+
+export function removeAccountSession(accountId: string) {
+  clearSessionTokenFromMemory(accountId);
+}
+
+/**
  * Constant-time comparison of two strings to prevent timing attacks.
  */
 function constantTimeCompare(a: string, b: string): boolean {
@@ -136,10 +235,16 @@ export async function getSavedAccounts(): Promise<SavedAccount[]> {
     const { value } = await Preferences.get({ key: 'saved_accounts_list' });
     if (value) {
       const parsed: (SavedAccount & { password?: string })[] = JSON.parse(value);
-      // Strictly remove any password from memory to guarantee passwords are never retained
+      // Strictly remove any password or persistent token from storage to guarantee tokens are in-memory
       const cleaned: SavedAccount[] = parsed.map(acc => {
-        const { password: _p, ...safeAcc } = acc;
-        return safeAcc;
+        const { password: _p, accessToken: _at, refreshToken: _rt, ...safeAcc } = acc;
+        // Re-attach in-memory tokens if present
+        const memTokens = getSessionTokenFromMemory(acc.id);
+        return {
+          ...safeAcc,
+          accessToken: memTokens?.accessToken,
+          refreshToken: memTokens?.refreshToken
+        };
       });
 
       return cleaned;
@@ -152,9 +257,9 @@ export async function getSavedAccounts(): Promise<SavedAccount[]> {
 
 export async function setSavedAccountsList(accounts: SavedAccount[]) {
   try {
-    // Strictly ensure passwords are never stored on device
+    // Strictly ensure passwords and tokens are never written to persistent storage
     const sanitizedList = accounts.map(acc => {
-      const { password: _p, ...safeAcc } = acc as any;
+      const { password: _p, accessToken: _at, refreshToken: _rt, ...safeAcc } = acc as any;
       return safeAcc;
     });
     await Preferences.set({ key: 'saved_accounts_list', value: JSON.stringify(sanitizedList) });
@@ -171,9 +276,17 @@ export async function saveAccount(account: SavedAccount) {
     if (!account.avatarSeed) {
       account.avatarSeed = Math.random().toString(36).substring(7);
     }
+
+    // Save tokens to in-memory store
+    if (account.accessToken || account.refreshToken) {
+      setSessionTokenInMemory(account.id, {
+        accessToken: account.accessToken,
+        refreshToken: account.refreshToken
+      });
+    }
     
-    // Explicitly delete password from account object
-    const { password: _p, ...cleanAccount } = account as any;
+    // Explicitly delete password, accessToken, refreshToken from account object for persistent storage
+    const { password: _p, accessToken: _at, refreshToken: _rt, ...cleanAccount } = account as any;
     const sanitizedAccount: SavedAccount = {
       ...cleanAccount
     };
@@ -183,9 +296,7 @@ export async function saveAccount(account: SavedAccount) {
       const merged: SavedAccount = { 
         ...existing, 
         ...sanitizedAccount, 
-        avatarSeed: sanitizedAccount.avatarSeed || existing.avatarSeed,
-        accessToken: sanitizedAccount.accessToken || existing.accessToken,
-        refreshToken: sanitizedAccount.refreshToken || existing.refreshToken
+        avatarSeed: sanitizedAccount.avatarSeed || existing.avatarSeed
       };
       list[existingIndex] = merged;
     } else {
@@ -216,6 +327,7 @@ export async function clearLastActiveAccount() {
 
 export async function removeSavedAccount(accountId: string) {
   try {
+    clearSessionTokenFromMemory(accountId);
     const list = await getSavedAccounts();
     const filtered = list.filter(acc => acc.id !== accountId);
     await setSavedAccountsList(filtered);

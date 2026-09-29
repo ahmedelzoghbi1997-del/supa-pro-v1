@@ -8,7 +8,8 @@ import {
     PlusIcon, 
     PencilIcon, 
     TrashIcon, 
-    ScaleIcon 
+    ScaleIcon,
+    CheckCircleIcon 
 } from '../Icons';
 import Modal from '../shared/Modal';
 import { MarketDebtCenter } from './MarketDebtCenter';

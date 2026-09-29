@@ -527,8 +527,13 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         const fetchTable = async (table: string) => {
             const cached = await getCache(effectiveUserId, table);
 
-            if (!isSupabaseConfigured || profile?.id?.startsWith('virtual_')) {
+            if (!isSupabaseConfigured) {
                 setIsOffline(true);
+                return cached || [];
+            }
+
+            if (profile?.id?.startsWith('virtual_')) {
+                // للأعضاء الافتراضيين: إرجاع البيانات المحفوظة محلياً دون إجبار التطبيق على وضع offline
                 return cached || [];
             }
             try {
@@ -560,8 +565,12 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         const fetchVirtualMembers = async () => {
             const cached = await getCache<VirtualMember>(effectiveUserId, 'virtual_members');
 
-            if (!isSupabaseConfigured || profile?.id?.startsWith('virtual_')) {
+            if (!isSupabaseConfigured) {
                 setIsOffline(true);
+                return cached || [];
+            }
+
+            if (profile?.id?.startsWith('virtual_')) {
                 return cached || [];
             }
             try {
@@ -593,6 +602,83 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
         };
 
         try {
+            const isVirtual = !!profile?.id?.startsWith('virtual_');
+            if (isVirtual && isSupabaseConfigured) {
+                try {
+                    const virtualUsername = (profile as any)?.username || profile?.full_name;
+                    const virtualCred = (profile as any)?.session_token || 
+                                       (profile as any)?.password || 
+                                       (typeof localStorage !== 'undefined' ? localStorage.getItem('virtual_session_token') || localStorage.getItem(`virtual_token_${profile?.id}`) : null);
+
+                    const { data: rpcResult, error: rpcError } = await supabase.rpc('get_parent_data_for_virtual_member', {
+                        p_username: virtualUsername,
+                        p_password_hash: virtualCred,
+                        p_token: virtualCred
+                    });
+
+                    if (!rpcError && rpcResult && rpcResult.success) {
+                        setIsOffline(false);
+                        const vCycles = safeArray(rpcResult.cycles).map((item: any) => ({ ...item, _stable_id: item.id }));
+                        const vInvoices = safeArray(rpcResult.invoices).map((item: any) => ({ ...item, _stable_id: item.id }));
+                        const vExpenses = safeArray(rpcResult.expenses).map((item: any) => ({ ...item, _stable_id: item.id }));
+                        const vInvPrices = safeArray(rpcResult.invoice_price_items).map((item: any) => ({ ...item, _stable_id: item.id }));
+                        const vInvDeds = safeArray(rpcResult.invoice_deductions).map((item: any) => ({ ...item, _stable_id: item.id }));
+                        const vCats = safeArray(rpcResult.expense_categories).map((item: any) => ({ ...item, _stable_id: item.id }));
+
+                        setCycles(vCycles as Cycle[]);
+                        setInvoices(vInvoices as Invoice[]);
+                        setExpenses(vExpenses as Expense[]);
+                        setInvoicePriceItems(vInvPrices as InvoicePriceItem[]);
+                        setInvoiceDeductions(vInvDeds as InvoiceDeductionItem[]);
+                        setExpenseCategories(vCats as ExpenseCategory[]);
+
+                        setCache(effectiveUserId, 'cycles', vCycles);
+                        setCache(effectiveUserId, 'invoices', vInvoices);
+                        setCache(effectiveUserId, 'expenses', vExpenses);
+                        if (vInvPrices.length > 0) setCache(effectiveUserId, 'invoice_price_items', vInvPrices);
+                        if (vInvDeds.length > 0) setCache(effectiveUserId, 'invoice_deductions', vInvDeds);
+                        if (vCats.length > 0) setCache(effectiveUserId, 'expense_categories', vCats);
+
+                        // جلب الجداول المتبقية من الكاش المحلي بدون قفل التطبيق
+                        const [
+                            cAssets, cSuppliers, cFarmers,
+                            cPersons, cSupPayments,
+                            cFarmerWithdrawals, cAdvances,
+                            cBankAccounts, cBankTransactions,
+                            cDailyLogs, cPartnerDebts
+                        ] = await Promise.all([
+                            getCache(effectiveUserId, 'assets'), getCache(effectiveUserId, 'suppliers'),
+                            getCache(effectiveUserId, 'farmers'), getCache(effectiveUserId, 'persons'),
+                            getCache(effectiveUserId, 'supplier_payments'),
+                            getCache(effectiveUserId, 'farmer_withdrawals'), getCache(effectiveUserId, 'advances'),
+                            getCache(effectiveUserId, 'bank_accounts'), getCache(effectiveUserId, 'bank_transactions'),
+                            getCache(effectiveUserId, 'daily_logs'), getCache(effectiveUserId, 'partner_debts')
+                        ]);
+
+                        if (cAssets) setAssets(cAssets as Asset[]);
+                        if (cSuppliers) setSuppliers(cSuppliers as Supplier[]);
+                        if (cFarmers) setFarmers(cFarmers as Farmer[]);
+                        if (cPersons) setPersons(cPersons as Person[]);
+                        if (cSupPayments) setSupplierPayments(cSupPayments as SupplierPayment[]);
+                        if (cFarmerWithdrawals) setFarmerWithdrawals(cFarmerWithdrawals as FarmerWithdrawal[]);
+                        if (cAdvances) setAdvances(cAdvances as Advance[]);
+                        if (cBankAccounts) setBankAccounts(cBankAccounts as BankAccount[]);
+                        if (cBankTransactions) setBankTransactions(cBankTransactions as BankTransaction[]);
+                        if (cDailyLogs) setDailyLogs(cDailyLogs as DailyLog[]);
+                        if (cPartnerDebts) setPartnerDebts(cPartnerDebts as PartnerDebt[]);
+
+                        setLoading(false);
+                        setLoadingMessage(null);
+                        setIsPhase2Loading(false);
+                        return;
+                    } else if (rpcError) {
+                        console.warn('[VirtualMember] RPC fetch parent data warning, using cached local data:', rpcError);
+                    }
+                } catch (vErr) {
+                    console.warn('[VirtualMember] Exception fetching parent data via RPC:', vErr);
+                }
+            }
+
             // Stage 1 Fetch (Phase 1)
             const [
                 rCycles, rInvoices, rExp, 

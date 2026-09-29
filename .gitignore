@@ -18,6 +18,9 @@ dist-ssr
 .env.*.local
 !.env.example
 
+# Firebase & Google Services (sensitive Android credentials)
+android/app/google-services.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -32,3 +35,7 @@ dist-ssr
 # Build outputs
 android/app/src/main/assets/public/
 www/
+
+# Supabase temporary files
+supabase/.temp/
+

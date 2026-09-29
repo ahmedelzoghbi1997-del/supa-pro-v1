@@ -25,13 +25,16 @@ import {
   setSavedAccountPin,
   setSavedAccountsList,
   setLastActiveAccount,
-  verifyPin
+  verifyPin,
+  setAccountSession,
+  getAccountSession,
+  setSessionTokenInMemory
 } from '../../lib/accountManager';
 import { 
   authenticateBiometrically, 
   isBiometricSupportedOnDevice 
 } from '../../lib/biometrics';
-import { Fingerprint, Shield, User, GripVertical } from 'lucide-react';
+import { Fingerprint, Shield, User, GripVertical, Delete } from 'lucide-react';
 
 type View = 'login' | 'signup' | 'forgot_password' | 'verify_otp' | 'update_password' | 'saved_accounts';
 type OtpFlow = 'signup' | 'password_reset';
@@ -178,16 +181,19 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             if (!vMember || !vMember.id) {
                 setError('بيانات الدخول غير صحيحة');
             } else {
+                const tokenValue = vMember.session_token || password;
                 const virtualUser = {
                   id: `virtual_${vMember.id}`,
                   full_name: vMember.full_name,
                   role: vMember.role,
                   parent_id: vMember.owner_id,
-                  username: vMember.username
+                  username: vMember.username,
+                  session_token: tokenValue
                 };
-                localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
+                setSessionTokenInMemory(virtualUser.id, { sessionToken: tokenValue });
                 await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
                 await Preferences.set({ key: `virtual_auth_${virtualUser.id}`, value: JSON.stringify(virtualUser) });
+                await Preferences.set({ key: 'virtual_session_token', value: tokenValue });
                 await Preferences.remove({ key: 'was_explicitly_logged_out' });
                 
                 // Save/update this account to saved accounts list automatically
@@ -220,7 +226,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 username: identifier,
                 isVirtual: true
             };
-            localStorage.setItem('virtual_auth', JSON.stringify(localUser));
             await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(localUser) });
             await Preferences.set({ key: `virtual_auth_${localUser.id}`, value: JSON.stringify(localUser) });
             await Preferences.remove({ key: 'was_explicitly_logged_out' });
@@ -249,11 +254,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
             } else if (authData?.user) {
                 await Preferences.remove({ key: 'was_explicitly_logged_out' });
                 if (authData.session) {
+                    setAccountSession(authData.user.id, authData.session);
                     await Preferences.set({
                         key: `supabase_session_${authData.user.id}`,
                         value: JSON.stringify(authData.session)
                     });
-                    localStorage.setItem(`supabase_session_${authData.user.id}`, JSON.stringify(authData.session));
                 }
                 try {
                     const { data: profData } = await supabase
@@ -318,12 +323,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         if (acc.isVirtual) {
             let virtualUser: any = null;
             const { value: storedVAuth } = await Preferences.get({ key: `virtual_auth_${acc.id}` });
-            const localStored = localStorage.getItem(`virtual_auth_${acc.id}`);
             if (storedVAuth) {
                 try { virtualUser = JSON.parse(storedVAuth); } catch {}
-            }
-            if (!virtualUser && localStored) {
-                try { virtualUser = JSON.parse(localStored); } catch {}
             }
             if (!virtualUser) {
                 virtualUser = {
@@ -335,42 +336,34 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 };
             }
 
-            localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
             await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
-            localStorage.setItem(`virtual_auth_${virtualUser.id}`, JSON.stringify(virtualUser));
             await Preferences.set({ key: `virtual_auth_${virtualUser.id}`, value: JSON.stringify(virtualUser) });
             await Preferences.remove({ key: 'was_explicitly_logged_out' });
-            localStorage.removeItem('was_explicitly_logged_out');
             await setLastActiveAccount(acc.id);
             window.location.reload();
             return;
         } else {
-            localStorage.removeItem('virtual_auth');
             await Preferences.remove({ key: 'virtual_auth' });
             await Preferences.remove({ key: 'was_explicitly_logged_out' });
-            localStorage.removeItem('was_explicitly_logged_out');
 
+            const memorySession = getAccountSession(acc.id);
             const { value: storedSession } = await Preferences.get({ key: `supabase_session_${acc.id}` });
-            const localSession = localStorage.getItem(`supabase_session_${acc.id}`);
-            const sessStr = storedSession || localSession;
-            if (sessStr) {
+            const sessionObj = memorySession || (storedSession ? JSON.parse(storedSession) : null);
+            if (sessionObj?.access_token && sessionObj?.refresh_token) {
                 try {
-                    const sessionObj = JSON.parse(sessStr);
-                    if (sessionObj?.access_token && sessionObj?.refresh_token) {
-                        const { data: setRes, error: setErr } = await supabase.auth.setSession({
-                            access_token: sessionObj.access_token,
-                            refresh_token: sessionObj.refresh_token
+                    const { data: setRes, error: setErr } = await supabase.auth.setSession({
+                        access_token: sessionObj.access_token,
+                        refresh_token: sessionObj.refresh_token
+                    });
+                    if (!setErr && setRes?.session) {
+                        setAccountSession(acc.id, setRes.session);
+                        await Preferences.set({
+                            key: `supabase_session_${acc.id}`,
+                            value: JSON.stringify(setRes.session)
                         });
-                        if (!setErr && setRes?.session) {
-                            await Preferences.set({
-                                key: `supabase_session_${acc.id}`,
-                                value: JSON.stringify(setRes.session)
-                            });
-                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
-                            await setLastActiveAccount(acc.id);
-                            window.location.reload();
-                            return;
-                        }
+                        await setLastActiveAccount(acc.id);
+                        window.location.reload();
+                        return;
                     }
                 } catch {}
             }
@@ -391,11 +384,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                         refresh_token: acc.refreshToken
                     });
                     if (!setErr && setRes?.session) {
+                        setAccountSession(acc.id, setRes.session);
                         await Preferences.set({
                             key: `supabase_session_${acc.id}`,
                             value: JSON.stringify(setRes.session)
                         });
-                        localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
                         await setLastActiveAccount(acc.id);
                         window.location.reload();
                         return;
@@ -555,7 +548,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
           username: identifier,
           isVirtual: true
       };
-      localStorage.setItem('virtual_auth', JSON.stringify(localUser));
       await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(localUser) });
       await Preferences.set({ key: `virtual_auth_${localUser.id}`, value: JSON.stringify(localUser) });
       await Preferences.remove({ key: 'was_explicitly_logged_out' });

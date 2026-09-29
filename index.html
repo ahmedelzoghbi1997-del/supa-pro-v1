@@ -3,6 +3,11 @@
 <html lang="ar" dir="rtl" class="antialiased">
   <head>
     <meta charset="UTF-8" />
+    
+    <!-- Content Security Policy (CSP) Meta Tag - طبقة حماية متوافقة مع PWA ومحرك Vite -->
+    <!-- ملاحظة: يتطلب Vite و Dexie و Tailwind 'unsafe-inline' و 'unsafe-eval' لتهيئة الحزم والرسوم البيانية محلياً وعبر المتصفح دون حظر الشاشة -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.supabase.co; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.vercel.app https://*.run.app https://generativelanguage.googleapis.com http://localhost:* ws://localhost:* ws: wss:; worker-src 'self' blob:; manifest-src 'self';" />
+
     <script>
       (function() {
         const filterViteMsg = function(fn) {

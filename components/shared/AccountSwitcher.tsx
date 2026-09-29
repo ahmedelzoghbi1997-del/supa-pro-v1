@@ -4,7 +4,7 @@ import { User, Check, Plus, Shield, X, Loader2, Eye } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useData } from '../../contexts/DataContext';
 import { Preferences } from '@capacitor/preferences';
-import { SavedAccount, getSavedAccounts, setLastActiveAccount } from '../../lib/accountManager';
+import { SavedAccount, getSavedAccounts, setLastActiveAccount, setAccountSession, getAccountSession } from '../../lib/accountManager';
 import { authenticateBiometrically } from '../../lib/biometrics';
 import { emitToast } from '../../hooks/useToast';
 
@@ -56,27 +56,17 @@ const AccountSwitcher: React.FC = () => {
             try {
                 const { data: curSess } = await supabase.auth.getSession();
                 if (curSess?.session?.user?.id) {
-                    const sessStr = JSON.stringify(curSess.session);
+                    setAccountSession(curSess.session.user.id, curSess.session);
                     await Preferences.set({
                         key: `supabase_session_${curSess.session.user.id}`,
-                        value: sessStr
+                        value: JSON.stringify(curSess.session)
                     });
-                    localStorage.setItem(`supabase_session_${curSess.session.user.id}`, sessStr);
                 }
                 const { value: curVAuth } = await Preferences.get({ key: 'virtual_auth' });
                 if (curVAuth) {
                     const parsed = JSON.parse(curVAuth);
                     if (parsed?.id) {
                         await Preferences.set({ key: `virtual_auth_${parsed.id}`, value: curVAuth });
-                        localStorage.setItem(`virtual_auth_${parsed.id}`, curVAuth);
-                    }
-                }
-                const localVAuth = localStorage.getItem('virtual_auth');
-                if (localVAuth) {
-                    const parsed = JSON.parse(localVAuth);
-                    if (parsed?.id) {
-                        await Preferences.set({ key: `virtual_auth_${parsed.id}`, value: localVAuth });
-                        localStorage.setItem(`virtual_auth_${parsed.id}`, localVAuth);
                     }
                 }
             } catch {}
@@ -85,12 +75,8 @@ const AccountSwitcher: React.FC = () => {
                 // فتح الحساب الافتراضي مباشرة دون طلب كلمة مرور ودون فتح صفحة تسجيل الدخول
                 let virtualUser: any = null;
                 const { value: storedVAuth } = await Preferences.get({ key: `virtual_auth_${acc.id}` });
-                const localStored = localStorage.getItem(`virtual_auth_${acc.id}`);
                 if (storedVAuth) {
                     try { virtualUser = JSON.parse(storedVAuth); } catch {}
-                }
-                if (!virtualUser && localStored) {
-                    try { virtualUser = JSON.parse(localStored); } catch {}
                 }
                 if (!virtualUser) {
                     virtualUser = {
@@ -102,12 +88,9 @@ const AccountSwitcher: React.FC = () => {
                     };
                 }
 
-                localStorage.setItem('virtual_auth', JSON.stringify(virtualUser));
                 await Preferences.set({ key: 'virtual_auth', value: JSON.stringify(virtualUser) });
-                localStorage.setItem(`virtual_auth_${virtualUser.id}`, JSON.stringify(virtualUser));
                 await Preferences.set({ key: `virtual_auth_${virtualUser.id}`, value: JSON.stringify(virtualUser) });
                 await Preferences.remove({ key: 'was_explicitly_logged_out' });
-                localStorage.removeItem('was_explicitly_logged_out');
                 await setLastActiveAccount(acc.id);
 
                 await new Promise(r => setTimeout(r, 200));
@@ -115,18 +98,17 @@ const AccountSwitcher: React.FC = () => {
                 return;
             } else {
                 // فتح حساب المالك مباشرة دون طلب كلمة مرور ودون فتح صفحة تسجيل الدخول
-                localStorage.removeItem('virtual_auth');
                 await Preferences.remove({ key: 'virtual_auth' });
                 await Preferences.remove({ key: 'was_explicitly_logged_out' });
-                localStorage.removeItem('was_explicitly_logged_out');
 
                 // 1. استرجاع الجلسة المحفوظة
-                let sessionObj: any = null;
-                const { value: storedPref } = await Preferences.get({ key: `supabase_session_${acc.id}` });
-                const localStored = localStorage.getItem(`supabase_session_${acc.id}`);
-                const sessStr = storedPref || localStored;
-                if (sessStr) {
-                    try { sessionObj = JSON.parse(sessStr); } catch {}
+                const memorySession = getAccountSession(acc.id);
+                let sessionObj: any = memorySession;
+                if (!sessionObj) {
+                    const { value: storedPref } = await Preferences.get({ key: `supabase_session_${acc.id}` });
+                    if (storedPref) {
+                        try { sessionObj = JSON.parse(storedPref); } catch {}
+                    }
                 }
 
                 if (sessionObj?.access_token && sessionObj?.refresh_token) {
@@ -136,11 +118,11 @@ const AccountSwitcher: React.FC = () => {
                             refresh_token: sessionObj.refresh_token
                         });
                         if (!setErr && setRes?.session) {
+                            setAccountSession(acc.id, setRes.session);
                             await Preferences.set({
                                 key: `supabase_session_${acc.id}`,
                                 value: JSON.stringify(setRes.session)
                             });
-                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
                             await setLastActiveAccount(acc.id);
                             await new Promise(r => setTimeout(r, 200));
                             window.location.reload();
@@ -168,12 +150,12 @@ const AccountSwitcher: React.FC = () => {
                             refresh_token: acc.refreshToken
                         });
                         if (!setErr && setRes?.session) {
+                            setAccountSession(acc.id, setRes.session);
                             await setLastActiveAccount(acc.id);
                             await Preferences.set({
                                 key: `supabase_session_${acc.id}`,
                                 value: JSON.stringify(setRes.session)
                             });
-                            localStorage.setItem(`supabase_session_${acc.id}`, JSON.stringify(setRes.session));
                             await new Promise(r => setTimeout(r, 200));
                             window.location.reload();
                             return;
@@ -182,6 +164,7 @@ const AccountSwitcher: React.FC = () => {
                         console.warn("Auto token re-auth error:", e);
                     }
                 }
+
 
                 // في حال تعذر التبديل التلقائي
                 emitToast('يرجى تسجيل الدخول إلى هذا الحساب لحفظ جلسته للتبديل الفوري', 'info');

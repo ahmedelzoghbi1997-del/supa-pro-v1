@@ -9,7 +9,7 @@ import { ToastProvider } from "./hooks/useToast";
 import { DataProvider } from "./contexts/DataContext";
 import { UIProvider, useUI } from "./contexts/UIContext";
 import { SettingsProvider, useSettings } from "./contexts/SettingsContext";
-import { supabase } from "./lib/supabase";
+import { supabase, isSupabaseConfigured } from "./lib/supabase";
 import AuthPage from "./components/auth/AuthPage";
 import WelcomePage from "./components/auth/WelcomePage";
 import { Onboarding } from "./components/Onboarding";
@@ -396,6 +396,16 @@ const App: React.FC = () => {
   }, [loading, isSwitching, session, profile, isFirstLogin, showOnboarding]);
 
   useEffect(() => {
+    const emergencyTimer = setTimeout(() => {
+      if (showSplash) {
+        setIsTransitioning(false);
+        setShowSplash(false);
+      }
+    }, 4000); // إخفاء إجباري بعد 4 ثوانٍ
+    return () => clearTimeout(emergencyTimer);
+  }, [showSplash]);
+
+  useEffect(() => {
     const handleSwitching = () => setIsSwitching(true);
     window.addEventListener("account_switching", handleSwitching);
     return () =>
@@ -413,6 +423,12 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      setSession(null);
+      return;
+    }
+
     const initializeAuth = async () => {
       const { value: virtualAuthString } = await Preferences.get({
         key: "virtual_auth",

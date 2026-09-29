@@ -1,6 +1,4 @@
-
 import React, { useState, useCallback } from 'react';
-import { GoogleGenAI } from '@google/genai';
 import { useData } from '../../contexts/DataContext';
 import { SparklesIcon } from '../Icons';
 import { calculateInvoiceTotal } from '../../utils/helpers';
@@ -51,30 +49,35 @@ const AiInsights: React.FC = () => {
                  return;
             }
 
-            // 2. Call Gemini API
-            // FIX: Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY}); as per guidelines.
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `
-                مرحباً، اسمي هو ${profile?.full_name || 'المستخدم'}.
-                هذه هي بياناتي المالية الزراعية للشهر الحالي والعروات النشطة:
-                ${JSON.stringify(summaryData, null, 2)}
-
-                قدم لي ملاحظة ذكية ومختصرة (جملة واحدة أو اثنتين) باللغة العربية. ركز على أهم شيء، مثل زيادة كبيرة في المصاريف، أو أداء ممتاز لعروة معينة، أو مقارنة الإيرادات بالمصروفات. اجعل النص ودودًا ومباشرًا.
-            `;
-            
-            // FIX: Use 'gemini-3-flash-preview' for Basic Text Tasks as per instructions
-            const response = await ai.models.generateContent({
-              model: 'gemini-3-flash-preview',
-              contents: prompt,
+            // 2. Call server-side AI insights API
+            const response = await fetch('/api/ai-insights', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    summaryData,
+                    userName: profile?.full_name || 'المستخدم',
+                }),
             });
 
-            setInsight(response.text);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data?.error || `فشل استلام التحليل من الخادم (${response.status})`);
+            }
+
+            if (data?.insight) {
+                setInsight(data.insight);
+            } else {
+                setInsight('لم يتم استلام نص التحليل. يرجى المحاولة مرة أخرى.');
+            }
 
         } catch (err: unknown) {
-            console.error("Error generating AI insight:", err);
+            console.error("Error fetching AI insight:", err);
             let errorMessage = 'تعذر الحصول على التحليل الآن. حاول مرة أخرى.';
-            if (err instanceof Error && (err.message.includes('429') || err.message.includes('RESOURCE_EXHAUSTED'))) {
-                errorMessage = 'تم تجاوز حد الطلبات الحالية. يرجى المحاولة مرة أخرى لاحقًا.';
+            if (err instanceof Error && err.message) {
+                errorMessage = err.message;
             }
             setError(errorMessage);
         } finally {

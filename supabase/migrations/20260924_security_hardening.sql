@@ -44,7 +44,7 @@ WITH CHECK (
 
 -- ==============================================================================
 -- (2) تعديل سياسة القراءة على جدول profiles
--- حماية البيانات الخاصة بحيث يكون linking_code و email مرئيين لصاحب الحساب فقط بشرط auth.uid() = id
+-- حماية البيانات الخاصة بحيث يكون الملف الشخصي مرئياً لصاحب الحساب فقط بشرط auth.uid() = id
 -- ==============================================================================
 
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
@@ -56,11 +56,6 @@ DROP POLICY IF EXISTS "Public profiles general info viewable" ON public.profiles
 CREATE POLICY "Users can view own full profile"
 ON public.profiles FOR SELECT
 USING (auth.uid() = id);
-
--- سياسة قراءة البيانات العامة للملفات الشخصية لبقية المستخدمين
-CREATE POLICY "Public profiles general info viewable"
-ON public.profiles FOR SELECT
-USING (true);
 
 -- ==============================================================================
 -- (3) تشديد الحماية على جدول محاولات الربط (linking_attempts)

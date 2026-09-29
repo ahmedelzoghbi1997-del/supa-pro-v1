@@ -1,5 +1,6 @@
 -- Migration: 20260926_secure_upsert_invoice_items_strict
--- Description: Secures the upsert_invoice_items function to strictly verify the actual user matches the invoice owner.
+-- Description: بديل نهائي وآمن لملف 20260925_upsert_invoice_items_rpc.sql المحذوف.
+-- Secures the upsert_invoice_items function to strictly verify the actual user matches the invoice owner.
 
 CREATE OR REPLACE FUNCTION public.upsert_invoice_items(
     p_invoice_id UUID,

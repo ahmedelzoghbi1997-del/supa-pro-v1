@@ -618,100 +618,184 @@ const SharedReport = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // 1. Fetch Cycle
-        const { data: cycleData, error: cycleError } = await supabase
-          .from("cycles")
-          .select("*")
-          .eq("id", seasonId)
-          .single();
+        // 1. محاولة جلب بيانات التقرير عبر دالة RPC الآمنة get_shared_report باستخدام رمز المشاركة
+        const { data: reportData, error: rpcError } = await supabase.rpc(
+          "get_shared_report",
+          { p_share_token: seasonId },
+        );
 
-        if (cycleError) throw cycleError;
+        let cycleData: any = null;
+        let fetchedExpensesRaw: any[] = [];
+        let fetchedInvoicesRaw: any[] = [];
+        let fetchedCategoriesRaw: any[] = [];
+        let fetchedSuppliers: any[] = [];
+        let fetchedFarmers: any[] = [];
+        let fetchedPersons: any[] = [];
+        let fetchedWithdrawals: any[] = [];
+        let fetchedPayments: any[] = [];
+        let fetchedAdvances: any[] = [];
+        let assetNameVal = "غير محدد";
+        let fetchedPriceItems: InvoicePriceItem[] = [];
+        let fetchedDeductions: InvoiceDeductionItem[] = [];
+        let fetchedBankAccounts: any[] = [];
+        let fetchedBankTransactions: any[] = [];
+        let isolateLaborObj = true;
 
-        // 2. Fetch Related Data (Parallel)
-        const [expRes, invRes, withRes, payRes, advRes, catRes, assetRes] =
-          await Promise.all([
-            supabase.from("expenses").select("*").eq("cycle_id", seasonId),
-            supabase.from("invoices").select("*").eq("cycle_id", seasonId),
+        if (!rpcError && reportData && reportData.success && reportData.cycle) {
+          // تم جلب التقرير بنجاح عبر رمز المشاركة المشفر
+          cycleData = reportData.cycle;
+          assetNameVal = reportData.asset_name || "غير محدد";
+          fetchedExpensesRaw = reportData.expenses || [];
+          fetchedInvoicesRaw = reportData.invoices || [];
+          fetchedCategoriesRaw = reportData.expense_categories || [];
+          fetchedSuppliers = reportData.suppliers || [];
+          fetchedFarmers = reportData.farmers || [];
+          fetchedPersons = reportData.persons || [];
+          fetchedWithdrawals = reportData.farmer_withdrawals || [];
+          fetchedPayments = reportData.supplier_payments || [];
+          fetchedAdvances = reportData.advances || [];
+          fetchedPriceItems = (reportData.invoice_price_items || []) as InvoicePriceItem[];
+          fetchedDeductions = (reportData.invoice_deductions || []) as InvoiceDeductionItem[];
+          fetchedBankAccounts = reportData.bank_accounts || [];
+          fetchedBankTransactions = reportData.bank_transactions || [];
+
+          if (reportData.app_settings) {
+            try {
+              const settingsObj =
+                typeof reportData.app_settings === "string"
+                  ? JSON.parse(reportData.app_settings)
+                  : reportData.app_settings;
+              if (settingsObj?.isolateLaborAccount === false) {
+                isolateLaborObj = false;
+              }
+              if (settingsObj?.systems?.farmer_account === false) {
+                setIsFarmerAccountEnabled(false);
+              } else {
+                setIsFarmerAccountEnabled(true);
+              }
+            } catch (e) {
+              console.error("Error parsing owner app_settings:", e);
+            }
+          }
+        } else {
+          // إذا كان هناك رسالة خطأ صريحة من الدالة (مثل انتهاء الصلاحية أو الإلغاء)
+          if (rpcError && (rpcError.message?.includes("انتهت صلاحية") || rpcError.message?.includes("تم إلغاء") || rpcError.message?.includes("حذفه"))) {
+            setError(rpcError.message);
+            setLoading(false);
+            return;
+          }
+
+          // مسار احتياطي في حال كان المستخدم هو المالك وفتح الرابط بمعرف العروة المباشر (Direct UUID)
+          const { data: directCycle, error: cycleError } = await supabase
+            .from("cycles")
+            .select("*")
+            .eq("id", seasonId)
+            .single();
+
+          if (cycleError || !directCycle) {
+            setError(
+              rpcError?.message || "عذراً، رابط التقرير غير صحيح أو انتهت صلاحيته.",
+            );
+            setLoading(false);
+            return;
+          }
+
+          cycleData = directCycle;
+
+          // جلب البيانات المرتبطة بالعروة مباشرة للمالك
+          const [expRes, invRes, withRes, payRes, advRes, catRes, assetRes] =
+            await Promise.all([
+              supabase.from("expenses").select("*").eq("cycle_id", seasonId),
+              supabase.from("invoices").select("*").eq("cycle_id", seasonId),
+              supabase
+                .from("farmer_withdrawals")
+                .select("*, farmers(name)")
+                .eq("cycle_id", seasonId),
+              supabase
+                .from("supplier_payments")
+                .select("*, suppliers(name)")
+                .eq("cycle_id", seasonId),
+              supabase
+                .from("advances")
+                .select("*, persons(name)")
+                .eq("cycle_id", seasonId),
+              supabase.from("expense_categories").select("*"),
+              supabase
+                .from("assets")
+                .select("name")
+                .eq("id", cycleData.asset_id)
+                .single(),
+            ]);
+
+          const ownerId = cycleData.user_id;
+          const [
+            supRes,
+            farmRes,
+            persRes,
+            bankAccRes,
+            bankTxRes,
+            ownerProfileRes,
+          ] = await Promise.all([
+            supabase.from("suppliers").select("id, name").eq("user_id", ownerId),
+            supabase.from("farmers").select("id, name").eq("user_id", ownerId),
+            supabase.from("persons").select("id, name").eq("user_id", ownerId),
+            supabase.from("bank_accounts").select("*").eq("user_id", ownerId),
+            supabase.from("bank_transactions").select("*").eq("user_id", ownerId),
             supabase
-              .from("farmer_withdrawals")
-              .select("*, farmers(name)")
-              .eq("cycle_id", seasonId),
-            supabase
-              .from("supplier_payments")
-              .select("*, suppliers(name)")
-              .eq("cycle_id", seasonId),
-            supabase
-              .from("advances")
-              .select("*, persons(name)")
-              .eq("cycle_id", seasonId),
-            supabase.from("expense_categories").select("*"),
-            supabase
-              .from("assets")
-              .select("name")
-              .eq("id", cycleData.asset_id)
-              .single(),
+              .from("profiles")
+              .select("app_settings")
+              .eq("id", ownerId)
+              .maybeSingle(),
           ]);
 
-        if (expRes.error) throw expRes.error;
-        if (invRes.error) throw invRes.error;
-        if (withRes.error) throw withRes.error;
-        if (payRes.error) throw payRes.error;
-        if (advRes.error) throw advRes.error;
+          fetchedExpensesRaw = expRes.data || [];
+          fetchedInvoicesRaw = invRes.data || [];
+          fetchedCategoriesRaw = catRes.data || [];
+          fetchedSuppliers = supRes.data || [];
+          fetchedFarmers = farmRes.data || [];
+          fetchedPersons = persRes.data || [];
+          fetchedWithdrawals = withRes.data || [];
+          fetchedPayments = payRes.data || [];
+          fetchedAdvances = advRes.data || [];
+          assetNameVal = assetRes.data?.name || "غير محدد";
+          fetchedBankAccounts = bankAccRes.data || [];
+          fetchedBankTransactions = bankTxRes.data || [];
 
-        // Fetch related entities using user_id from cycle to ensure we get all valid entities for this owner
-        const ownerId = cycleData.user_id;
-
-        const [
-          supRes,
-          farmRes,
-          persRes,
-          bankAccRes,
-          bankTxRes,
-          ownerProfileRes,
-        ] = await Promise.all([
-          supabase.from("suppliers").select("id, name").eq("user_id", ownerId),
-          supabase.from("farmers").select("id, name").eq("user_id", ownerId),
-          supabase.from("persons").select("id, name").eq("user_id", ownerId),
-          supabase.from("bank_accounts").select("*").eq("user_id", ownerId),
-          supabase.from("bank_transactions").select("*").eq("user_id", ownerId),
-          supabase
-            .from("profiles")
-            .select("app_settings")
-            .eq("id", ownerId)
-            .maybeSingle(),
-        ]);
-
-        if (bankAccRes.error)
-          console.error("Error fetching bank accounts:", bankAccRes.error);
-        if (bankTxRes.error)
-          console.error("Error fetching bank transactions:", bankTxRes.error);
-
-        const fetchedExpensesRaw = expRes.data || [];
-        const fetchedInvoicesRaw = invRes.data || [];
-        const fetchedCategoriesRaw = catRes.data || [];
-        const fetchedSuppliers = supRes.data || [];
-        const fetchedFarmers = farmRes.data || [];
-        const fetchedPersons = persRes.data || [];
-
-        // Load isolation setting of owner profile (defaults to true)
-        let isolateLaborObj = true;
-        if (ownerProfileRes?.data?.app_settings) {
-          try {
-            const settingsObj =
-              typeof ownerProfileRes.data.app_settings === "string"
-                ? JSON.parse(ownerProfileRes.data.app_settings)
-                : ownerProfileRes.data.app_settings;
-            if (settingsObj?.isolateLaborAccount === false) {
-              isolateLaborObj = false;
+          if (ownerProfileRes?.data?.app_settings) {
+            try {
+              const settingsObj =
+                typeof ownerProfileRes.data.app_settings === "string"
+                  ? JSON.parse(ownerProfileRes.data.app_settings)
+                  : ownerProfileRes.data.app_settings;
+              if (settingsObj?.isolateLaborAccount === false) {
+                isolateLaborObj = false;
+              }
+              if (settingsObj?.systems?.farmer_account === false) {
+                setIsFarmerAccountEnabled(false);
+              } else {
+                setIsFarmerAccountEnabled(true);
+              }
+            } catch (e) {
+              console.error("Error parsing owner app_settings:", e);
             }
-            if (settingsObj?.systems?.farmer_account === false) {
-              setIsFarmerAccountEnabled(false);
-            } else {
-              setIsFarmerAccountEnabled(true);
-            }
-          } catch (e) {
-            console.error("Error parsing owner app_settings:", e);
+          }
+
+          const invoiceIds = fetchedInvoicesRaw.map((i) => i.id);
+          if (invoiceIds.length > 0) {
+            const [pricesRes, dedsRes] = await Promise.all([
+              supabase
+                .from("invoice_price_items")
+                .select("*")
+                .in("invoice_id", invoiceIds),
+              supabase
+                .from("invoice_deductions")
+                .select("*")
+                .in("invoice_id", invoiceIds),
+            ]);
+            fetchedPriceItems = (pricesRes.data || []) as InvoicePriceItem[];
+            fetchedDeductions = (dedsRes.data || []) as InvoiceDeductionItem[];
           }
         }
 
@@ -777,83 +861,6 @@ const SharedReport = () => {
           );
         }
 
-        const fetchedWithdrawals = (withRes.data || []).map(
-          (w: Record<string, unknown>) => {
-            const farmerFromJoin =
-              (Array.isArray(w.farmers) ? w.farmers[0] : w.farmers) ||
-              (Array.isArray(w.farmer) ? w.farmer[0] : w.farmer);
-            const farmerFromList = fetchedFarmers.find(
-              (f: { id: string }) => String(f.id) === String(w.farmer_id),
-            );
-            return {
-              ...w,
-              farmerName:
-                (farmerFromJoin as { name?: string })?.name ||
-                (farmerFromList as { name?: string })?.name ||
-                w.farmerName ||
-                w.farmer_name,
-            };
-          },
-        );
-
-        const fetchedPayments = (payRes.data || []).map(
-          (p: Record<string, unknown>) => {
-            const supplierFromJoin =
-              (Array.isArray(p.suppliers) ? p.suppliers[0] : p.suppliers) ||
-              (Array.isArray(p.supplier) ? p.supplier[0] : p.supplier);
-            const supplierFromList = fetchedSuppliers.find(
-              (s: { id: string }) => String(s.id) === String(p.supplier_id),
-            );
-            return {
-              ...p,
-              supplierName:
-                (supplierFromJoin as { name?: string })?.name ||
-                (supplierFromList as { name?: string })?.name ||
-                p.supplierName ||
-                p.supplier_name,
-            };
-          },
-        );
-
-        const fetchedAdvances = (advRes.data || []).map(
-          (a: Record<string, unknown>) => {
-            const personFromJoin =
-              (Array.isArray(a.persons) ? a.persons[0] : a.persons) ||
-              (Array.isArray(a.person) ? a.person[0] : a.person);
-            const personFromList = fetchedPersons.find(
-              (p: { id: string }) => String(p.id) === String(a.person_id),
-            );
-            return {
-              ...a,
-              personName:
-                (personFromJoin as { name?: string })?.name ||
-                (personFromList as { name?: string })?.name ||
-                a.personName ||
-                a.person_name,
-            };
-          },
-        );
-
-        // Fetch invoice items and deductions
-        const invoiceIds = fetchedInvoicesRaw.map((i) => i.id);
-        let fetchedPriceItems: InvoicePriceItem[] = [];
-        let fetchedDeductions: InvoiceDeductionItem[] = [];
-
-        if (invoiceIds.length > 0) {
-          const [pricesRes, dedsRes] = await Promise.all([
-            supabase
-              .from("invoice_price_items")
-              .select("*")
-              .in("invoice_id", invoiceIds),
-            supabase
-              .from("invoice_deductions")
-              .select("*")
-              .in("invoice_id", invoiceIds),
-          ]);
-          fetchedPriceItems = (pricesRes.data || []) as InvoicePriceItem[];
-          fetchedDeductions = (dedsRes.data || []) as InvoiceDeductionItem[];
-        }
-
         const hydratedInvoices = fetchedInvoicesRaw
           .map((inv) => ({
             ...inv,
@@ -877,9 +884,9 @@ const SharedReport = () => {
         setSuppliers(fetchedSuppliers);
         setFarmers(fetchedFarmers);
         setPersons(fetchedPersons);
-        setAssetName(assetRes.data?.name || "غير محدد");
-        setBankTransactions(bankTxRes.data || []);
-        setBankAccounts(bankAccRes.data || []);
+        setAssetName(assetNameVal);
+        setBankTransactions(fetchedBankTransactions);
+        setBankAccounts(fetchedBankAccounts);
 
         // 3. Perform Calculations
         // Calculate Revenue (exclude balance transfers and manual funding to reflect actual crop sales)

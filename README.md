@@ -124,6 +124,30 @@ npm start
 
 ---
 
+## 🌐 إرشادات النشر على Vercel (Deployment on Vercel)
+
+يعتمد التطبيق في بيئة الإنتاج على بنية هجينة متوافقة كلياً مع Vercel:
+- **الواجهة الأمامية (Frontend):** تُبنى وتُخدم كـ Single Page Application (SPA).
+- **الخلفية (Serverless Functions):** كافة المسارات البرمجية في مجلد `api/` تعمل تلقائياً كـ Serverless Functions مستقلة وآمنة.
+- **توجيه الروابط (`vercel.json`):** تم تكوين `vercel.json` لضمان توجيه مسارات التطبيق إلى `index.html` مع استثناء مسارات `/api/*` لتعمل كدوال سحابية دون تداخل.
+
+### خطوات النشر على Vercel:
+1. **ربط المستودع:** اربط مستودع المشروع بحسابك على [Vercel](https://vercel.com).
+2. **إعدادات البناء:**
+   - Framework Preset: `Vite`
+   - Build Command: `vite build` (أو الإعداد الافتراضي)
+   - Output Directory: `dist`
+3. **إضافة متغيرات البيئة (Environment Variables):**
+   تأكد من ضبط المتغيرات التالية في إعدادات المشروع (`Project Settings > Environment Variables`):
+   - `VITE_SUPABASE_URL` و `VITE_SUPABASE_ANON_KEY`
+   - `SUPABASE_URL` و `SUPABASE_SERVICE_ROLE_KEY`
+   - `GEMINI_API_KEY`
+   - `PUSH_INTERNAL_SECRET`
+   - `VAPID_EMAIL`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`
+4. **النشر:** سيقوم Vercel بالنشر التلقائي فور ربط الفروع (Branches) أو دفع التحديثات.
+
+---
+
 ## 🗄️ أوامر وإرشادات Supabase Migrations
 
 لإدارة وترحيل جداول قاعدة البيانات والوظائف الإجرائية (RPC):

@@ -1,5 +1,6 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { supabase } from '../../lib/supabase';
 import type { Cycle } from '../../types';
 import { 
     CalendarIcon, 
@@ -283,14 +284,51 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                     {isMenuOpen && (
                          <div className="absolute bottom-full left-0 mb-2 w-48 bg-white dark:bg-neutral-800 rounded-2xl shadow-xl shadow-neutral-200/50 dark:shadow-none border border-neutral-200 dark:border-neutral-700 z-20 overflow-hidden animate-enter">
                             <div className="p-1 space-y-0.5">
-                                <button onClick={() => {
-                                    const url = `${window.location.origin}/shared-report/${cycle.id}`;
-                                    const text = `تم إصدار تقرير حسابات العروة. لمراجعة التفاصيل، اضغط على الرابط التالي: ${url}`;
-                                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                <button onClick={async () => {
                                     setMenuOpen(false);
+                                    try {
+                                        let shareToken = cycle.id;
+                                        const { data: shareData, error: shareErr } = await supabase.rpc('create_report_share', {
+                                            p_cycle_id: cycle.id
+                                        });
+                                        if (!shareErr && shareData?.share_token) {
+                                            shareToken = shareData.share_token;
+                                        }
+                                        const url = `${window.location.origin}/shared-report/${shareToken}`;
+                                        const text = `تم إصدار تقرير حسابات العروة (${cycle.name}). لمراجعة التفاصيل، اضغط على الرابط التالي: ${url}`;
+                                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                    } catch (e) {
+                                        console.error("Error creating report share:", e);
+                                        const url = `${window.location.origin}/shared-report/${cycle.id}`;
+                                        const text = `تم إصدار تقرير حسابات العروة. لمراجعة التفاصيل، اضغط على الرابط التالي: ${url}`;
+                                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                    }
                                 }} className="w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl">
                                     <WhatsAppIcon className="w-4 h-4 text-emerald-500" />
-                                    <span>مشاركة رابط التقرير 🔗</span>
+                                    <span>مشاركة عبر واتساب</span>
+                                </button>
+                                <button onClick={async () => {
+                                    setMenuOpen(false);
+                                    try {
+                                        let shareToken = cycle.id;
+                                        const { data: shareData, error: shareErr } = await supabase.rpc('create_report_share', {
+                                            p_cycle_id: cycle.id
+                                        });
+                                        if (!shareErr && shareData?.share_token) {
+                                            shareToken = shareData.share_token;
+                                        }
+                                        const url = `${window.location.origin}/shared-report/${shareToken}`;
+                                        if (navigator.clipboard) {
+                                            await navigator.clipboard.writeText(url);
+                                            showToast('تم نسخ رابط التقرير الآمن', 'success');
+                                        }
+                                    } catch (e) {
+                                        console.error("Error creating report share:", e);
+                                        showToast('تعذر نسخ رابط التقرير', 'error');
+                                    }
+                                }} className="w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl">
+                                    <ClipboardDocumentIcon className="w-4 h-4 text-primary" />
+                                    <span>نسخ رابط التقرير 🔗</span>
                                 </button>
                                 {onEdit && (
                                     <button onClick={() => { onEdit(cycle.id); setMenuOpen(false); }} className="w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl">

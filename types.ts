@@ -48,6 +48,8 @@ export interface Profile {
   subscription_ends_at?: string | null;
   app_settings: AppSettings | null;
   last_seen_at?: string | null;
+  username?: string;
+  session_token?: string;
   created_at?: string;
 }
 

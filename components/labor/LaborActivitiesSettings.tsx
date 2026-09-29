@@ -258,7 +258,7 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                     const baseTokens = raw.split(/\s*(?:\+|\،|\,|\/|\|)\s*/).map(s => s.trim()).filter(Boolean);
                     const refined: string[] = [];
                     for (const token of baseTokens) {
-                        if (laborActivities.includes(token)) {
+                        if (activities.includes(token)) {
                             refined.push(token);
                             continue;
                         }
@@ -267,7 +267,7 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                             continue;
                         }
                         let matched = false;
-                        for (const act of laborActivities) {
+                        for (const act of activities) {
                             if (token.startsWith(act + 'و') || token.startsWith(act + ' و')) {
                                 const rest = token.substring(act.length).replace(/^[\sو]+/, '').trim();
                                 if (rest) {
