@@ -6,7 +6,8 @@ import AddInvoiceForm from './AddInvoiceForm';
 import InvoiceDetailsModal from './InvoiceDetailsModal';
 import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
-import { useData } from '../../contexts/DataContext';
+import { useInvoices } from '../../hooks/useInvoices';
+import { useCycles } from '../../hooks/useCycles';
 import { triggerSaveHaptic } from '../../lib/haptics';
 
 const InvoiceManager: React.FC = () => {
@@ -18,7 +19,8 @@ const InvoiceManager: React.FC = () => {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const { showToast } = useToast();
-    const { invoices, addInvoice, updateInvoice, deleteInvoice, lastInvoiceAddedId, cycles } = useData();
+    const { invoices, addInvoice, updateInvoice, deleteInvoice, lastInvoiceAddedId } = useInvoices();
+    const { cycles } = useCycles();
 
     const editingInvoice = useMemo(() => {
         if (!editingInvoiceId) return null;

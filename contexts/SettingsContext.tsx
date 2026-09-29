@@ -4,6 +4,8 @@ import React, {
   ReactNode,
   useState,
   useEffect,
+  useCallback,
+  useMemo,
 } from "react";
 import type { AppSettings, Terminology } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
@@ -272,7 +274,7 @@ export const SettingsProvider: React.FC<{
     localStorage.setItem(storageKey, JSON.stringify(settings));
   }, [settings, userId]);
 
-  const updateSettings = async (newSettings: Partial<AppSettings>) => {
+  const updateSettings = useCallback(async (newSettings: Partial<AppSettings>) => {
     const updated = { ...settings, ...newSettings };
     if (newSettings.systems) {
       updated.systems = { ...settings.systems, ...newSettings.systems };
@@ -303,12 +305,15 @@ export const SettingsProvider: React.FC<{
         }
       }
     }
-  };
+  }, [settings, userId]);
+
+  const value = useMemo(
+    () => ({ settings, updateSettings, loadingSettings }),
+    [settings, updateSettings, loadingSettings]
+  );
 
   return (
-    <SettingsContext.Provider
-      value={{ settings, updateSettings, loadingSettings }}
-    >
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );

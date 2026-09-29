@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useRealtimeNotifications, playNotificationSound, type RealtimeConnectionStatus } from '../hooks/useRealtimeNotifications';
 import { useData } from './DataContext';
 import { useToast } from '../hooks/useToast';
-import { useUI } from './UIContext';
+import { useRealtime } from './UIContext';
 import { triggerSuccessHaptic } from '../lib/haptics';
 import { showCrossPlatformNotification } from '../lib/notifications';
 import { Capacitor } from '@capacitor/core';
@@ -25,7 +25,7 @@ const RealtimeNotificationContext = createContext<RealtimeNotificationContextTyp
 export const RealtimeNotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { profile } = useData();
   const { showToast } = useToast();
-  const { setNotifications } = useUI();
+  const { setNotifications } = useRealtime();
   const effectiveUserId = profile?.parent_id || (profile as any)?.owner_id || profile?.id;
 
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => {

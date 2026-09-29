@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Invoice } from '../../types';
-import { useData } from '../../contexts/DataContext';
+import { useCycles } from '../../hooks/useCycles';
+import { useSettings } from '../../contexts/SettingsContext';
+import { useAdvances } from '../../hooks/useAdvances';
+import { usePartnerDebts } from '../../hooks/usePartnerDebts';
 import { PlusIcon, TrashIcon, CalendarIcon, TruckIcon, CartonIcon, PencilIcon, SparklesIcon, CheckCircleIcon, UserIcon, WalletIcon } from '../Icons';
 import { formatCurrency } from '../../utils/helpers';
 import Modal from '../shared/Modal';
@@ -181,7 +184,10 @@ DeductionRow.displayName = 'DeductionRow';
 // --- MAIN COMPONENT ---
 
 const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initialData }) => {
-    const { cycles, settings, activePersons, advances, partnerDebts } = useData();
+    const { cycles } = useCycles();
+    const { settings } = useSettings();
+    const { activePersons, advances } = useAdvances();
+    const { partnerDebts } = usePartnerDebts();
     const { showToast } = useToast();
     const [isSaving, setIsSaving] = useState(false);
     const [isManageMarketsOpen, setManageMarketsOpen] = useState(false);

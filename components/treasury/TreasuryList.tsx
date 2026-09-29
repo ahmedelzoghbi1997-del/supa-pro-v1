@@ -8,7 +8,9 @@ import {
     PlusIcon, 
     InfoIcon
 } from '../Icons';
-import { useData } from '../../contexts/DataContext';
+import { useTreasury } from '../../hooks/useTreasury';
+import { useCycles } from '../../hooks/useCycles';
+import { useSettings } from '../../contexts/SettingsContext';
 import { useUI } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
@@ -136,22 +138,20 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
     const { 
         bankAccounts, 
         bankTransactions, 
-        addBankAccount, 
-        profile,
-        cycles,
-        settings
-    } = useData();
+        addBankAccount
+    } = useTreasury();
+    const { cycles } = useCycles();
+    const { settings } = useSettings();
     const { loading } = useUI();
     const { showToast } = useToast();
-    
+    const isViewer = false;
+
     const [activeTab, setActiveTab] = useState<'cash' | 'bank'>('cash');
     const [isAddBankModalOpen, setIsAddBankModalOpen] = useState(false);
     const [isCashSafeExplainOpen, setIsCashSafeExplainOpen] = useState(false);
     const [isLedgerOpen, setIsLedgerOpen] = useState(false);
     const [newBankName, setNewBankName] = useState('');
     const [newBankBalance, setNewBankBalance] = useState('');
-
-    const isViewer = profile?.role === 'viewer';
 
     const handleAddBank = async (e: React.FormEvent) => {
         if (isViewer) return;

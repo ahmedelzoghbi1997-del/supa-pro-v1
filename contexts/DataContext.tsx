@@ -1065,6 +1065,10 @@ export const DataProvider: React.FC<{ children: ReactNode; setActiveItem: (item:
     );
 };
 
+/**
+ * @deprecated TODO: Deprecate DataContext and useData in favor of domain contexts
+ * (useInvoices, useExpenses, useCycles, useTreasury, usePersons, useDailyLogs).
+ */
 export const useData = () => {
     const context = useContext(DataContext);
     if (!context) throw new Error('useData must be used within DataProvider');

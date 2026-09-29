@@ -4,7 +4,7 @@ import type { Invoice } from '../../types';
 import { formatCurrency, formatNumber, getInvoiceRetainedDetails } from '../../utils/helpers';
 import { CalendarIcon, TruckIcon, TrendingUpIcon, TrendingDownIcon, LogoIcon, BoxIcon, PencilIcon } from '../Icons';
 import Modal from '../shared/Modal';
-import { useData } from '../../contexts/DataContext';
+import { useAdvances } from '../../hooks/useAdvances';
 
 interface InvoiceDetailsModalProps {
     invoice: Invoice | null;
@@ -13,7 +13,7 @@ interface InvoiceDetailsModalProps {
 }
 
 const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onClose, isSharedView = false }) => {
-    const { activePersons } = useData();
+    const { activePersons } = useAdvances();
     const [isScreenshotMode, setIsScreenshotMode] = useState(false);
     
     // مرجع للعنصر الذي سيتم تحويله لصورة (احتياطي)

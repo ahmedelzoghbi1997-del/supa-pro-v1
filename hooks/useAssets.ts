@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { useDailyLogsData } from '../contexts/DailyLogsContext';
 import type { Asset } from '../types';
 
 export interface UseAssetsReturn {
@@ -9,7 +9,7 @@ export interface UseAssetsReturn {
 }
 
 export const useAssets = (): UseAssetsReturn => {
-  const { assets, addAsset, updateAsset, deleteAsset } = useData();
+  const { assets, addAsset, updateAsset, deleteAsset } = useDailyLogsData();
   return { assets, addAsset, updateAsset, deleteAsset };
 };
 

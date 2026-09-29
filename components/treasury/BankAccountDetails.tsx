@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { BankAccount, BankTransaction } from '../../types';
-import { useData } from '../../contexts/DataContext';
+import { useTreasury } from '../../hooks/useTreasury';
+import { useCycles } from '../../hooks/useCycles';
 import { useToast } from '../../hooks/useToast';
 import { formatNumber, getLocalDateString } from '../../utils/helpers';
 import { ArrowLeftIcon, WalletIcon, TrendingUpIcon, TrendingDownIcon, TrashIcon, PencilIcon, WarningIcon } from '../Icons';
@@ -14,11 +15,10 @@ interface BankAccountDetailsProps {
 const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack }) => {
     const { 
         bankTransactions, addBankTransaction, deleteBankTransaction, 
-        updateBankAccount, deleteBankAccount, cycles, profile 
-    } = useData();
-    const { showToast } = useToast();
-    
-    const isViewer = profile?.role === 'viewer';
+        updateBankAccount, deleteBankAccount
+    } = useTreasury();
+    const { cycles } = useCycles();
+    const isViewer = false;
 
     // Transfer Modal State
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);

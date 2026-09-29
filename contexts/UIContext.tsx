@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 
-export interface UIContextType {
+export interface UIStateContextType {
   loading: boolean;
   setLoading: (loading: boolean) => void;
   isPhase2Loading: boolean;
@@ -14,6 +14,9 @@ export interface UIContextType {
   setStatementAction: (action: { route: string; parentId: string } | null) => void;
   isOffline: boolean;
   setIsOffline: (offline: boolean) => void;
+}
+
+export interface RealtimeContextType {
   isSyncing: boolean;
   setIsSyncing: (syncing: boolean) => void;
   presences: Record<string, any>;
@@ -25,16 +28,22 @@ export interface UIContextType {
   clearNotifications: () => void;
 }
 
-const UIContext = createContext<UIContextType | undefined>(undefined);
+export type UIContextType = UIStateContextType & RealtimeContextType;
+
+export const UIStateContext = createContext<UIStateContextType | undefined>(undefined);
+export const RealtimeContext = createContext<RealtimeContextType | undefined>(undefined);
 
 export const UIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // UI State (Infrequent changes)
   const [loading, setLoading] = useState(true);
   const [isPhase2Loading, setIsPhase2Loading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
   const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
   const [statementAction, setStatementAction] = useState<{ route: string; parentId: string } | null>(null);
-  const [presences, setPresences] = useState<Record<string, any>>({});
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  // Realtime State (Frequent changes)
+  const [presences, setPresences] = useState<Record<string, any>>({});
   const [isSyncing, setIsSyncing] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -66,7 +75,7 @@ export const UIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setNotifications([]);
   }, []);
 
-  const value: UIContextType = {
+  const uiStateValue: UIStateContextType = useMemo(() => ({
     loading,
     setLoading,
     isPhase2Loading,
@@ -80,6 +89,23 @@ export const UIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setStatementAction,
     isOffline,
     setIsOffline,
+  }), [
+    loading,
+    setLoading,
+    isPhase2Loading,
+    setIsPhase2Loading,
+    loadingMessage,
+    setLoadingMessage,
+    setLoadingState,
+    highlightedItemId,
+    setHighlightedItemId,
+    statementAction,
+    setStatementAction,
+    isOffline,
+    setIsOffline,
+  ]);
+
+  const realtimeValue: RealtimeContextType = useMemo(() => ({
     isSyncing,
     setIsSyncing,
     presences,
@@ -89,15 +115,50 @@ export const UIProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     markNotificationAsRead,
     markAllNotificationsAsRead,
     clearNotifications,
-  };
+  }), [
+    isSyncing,
+    setIsSyncing,
+    presences,
+    setPresences,
+    notifications,
+    setNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    clearNotifications,
+  ]);
 
-  return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
+  return (
+    <UIStateContext.Provider value={uiStateValue}>
+      <RealtimeContext.Provider value={realtimeValue}>
+        {children}
+      </RealtimeContext.Provider>
+    </UIStateContext.Provider>
+  );
 };
 
-export const useUI = () => {
-  const context = useContext(UIContext);
+export const useUIState = (): UIStateContextType => {
+  const context = useContext(UIStateContext);
   if (!context) {
-    throw new Error('useUI must be used within a UIProvider');
+    throw new Error('useUIState must be used within a UIProvider');
   }
   return context;
+};
+
+export const useRealtime = (): RealtimeContextType => {
+  const context = useContext(RealtimeContext);
+  if (!context) {
+    throw new Error('useRealtime must be used within a UIProvider');
+  }
+  return context;
+};
+
+export const useUIRealtime = useRealtime;
+
+export const useUI = (): UIContextType => {
+  const state = useUIState();
+  const realtime = useRealtime();
+  return useMemo(() => ({
+    ...state,
+    ...realtime,
+  }), [state, realtime]);
 };

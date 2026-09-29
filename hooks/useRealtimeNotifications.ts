@@ -3,7 +3,7 @@ import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { supabase } from '../lib/supabase';
 import { useToast } from './useToast';
-import { useUI } from '../contexts/UIContext';
+import { useRealtime } from '../contexts/UIContext';
 import { triggerSuccessHaptic } from '../lib/haptics';
 import type { Notification, NavItemId } from '../types';
 
@@ -38,7 +38,7 @@ interface RealtimeNotificationOptions {
 
 export function useRealtimeNotifications({ effectiveUserId, enabled = true, currentUserId, currentUserRole }: RealtimeNotificationOptions) {
   const { showToast } = useToast();
-  const { setNotifications } = useUI();
+  const { setNotifications } = useRealtime();
   const [status, setStatus] = useState<RealtimeConnectionStatus>(enabled ? 'CONNECTING' : 'CLOSED');
   const processedIdsRef = useRef<Set<string>>(new Set());
 

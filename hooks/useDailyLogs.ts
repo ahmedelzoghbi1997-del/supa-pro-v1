@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { useDailyLogsData } from '../contexts/DailyLogsContext';
 import type { DailyLog } from '../types';
 
 export interface UseDailyLogsReturn {
@@ -9,7 +9,7 @@ export interface UseDailyLogsReturn {
 }
 
 export const useDailyLogs = (): UseDailyLogsReturn => {
-  const { dailyLogs, addDailyLog, updateDailyLog, deleteDailyLog } = useData();
+  const { dailyLogs, addDailyLog, updateDailyLog, deleteDailyLog } = useDailyLogsData();
   return { dailyLogs, addDailyLog, updateDailyLog, deleteDailyLog };
 };
 

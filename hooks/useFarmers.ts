@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { usePersonsData } from '../contexts/PersonsContext';
 import type { Farmer, FarmerWithdrawal } from '../types';
 
 export interface UseFarmersReturn {
@@ -12,7 +12,6 @@ export interface UseFarmersReturn {
   addFarmerWithdrawal: (withdrawal: Omit<FarmerWithdrawal, 'id' | 'created_at' | 'user_id' | '_stable_id'>) => Promise<void>;
   updateFarmerWithdrawal: (withdrawal: FarmerWithdrawal) => Promise<void>;
   deleteFarmerWithdrawal: (id: string) => Promise<void>;
-  totalFarmerShare: number;
 }
 
 export const useFarmers = (): UseFarmersReturn => {
@@ -27,8 +26,7 @@ export const useFarmers = (): UseFarmersReturn => {
     addFarmerWithdrawal,
     updateFarmerWithdrawal,
     deleteFarmerWithdrawal,
-    totalFarmerShare,
-  } = useData();
+  } = usePersonsData();
 
   return {
     farmers,
@@ -41,7 +39,6 @@ export const useFarmers = (): UseFarmersReturn => {
     addFarmerWithdrawal,
     updateFarmerWithdrawal,
     deleteFarmerWithdrawal,
-    totalFarmerShare,
   };
 };
 

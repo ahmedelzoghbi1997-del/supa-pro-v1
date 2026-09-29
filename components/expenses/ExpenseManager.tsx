@@ -7,7 +7,9 @@ import CategoryExpensesDetails from './CategoryExpensesDetails';
 import SupplierExpensesDetails from './SupplierExpensesDetails';
 import { useToast } from '../../hooks/useToast';
 import Modal from '../shared/Modal';
-import { useData } from '../../contexts/DataContext';
+import { useExpenses } from '../../hooks/useExpenses';
+import { useSuppliers } from '../../hooks/useSuppliers';
+import { useCycles } from '../../hooks/useCycles';
 import { useUI } from '../../contexts/UIContext';
 import { triggerSaveHaptic } from '../../lib/haptics';
 
@@ -25,9 +27,11 @@ const ExpenseManager: React.FC = () => {
     const [isDeleting, setIsDeleting] = useState(false);
     
     const { showToast } = useToast();
-    const { expenses, addExpense, updateExpense, deleteExpense, lastExpenseAddedId, setLastExpenseAddedId, expenseCategories, suppliers, profile, cycles } = useData();
+    const { expenses, addExpense, updateExpense, deleteExpense, lastExpenseAddedId, setLastExpenseAddedId, expenseCategories } = useExpenses();
+    const { suppliers } = useSuppliers();
+    const { cycles } = useCycles();
     const { statementAction, setStatementAction } = useUI();
-    const isViewer = profile?.role === 'viewer';
+    const isViewer = false;
     
     const editingExpense = useMemo(() => {
         if (!editingExpenseId) return null;

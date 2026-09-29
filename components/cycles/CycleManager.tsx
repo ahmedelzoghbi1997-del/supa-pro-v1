@@ -5,7 +5,7 @@ import CyclesList from './CyclesList';
 import AddCycleForm from './AddCycleForm';
 import CycleReport from './CycleReport';
 import Modal from '../shared/Modal';
-import { useData } from '../../contexts/DataContext';
+import { useCycles } from '../../hooks/useCycles';
 import { useToast } from '../../hooks/useToast';
 import { useSettings, terminology } from '../../contexts/SettingsContext';
 import { triggerSaveHaptic } from '../../lib/haptics';
@@ -24,7 +24,7 @@ const CycleManager: React.FC = () => {
     const [shouldTransferOnClose, setShouldTransferOnClose] = useState(true);
     
     const { showToast } = useToast();
-    const { cyclesWithCalculations, addCycle, updateCycle, deleteCycle, lastCycleAddedId, setLastCycleAddedId, getCycleTotalBalance } = useData();
+    const { cyclesWithCalculations, addCycle, updateCycle, deleteCycle, lastCycleAddedId, setLastCycleAddedId, getCycleTotalBalance } = useCycles();
 
     const otherActiveCycle = useMemo(() => {
         if (!cycleToClose) return null;

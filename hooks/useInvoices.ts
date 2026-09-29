@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { useInvoicesData } from '../contexts/InvoicesContext';
 import type { Invoice, InvoiceInput } from '../types';
 
 export interface UseInvoicesReturn {
@@ -8,7 +8,6 @@ export interface UseInvoicesReturn {
   addInvoice: (data: InvoiceInput) => Promise<void>;
   updateInvoice: (data: Invoice) => Promise<void>;
   deleteInvoice: (id: string) => Promise<void>;
-  refreshInvoices: () => Promise<void>;
 }
 
 export const useInvoices = (): UseInvoicesReturn => {
@@ -19,8 +18,7 @@ export const useInvoices = (): UseInvoicesReturn => {
     addInvoice,
     updateInvoice,
     deleteInvoice,
-    refreshGlobalData,
-  } = useData();
+  } = useInvoicesData();
 
   return {
     invoices,
@@ -29,7 +27,6 @@ export const useInvoices = (): UseInvoicesReturn => {
     addInvoice,
     updateInvoice,
     deleteInvoice,
-    refreshInvoices: refreshGlobalData,
   };
 };
 

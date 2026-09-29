@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { useExpensesData } from '../contexts/ExpensesContext';
 import type { Expense, ExpenseCategory } from '../types';
 
 export interface UseExpensesReturn {
@@ -26,7 +26,6 @@ export const useExpenses = (): UseExpensesReturn => {
     rawExpenses,
     expenseCategories,
     allExpenseCategories,
-    filteredExpenseCategories,
     lastExpenseAddedId,
     setLastExpenseAddedId,
     lastExpenseCategoryAddedId,
@@ -38,14 +37,14 @@ export const useExpenses = (): UseExpensesReturn => {
     updateExpenseCategory,
     deleteExpenseCategory,
     isExternalLabor,
-  } = useData();
+  } = useExpensesData();
 
   return {
     expenses,
     rawExpenses,
     expenseCategories,
     allExpenseCategories,
-    filteredExpenseCategories,
+    filteredExpenseCategories: expenseCategories,
     lastExpenseAddedId,
     setLastExpenseAddedId,
     lastExpenseCategoryAddedId,

@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { useTreasuryData } from '../contexts/TreasuryContext';
 import type { PartnerDebt } from '../types';
 
 export interface UsePartnerDebtsReturn {
@@ -9,7 +9,7 @@ export interface UsePartnerDebtsReturn {
 }
 
 export const usePartnerDebts = (): UsePartnerDebtsReturn => {
-  const { partnerDebts, addPartnerDebt, updatePartnerDebt, deletePartnerDebt } = useData();
+  const { partnerDebts, addPartnerDebt, updatePartnerDebt, deletePartnerDebt } = useTreasuryData();
   return { partnerDebts, addPartnerDebt, updatePartnerDebt, deletePartnerDebt };
 };
 

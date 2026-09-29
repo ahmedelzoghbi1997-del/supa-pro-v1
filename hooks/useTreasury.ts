@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { useTreasuryData } from '../contexts/TreasuryContext';
 import type { BankAccount, BankTransaction, TreasuryFund } from '../types';
 
 export interface UseTreasuryReturn {
@@ -24,7 +24,7 @@ export const useTreasury = (): UseTreasuryReturn => {
     addBankTransaction,
     updateBankTransaction,
     deleteBankTransaction,
-  } = useData();
+  } = useTreasuryData();
 
   return {
     treasuryFunds,

@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { useCyclesData } from '../contexts/CyclesContext';
 import type { Cycle } from '../types';
 
 export interface UseCyclesReturn {
@@ -24,7 +24,7 @@ export const useCycles = (): UseCyclesReturn => {
     deleteCycle,
     getCycleCashBalance,
     getCycleTotalBalance,
-  } = useData();
+  } = useCyclesData();
 
   return {
     cycles,

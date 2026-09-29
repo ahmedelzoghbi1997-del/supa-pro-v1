@@ -6,7 +6,7 @@ import { useToast } from '../../hooks/useToast';
 import ManageSubscriptionModal from './ManageSubscriptionModal';
 import Modal from '../shared/Modal';
 import { useData } from '../../contexts/DataContext';
-import { useUI } from '../../contexts/UIContext';
+import { useRealtime } from '../../contexts/UIContext';
 import { formatTimeAgo } from '../../utils/helpers';
 
 const StatusBadge: React.FC<{ status: Profile['status'] }> = ({ status }) => {
@@ -35,7 +35,7 @@ const getSubscriptionLabel = (type?: string | null) => {
 
 const UserManager: React.FC = () => {
     const { profile } = useData();
-    const { presences } = useUI();
+    const { presences } = useRealtime();
     const [users, setUsers] = useState<Profile[]>([]);
     const [visits, setVisits] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);

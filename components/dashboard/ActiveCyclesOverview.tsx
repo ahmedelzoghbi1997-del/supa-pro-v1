@@ -3,11 +3,11 @@ import Card from '../shared/Card';
 import { formatCurrency } from '../../utils/helpers';
 import { ChartPieIcon, ClockIcon } from '../Icons';
 import { Rocket } from 'lucide-react';
-import { useData } from '../../contexts/DataContext';
+import { useCycles } from '../../hooks/useCycles';
 import { useSettings, terminology } from '../../contexts/SettingsContext';
 
 const ActiveCyclesOverview: React.FC = () => {
-  const { cyclesWithCalculations } = useData();
+  const { cyclesWithCalculations } = useCycles();
   const { settings } = useSettings();
   const term = terminology[settings.primaryTerm];
   const activeCycles = cyclesWithCalculations.filter(c => c.status === 'active');

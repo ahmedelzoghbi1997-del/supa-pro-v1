@@ -2,7 +2,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Expense, Cycle } from '../../types';
 import { ChevronDownIcon, WalletIcon, LeafIcon, SparklesIcon } from '../Icons';
-import { useData } from '../../contexts/DataContext';
+import { useCycles } from '../../hooks/useCycles';
+import { useExpenses } from '../../hooks/useExpenses';
+import { useSuppliers } from '../../hooks/useSuppliers';
 import { useSettings, terminology } from '../../contexts/SettingsContext';
 import { formatNumberWithCommas, parseFormattedNumber, getLocalDateString, formatNumber } from '../../utils/helpers';
 import { usePersistedState } from '../../hooks/usePersistedState';
@@ -15,7 +17,10 @@ interface AddExpenseFormProps {
 }
 
 const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onSave, onCancel, initialData }) => {
-    const { cycles, expenseCategories, suppliers, settings, expenses: allExpenses, supplierPayments } = useData();
+    const { cycles } = useCycles();
+    const { expenseCategories, expenses: allExpenses } = useExpenses();
+    const { suppliers, supplierPayments } = useSuppliers();
+    const { settings } = useSettings();
     const { primaryTerm } = useSettings().settings;
     const term = terminology[primaryTerm];
     const activeCycles = useMemo(() => cycles.filter(c => c.status === 'active'), [cycles]);

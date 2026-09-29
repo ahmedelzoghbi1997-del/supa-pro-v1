@@ -4,10 +4,10 @@ import React, { useMemo, useCallback, useEffect } from 'react';
 import TreasuryList from './TreasuryList';
 import TreasuryDetails from './TreasuryDetails';
 import BankAccountDetails from './BankAccountDetails';
-import { useData } from '../../contexts/DataContext';
+import { useTreasury } from '../../hooks/useTreasury';
 
 const TreasuryManager: React.FC = () => {
-    const { treasuryFunds, bankAccounts } = useData();
+    const { treasuryFunds, bankAccounts } = useTreasury();
     
     const [view, setView] = useState<'list' | 'fund_details' | 'bank_details'>(() => {
         const state = window.history.state;

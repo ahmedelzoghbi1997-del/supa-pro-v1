@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUI } from '../../contexts/UIContext';
+import { useRealtime } from '../../contexts/UIContext';
 import { useData } from '../../contexts/DataContext';
 import { formatTimeAgo } from '../../utils/helpers';
 import { BellIcon, CheckIcon, TrashIcon } from '../Icons';
@@ -34,7 +34,7 @@ const getNotificationMeta = (type: NotificationType) => {
 }
 
 const NotificationItem: React.FC<{ notification: Notification }> = ({ notification }) => {
-    const { markNotificationAsRead } = useUI();
+    const { markNotificationAsRead } = useRealtime();
     const { setActiveItem } = useData();
     const { Icon, iconBg, iconColor } = getNotificationMeta(notification.type);
 
@@ -64,7 +64,7 @@ const NotificationItem: React.FC<{ notification: Notification }> = ({ notificati
 
 const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ isOpen }) => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { notifications, markAllNotificationsAsRead, clearNotifications } = useUI();
+  const { notifications, markAllNotificationsAsRead, clearNotifications } = useRealtime();
 
   if (!isOpen) return null;
 

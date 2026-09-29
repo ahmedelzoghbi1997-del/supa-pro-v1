@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../../contexts/DataContext';
-import { useUI } from '../../contexts/UIContext';
+import { useRealtime } from '../../contexts/UIContext';
 import { useToast } from '../../hooks/useToast';
 import { TrashIcon, UserIcon, ShieldIcon, PlusIcon, LockClosedIcon, FingerPrintIcon } from '../Icons';
 import { Copy, Check, AlertTriangle, Key, Clock, RefreshCw } from 'lucide-react';
@@ -11,7 +11,7 @@ import { generateSecureLinkingCode } from './LinkToOwner';
 
 const TeamSettings: React.FC = () => {
     const { profile } = useData();
-    const { presences } = useUI();
+    const { presences } = useRealtime();
     const { showToast } = useToast();
     const [subUsers, setSubUsers] = useState<VirtualMember[]>([]);
     const [loading, setLoading] = useState(false);

@@ -1,4 +1,4 @@
-import { useData } from '../contexts/DataContext';
+import { usePersonsData } from '../contexts/PersonsContext';
 import type { Supplier, SupplierPayment } from '../types';
 
 export interface UseSuppliersReturn {
@@ -26,7 +26,7 @@ export const useSuppliers = (): UseSuppliersReturn => {
     addSupplierPayment,
     updateSupplierPayment,
     deleteSupplierPayment,
-  } = useData();
+  } = usePersonsData();
 
   return {
     suppliers,
