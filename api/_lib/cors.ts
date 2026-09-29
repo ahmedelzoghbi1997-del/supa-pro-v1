@@ -44,12 +44,12 @@ export function isOriginAllowed(origin: string | undefined, hostHeader?: string)
   }
 
   // السماح بنطاقات Vercel الفرعية لمعاينات الفروع (*.vercel.app)
-  if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/i.test(origin)) {
+  if (/^https:\/\/[a-zA-Z0-9_.-]+\.vercel\.app$/i.test(origin)) {
     return true;
   }
 
   // السماح بنطاقات Cloud Run / AI Studio لمعاينة التطبيق (*.run.app)
-  if (/^https:\/\/[a-zA-Z0-9_-]+\.run\.app$/i.test(origin)) {
+  if (/^https:\/\/[a-zA-Z0-9_.-]+\.run\.app$/i.test(origin)) {
     return true;
   }
 

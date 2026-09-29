@@ -135,6 +135,13 @@ interface TreasuryListProps {
 }
 
 const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onViewBankDetails }) => {
+    const [activeTab, setActiveTab] = useState<'cash' | 'bank'>('cash');
+    const [isAddBankModalOpen, setIsAddBankModalOpen] = useState(false);
+    const [newBankName, setNewBankName] = useState('');
+    const [newBankBalance, setNewBankBalance] = useState('');
+    const [isCashSafeExplainOpen, setIsCashSafeExplainOpen] = useState(false);
+    const [isLedgerOpen, setIsLedgerOpen] = useState(false);
+
     const { 
         bankAccounts, 
         bankTransactions, 
@@ -145,13 +152,6 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
     const { loading } = useUI();
     const { showToast } = useToast();
     const isViewer = false;
-
-    const [activeTab, setActiveTab] = useState<'cash' | 'bank'>('cash');
-    const [isAddBankModalOpen, setIsAddBankModalOpen] = useState(false);
-    const [isCashSafeExplainOpen, setIsCashSafeExplainOpen] = useState(false);
-    const [isLedgerOpen, setIsLedgerOpen] = useState(false);
-    const [newBankName, setNewBankName] = useState('');
-    const [newBankBalance, setNewBankBalance] = useState('');
 
     const handleAddBank = async (e: React.FormEvent) => {
         if (isViewer) return;

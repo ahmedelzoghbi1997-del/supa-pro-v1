@@ -4,8 +4,6 @@ import handler from '../api/ai-insights';
 describe('AI Insights API Endpoint (/api/ai-insights)', () => {
   beforeEach(() => {
     vi.resetModules();
-    delete process.env.GEMINI_API_KEY;
-    delete process.env.API_KEY;
   });
 
   it('rejects non-POST methods with 405', async () => {
@@ -38,47 +36,11 @@ describe('AI Insights API Endpoint (/api/ai-insights)', () => {
     expect(jsonResponse.error).toContain('Method Not Allowed');
   });
 
-  it('returns 503 if GEMINI_API_KEY is not configured on server', async () => {
+  it('returns 200 disabled message without requiring GEMINI_API_KEY', async () => {
     const req = {
       method: 'POST',
       headers: {},
       socket: { remoteAddress: '127.0.0.2' },
-      body: {
-        summaryData: {
-          currentMonth: { revenue: 1000, expenses: 500 },
-          activeCycles: [],
-        },
-      },
-    } as any;
-
-    let statusCode = 0;
-    let jsonResponse: any = null;
-
-    const res = {
-      status: (code: number) => {
-        statusCode = code;
-        return {
-          json: (data: any) => {
-            jsonResponse = data;
-          },
-        };
-      },
-      setHeader: () => {},
-    } as any;
-
-    await handler(req, res);
-
-    expect(statusCode).toBe(503);
-    expect(jsonResponse.error).toContain('GEMINI_API_KEY');
-  });
-
-  it('returns 400 if summaryData is missing in request body', async () => {
-    process.env.GEMINI_API_KEY = 'test-key';
-
-    const req = {
-      method: 'POST',
-      headers: {},
-      socket: { remoteAddress: '127.0.0.3' },
       body: {},
     } as any;
 
@@ -99,7 +61,7 @@ describe('AI Insights API Endpoint (/api/ai-insights)', () => {
 
     await handler(req, res);
 
-    expect(statusCode).toBe(400);
-    expect(jsonResponse.error).toContain('بيانات الملخص المالي مفقودة');
+    expect(statusCode).toBe(200);
+    expect(jsonResponse.insight).toBeDefined();
   });
 });
