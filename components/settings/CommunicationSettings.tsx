@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSettings } from '../../contexts/SettingsContext';
 import { useToast } from '../../hooks/useToast';
 import Card from '../shared/Card';
+import Button from '../shared/Button';
 import { useData } from '../../contexts/DataContext';
 
 const CommunicationSettings: React.FC = () => {
@@ -68,12 +69,13 @@ const CommunicationSettings: React.FC = () => {
                     />
                 </div>
                 <div className="flex justify-end">
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={handleSave}
-                        className="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-6 rounded-lg transition-colors"
+                        className="py-2 px-6"
                     >
                         حفظ التغييرات
-                    </button>
+                    </Button>
                 </div>
             </div>
         </Card>

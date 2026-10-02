@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import type { TreasuryFund } from '../../types';
 import { formatNumber, calculateInvoiceTotal, getLocalDateString, getInvoiceRetainedDetails } from '../../utils/helpers';
 import { useData } from '../../contexts/DataContext';
@@ -40,22 +41,22 @@ const StatMiniCard = ({ label, value, icon: Icon, colorClass, bgColorClass, coun
                 <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="text-left">
-                <span className="text-[8px] sm:text-[10px] font-black text-neutral-400 bg-neutral-50 dark:bg-neutral-900 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-neutral-100 dark:border-neutral-800 tabular-nums">
+                <span className="text-2xs sm:text-2xs font-black text-neutral-400 bg-neutral-50 dark:bg-neutral-900 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-neutral-100 dark:border-neutral-800 tabular-nums">
                     {count} حركات
                 </span>
             </div>
         </div>
         <div>
-            <p className="text-[9px] sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-tight sm:tracking-widest mb-1">{label}</p>
+            <p className="text-2xs sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-tight sm:tracking-widest mb-1">{label}</p>
             <p className={`text-sm sm:text-2xl font-black ${colorClass} tracking-tighter tabular-nums mb-2 sm:mb-3`}>
                 {formatNumber(value)}
-                <span className="text-[8px] sm:text-xs mr-1 opacity-60 font-bold">ج.م</span>
+                <span className="text-2xs sm:text-xs mr-1 opacity-60 font-bold">ج.م</span>
             </p>
             
             {subLabel && (
                 <div className="flex items-center gap-1 sm:gap-1.5 pt-2 sm:pt-3 border-t border-neutral-100 dark:border-neutral-700/50">
                     {SubIcon && <SubIcon className="w-2.5 h-2.5 sm:w-3 h-3 text-neutral-400" />}
-                    <span className="text-[8px] sm:text-[10px] font-bold text-neutral-400 truncate max-w-full">{subLabel}</span>
+                    <span className="text-2xs sm:text-2xs font-bold text-neutral-400 truncate max-w-full">{subLabel}</span>
                 </div>
             )}
         </div>
@@ -363,6 +364,15 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
         return recentHistory;
     }, [recentHistory, historyTab]);
 
+    const parentRef = useRef<HTMLDivElement>(null);
+
+    const rowVirtualizer = useVirtualizer({
+        count: filteredHistory.length,
+        getScrollElement: () => parentRef.current,
+        estimateSize: () => 76,
+        overscan: 5,
+    });
+
     return (
         <div className="space-y-6 max-w-4xl mx-auto pb-20 animate-page-enter">
             {/* Top Navigation & Actions */}
@@ -380,7 +390,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                 setValidationError(null);
                                 setIsFundingModalOpen(true);
                             }}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-2xl shadow-sm transition-all active:scale-95 text-xs font-black cursor-pointer"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-2xl shadow-sm transition-all tap text-xs font-black cursor-pointer"
                         >
                             <PlusIcon className="w-4 h-4" />
                             <span>إضافة تمويل</span>
@@ -392,7 +402,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                 triggerLightHaptic();
                                 onBack();
                             }} 
-                            className="p-2.5 bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 transition-all active:scale-95 cursor-pointer"
+                            className="p-2.5 bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-700/50 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 transition-all tap cursor-pointer"
                         >
                             <ArrowRightIcon className="w-5 h-5 transform rotate-180 text-neutral-600 dark:text-neutral-300" />
                         </button>
@@ -414,9 +424,9 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     size="md"
                 >
                     <form onSubmit={handleAddFunding} className="space-y-4 text-right" dir="rtl">
-                    <div className="bg-indigo-50/70 dark:bg-indigo-950/30 p-3.5 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 flex items-start gap-2.5">
-                        <SparklesIcon className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                        <p className="text-xs text-indigo-900 dark:text-indigo-200 leading-relaxed font-semibold">
+                    <div className="bg-accent-info/10 dark:bg-accent-info/20 p-3.5 rounded-2xl border border-accent-info/20 dark:border-accent-info/30 flex items-start gap-2.5">
+                        <SparklesIcon className="w-5 h-5 text-accent-info dark:text-accent-info shrink-0 mt-0.5" />
+                        <p className="text-xs text-accent-info dark:text-accent-info leading-relaxed font-semibold">
                             {editingFunding 
                                 ? "تعديل بيانات وسند التمويل الشخصي المسجل لدعم الخزنة ومصاريف العروة."
                                 : "سيتم قيد هذا المبلغ كتمويل نقدي إضافي مباشر داخل عهدة هذه العروة، مما يرفع رصيد الكاش فوراً."}
@@ -424,7 +434,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     </div>
 
                     {validationError && (
-                        <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-bold">
+                        <div className="p-3 bg-accent-danger/10 dark:bg-accent-danger/20 border border-accent-danger/20 dark:border-accent-danger/30 rounded-xl text-accent-danger dark:text-accent-danger text-xs font-bold">
                             {validationError}
                         </div>
                     )}
@@ -476,9 +486,9 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     </div>
 
                     {fundingAmount && parseFloat(fundingAmount) > 0 && (
-                        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">الأثر المالي المتوقع:</span>
-                            <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 tabular-nums">
+                        <div className="p-3 bg-accent-success/10 dark:bg-accent-success/20 rounded-xl border border-accent-success/20 dark:border-accent-success/30 flex items-center justify-between">
+                            <span className="text-[11px] font-bold text-accent-success dark:text-accent-success">الأثر المالي المتوقع:</span>
+                            <span className="text-xs font-black text-accent-success dark:text-accent-success tabular-nums">
                                 +{formatNumber(parseFloat(fundingAmount))} ج.م في كاش الخزنة
                             </span>
                         </div>
@@ -488,7 +498,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                         <button
                             type="submit"
                             disabled={isSaving || !fundingAmount}
-                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-3 rounded-xl transition-all active:scale-95 text-xs shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-3 rounded-xl transition-all tap text-xs shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                             <CheckCircleIcon className="w-4 h-4" />
                             <span>{isSaving ? 'جاري الحفظ...' : (editingFunding ? 'تحديث السند' : 'تأكيد التمويل')}</span>
@@ -501,7 +511,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                     triggerLightHaptic();
                                     setIsDeleteModalOpen(true);
                                 }}
-                                className="px-4 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold rounded-xl hover:bg-rose-100 transition-all text-xs border border-rose-200/50 dark:border-rose-900/30 cursor-pointer"
+                                className="px-4 bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger font-bold rounded-xl hover:bg-accent-danger/10 transition-all text-xs border border-accent-danger/20/50 dark:border-accent-danger/30 cursor-pointer"
                             >
                                 حذف
                             </button>
@@ -538,7 +548,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                         <button
                             onClick={handleDeleteFunding}
                             disabled={isSaving}
-                            className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black py-2.5 rounded-xl transition-all active:scale-95 text-xs shadow-sm cursor-pointer"
+                            className="flex-1 bg-accent-danger hover:bg-accent-danger/90 text-white font-black py-2.5 rounded-xl transition-all tap text-xs shadow-sm cursor-pointer"
                         >
                             {isSaving ? 'جاري الحذف...' : 'نعم، تأكيد الحذف'}
                         </button>
@@ -560,7 +570,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
             {/* Hero Balance Card (Fintech Grade) */}
             <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-neutral-950 rounded-3xl p-5 sm:p-7 text-white shadow-xl border border-white/10">
                 <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500/15 rounded-full blur-[90px] -mr-32 -mt-32 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] -ml-24 -mb-24 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent-success/10 rounded-full blur-[80px] -ml-24 -mb-24 pointer-events-none"></div>
                 
                 <div className="relative z-10 space-y-6 text-center">
                     
@@ -568,7 +578,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     <div>
                         <div className="inline-flex items-center justify-center gap-2 px-3 py-1 bg-white/10 rounded-full backdrop-blur-md mb-3 border border-white/10">
                             <WalletIcon className="w-3.5 h-3.5 text-indigo-300" />
-                            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-indigo-100">رصيد الكاش الفعلي في العهدة</span>
+                            <span className="text-2xs sm:text-xs font-black uppercase tracking-wider text-indigo-100">رصيد الكاش الفعلي في العهدة</span>
                         </div>
                         <div className="flex items-baseline justify-center gap-1.5">
                             <span className="text-5xl sm:text-6xl font-black tracking-tight tabular-nums text-white drop-shadow-md">
@@ -592,12 +602,12 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                         {/* Inflow */}
                         <div className="bg-white/5 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10 flex flex-col items-center justify-center text-center group hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-1.5 mb-1">
-                                <div className="p-1 sm:p-1.5 bg-emerald-500/20 rounded-xl text-emerald-400 group-hover:scale-110 transition-transform">
+                                <div className="p-1 sm:p-1.5 bg-accent-success/20 rounded-xl text-accent-success group-hover:scale-110 transition-transform">
                                     <TrendingUpIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 </div>
-                                <p className="text-[8px] sm:text-[10px] font-black text-emerald-200/70 uppercase tracking-wider">إجمالي الداخل</p>
+                                <p className="text-2xs sm:text-2xs font-black text-emerald-200/70 uppercase tracking-wider">إجمالي الداخل</p>
                             </div>
-                            <p className="text-xs sm:text-lg font-black tabular-nums text-emerald-400">
+                            <p className="text-xs sm:text-lg font-black tabular-nums text-accent-success">
                                 {formatNumber(fund.inflows.totalRevenue + fund.inflows.bankWithdrawals + (fund.inflows.transferredBalance || 0) + (fund.inflows.manualFunding || 0) + (fund.inflows.jointDebtsFunding || 0) + (fund.inflows.individualDebtsFunding || 0))}
                             </p>
                         </div>
@@ -605,12 +615,12 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                         {/* Outflow */}
                         <div className="bg-white/5 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10 flex flex-col items-center justify-center text-center group hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-1.5 mb-1">
-                                <div className="p-1 sm:p-1.5 bg-rose-500/20 rounded-xl text-rose-400 group-hover:scale-110 transition-transform">
+                                <div className="p-1 sm:p-1.5 bg-accent-danger/20 rounded-xl text-accent-danger group-hover:scale-110 transition-transform">
                                     <TrendingDownIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 </div>
-                                <p className="text-[8px] sm:text-[10px] font-black text-rose-200/70 uppercase tracking-wider">إجمالي الخارج</p>
+                                <p className="text-2xs sm:text-2xs font-black text-rose-200/70 uppercase tracking-wider">إجمالي الخارج</p>
                             </div>
-                            <p className="text-xs sm:text-lg font-black tabular-nums text-rose-400">{formatNumber(totalOutflow)}</p>
+                            <p className="text-xs sm:text-lg font-black tabular-nums text-accent-danger">{formatNumber(totalOutflow)}</p>
                         </div>
 
                         {/* Available in Bank */}
@@ -619,7 +629,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                 <div className="p-1 sm:p-1.5 bg-blue-500/20 rounded-xl text-blue-400 group-hover:scale-110 transition-transform">
                                     <WalletIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                 </div>
-                                <p className="text-[8px] sm:text-[10px] font-black text-blue-200/70 uppercase tracking-wider">المتاح بالبنك</p>
+                                <p className="text-2xs sm:text-2xs font-black text-blue-200/70 uppercase tracking-wider">المتاح بالبنك</p>
                             </div>
                             <p className="text-xs sm:text-lg font-black tabular-nums text-blue-400">{formatNumber(bankBalance)}</p>
                         </div>
@@ -634,7 +644,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     value={fund.outflows.supplierPayments.amount} 
                     count={extraInfo.counts.supplier}
                     icon={CreditCardIcon} 
-                    colorClass="text-amber-600 dark:text-amber-400" 
+                    colorClass="text-accent-warning dark:text-accent-warning" 
                     bgColorClass="bg-white dark:bg-neutral-800"
                     subLabel={extraInfo.lastSupplier ? `آخر مورد: ${extraInfo.lastSupplier}` : "لا توجد مدفوعات"}
                     subIcon={TruckIcon}
@@ -644,7 +654,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     value={fund.outflows.farmerWithdrawals.amount} 
                     count={extraInfo.counts.farmer}
                     icon={FarmerAccountIcon} 
-                    colorClass="text-blue-600 dark:text-blue-400" 
+                    colorClass="text-accent-info dark:text-accent-info" 
                     bgColorClass="bg-white dark:bg-neutral-800"
                     subLabel={`المزارع: ${extraInfo.responsibleFarmer}`}
                     subIcon={UserIcon}
@@ -654,7 +664,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                     value={fund.outflows.operatingExpenses.amount} 
                     count={extraInfo.counts.expenses}
                     icon={WalletIcon} 
-                    colorClass="text-rose-500 dark:text-rose-400" 
+                    colorClass="text-accent-danger dark:text-accent-danger" 
                     bgColorClass="bg-white dark:bg-neutral-800"
                     subLabel="نثريات نقدية يومية"
                 />
@@ -675,12 +685,12 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                 {/* Header & Tabs */}
                 <div className="p-4 sm:p-5 border-b border-neutral-100 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                        <div className="p-2 bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info rounded-xl">
                             <ClockIcon className="w-5 h-5" />
                         </div>
                         <div>
                             <h3 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">سجل الحركات المالي</h3>
-                            <p className="text-[10px] text-neutral-400 font-bold mt-0.5">تفاصيل التدفقات النقدية الواردة والمنصرفة</p>
+                            <p className="text-2xs text-neutral-400 font-bold mt-0.5">تفاصيل التدفقات النقدية الواردة والمنصرفة</p>
                         </div>
                     </div>
 
@@ -697,7 +707,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                             }`}
                         >
                             <span>الكل</span>
-                            <span className={`px-1.5 py-0.2 rounded-md text-[9px] font-bold tabular-nums ${
+                            <span className={`px-1.5 py-0.2 rounded-md text-2xs font-bold tabular-nums ${
                                 historyTab === 'all' 
                                     ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200' 
                                     : 'bg-neutral-200/60 dark:bg-neutral-700/50 text-neutral-500'
@@ -712,16 +722,16 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                             onClick={() => handleTabChange('inflow')}
                             className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                                 historyTab === 'inflow'
-                                    ? 'bg-emerald-600 text-white shadow-sm'
-                                    : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20'
+                                    ? 'bg-accent-success text-white shadow-sm'
+                                    : 'text-accent-success dark:text-accent-success hover:bg-accent-success/10/50 dark:hover:bg-accent-success/20'
                             }`}
                         >
                             <ArrowDownLeftIcon className="w-3 h-3" />
                             <span>وارد</span>
-                            <span className={`px-1.5 py-0.2 rounded-md text-[9px] font-bold tabular-nums ${
+                            <span className={`px-1.5 py-0.2 rounded-md text-2xs font-bold tabular-nums ${
                                 historyTab === 'inflow' 
                                     ? 'bg-white/20 text-white' 
-                                    : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300'
+                                    : 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success'
                             }`}>
                                 {tabCounts.inflow}
                             </span>
@@ -733,16 +743,16 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                             onClick={() => handleTabChange('outflow')}
                             className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                                 historyTab === 'outflow'
-                                    ? 'bg-rose-600 text-white shadow-sm'
-                                    : 'text-rose-700 dark:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-950/20'
+                                    ? 'bg-accent-danger text-white shadow-sm'
+                                    : 'text-accent-danger dark:text-accent-danger hover:bg-accent-danger/10/50 dark:hover:bg-accent-danger/20'
                             }`}
                         >
                             <ArrowUpRightIcon className="w-3 h-3" />
                             <span>منصرف</span>
-                            <span className={`px-1.5 py-0.2 rounded-md text-[9px] font-bold tabular-nums ${
+                            <span className={`px-1.5 py-0.2 rounded-md text-2xs font-bold tabular-nums ${
                                 historyTab === 'outflow' 
                                     ? 'bg-white/20 text-white' 
-                                    : 'bg-rose-100 dark:bg-rose-950/50 text-rose-800 dark:text-rose-300'
+                                    : 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger'
                             }`}>
                                 {tabCounts.outflow}
                             </span>
@@ -754,11 +764,11 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                 {historyTab !== 'all' && (
                     <div className={`px-5 py-2.5 flex items-center justify-between text-xs font-black border-b border-neutral-100 dark:border-neutral-800 ${
                         historyTab === 'inflow' 
-                            ? 'bg-emerald-50/50 dark:bg-emerald-950/15 text-emerald-800 dark:text-emerald-300' 
-                            : 'bg-rose-50/50 dark:bg-rose-950/15 text-rose-800 dark:text-rose-300'
+                            ? 'bg-accent-success/10/50 dark:bg-accent-success/20 text-accent-success dark:text-accent-success' 
+                            : 'bg-accent-danger/10/50 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger'
                     }`}>
                         <div className="flex items-center gap-1.5">
-                            {historyTab === 'inflow' ? <TrendingUpIcon className="w-4 h-4 text-emerald-600" /> : <TrendingDownIcon className="w-4 h-4 text-rose-600" />}
+                            {historyTab === 'inflow' ? <TrendingUpIcon className="w-4 h-4 text-accent-success" /> : <TrendingDownIcon className="w-4 h-4 text-accent-danger" />}
                             <span>{historyTab === 'inflow' ? 'إجمالي الحركات الواردة المعروضة' : 'إجمالي الحركات المنصرفة المعروضة'}</span>
                         </div>
                         <span className="tabular-nums font-mono">
@@ -768,7 +778,7 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                 )}
 
                 {/* Transactions List */}
-                <div className="divide-y divide-neutral-100 dark:divide-neutral-800/60">
+                <div>
                     {filteredHistory.length === 0 ? (
                         <div className="p-12 text-center flex flex-col items-center justify-center gap-2">
                             <div className="p-3 bg-neutral-50 dark:bg-neutral-800 rounded-full text-neutral-400">
@@ -779,86 +789,184 @@ const TreasuryDetails: React.FC<TreasuryDetailsProps> = ({ fund, onBack, showBac
                                     ? 'لا توجد حركات مسجلة في هذه الخزنة حتى الآن' 
                                     : (historyTab === 'inflow' ? 'لا توجد حركات واردة مسجلة' : 'لا توجد حركات منصرفة مسجلة')}
                             </p>
-                            <p className="text-[10px] text-neutral-400 font-bold">
+                            <p className="text-2xs text-neutral-400 font-bold">
                                 ستظهر هنا كافة المعاملات المالية المرتبطة بالعهد فور تسجيلها.
                             </p>
                         </div>
-                    ) : (
-                        filteredHistory.map((h, i) => {
-                            const isOutflow = h.isOutflow === true;
-                            const absoluteAmount = Math.abs(h.amount);
-                            const sign = isOutflow ? '-' : '+';
-                            const isEditableFunding = !isViewer && (h.isManualFunding || h.market === 'تمويل يدوي');
+                    ) : filteredHistory.length < 30 ? (
+                        <div className="divide-y divide-neutral-100 dark:divide-neutral-800/60">
+                            {filteredHistory.map((h, i) => {
+                                const isOutflow = h.isOutflow === true;
+                                const absoluteAmount = Math.abs(h.amount);
+                                const sign = isOutflow ? '-' : '+';
+                                const isEditableFunding = !isViewer && (h.isManualFunding || h.market === 'تمويل يدوي');
 
-                            return (
-                                <div 
-                                    key={h.id || i} 
-                                    onClick={() => isEditableFunding ? handleEditFundingClick(h) : undefined}
-                                    className={`p-4 sm:p-5 flex items-center justify-between hover:bg-neutral-50/80 dark:hover:bg-neutral-800/40 transition-colors group ${isEditableFunding ? 'cursor-pointer' : ''}`}
-                                >
-                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                                        <div className={`p-2.5 rounded-2xl shrink-0 transition-transform group-hover:scale-105 ${
-                                            isOutflow 
-                                                ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-100/80 dark:border-rose-900/30' 
-                                                : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-100/80 dark:border-emerald-900/30'
-                                        }`}>
-                                            {isOutflow ? <ArrowUpRightIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <ArrowDownLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
-                                        </div>
-                                        
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2 flex-wrap">
-                                                <p className="text-xs sm:text-sm font-black text-neutral-900 dark:text-white truncate max-w-[160px] sm:max-w-[280px]">
-                                                    {h.note}
-                                                </p>
-                                                {isEditableFunding && (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 rounded-md text-[9px] font-black border border-violet-200/60 dark:border-violet-800/40">
-                                                        <PencilIcon className="w-2.5 h-2.5" />
-                                                        <span>تعديل</span>
-                                                    </span>
-                                                )}
+                                return (
+                                    <div 
+                                        key={h.id || i} 
+                                        onClick={() => isEditableFunding ? handleEditFundingClick(h) : undefined}
+                                        className={`p-4 sm:p-5 flex items-center justify-between hover:bg-neutral-50/80 dark:hover:bg-neutral-800/40 transition-colors group ${isEditableFunding ? 'cursor-pointer' : ''}`}
+                                    >
+                                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                            <div className={`p-2.5 rounded-2xl shrink-0 transition-transform group-hover:scale-105 ${
+                                                isOutflow 
+                                                    ? 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger border border-accent-danger/20/80 dark:border-accent-danger/30' 
+                                                    : 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20/80 dark:border-accent-success/30'
+                                            }`}>
+                                                {isOutflow ? <ArrowUpRightIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <ArrowDownLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
                                             </div>
                                             
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className={`inline-block px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                                                    h.badgeColor === 'amber' ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400' :
-                                                    h.badgeColor === 'blue' ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400' :
-                                                    h.badgeColor === 'rose' ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400' :
-                                                    h.badgeColor === 'purple' ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400' :
-                                                    h.badgeColor === 'violet' ? 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400' :
-                                                    h.badgeColor === 'cyan' ? 'bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-400' :
-                                                    h.badgeColor === 'indigo' ? 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-400' :
-                                                    'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400'
-                                                }`}>
-                                                    {h.typeLabel}
-                                                </span>
-                                                <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold tabular-nums">
-                                                    {new Date(h.date).toLocaleDateString('en-GB')}
-                                                </span>
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <p className="text-xs sm:text-sm font-black text-neutral-900 dark:text-white truncate max-w-[160px] sm:max-w-[280px]">
+                                                        {h.note}
+                                                    </p>
+                                                    {isEditableFunding && (
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 rounded-md text-2xs font-black border border-violet-200/60 dark:border-violet-800/40">
+                                                            <PencilIcon className="w-2.5 h-2.5" />
+                                                            <span>تعديل</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`inline-block px-1.5 py-0.2 rounded text-2xs font-bold ${
+                                                        h.badgeColor === 'amber' ? 'bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning' :
+                                                        h.badgeColor === 'blue' ? 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info' :
+                                                        h.badgeColor === 'rose' ? 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger' :
+                                                        h.badgeColor === 'purple' ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400' :
+                                                        h.badgeColor === 'violet' ? 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400' :
+                                                        h.badgeColor === 'cyan' ? 'bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-400' :
+                                                        h.badgeColor === 'indigo' ? 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info' :
+                                                        'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success'
+                                                    }`}>
+                                                        {h.typeLabel}
+                                                    </span>
+                                                    <span className="text-2xs text-neutral-400 dark:text-neutral-500 font-bold tabular-nums">
+                                                        {new Date(h.date).toLocaleDateString('en-GB')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Amount Badge */}
+                                        <div className="flex flex-col items-end text-left shrink-0 mr-3">
+                                            <div className={`px-2.5 py-1 rounded-xl font-black font-mono text-xs sm:text-sm tracking-tight border ${
+                                                !isOutflow 
+                                                    ? 'bg-accent-success/10/80 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border-accent-success/20/60 dark:border-accent-success/30' 
+                                                    : 'bg-accent-danger/10/80 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger border-accent-danger/20/60 dark:border-accent-danger/30'
+                                            }`}>
+                                                <span dir="ltr">{sign} {formatNumber(absoluteAmount)}</span>
+                                                <span className="text-2xs pr-1 font-bold">ج.م</span>
                                             </div>
                                         </div>
                                     </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div 
+                            ref={parentRef}
+                            className="max-h-[65vh] overflow-y-auto pr-0.5"
+                        >
+                            <div
+                                style={{
+                                    height: `${rowVirtualizer.getTotalSize()}px`,
+                                    width: '100%',
+                                    position: 'relative',
+                                }}
+                            >
+                                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                                    const h = filteredHistory[virtualRow.index];
+                                    const isOutflow = h.isOutflow === true;
+                                    const absoluteAmount = Math.abs(h.amount);
+                                    const sign = isOutflow ? '-' : '+';
+                                    const isEditableFunding = !isViewer && (h.isManualFunding || h.market === 'تمويل يدوي');
 
-                                    {/* Amount Badge */}
-                                    <div className="flex flex-col items-end text-left shrink-0 mr-3">
-                                        <div className={`px-2.5 py-1 rounded-xl font-black font-mono text-xs sm:text-sm tracking-tight border ${
-                                            !isOutflow 
-                                                ? 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200/60 dark:border-emerald-800/40' 
-                                                : 'bg-rose-50/80 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200/60 dark:border-rose-800/40'
-                                        }`}>
-                                            <span dir="ltr">{sign} {formatNumber(absoluteAmount)}</span>
-                                            <span className="text-[10px] pr-1 font-bold">ج.م</span>
+                                    return (
+                                        <div
+                                            key={virtualRow.key}
+                                            data-index={virtualRow.index}
+                                            ref={rowVirtualizer.measureElement}
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                transform: `translateY(${virtualRow.start}px)`,
+                                            }}
+                                            className="border-b border-neutral-100 dark:border-neutral-800/60 last:border-b-0"
+                                        >
+                                            <div 
+                                                onClick={() => isEditableFunding ? handleEditFundingClick(h) : undefined}
+                                                className={`p-4 sm:p-5 flex items-center justify-between hover:bg-neutral-50/80 dark:hover:bg-neutral-800/40 transition-colors group ${isEditableFunding ? 'cursor-pointer' : ''}`}
+                                            >
+                                                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                                    <div className={`p-2.5 rounded-2xl shrink-0 transition-transform group-hover:scale-105 ${
+                                                        isOutflow 
+                                                            ? 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger border border-accent-danger/20/80 dark:border-accent-danger/30' 
+                                                            : 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20/80 dark:border-accent-success/30'
+                                                    }`}>
+                                                        {isOutflow ? <ArrowUpRightIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <ArrowDownLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
+                                                    </div>
+                                                    
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <p className="text-xs sm:text-sm font-black text-neutral-900 dark:text-white truncate max-w-[160px] sm:max-w-[280px]">
+                                                                {h.note}
+                                                            </p>
+                                                            {isEditableFunding && (
+                                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 rounded-md text-2xs font-black border border-violet-200/60 dark:border-violet-800/40">
+                                                                    <PencilIcon className="w-2.5 h-2.5" />
+                                                                    <span>تعديل</span>
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className={`inline-block px-1.5 py-0.2 rounded text-2xs font-bold ${
+                                                                h.badgeColor === 'amber' ? 'bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning' :
+                                                                h.badgeColor === 'blue' ? 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info' :
+                                                                h.badgeColor === 'rose' ? 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger' :
+                                                                h.badgeColor === 'purple' ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-400' :
+                                                                h.badgeColor === 'violet' ? 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-400' :
+                                                                h.badgeColor === 'cyan' ? 'bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-400' :
+                                                                h.badgeColor === 'indigo' ? 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info' :
+                                                                'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success'
+                                                            }`}>
+                                                                {h.typeLabel}
+                                                            </span>
+                                                            <span className="text-2xs text-neutral-400 dark:text-neutral-500 font-bold tabular-nums">
+                                                                {new Date(h.date).toLocaleDateString('en-GB')}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Amount Badge */}
+                                                <div className="flex flex-col items-end text-left shrink-0 mr-3">
+                                                    <div className={`px-2.5 py-1 rounded-xl font-black font-mono text-xs sm:text-sm tracking-tight border ${
+                                                        !isOutflow 
+                                                            ? 'bg-accent-success/10/80 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border-accent-success/20/60 dark:border-accent-success/30' 
+                                                            : 'bg-accent-danger/10/80 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger border-accent-danger/20/60 dark:border-accent-danger/30'
+                                                    }`}>
+                                                        <span dir="ltr">{sign} {formatNumber(absoluteAmount)}</span>
+                                                        <span className="text-2xs pr-1 font-bold">ج.م</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            );
-                        })
+                                    );
+                                })}
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
 
             {/* Info Message Footer */}
-            <div className="p-4 sm:p-5 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 text-center">
-                <p className="text-[11px] text-indigo-900 dark:text-indigo-300 font-bold leading-relaxed">
+            <div className="p-4 sm:p-5 bg-accent-info/10 dark:bg-accent-info/20 rounded-2xl border border-accent-info/20 dark:border-accent-info/30 text-center">
+                <p className="text-[11px] text-accent-info dark:text-accent-info font-bold leading-relaxed">
                     💡 رصيد الخزنة يمثل السيولة النقدية الفعلية (الكاش) في عهدة هذه العروة بعد حساب كافة المقبوضات والمدفوعات.
                 </p>
             </div>

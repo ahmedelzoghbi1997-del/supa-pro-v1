@@ -8,6 +8,7 @@ import type { VirtualMember } from '../../types';
 import { supabase } from '../../lib/supabase';
 import { removeSavedAccount } from '../../lib/accountManager';
 import { generateSecureLinkingCode } from './LinkToOwner';
+import Button from '../shared/Button';
 
 const TeamSettings: React.FC = () => {
     const { profile } = useData();
@@ -237,8 +238,8 @@ const TeamSettings: React.FC = () => {
             {memberToDelete && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" dir="rtl">
                     <div className="bg-white dark:bg-neutral-800 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-neutral-100 dark:border-neutral-700 animate-scale-up space-y-5">
-                        <div className="flex items-center gap-3 text-rose-500">
-                            <div className="p-3 bg-rose-50 dark:bg-rose-900/30 rounded-2xl">
+                        <div className="flex items-center gap-3 text-accent-danger">
+                            <div className="p-3 bg-accent-danger/10 dark:bg-accent-danger/20 rounded-2xl">
                                 <AlertTriangle className="w-6 h-6" />
                             </div>
                             <div>
@@ -263,35 +264,27 @@ const TeamSettings: React.FC = () => {
                         </p>
 
                         <div className="flex items-center justify-end gap-3 pt-2">
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => setMemberToDelete(null)}
                                 disabled={!!deletingId}
-                                className="px-5 py-2.5 rounded-xl text-xs font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all"
+                                className="!px-5 !py-2.5 !rounded-xl"
                             >
                                 إلغاء
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="button"
+                                variant="danger"
+                                size="sm"
                                 onClick={confirmDeleteMember}
-                                disabled={!!deletingId}
-                                className="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-black transition-all shadow-lg shadow-rose-500/20 active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                                loading={!!deletingId}
+                                icon={<TrashIcon className="w-4 h-4" />}
+                                className="!px-5 !py-2.5 !rounded-xl"
                             >
-                                {deletingId ? (
-                                    <>
-                                        <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                        </svg>
-                                        <span>جاري الحذف...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <TrashIcon className="w-4 h-4" />
-                                        <span>تأكيد الحذف</span>
-                                    </>
-                                )}
-                            </button>
+                                تأكيد الحذف
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -301,7 +294,7 @@ const TeamSettings: React.FC = () => {
             <div className="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-soft border border-neutral-100 dark:border-neutral-700 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                        <div className="p-2.5 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded-xl">
                             <Key className="w-6 h-6" />
                         </div>
                         <div>
@@ -310,15 +303,17 @@ const TeamSettings: React.FC = () => {
                         </div>
                     </div>
 
-                    <button
+                    <Button
                         type="button"
+                        variant="secondary"
+                        size="sm"
                         onClick={handleGenerateNewCode}
-                        disabled={generatingCode}
-                        className="py-2.5 px-4 bg-primary/10 hover:bg-primary/20 text-primary dark:text-emerald-400 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                        loading={generatingCode}
+                        icon={<RefreshCw className="w-3.5 h-3.5" />}
+                        className="!py-2.5 !px-4 !bg-primary/10 hover:!bg-primary/20 !text-primary dark:!text-accent-success !rounded-xl !border-transparent"
                     >
-                        <RefreshCw className={`w-3.5 h-3.5 ${generatingCode ? 'animate-spin' : ''}`} />
-                        <span>{myLinkingCode ? 'تجديد الكود (24 ساعة)' : 'توليد كود آمن'}</span>
-                    </button>
+                        {myLinkingCode ? 'تجديد الكود (24 ساعة)' : 'توليد كود آمن'}
+                    </Button>
                 </div>
 
                 {myLinkingCode && (
@@ -327,24 +322,27 @@ const TeamSettings: React.FC = () => {
                             <span className="text-xl font-black font-mono tracking-widest text-primary select-all">
                                 {myLinkingCode}
                             </span>
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => handleCopyCode(myLinkingCode)}
-                                className="p-1.5 text-neutral-400 hover:text-primary hover:bg-neutral-200/60 dark:hover:bg-neutral-700 rounded-lg transition-all"
+                                className="!p-1.5 text-neutral-400 hover:text-primary hover:bg-neutral-200/60 dark:hover:bg-neutral-700 !rounded-lg"
                                 title="نسخ الكود"
+                                aria-label="نسخ الكود"
                             >
-                                {copiedCode ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                            </button>
+                                {copiedCode ? <Check className="w-4 h-4 text-accent-success" /> : <Copy className="w-4 h-4" />}
+                            </Button>
                         </div>
 
                         <div className="flex items-center gap-2">
                             {myExpiresAt && new Date(myExpiresAt).getTime() < Date.now() ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-accent-warning/10 text-accent-warning dark:bg-accent-warning/20 dark:text-accent-warning border border-accent-warning/20 dark:border-accent-warning/30">
                                     <Clock className="w-3 h-3" />
                                     منتهي الصلاحية
                                 </span>
                             ) : myExpiresAt ? (
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20 dark:border-accent-success/30">
                                     <Clock className="w-3 h-3" />
                                     صالح حتى {new Date(myExpiresAt).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}
                                 </span>
@@ -357,7 +355,7 @@ const TeamSettings: React.FC = () => {
             <div className="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-soft border border-neutral-100 dark:border-neutral-700">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                        <div className="p-2.5 bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info rounded-xl">
                             <ShieldIcon className="w-6 h-6" />
                         </div>
                         <div>
@@ -366,23 +364,28 @@ const TeamSettings: React.FC = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button 
+                        <Button 
+                            variant="ghost"
+                            size="sm"
                             onClick={fetchSubUsers}
-                            className="p-2 text-neutral-400 hover:text-primary transition-all rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                            className="!p-2 text-neutral-400 hover:text-primary !rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-700"
                             title="تحديث البيانات"
+                            aria-label="تحديث البيانات"
                         >
                             <svg className={`w-5 h-5 ${fetching ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
-                        </button>
+                        </Button>
                         {!isAdding && (
-                            <button
+                            <Button
+                                variant="primary"
+                                size="md"
                                 onClick={() => setIsAdding(true)}
-                                className="p-2 bg-primary text-white rounded-xl hover:bg-primary-dark transition-all flex items-center gap-2 px-4 text-sm font-bold shadow-md shadow-primary/20"
+                                icon={<PlusIcon className="w-5 h-5" />}
+                                className="!rounded-xl shadow-md shadow-primary/20"
                             >
-                                <PlusIcon className="w-5 h-5" />
                                 إضافة مطلع
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </div>
@@ -391,7 +394,9 @@ const TeamSettings: React.FC = () => {
                     <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl p-6 border border-neutral-100 dark:border-neutral-700 mb-8 animate-page-enter">
                         <div className="flex items-center justify-between mb-4">
                             <h4 className="font-bold text-neutral-800 dark:text-neutral-50">إضافة مستخدم جديد للتقارير</h4>
-                            <button onClick={() => setIsAdding(false)} className="text-sm text-neutral-500 hover:text-neutral-700">إلغاء</button>
+                            <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)} className="text-sm text-neutral-500 hover:text-neutral-700">
+                                إلغاء
+                            </Button>
                         </div>
                         <form onSubmit={handleCreateAccount} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -450,13 +455,15 @@ const TeamSettings: React.FC = () => {
                                 </div>
                             </div>
                             <div className="flex justify-end pt-2">
-                                <button
+                                <Button
                                     type="submit"
-                                    disabled={loading}
-                                    className="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-primary/20 active:scale-95 disabled:opacity-50"
+                                    variant="primary"
+                                    size="md"
+                                    loading={loading}
+                                    className="!px-6 !py-2.5 !rounded-xl shadow-lg shadow-primary/20"
                                 >
-                                    {loading ? 'جاري الحفظ...' : 'تأكيد إنشاء الحساب'}
-                                </button>
+                                    تأكيد إنشاء الحساب
+                                </Button>
                             </div>
                         </form>
                     </div>
@@ -474,7 +481,7 @@ const TeamSettings: React.FC = () => {
                         <div className="py-12 bg-neutral-50 dark:bg-neutral-900/30 rounded-2xl border-2 border-dashed border-neutral-200 dark:border-neutral-800 text-center">
                             <UserIcon className="w-12 h-12 mx-auto text-neutral-300 mb-2 opacity-50" />
                             <p className="text-sm text-neutral-400 font-bold">لا توجد حسابات مشاركة حالياً.</p>
-                            <p className="text-[10px] text-neutral-500 mt-1">ابدأ بإضافة حساب لتمكين أطراف أخرى من الاطلاع على التقارير.</p>
+                            <p className="text-2xs text-neutral-500 mt-1">ابدأ بإضافة حساب لتمكين أطراف أخرى من الاطلاع على التقارير.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -488,47 +495,53 @@ const TeamSettings: React.FC = () => {
                                                 {member.full_name?.charAt(0) || 'م'}
                                             </div>
                                             {isOnline && (
-                                                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-neutral-900 rounded-full"></span>
+                                                <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-accent-success border-2 border-white dark:border-neutral-900 rounded-full"></span>
                                             )}
                                         </div>
                                         <div className="min-w-0">
                                             <div className="flex items-center gap-2">
                                                 <p className="text-sm font-bold text-neutral-800 dark:text-neutral-50 truncate">{member.full_name}</p>
-                                                {isOnline && <span className="text-[9px] font-bold text-green-500 animate-pulse shrink-0">متصل الآن</span>}
+                                                {isOnline && <span className="text-2xs font-bold text-accent-success animate-pulse shrink-0">متصل الآن</span>}
                                             </div>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-[10px] font-mono text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded italic">@{member.username}</span>
-                                                <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ${member.role === 'viewer' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30'}`}>
+                                                <span className="text-2xs font-mono text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded italic">@{member.username}</span>
+                                                <span className={`text-2xs px-1.5 py-0.5 rounded-full font-bold shrink-0 ${member.role === 'viewer' ? 'bg-accent-info/10 text-accent-info dark:bg-accent-info/20' : 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20'}`}>
                                                     {member.role === 'viewer' ? 'مشاهد' : 'محرر'}
                                                 </span>
                                             </div>
                                             {isOnline ? null : member.last_seen ? (
-                                                <p className="text-[10px] text-neutral-400 mt-1">
+                                                <p className="text-2xs text-neutral-400 mt-1">
                                                     آخر دخول: {new Date(member.last_seen).toLocaleString('ar-EG-u-nu-latn', { 
                                                          dateStyle: 'medium', 
                                                          timeStyle: 'short'
                                                      })}
                                                 </p>
                                             ) : (
-                                                <p className="text-[10px] text-neutral-400 mt-1 italic">لم يسجل دخول بعد</p>
+                                                <p className="text-2xs text-neutral-400 mt-1 italic">لم يسجل دخول بعد</p>
                                             )}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1 shrink-0">
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={() => handleCopyInfo(member)}
-                                            className="p-2 text-neutral-400 hover:text-primary hover:bg-neutral-100 dark:hover:bg-neutral-700/60 rounded-xl transition-all"
+                                            className="!p-2 text-neutral-400 hover:text-primary hover:bg-neutral-100 dark:hover:bg-neutral-700/60 !rounded-xl"
                                             title="نسخ بيانات الدخول"
+                                            aria-label="نسخ بيانات الدخول"
                                         >
-                                            {copiedId === member.id ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                        </button>
-                                        <button
+                                            {copiedId === member.id ? <Check className="w-4 h-4 text-accent-success" /> : <Copy className="w-4 h-4" />}
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={() => setMemberToDelete(member)}
-                                            className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-all"
+                                            className="!p-2 text-accent-danger hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 !rounded-xl"
                                             title="حذف حساب المطلع"
+                                            aria-label="حذف حساب المطلع"
                                         >
                                             <TrashIcon className="w-5 h-5" />
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             )})}
@@ -537,9 +550,9 @@ const TeamSettings: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-4 flex gap-3">
+            <div className="bg-accent-success/10 dark:bg-accent-success/20/10 border border-accent-success/20 dark:border-accent-success/30 rounded-2xl p-4 flex gap-3">
                 <div className="w-1 h-10 bg-emerald-400 rounded-full shrink-0"></div>
-                <div className="text-[11px] text-emerald-800 dark:text-emerald-200 leading-normal">
+                <div className="text-[11px] text-accent-success dark:text-emerald-200 leading-normal">
                     <p className="font-black mb-1">كيف يعمل هذا النظام؟</p>
                     <ul className="list-disc list-inside space-y-1 font-bold opacity-80">
                         <li>بدلاً من إرسال الصور أو الملفات، قم بإنشاء حساب دخول بسيط للشريك أو المستثمر.</li>

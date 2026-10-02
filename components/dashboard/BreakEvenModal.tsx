@@ -60,7 +60,7 @@ const BreakEvenModal: React.FC<BreakEvenModalProps> = ({ isOpen, onClose, totalE
           </h3>
           <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-6">
             لقد وصلت إلى نقطة التعادل (Break-even). تم تغطية جميع تكاليف التأسيس والتشغيل بنجاح 
-            <span className="inline-block font-bold text-emerald-600 dark:text-emerald-400 mx-1 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md">
+            <span className="inline-block font-bold text-accent-success dark:text-accent-success mx-1 bg-accent-success/10 dark:bg-accent-success/20 px-2 py-0.5 rounded-md">
               ({formatCurrency(totalExpenses)})
             </span>.
             <br className="hidden sm:block" />
@@ -69,7 +69,7 @@ const BreakEvenModal: React.FC<BreakEvenModalProps> = ({ isOpen, onClose, totalE
 
           <button 
             onClick={onClose}
-            className="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all active:scale-95"
+            className="w-full py-3.5 px-4 bg-accent-success hover:bg-accent-success text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all tap"
           >
             مرحباً بالأرباح
           </button>

@@ -28,13 +28,13 @@ export const InlineLoading: React.FC<InlineLoadingProps> = ({
         <motion.div
           animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.7, 0.3] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -inset-1 bg-emerald-500/20 rounded-2xl blur-md -z-10"
+          className="absolute -inset-1 bg-accent-success/20 rounded-2xl blur-md -z-10"
         />
       </motion.div>
 
       <div className="w-36 h-1 bg-neutral-200/80 dark:bg-neutral-800 rounded-full overflow-hidden mb-3">
         <motion.div
-          className="h-full bg-emerald-500 rounded-full"
+          className="h-full bg-accent-success rounded-full"
           animate={{
             x: ['-100%', '100%'],
           }}

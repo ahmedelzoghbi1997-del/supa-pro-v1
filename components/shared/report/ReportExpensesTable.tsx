@@ -25,7 +25,7 @@ export const CategorySummaryCard: React.FC<CategorySummaryCardProps> = React.mem
     return (
       <button
         onClick={onClick}
-        className="group w-full bg-white dark:bg-neutral-800 p-4 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-neutral-100 dark:border-neutral-700/50 hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 text-right active:scale-[0.98] flex items-center justify-between gap-4"
+        className="group w-full bg-white dark:bg-neutral-800 p-4 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-neutral-100 dark:border-neutral-700/50 hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 text-right tap flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4">
           <div
@@ -52,7 +52,7 @@ export const CategorySummaryCard: React.FC<CategorySummaryCardProps> = React.mem
           </p>
           {percentage > 0 && (
             <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${meta.badgeBg}`}
+              className={`text-2xs font-bold px-2 py-0.5 rounded-lg border ${meta.badgeBg}`}
             >
               %{percentage.toFixed(1)}
             </span>
@@ -67,7 +67,7 @@ export const InfoItem: React.FC<{
   value: string;
   icon: React.FC<React.SVGProps<SVGSVGElement>>;
 }> = ({ value, icon: Icon }) => (
-  <div className="flex items-center gap-1 text-neutral-400 dark:text-neutral-500 text-[9px] sm:text-[10px] shrink-0">
+  <div className="flex items-center gap-1 text-neutral-400 dark:text-neutral-500 text-2xs sm:text-2xs shrink-0">
     <Icon className="h-3 w-3 flex-shrink-0 opacity-50" />
     <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">
       {value}
@@ -132,7 +132,7 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
 
     return (
       <div
-        className={`group relative bg-white dark:bg-neutral-800 p-2.5 sm:p-3 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right active:scale-[0.99] flex items-center justify-between gap-3 w-full overflow-hidden animate-stagger-in`}
+        className={`group relative bg-white dark:bg-neutral-800 p-2.5 sm:p-3 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right tap flex items-center justify-between gap-3 w-full overflow-hidden animate-stagger-in`}
         style={{
           animationDelay: `${Math.min(index * 30, 600)}ms`,
         }}
@@ -147,7 +147,7 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
               {tags.map((tag, tIdx) => (
                 <span
                   key={tIdx}
-                  className={`text-[8px] font-black px-1.5 py-px rounded-full border ${tag.bgColor} ${tag.textColor} ${tag.borderColor} shadow-sm whitespace-nowrap`}
+                  className={`text-2xs font-black px-1.5 py-px rounded-full border ${tag.bgColor} ${tag.textColor} ${tag.borderColor} shadow-sm whitespace-nowrap`}
                 >
                   {tag.label}
                 </span>
@@ -178,7 +178,7 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
               className={`text-sm sm:text-base font-black tabular-nums tracking-tighter ${primaryTextColor}`}
             >
               {formatNumber(Math.round(amount))}
-              <span className="text-[9px] mr-0.5 opacity-50 font-bold uppercase">
+              <span className="text-2xs mr-0.5 opacity-50 font-bold uppercase">
                 ج.م
               </span>
             </p>
@@ -229,7 +229,7 @@ export const ReportExpensesTable: React.FC<ReportExpensesTableProps> = ({
             <div className="md:col-span-1 bg-white dark:bg-neutral-800 p-5 rounded-3xl border border-neutral-200 dark:border-neutral-700 shadow-soft flex flex-col justify-center gap-1">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingDownIcon className="h-5 w-5 text-rose-500" />
-                <p className="text-neutral-500 dark:text-neutral-400 text-[10px] font-black uppercase tracking-widest">
+                <p className="text-neutral-500 dark:text-neutral-400 text-2xs font-black uppercase tracking-widest">
                   إجمالي المصروفات
                 </p>
               </div>
@@ -244,7 +244,7 @@ export const ReportExpensesTable: React.FC<ReportExpensesTableProps> = ({
             <div className="md:col-span-2 grid grid-cols-2 gap-3">
               <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl border border-blue-100 dark:border-blue-900/20 shadow-soft flex items-center justify-between group">
                 <div>
-                  <p className="text-neutral-400 dark:text-neutral-500 text-[9px] font-black uppercase mb-1">
+                  <p className="text-neutral-400 dark:text-neutral-500 text-2xs font-black uppercase mb-1">
                     تكاليف التأسيس
                   </p>
                   <p className="text-xl font-black text-blue-600 dark:text-blue-400 tabular-nums">
@@ -259,7 +259,7 @@ export const ReportExpensesTable: React.FC<ReportExpensesTableProps> = ({
               </div>
               <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl border border-emerald-100 dark:border-emerald-900/20 shadow-soft flex items-center justify-between group">
                 <div>
-                  <p className="text-neutral-400 dark:text-neutral-500 text-[9px] font-black uppercase mb-1">
+                  <p className="text-neutral-400 dark:text-neutral-500 text-2xs font-black uppercase mb-1">
                     تكاليف التشغيل
                   </p>
                   <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">

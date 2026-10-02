@@ -47,7 +47,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onAction })
 
     return (
         <div 
-            className="fixed left-4 lg:bottom-12 lg:left-12 z-[60] flex flex-col items-center gap-3" 
+            className="fixed left-4 lg:bottom-12 lg:left-12 z-[60] flex flex-col items-center gap-3 select-none" 
             ref={menuRef}
             style={{ bottom: 'calc(82px + env(safe-area-inset-bottom, 16px))' }}
         >
@@ -73,7 +73,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onAction })
                         <span className="bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 px-3 py-1.5 rounded-xl text-sm font-bold shadow-lg border border-neutral-100 dark:border-neutral-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                             {action.label}
                         </span>
-                        <div className={`p-3.5 rounded-full text-white shadow-xl ${action.color} hover:brightness-110 transition-all transform hover:scale-110 active:scale-90 border-2 border-white/20`}>
+                        <div className={`p-3.5 rounded-full text-white shadow-xl ${action.color} hover:brightness-110 transition-all transform hover:scale-110 tap border-2 border-white/20`}>
                             <action.icon className="w-5 h-5" />
                         </div>
                     </button>
@@ -83,7 +83,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onAction })
             {/* Main Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`group p-4 rounded-full shadow-xl transition-all duration-500 transform hover:scale-105 active:scale-90 ${isOpen ? 'bg-neutral-800 dark:bg-neutral-700 rotate-[135deg] shadow-none' : 'bg-primary text-white'}`}
+                className={`group p-4 rounded-full shadow-xl transition-all duration-500 transform hover:scale-105 tap ${isOpen ? 'bg-neutral-800 dark:bg-neutral-700 rotate-[135deg] shadow-none' : 'bg-primary text-white'}`}
             >
                 <PlusIcon className="w-7 h-7" />
             </button>

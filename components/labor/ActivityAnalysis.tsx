@@ -3,7 +3,7 @@ import { Expense } from '../../types';
 import { formatNumber, formatDateShort, formatWeekdayShort } from '../../utils/helpers';
 import { ChartPieIcon, CalendarIcon } from '../Icons';
 import Modal from '../shared/Modal';
-import { renderShiftBadge, renderEntryIcon } from './LaborLedger';
+import { renderShiftBadge, renderEntryIcon } from './laborBadges';
 
 interface ActivityAnalysisProps {
     laborExpenses: Expense[];
@@ -127,29 +127,29 @@ const ActivityAnalysis: React.FC<ActivityAnalysisProps> = ({ laborExpenses }) =>
                         <div 
                             key={idx} 
                             onClick={() => setSelectedActivity(activity)}
-                            className="bg-white dark:bg-neutral-800 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-sm flex flex-col gap-3 relative overflow-hidden group transition-all hover:shadow-md cursor-pointer active:scale-[0.98]"
+                            className="bg-white dark:bg-neutral-800 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-sm flex flex-col gap-3 relative overflow-hidden group transition-all hover:shadow-md cursor-pointer tap"
                         >
                             <div className="flex items-center justify-between relative z-10">
                                 <h4 className="text-sm font-black text-neutral-800 dark:text-neutral-0">{activity}</h4>
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-600">
+                                <span className="text-2xs font-black px-2 py-0.5 rounded-lg bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning">
                                     {Math.round(percentage)}%
                                 </span>
                             </div>
 
                             <div className="flex items-center gap-1 relative z-10">
-                                <span className="text-[10px] font-bold text-neutral-400 select-none">ج.م</span>
+                                <span className="text-2xs font-bold text-neutral-400 select-none">ج.م</span>
                                 <span dir="ltr" className="text-xl font-black text-neutral-800 dark:text-neutral-0 tabular-nums font-mono">{formatNumber(Math.round(stat.total))}</span>
                             </div>
 
                             <div className="flex items-center justify-between relative z-10">
-                                <span className="text-[10px] font-bold text-neutral-500">{stat.count} حركات مسجلة</span>
-                                <span className="text-[9px] font-black text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity">عرض التقرير ←</span>
+                                <span className="text-2xs font-bold text-neutral-500">{stat.count} حركات مسجلة</span>
+                                <span className="text-2xs font-black text-accent-warning opacity-0 group-hover:opacity-100 transition-opacity">عرض التقرير ←</span>
                             </div>
 
                             {/* Progress bar background */}
-                            <div className="absolute bottom-0 left-0 h-1 bg-amber-500/10 w-full">
+                            <div className="absolute bottom-0 left-0 h-1 bg-accent-warning/10 w-full">
                                 <div 
-                                    className="h-full bg-amber-500 transition-all duration-1000 ease-out" 
+                                    className="h-full bg-accent-warning transition-all duration-1000 ease-out" 
                                     style={{ width: `${percentage}%` }}
                                 ></div>
                             </div>
@@ -168,11 +168,11 @@ const ActivityAnalysis: React.FC<ActivityAnalysisProps> = ({ laborExpenses }) =>
                 {selectedActivity && (
                     <div className="space-y-4">
                         {/* Summary Card at the top of report */}
-                        <div className="bg-amber-500 text-white p-5 rounded-2xl shadow-lg shadow-amber-500/20 flex items-center justify-between">
+                        <div className="bg-accent-warning text-white p-5 rounded-2xl shadow-lg shadow-amber-500/20 flex items-center justify-between">
                             <div>
-                                <span className="text-[10px] font-black uppercase tracking-widest opacity-80">إجمالي تكلفة النشاط</span>
+                                <span className="text-2xs font-black uppercase tracking-widest opacity-80">إجمالي تكلفة النشاط</span>
                                 <div className="flex items-center gap-1 mt-0.5">
-                                    <span className="text-[10px] font-bold opacity-80 select-none">ج.م</span>
+                                    <span className="text-2xs font-bold opacity-80 select-none">ج.م</span>
                                     <span dir="ltr" className="text-2xl font-black tabular-nums font-mono">
                                         {formatNumber(Math.round(analysis.find(a => a[0] === selectedActivity)?.[1].total || 0))}
                                     </span>
@@ -193,10 +193,10 @@ const ActivityAnalysis: React.FC<ActivityAnalysisProps> = ({ laborExpenses }) =>
                                         <div key={exp.id || itemIdx} className="bg-white dark:bg-neutral-800 p-3 rounded-xl border border-neutral-100 dark:border-neutral-700 shadow-xs flex items-center justify-between transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
                                             <div className="flex items-center gap-3">
                                                 <div className="flex flex-col items-center justify-center bg-neutral-100 dark:bg-neutral-900 w-11 h-11 rounded-lg shrink-0">
-                                                    <span className="text-[10px] font-black text-neutral-800 dark:text-neutral-0 leading-none">
+                                                    <span className="text-2xs font-black text-neutral-800 dark:text-neutral-0 leading-none">
                                                         {formatDateShort(exp.date)}
                                                     </span>
-                                                    <span className="text-[8px] font-bold text-neutral-400 mt-0.5">
+                                                    <span className="text-2xs font-bold text-neutral-400 mt-0.5">
                                                         {formatWeekdayShort(exp.date)}
                                                     </span>
                                                 </div>
@@ -212,7 +212,7 @@ const ActivityAnalysis: React.FC<ActivityAnalysisProps> = ({ laborExpenses }) =>
                                                     {/* Multi-activity indicator */}
                                                     {item.totalActivities > 1 && (
                                                         <div className="mt-1 flex items-center gap-1">
-                                                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300">
+                                                            <span className="text-2xs font-bold px-1.5 py-0.5 rounded bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning">
                                                                 مشترك مع: {item.allActivities.filter(a => a !== selectedActivity).join(' + ')}
                                                             </span>
                                                         </div>
@@ -220,14 +220,14 @@ const ActivityAnalysis: React.FC<ActivityAnalysisProps> = ({ laborExpenses }) =>
 
                                                     <div className="flex items-center gap-1 mt-0.5 opacity-60">
                                                         <CalendarIcon className="w-2.5 h-2.5" />
-                                                        <span className="text-[9px] font-bold">{exp.date}</span>
+                                                        <span className="text-2xs font-bold">{exp.date}</span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="text-left shrink-0">
                                                 <div className="flex items-center gap-1 justify-end">
-                                                    <span className="text-[9px] font-bold text-neutral-400 select-none">ج.م</span>
-                                                    <span dir="ltr" className="text-sm font-black text-amber-600 tabular-nums font-mono">
+                                                    <span className="text-2xs font-bold text-neutral-400 select-none">ج.م</span>
+                                                    <span dir="ltr" className="text-sm font-black text-accent-warning tabular-nums font-mono">
                                                         {formatNumber(Math.round(item.allocatedAmount))}
                                                     </span>
                                                 </div>
@@ -236,7 +236,7 @@ const ActivityAnalysis: React.FC<ActivityAnalysisProps> = ({ laborExpenses }) =>
                                                         من أصل {formatNumber(Math.round(exp.amount))}
                                                     </div>
                                                 )}
-                                                <div className={`text-[8px] font-black px-1.5 py-0.5 rounded mt-1 inline-block ${exp.payment_method === 'cash' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400'}`}>
+                                                <div className={`text-2xs font-black px-1.5 py-0.5 rounded mt-1 inline-block ${exp.payment_method === 'cash' ? 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success' : 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger'}`}>
                                                     {exp.payment_method === 'cash' ? 'نقداً' : 'آجل'}
                                                 </div>
                                             </div>

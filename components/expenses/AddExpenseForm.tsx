@@ -232,7 +232,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onSave, onCancel, initi
                         <button 
                             type="button"
                             onClick={() => setFormData({...formData, isEstablishment: false})}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-black transition-all ${!formData.isEstablishment ? 'bg-white dark:bg-neutral-800 text-emerald-600 shadow-sm border border-neutral-100 dark:border-neutral-700' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'}`}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-black transition-all ${!formData.isEstablishment ? 'bg-white dark:bg-neutral-800 text-accent-success shadow-sm border border-neutral-100 dark:border-neutral-700' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'}`}
                         >
                             <SparklesIcon className="w-3.5 h-3.5" />
                             <span>تشغيل</span>
@@ -240,14 +240,14 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onSave, onCancel, initi
                         <button 
                             type="button"
                             onClick={() => setFormData({...formData, isEstablishment: true})}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-black transition-all ${formData.isEstablishment ? 'bg-white dark:bg-neutral-800 text-blue-600 shadow-sm border border-neutral-100 dark:border-neutral-700' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'}`}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-black transition-all ${formData.isEstablishment ? 'bg-white dark:bg-neutral-800 text-accent-info shadow-sm border border-neutral-100 dark:border-neutral-700' : 'text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300'}`}
                         >
                             <LeafIcon className="w-3.5 h-3.5" />
                             <span>تأسيس</span>
                         </button>
                     </div>
                     
-                    <p className={`text-[9px] font-bold mt-2 text-center transition-colors ${formData.isEstablishment ? 'text-blue-500/80' : 'text-emerald-500/80'}`}>
+                    <p className={`text-2xs font-bold mt-2 text-center transition-colors ${formData.isEstablishment ? 'text-accent-info/80' : 'text-accent-success/80'}`}>
                         {formData.isEstablishment 
                             ? "يُحسب ضمن تكلفة تجهيز العروة" 
                             : "يُحسب ضمن المصاريف اليومية المتكررة"}
@@ -255,8 +255,8 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onSave, onCancel, initi
                 </div>
 
                 {/* Prominent Amount Field (Focal Point) */}
-                <div className="bg-emerald-500/5 dark:bg-emerald-950/15 p-4 rounded-xl border-2 border-emerald-500/15 dark:border-emerald-500/10 transition-all focus-within:border-emerald-500/30">
-                    <label htmlFor="amount" className="block text-center text-xs font-black text-emerald-600 dark:text-emerald-400 mb-2">
+                <div className="bg-accent-success/5 dark:bg-accent-success/20 p-4 rounded-xl border-2 border-accent-success/15 dark:border-accent-success/20 transition-all focus-within:border-accent-success/20">
+                    <label htmlFor="amount" className="block text-center text-xs font-black text-accent-success dark:text-accent-success mb-2">
                         💵 مبلغ المصروف الإجمالي (جنيه مصري)
                     </label>
                     <div className="relative flex items-center justify-center">
@@ -267,7 +267,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onSave, onCancel, initi
                             inputMode="decimal"
                             value={formatNumberWithCommas(formData.amount)}
                             onChange={handleChange}
-                            className="w-full bg-transparent border-none outline-none text-center text-2xl font-black text-emerald-600 dark:text-emerald-400 placeholder:text-emerald-300/60 dark:placeholder:text-emerald-950/40 focus:ring-0 focus:border-none focus:outline-none p-1 block tabular-nums"
+                            className="w-full bg-transparent border-none outline-none text-center text-2xl font-black text-accent-success dark:text-accent-success placeholder:text-emerald-300/60 dark:placeholder:text-emerald-950/40 focus:ring-0 focus:border-none focus:outline-none p-1 block tabular-nums"
                             placeholder="0.00"
                         />
                     </div>
@@ -382,7 +382,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onSave, onCancel, initi
                                     <div className="bg-neutral-900 dark:bg-black rounded-xl p-4 text-white relative overflow-hidden shadow-inner border border-white/5 animate-enter">
                                         <div className="relative z-10 flex justify-between items-center">
                                             <div className="space-y-1">
-                                                <p className="text-[10px] font-black text-white/50 uppercase tracking-widest flex items-center gap-1.5">
+                                                <p className="text-2xs font-black text-white/50 uppercase tracking-widest flex items-center gap-1.5">
                                                     <WalletIcon className="w-3 h-3" />
                                                     الرصيد بعد هذه الفاتورة
                                                 </p>
@@ -390,11 +390,11 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ onSave, onCancel, initi
                                                     <h3 className="text-2xl font-black tabular-nums text-primary-light">
                                                         {formatNumber(supplierBalanceInfo.expected)}
                                                     </h3>
-                                                    <span className="text-[10px] font-bold opacity-60">ج.م</span>
+                                                    <span className="text-2xs font-bold opacity-60">ج.م</span>
                                                 </div>
                                             </div>
                                             <div className="text-left">
-                                                <p className="text-[8px] font-bold text-white/40 mb-0.5">رصيد {supplierBalanceInfo.name} الحالي</p>
+                                                <p className="text-2xs font-bold text-white/40 mb-0.5">رصيد {supplierBalanceInfo.name} الحالي</p>
                                                 <p className="text-xs font-black tabular-nums">{formatNumber(supplierBalanceInfo.current)} ج.م</p>
                                             </div>
                                         </div>

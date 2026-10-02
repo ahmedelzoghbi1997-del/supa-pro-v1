@@ -18,10 +18,10 @@ const SummaryWidget = ({ label, value, icon: Icon, gradientClass, shadowClass }:
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
             <div className="min-w-0 order-2 sm:order-1">
-                <p className="text-[7px] sm:text-[8px] font-bold text-white/80 uppercase tracking-wider mb-0.5 truncate">{label}</p>
+                <p className="text-2xs sm:text-2xs font-bold text-white/80 uppercase tracking-wider mb-0.5 truncate">{label}</p>
                 <p className="text-sm sm:text-base lg:text-lg font-black tracking-tight truncate">
                     {formatCurrency(value).replace('EGP', '')}
-                    <span className="text-[7px] sm:text-[8px] mr-1 font-bold opacity-80">ج.م</span>
+                    <span className="text-2xs sm:text-2xs mr-1 font-bold opacity-80">ج.م</span>
                 </p>
             </div>
             <div className="p-1 sm:p-1.5 rounded-lg bg-white/20 backdrop-blur-sm shrink-0 self-start sm:self-auto order-1 sm:order-2">
@@ -117,19 +117,19 @@ const TransactionsTab: React.FC<{
                 <div className="bg-neutral-100 dark:bg-neutral-900 p-1 rounded-xl flex items-center">
                     <button 
                         onClick={() => { setFilterMode('invoices'); setSelectedCategoryId(null); }}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-black transition-all duration-300 ${filterMode === 'invoices' ? 'bg-emerald-600 text-white shadow-sm' : 'text-neutral-500 hover:text-emerald-600'}`}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-2xs font-black transition-all duration-300 ${filterMode === 'invoices' ? 'bg-accent-success text-white shadow-sm' : 'text-neutral-500 hover:text-accent-success'}`}
                     >
                         <InvoicesIcon className="w-3.5 h-3.5" />
                         <span>المبيعات</span>
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] ${filterMode === 'invoices' ? 'bg-white/20' : 'bg-neutral-200 dark:bg-neutral-700'}`}>{cycleInvoices.length}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-2xs ${filterMode === 'invoices' ? 'bg-white/20' : 'bg-neutral-200 dark:bg-neutral-700'}`}>{cycleInvoices.length}</span>
                     </button>
                     <button 
                         onClick={() => { setFilterMode('expenses'); setSelectedCategoryId(null); }}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-black transition-all duration-300 ${filterMode === 'expenses' ? 'bg-rose-600 text-white shadow-sm' : 'text-neutral-500 hover:text-rose-600'}`}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-2xs font-black transition-all duration-300 ${filterMode === 'expenses' ? 'bg-accent-danger text-white shadow-sm' : 'text-neutral-500 hover:text-accent-danger'}`}
                     >
                         <WalletIcon className="w-3.5 h-3.5" />
                         <span>المصروفات</span>
-                        <span className={`px-1.5 py-0.5 rounded text-[9px] ${filterMode === 'expenses' ? 'bg-white/20' : 'bg-neutral-200 dark:bg-neutral-700'}`}>{cycleExpenses.length}</span>
+                        <span className={`px-1.5 py-0.5 rounded text-2xs ${filterMode === 'expenses' ? 'bg-white/20' : 'bg-neutral-200 dark:bg-neutral-700'}`}>{cycleExpenses.length}</span>
                     </button>
                 </div>
 
@@ -217,7 +217,7 @@ const TransactionsTab: React.FC<{
                                         className="w-full bg-white dark:bg-neutral-800 p-4 rounded-2xl shadow-sm border border-neutral-100 dark:border-neutral-700/50 hover:shadow-md transition-all flex items-center justify-between font-sans"
                                     >
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-rose-500/10 dark:bg-rose-500/20 flex items-center justify-center text-rose-500">
+                                            <div className="w-10 h-10 rounded-xl bg-accent-danger/10 dark:bg-accent-danger/20 flex items-center justify-center text-accent-danger">
                                                 <span className="text-lg">📁</span>
                                             </div>
                                             <div className="text-right">
@@ -226,7 +226,7 @@ const TransactionsTab: React.FC<{
                                             </div>
                                         </div>
                                         <div className="font-black text-neutral-900 dark:text-white tabular-nums">
-                                            {formatCurrency(group.total).replace('EGP', '')} <span className="text-[10px] text-neutral-400 font-bold">ج.م</span>
+                                            {formatCurrency(group.total).replace('EGP', '')} <span className="text-2xs text-neutral-400 font-bold">ج.م</span>
                                         </div>
                                     </motion.button>
                                 ))}

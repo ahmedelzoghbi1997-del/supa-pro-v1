@@ -63,9 +63,9 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
     const InvoiceContent = ({ isForPrint = false }) => (
         <div className={`${isForPrint ? 'space-y-6' : 'space-y-4'} w-full overflow-hidden allow-select`} dir="rtl">
             {isForPrint && (
-                <div className="flex items-center justify-between mb-8 pb-6 border-b-4 border-emerald-500">
+                <div className="flex items-center justify-between mb-8 pb-6 border-b-4 border-accent-success">
                     <div className="flex items-center gap-4">
-                        <div className="p-2.5 bg-emerald-500 rounded-2xl">
+                        <div className="p-2.5 bg-accent-success rounded-2xl">
                             <LogoIcon className="w-12 h-12 text-white" />
                         </div>
                         <div>
@@ -82,14 +82,14 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
             <div className={`grid gap-3 ${invoice.packaging_count ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 <div className="grid grid-cols-2 gap-3">
                     <div className={`${isForPrint ? 'p-4 border shadow-sm' : 'p-3 shadow-sm'} bg-white dark:bg-neutral-900/50 rounded-xl border-neutral-100 dark:border-neutral-700`}>
-                        <p className="text-[10px] font-black text-neutral-400 uppercase mb-1">التاريخ</p>
+                        <p className="text-2xs font-black text-neutral-400 uppercase mb-1">التاريخ</p>
                         <div className={`flex items-center gap-2 font-bold ${isForPrint ? 'text-base' : 'text-sm'}`}>
                             <CalendarIcon className={`${isForPrint ? 'w-4 h-4' : 'w-4 h-4'} text-primary`} />
                             <span className="text-neutral-800 dark:text-neutral-200">{invoice.date}</span>
                         </div>
                     </div>
                     <div className={`${isForPrint ? 'p-4 border shadow-sm' : 'p-3 shadow-sm'} bg-white dark:bg-neutral-900/50 rounded-xl border-neutral-100 dark:border-neutral-700`}>
-                        <p className="text-[10px] font-black text-neutral-400 uppercase mb-1">السوق</p>
+                        <p className="text-2xs font-black text-neutral-400 uppercase mb-1">السوق</p>
                         <div className={`flex items-center gap-2 font-bold ${isForPrint ? 'text-base' : 'text-sm'}`}>
                             <TruckIcon className={`${isForPrint ? 'w-4 h-4' : 'w-4 h-4'} text-primary`} />
                             <span className="truncate text-neutral-800 dark:text-neutral-200">{invoice.market}</span>
@@ -105,7 +105,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                                     <BoxIcon className="w-4 h-4 text-primary" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-[10px] font-black text-neutral-400 uppercase">التعبئة ومعدل الوزن</p>
+                                    <p className="text-2xs font-black text-neutral-400 uppercase">التعبئة ومعدل الوزن</p>
                                     <p className={`${isForPrint ? 'text-base' : 'text-sm'} font-black text-neutral-800 dark:text-neutral-200 truncate`}>
                                         {packagingLabel} ({formatNumber(totalPackagingCount)})
                                     </p>
@@ -113,11 +113,11 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                             </div>
                             
                             {avgCageWeight > 0 && (
-                                <div className="bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 px-3 py-1.5 rounded-xl text-right shrink-0">
-                                    <p className="text-[9px] font-black text-amber-700 dark:text-amber-400 uppercase">معدل وزن {packagingLabel}</p>
-                                    <p className="text-sm sm:text-base font-black text-amber-800 dark:text-amber-300 tabular-nums dir-ltr">
+                                <div className="bg-accent-warning/10 dark:bg-accent-warning/15 border border-accent-warning/20 px-3 py-1.5 rounded-xl text-right shrink-0">
+                                    <p className="text-2xs font-black text-accent-warning dark:text-accent-warning uppercase">معدل وزن {packagingLabel}</p>
+                                    <p className="text-sm sm:text-base font-black text-accent-warning dark:text-accent-warning tabular-nums dir-ltr">
                                         <span>{avgCageWeight.toFixed(2)}</span>
-                                        <span className="text-[10px] text-amber-700/80 mr-1 font-bold" dir="rtl">كجم</span>
+                                        <span className="text-2xs text-accent-warning/80 mr-1 font-bold" dir="rtl">كجم</span>
                                     </p>
                                 </div>
                             )}
@@ -128,13 +128,13 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                                 {breakdownItems.map((b, i) => (
                                     <div key={i} className={`flex items-center gap-1.5 px-2 py-1 rounded-lg border font-black whitespace-nowrap text-xs ${
                                         i === 0 
-                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400' 
-                                        : 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400'
+                                        ? 'bg-accent-success/10 text-accent-success border-accent-success/20 dark:bg-accent-success/20 dark:text-accent-success' 
+                                        : 'bg-accent-info/10 text-accent-info border-accent-info/20 dark:bg-accent-info/20 dark:text-accent-info'
                                     }`}>
-                                        <span className="text-[9px] opacity-70">{b.label}:</span>
+                                        <span className="text-2xs opacity-70">{b.label}:</span>
                                         <span>{b.count} {packagingLabel}</span>
                                         {Number(b.avg) > 0 && (
-                                            <span className="text-[10px] opacity-80 border-r border-current pr-1.5 mr-0.5">
+                                            <span className="text-2xs opacity-80 border-r border-current pr-1.5 mr-0.5">
                                                 ({b.avg} كجم/{packagingLabel === 'كرتونة' ? 'ك' : 'ق'})
                                             </span>
                                         )}
@@ -152,7 +152,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                         <div className={`${isForPrint ? 'p-4 border shadow-sm border-r-4 border-r-primary' : 'p-3 border-r-2 border-primary/50'} bg-neutral-50 dark:bg-neutral-900/30 rounded-xl border-neutral-100 dark:border-neutral-700`}>
                             <div className="flex items-center gap-2 mb-1">
                                 <PencilIcon className="w-3 h-3 text-neutral-400" />
-                                <p className="text-[10px] font-black text-neutral-400 uppercase">ملاحظات إضافية</p>
+                                <p className="text-2xs font-black text-neutral-400 uppercase">ملاحظات إضافية</p>
                             </div>
                             <p className={`${isForPrint ? 'text-sm' : 'text-xs'} font-bold text-neutral-700 dark:text-neutral-300 leading-relaxed`}>
                                 {cleanDescription}
@@ -161,20 +161,20 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                     )}
                     
                     {isRetained && (
-                        <div className="p-3.5 bg-amber-500/5 dark:bg-amber-500/5 rounded-2xl border border-amber-500/15 space-y-2.5">
+                        <div className="p-3.5 bg-accent-warning/5 dark:bg-accent-warning/5 rounded-2xl border border-accent-warning/15 space-y-2.5">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="text-base">🔄</span>
-                                    <span className="text-xs font-black text-amber-800 dark:text-amber-300">
+                                    <span className="text-xs font-black text-accent-warning dark:text-accent-warning">
                                         تفاصيل سداد دين المعلم {retentionDetails.surplus > 0 ? '(رصد جزئي)' : '(رصد كامل)'}
                                     </span>
                                 </div>
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                                <span className="text-2xs font-black px-2 py-0.5 rounded-full bg-accent-warning/10 text-accent-warning dark:text-accent-warning">
                                     مسدد: {formatNumber(retentionDetails.retainedAmount)} ج.م
                                 </span>
                             </div>
 
-                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold leading-relaxed">
+                            <p className="text-2xs text-neutral-500 dark:text-neutral-400 font-bold leading-relaxed">
                                 {retentionDetails.surplus > 0 
                                     ? `تم خصم ${formatNumber(retentionDetails.retainedAmount)} ج.م من صافي الفاتورة لسداد ديون الشركاء، بينما تم ترحيل الفائض المتبقي (${formatNumber(retentionDetails.surplus)} ج.م) كسيولة نقدية للخزنة:`
                                     : 'تم توجيه صافي قيمة هذه الفاتورة بالكامل من المنبع لتسديد دين الشركاء المستحق للمعلم، ولم تدخل الخزنة كسيولة نقدية:'}
@@ -186,7 +186,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                                     return (
                                         <div key={partnerId} className="flex justify-between items-center bg-white dark:bg-neutral-900/40 p-2.5 rounded-xl border border-neutral-100 dark:border-neutral-800">
                                             <span className="text-xs font-bold text-slate-700 dark:text-neutral-300">{pName}</span>
-                                            <span className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
+                                            <span className="text-sm font-black text-accent-warning dark:text-accent-warning tabular-nums">
                                                 -{formatCurrency(amount).replace('EGP', '')} ج.م
                                             </span>
                                         </div>
@@ -195,12 +195,12 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                             </div>
 
                             {retentionDetails.surplus > 0 && (
-                                <div className="flex justify-between items-center bg-emerald-500/10 dark:bg-emerald-500/15 p-2.5 rounded-xl border border-emerald-500/20 mt-2">
+                                <div className="flex justify-between items-center bg-accent-success/10 dark:bg-accent-success/15 p-2.5 rounded-xl border border-accent-success/20 mt-2">
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-xs">💰</span>
-                                        <span className="text-xs font-black text-emerald-800 dark:text-emerald-300">الفائض المرحل للخزنة</span>
+                                        <span className="text-xs font-black text-accent-success dark:text-accent-success">الفائض المرحل للخزنة</span>
                                     </div>
-                                    <span className="text-sm font-black text-emerald-700 dark:text-emerald-300 tabular-nums">
+                                    <span className="text-sm font-black text-accent-success dark:text-accent-success tabular-nums">
                                         +{formatCurrency(retentionDetails.surplus).replace('EGP', '')} ج.م
                                     </span>
                                 </div>
@@ -211,8 +211,8 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
             )}
 
             <div className="space-y-3">
-                <h4 className="text-[10px] font-black text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                    <TrendingUpIcon className="w-3 h-3 text-emerald-500" />
+                <h4 className="text-2xs font-black text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                    <TrendingUpIcon className="w-3 h-3 text-accent-success" />
                     <span>الأوزان والمبيعات</span>
                 </h4>
                 <div className={`overflow-hidden border border-neutral-200 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-900/30 ${isForPrint ? 'shadow-sm' : ''}`}>
@@ -234,11 +234,11 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                                     <tr key={idx} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/30 transition-colors">
                                         <td className="p-3 font-bold text-neutral-400">({itemPkCount})</td>
                                         <td className="p-3 font-bold text-neutral-800 dark:text-neutral-200">{formatNumber(item.quantity)} كج</td>
-                                        <td className="p-3 font-bold text-amber-700 dark:text-amber-400">
+                                        <td className="p-3 font-bold text-accent-warning dark:text-accent-warning">
                                             {itemAvg !== '-' ? `${itemAvg} كج` : '-'}
                                         </td>
                                         <td className="p-3 font-bold text-neutral-800 dark:text-neutral-200">{formatNumber(item.price_per_kg)}</td>
-                                        <td className="p-3 text-left font-black text-emerald-600 dark:text-emerald-400">
+                                        <td className="p-3 text-left font-black text-accent-success dark:text-accent-success">
                                             {formatCurrency(item.quantity * item.price_per_kg).replace('EGP', '')}
                                         </td>
                                     </tr>
@@ -251,22 +251,22 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
 
             {deductions.length > 0 && (
                 <div className="space-y-3">
-                    <h4 className="text-[10px] font-black text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                        <TrendingDownIcon className="w-3 h-3 text-rose-500" />
+                    <h4 className="text-2xs font-black text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                        <TrendingDownIcon className="w-3 h-3 text-accent-danger" />
                         <span>الخصومات والمصاريف التفصيلية</span>
                     </h4>
                     <div className="grid grid-cols-2 gap-2">
                         {deductions.map((ded, idx) => {
                             const itemP = totalBeforeDeductions > 0 ? (ded.amount / totalBeforeDeductions * 100).toFixed(1) : '0';
                             return (
-                                <div key={idx} className={`flex justify-between items-center ${isForPrint ? 'p-3 border shadow-sm' : 'p-2 border'} bg-rose-50/50 dark:bg-rose-500/5 rounded-xl border-rose-100 dark:border-rose-900/20`}>
+                                <div key={idx} className={`flex justify-between items-center ${isForPrint ? 'p-3 border shadow-sm' : 'p-2 border'} bg-accent-danger/10/50 dark:bg-accent-danger/5 rounded-xl border-accent-danger/20 dark:border-accent-danger/30`}>
                                     <div className="flex flex-col min-w-0">
-                                        <span className={`${isForPrint ? 'text-xs' : 'text-[10px]'} font-bold text-neutral-700 dark:text-neutral-400 truncate`}>{ded.name}</span>
-                                        <span className="text-[8px] text-rose-400 opacity-80 font-black uppercase tracking-tighter">
+                                        <span className={`${isForPrint ? 'text-xs' : 'text-2xs'} font-bold text-neutral-700 dark:text-neutral-400 truncate`}>{ded.name}</span>
+                                        <span className="text-2xs text-accent-danger opacity-80 font-black uppercase tracking-tighter">
                                             %{itemP}
                                         </span>
                                     </div>
-                                    <span className={`${isForPrint ? 'text-sm' : 'text-[11px]'} font-black text-rose-600 dark:text-rose-400 whitespace-nowrap mr-2`}>{formatCurrency(ded.amount).replace('EGP', '')}</span>
+                                    <span className={`${isForPrint ? 'text-sm' : 'text-[11px]'} font-black text-accent-danger dark:text-accent-danger whitespace-nowrap mr-2`}>{formatCurrency(ded.amount).replace('EGP', '')}</span>
                                 </div>
                             );
                         })}
@@ -276,15 +276,15 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
 
             <div className={`bg-primary ${isForPrint ? 'p-6 rounded-2xl shadow-none mt-6 border-0' : 'p-4 rounded-2xl shadow-xl shadow-primary/20 border border-white/10'} text-white relative overflow-hidden`}>
                 <div className="relative z-10 space-y-4">
-                    <div className={`flex justify-between items-center ${isForPrint ? 'text-xs' : 'text-[10px]'} font-black uppercase tracking-widest opacity-80`}>
+                    <div className={`flex justify-between items-center ${isForPrint ? 'text-xs' : 'text-2xs'} font-black uppercase tracking-widest opacity-80`}>
                         <span>إجمالي المبيعات:</span>
                         <span>{formatCurrency(totalBeforeDeductions)}</span>
                     </div>
                     {totalDeductions > 0 && (
-                        <div className={`flex justify-between items-center ${isForPrint ? 'text-xs' : 'text-[10px]'} font-black uppercase tracking-widest opacity-80`}>
+                        <div className={`flex justify-between items-center ${isForPrint ? 'text-xs' : 'text-2xs'} font-black uppercase tracking-widest opacity-80`}>
                             <div className="flex items-center gap-2">
                                 <span>إجمالي الخصومات</span>
-                                <span className={`px-2 py-0.5 rounded-lg font-black ${isForPrint ? 'bg-white/20 text-xs' : 'bg-white/20 text-[8px]'}`}>
+                                <span className={`px-2 py-0.5 rounded-lg font-black ${isForPrint ? 'bg-white/20 text-xs' : 'bg-white/20 text-2xs'}`}>
                                     %{totalDeductionPercentage.toFixed(1)}
                                 </span>
                             </div>
@@ -293,12 +293,12 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                     )}
                     <div className={`pt-4 border-t border-white/20 flex justify-between items-end`}>
                         <div>
-                            <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-70 block mb-0.5">الصافي النهائي</span>
+                            <span className="text-2xs font-black uppercase tracking-[0.2em] opacity-70 block mb-0.5">الصافي النهائي</span>
                             <span className={`${isForPrint ? 'text-base' : 'text-xs'} font-black uppercase tracking-wider`}>القبض الفعلي</span>
                         </div>
                         <span className={`${isForPrint ? 'text-4xl' : 'text-3xl'} font-black tracking-tighter tabular-nums`}>
                             {formatCurrency(netTotal).replace('EGP', '')}
-                            <span className={`${isForPrint ? 'text-xs' : 'text-[10px]'} mr-1 opacity-70`}>ج.م</span>
+                            <span className={`${isForPrint ? 'text-xs' : 'text-2xs'} mr-1 opacity-70`}>ج.م</span>
                         </span>
                     </div>
                 </div>
@@ -359,7 +359,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                     <div className="pt-4 flex flex-col gap-2 border-t border-neutral-100 dark:border-neutral-800">
                         <button 
                             onClick={onClose}
-                            className="w-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-bold py-3 rounded-xl hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all active:scale-95 text-sm"
+                            className="w-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-bold py-3 rounded-xl hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all tap text-sm"
                         >
                             إغلاق النافذة
                         </button>
@@ -380,7 +380,7 @@ const InvoiceDetailsModal: React.FC<InvoiceDetailsModalProps> = ({ invoice, onCl
                         className="fixed left-0 right-0 text-center pointer-events-none opacity-40 px-6"
                         style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 16px))' }}
                     >
-                        <p className="text-[10px] text-neutral-400 font-bold bg-neutral-100 px-3 py-1 rounded-full inline-block shadow-sm">
+                        <p className="text-2xs text-neutral-400 font-bold bg-neutral-100 px-3 py-1 rounded-full inline-block shadow-sm">
                             اضغط في أي مكان للعودة
                         </p>
                     </div>

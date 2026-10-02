@@ -91,8 +91,8 @@ export const OfflineBanner: React.FC = () => {
           </span>
         )}
         {failedCount > 0 && (
-          <span className="inline-flex items-center gap-1 bg-rose-900/40 text-rose-100 px-2 py-0.5 rounded-full text-[11px] font-bold">
-            <AlertTriangle className="w-3 h-3 text-rose-200" />
+          <span className="inline-flex items-center gap-1 bg-accent-danger/20 text-accent-danger px-2 py-0.5 rounded-full text-[11px] font-bold">
+            <AlertTriangle className="w-3 h-3 text-accent-danger" />
             <span>{failedCount} متعثر</span>
           </span>
         )}
@@ -101,7 +101,7 @@ export const OfflineBanner: React.FC = () => {
       <button
         onClick={handleSyncNow}
         disabled={isSyncing}
-        className="flex-shrink-0 inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 active:scale-95 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
+        className="flex-shrink-0 inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 tap text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-white/20"
         title="مزامنة التغييرات الآن"
       >
         <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />

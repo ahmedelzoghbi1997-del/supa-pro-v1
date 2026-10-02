@@ -10,6 +10,7 @@ import CommunicationSettings from './CommunicationSettings';
 import TeamSettings from './TeamSettings';
 import LinkToOwner from './LinkToOwner';
 import { PWAInstallButton } from '../shared/PWAInstallButton';
+import Button from '../shared/Button';
 import { useData } from '../../contexts/DataContext';
 
 type SettingsTab = 'systems_terms' | 'financial' | 'appearance' | 'account_data' | 'team';
@@ -91,18 +92,19 @@ const SettingsManager: React.FC = () => {
                 <div className="border-b border-gray-200 dark:border-gray-700">
                     <nav className="flex items-center gap-4 sm:gap-8 overflow-x-auto pb-1 -mb-1">
                         {activeTabs.map(tab => (
-                            <button
+                            <Button
                                 key={tab.id}
+                                variant="ghost"
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex-shrink-0 pb-3 px-1 font-semibold transition-colors duration-200
+                                className={`!flex-shrink-0 !pb-3 !px-1 !rounded-none !font-semibold transition-colors duration-200
                                     ${activeTab === tab.id
-                                        ? 'text-primary dark:text-primary-light border-b-2 border-primary'
-                                        : 'text-gray-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white'
+                                        ? '!text-primary dark:!text-primary-light border-b-2 !border-primary'
+                                        : '!text-gray-500 hover:!text-slate-800 dark:!text-gray-400 dark:hover:!text-white'
                                     }`
                                 }
                             >
                                 {tab.label}
-                            </button>
+                            </Button>
                         ))}
                     </nav>
                 </div>

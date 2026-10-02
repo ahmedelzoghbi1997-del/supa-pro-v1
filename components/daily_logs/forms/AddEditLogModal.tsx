@@ -491,7 +491,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                     {/* Date and Cycle Selectors */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-neutral-50 dark:bg-neutral-800/20 p-3.5 rounded-2xl border border-neutral-100 dark:border-neutral-800/40">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-neutral-400">عروة الموسم</label>
+                            <label className="text-2xs font-black text-neutral-400">عروة الموسم</label>
                             <div className="relative">
                                 <select 
                                     className="w-full pl-8 pr-3 py-3 bg-white dark:bg-neutral-900 border-none rounded-xl text-xs font-black text-neutral-700 dark:text-neutral-200 appearance-none focus:ring-1 focus:ring-primary shadow-sm" 
@@ -506,7 +506,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-[10px] font-black text-neutral-400">تاريخ العملية</label>
+                            <label className="text-2xs font-black text-neutral-400">تاريخ العملية</label>
                             <input 
                                 type="date" 
                                 className="w-full px-3 py-3 bg-white dark:bg-neutral-900 border-none rounded-xl text-xs font-mono font-bold text-neutral-700 dark:text-neutral-200 focus:ring-1 focus:ring-primary shadow-sm" 
@@ -518,7 +518,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
 
                     {/* Same date warning indicator */}
                     {existingDateLog && (
-                        <div className="bg-amber-500/10 text-amber-600 border border-amber-500/25 p-3 rounded-2xl flex items-start gap-2.5 text-xs font-bold leading-relaxed">
+                        <div className="bg-accent-warning/10 text-accent-warning border border-accent-warning/25 p-3 rounded-2xl flex items-start gap-2.5 text-xs font-bold leading-relaxed">
                             <Info className="w-4 h-4 shrink-0 mt-0.5" />
                             <span>ملاحظة: يوجد سجل سابق لهذا التاريخ بالفعل. متابعة الحفظ ستقوم بدمج العمليات الجديدة إلى السجل الحالي لتسهيل المتابعة.</span>
                         </div>
@@ -566,8 +566,8 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {isSectionActive('irrigation') && (
-                                        <span className="text-[9.5px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-black flex items-center gap-1">
-                                            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        <span className="text-[9.5px] bg-accent-success/10 text-accent-success dark:text-accent-success px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                                            <span className="w-1 h-1 bg-accent-success rounded-full animate-pulse"></span>
                                             <span>تم الإدخال</span>
                                         </span>
                                     )}
@@ -601,7 +601,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-400">ملاحظات إضافية حول الري</label>
+                                        <label className="text-2xs font-bold text-neutral-400">ملاحظات إضافية حول الري</label>
                                         <textarea 
                                             rows={2}
                                             value={irrigationNotes}
@@ -622,7 +622,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 className="w-full p-4 flex justify-between items-center hover:bg-neutral-50/50 dark:hover:bg-neutral-800/15 transition-colors cursor-pointer text-right"
                             >
                                 <div className="flex items-center gap-2.5">
-                                    <div className="p-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                                    <div className="p-2 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded-xl">
                                         <Sprout className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col">
@@ -632,8 +632,8 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {isSectionActive('fertilization') && (
-                                        <span className="text-[9.5px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-black flex items-center gap-1">
-                                            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        <span className="text-[9.5px] bg-accent-success/10 text-accent-success dark:text-accent-success px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                                            <span className="w-1 h-1 bg-accent-success rounded-full animate-pulse"></span>
                                             <span>تم الإدخال</span>
                                         </span>
                                     )}
@@ -672,7 +672,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                                     <button 
                                                         type="button"
                                                         onClick={() => handleRemoveFertCompoundRow(idx)}
-                                                        className="p-2 text-neutral-400 hover:text-rose-500 rounded-xl cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 shrink-0 transition-all self-end mb-1"
+                                                        className="p-2 text-neutral-400 hover:text-accent-danger rounded-xl cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 shrink-0 transition-all self-end mb-1"
                                                         title="إزالة السماد"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
@@ -692,7 +692,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                         </button>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-400">ملاحظات وتفاصيل التسميد</label>
+                                        <label className="text-2xs font-bold text-neutral-400">ملاحظات وتفاصيل التسميد</label>
                                         <textarea 
                                             rows={2}
                                             value={fertilizationNotes}
@@ -713,7 +713,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 className="w-full p-4 flex justify-between items-center hover:bg-neutral-50/50 dark:hover:bg-neutral-800/15 transition-colors cursor-pointer text-right"
                             >
                                 <div className="flex items-center gap-2.5">
-                                    <div className="p-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl">
+                                    <div className="p-2 bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger rounded-xl">
                                         <Shield className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col">
@@ -723,8 +723,8 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {isSectionActive('protection') && (
-                                        <span className="text-[9.5px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-black flex items-center gap-1">
-                                            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        <span className="text-[9.5px] bg-accent-success/10 text-accent-success dark:text-accent-success px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                                            <span className="w-1 h-1 bg-accent-success rounded-full animate-pulse"></span>
                                             <span>تم الإدخال</span>
                                         </span>
                                     )}
@@ -736,7 +736,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                     
                                     {/* Part A: Spraying Compounds */}
                                     <div className="space-y-3">
-                                        <span className="text-[10px] font-black text-neutral-400 block pr-1">🧪 مركبات ومبيدات الرش:</span>
+                                        <span className="text-2xs font-black text-neutral-400 block pr-1">🧪 مركبات ومبيدات الرش:</span>
                                         {sprayingCompounds.map((comp, idx) => (
                                             <div key={idx} className="p-3 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-150 dark:border-neutral-800 relative group flex gap-3.5 items-center">
                                                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -766,7 +766,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                                     <button 
                                                         type="button"
                                                         onClick={() => handleRemoveSprayCompoundRow(idx)}
-                                                        className="p-2 text-neutral-400 hover:text-rose-500 rounded-xl cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 shrink-0 transition-all self-end mb-1"
+                                                        className="p-2 text-neutral-400 hover:text-accent-danger rounded-xl cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 shrink-0 transition-all self-end mb-1"
                                                         title="إزالة المركب"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
@@ -786,7 +786,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                         </button>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-450">ملاحظات حول عملية الرش</label>
+                                        <label className="text-2xs font-bold text-neutral-450">ملاحظات حول عملية الرش</label>
                                         <textarea 
                                             rows={1.5}
                                             value={sprayingNotes}
@@ -800,8 +800,8 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
 
                                     {/* Part B: Pests & Infections */}
                                     <div className="space-y-3">
-                                        <span className="text-[10px] font-black text-rose-500 block pr-1">🐛 تقرير الآفات والإصابات المكتشفة بالصوبة:</span>
-                                        <div className="space-y-3 p-3 bg-red-500/5 rounded-xl border border-red-500/10">
+                                        <span className="text-2xs font-black text-accent-danger block pr-1">🐛 تقرير الآفات والإصابات المكتشفة بالصوبة:</span>
+                                        <div className="space-y-3 p-3 bg-accent-danger/5 rounded-xl border border-accent-danger/20">
                                             <div>
                                                 <label className="text-[9.5px] font-bold text-neutral-600 dark:text-neutral-300 block mb-1">اسم الآفة أو المرض</label>
                                                 <input 
@@ -876,8 +876,8 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {isSectionActive('operations') && (
-                                        <span className="text-[9.5px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-black flex items-center gap-1">
-                                            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        <span className="text-[9.5px] bg-accent-success/10 text-accent-success dark:text-accent-success px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                                            <span className="w-1 h-1 bg-accent-success rounded-full animate-pulse"></span>
                                             <span>تم الإدخال</span>
                                         </span>
                                     )}
@@ -889,7 +889,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                     
                                     {/* Part A: AgriOps Quick Tags */}
                                     <div className="space-y-2">
-                                        <span className="text-[10px] font-black text-orange-650 dark:text-orange-400 block pr-1">✂️ اختر العمليات الفنية واليدوية المنجزة لليوم:</span>
+                                        <span className="text-2xs font-black text-orange-650 dark:text-orange-400 block pr-1">✂️ اختر العمليات الفنية واليدوية المنجزة لليوم:</span>
                                         <div className="flex flex-wrap gap-1.5">
                                             {COMMON_AGRI_OPS.map(op => {
                                                 const isSelected = selectedAgriOps.includes(op);
@@ -910,7 +910,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                                             : 'bg-white hover:bg-neutral-100 text-neutral-700 border-neutral-150 dark:bg-neutral-850 dark:hover:bg-neutral-800 dark:text-neutral-300 dark:border-neutral-800'
                                                         }`}
                                                     >
-                                                        {isSelected && <span className="text-[8px]">●</span>}
+                                                        {isSelected && <span className="text-2xs">●</span>}
                                                         <span>{op}</span>
                                                     </button>
                                                 );
@@ -932,7 +932,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                     </div>
 
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-400">ملاحظات وتفاصيل إضافية</label>
+                                        <label className="text-2xs font-bold text-neutral-400">ملاحظات وتفاصيل إضافية</label>
                                         <textarea 
                                             rows={1.5}
                                             value={opsNotes}
@@ -953,7 +953,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 className="w-full p-4 flex justify-between items-center hover:bg-neutral-50/50 dark:hover:bg-neutral-800/15 transition-colors cursor-pointer text-right"
                             >
                                 <div className="flex items-center gap-2.5">
-                                    <div className="p-2 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-xl">
+                                    <div className="p-2 bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning rounded-xl">
                                         <ShoppingBag className="w-4 h-4" />
                                     </div>
                                     <div className="flex flex-col">
@@ -963,8 +963,8 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {isSectionActive('harvest') && (
-                                        <span className="text-[9.5px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-black flex items-center gap-1">
-                                            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        <span className="text-[9.5px] bg-accent-success/10 text-accent-success dark:text-accent-success px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                                            <span className="w-1 h-1 bg-accent-success rounded-full animate-pulse"></span>
                                             <span>تم الإدخال</span>
                                         </span>
                                     )}
@@ -1001,7 +1001,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-400">ملاحظات الجودة والتعبئة</label>
+                                        <label className="text-2xs font-bold text-neutral-400">ملاحظات الجودة والتعبئة</label>
                                         <textarea 
                                             rows={2}
                                             value={harvestNotes}
@@ -1032,8 +1032,8 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {isSectionActive('planting') && (
-                                        <span className="text-[9.5px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-black flex items-center gap-1">
-                                            <span className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></span>
+                                        <span className="text-[9.5px] bg-accent-success/10 text-accent-success dark:text-accent-success px-2 py-0.5 rounded-full font-black flex items-center gap-1">
+                                            <span className="w-1 h-1 bg-accent-success rounded-full animate-pulse"></span>
                                             <span>تم الإدخال</span>
                                         </span>
                                     )}
@@ -1080,7 +1080,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                                         </div>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-neutral-400">ملاحظات وتفاصيل الزراعة</label>
+                                        <label className="text-2xs font-bold text-neutral-400">ملاحظات وتفاصيل الزراعة</label>
                                         <textarea 
                                             rows={2}
                                             value={plantingNotes}
@@ -1097,7 +1097,7 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
 
                     {/* General notes for the whole day log */}
                     <div className="space-y-1 bg-neutral-50 dark:bg-neutral-850/40 p-3.5 rounded-2xl border border-neutral-100 dark:border-neutral-800">
-                        <label className="text-[10px] font-black text-neutral-400">مذكرات أو ملاحظات عامة حول هذا السجل اليومي:</label>
+                        <label className="text-2xs font-black text-neutral-400">مذكرات أو ملاحظات عامة حول هذا السجل اليومي:</label>
                         <textarea 
                             className="w-full p-2.5 text-xs bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800 rounded-xl outline-none focus:ring-1 focus:ring-primary h-[60px] resize-none font-bold"
                             placeholder="أي تفاصيل عامة تذكرك لاحقاً بأحداث اليوم (مثال: مشكلة الصنبور بالصوبة الخامسة، تفقد العمال)..."
@@ -1115,13 +1115,13 @@ export const AddEditLogModal: React.FC<AddEditLogModalProps> = ({ onClose, activ
                     <button 
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-4 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 hover:dark:bg-neutral-700 text-sm font-black rounded-2xl active:scale-95 transition-colors cursor-pointer shrink-0"
+                        className="px-6 py-4 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 hover:dark:bg-neutral-700 text-sm font-black rounded-2xl tap transition-colors cursor-pointer shrink-0"
                     >
                         إلغاء
                     </button>
                     <button 
                         onClick={handleSaveProcess}
-                        className="flex-1 py-4 bg-primary hover:bg-opacity-95 text-white text-sm font-black rounded-2xl active:scale-95 transition-transform cursor-pointer"
+                        className="flex-1 py-4 bg-primary hover:bg-opacity-95 text-white text-sm font-black rounded-2xl tap transition-transform cursor-pointer"
                     >
                         💾 حفظ يوميات الصوبة
                     </button>

@@ -13,6 +13,9 @@ export default {
   ],
   theme: {
     extend: {
+      fontSize: {
+        '2xs': ['0.6875rem', { lineHeight: '1rem' }],
+      },
       fontFamily: {
         sans: ['Cairo', 'sans-serif'],
       },
@@ -57,7 +60,7 @@ export default {
         'elevation-3': '0 12px 32px rgba(0,0,0,0.14), 0 4px 8px rgba(0,0,0,0.06)',
       },
       animation: {
-        'shimmer': 'shimmer 2s linear infinite',
+        'shimmer': 'shimmer 1.5s linear infinite',
       },
       keyframes: {
         shimmer: {

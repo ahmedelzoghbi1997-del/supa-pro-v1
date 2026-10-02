@@ -92,12 +92,12 @@ interface DashboardCardProps {
 export const TrendIndicator: React.FC<{ trend: { value: number; direction: 'up' | 'down'; } }> = ({ trend }) => {
     const isUp = trend.direction === 'up';
     const colorClasses = isUp 
-        ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300'
-        : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300';
+        ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success'
+        : 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger';
     const Icon = isUp ? ChevronUpIcon : ChevronDownIcon;
 
     return (
-        <div className={`flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-full ${colorClasses}`}>
+        <div className={`flex items-center gap-1 text-2xs font-black px-1.5 py-0.5 rounded-full ${colorClasses}`}>
             <Icon className="w-2.5 h-2.5" />
             <span>{trend.value.toFixed(1)}%</span>
         </div>
@@ -129,7 +129,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 
   const cardContent = (
     <div 
-      className={`group bg-white dark:bg-neutral-800 ${isProfitMode ? 'shadow-[0_0_25px_rgba(16,185,129,0.25)] border-emerald-500 dark:border-emerald-400' : isCelebration ? 'shadow-[0_0_20px_rgba(251,191,36,0.3)] border-amber-400 dark:border-amber-500' : color.gradient} py-2.5 px-3 rounded-xl flex flex-col justify-between shadow-soft border ${isProfitMode || isCelebration ? '' : 'border-neutral-200 dark:border-neutral-700'} h-28 hover:shadow-md hover:border-primary/20 transition-all duration-500 relative overflow-hidden`}
+      className={`group bg-white dark:bg-neutral-800 ${isProfitMode ? 'shadow-[0_0_25px_rgba(16,185,129,0.25)] border-accent-success dark:border-emerald-400' : isCelebration ? 'shadow-[0_0_20px_rgba(251,191,36,0.3)] border-amber-400 dark:border-accent-warning' : color.gradient} py-2.5 px-3 rounded-xl flex flex-col justify-between shadow-soft border ${isProfitMode || isCelebration ? '' : 'border-neutral-200 dark:border-neutral-700'} h-28 hover:shadow-md hover:border-primary/20 transition-all duration-500 relative overflow-hidden`}
     >
       {isProfitMode && (
          <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-transparent to-amber-400/10 dark:from-emerald-500/10 dark:to-amber-500/10 pointer-events-none"></div>
@@ -138,22 +138,22 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
          <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-transparent dark:from-amber-500/20 pointer-events-none animate-pulse"></div>
       )}
       <div className="flex justify-between items-start relative z-10">
-        <p className={`font-bold text-[10px] uppercase tracking-wider ${isProfitMode ? 'text-emerald-700 dark:text-emerald-300' : isCelebration ? 'text-amber-700 dark:text-amber-300' : 'text-neutral-500 dark:text-neutral-400'}`}>{title}</p>
-        <Icon className={`w-4 h-4 ${isProfitMode ? 'text-emerald-500' : isCelebration ? 'text-amber-500 animate-bounce' : color.icon}`} />
+        <p className={`font-bold text-2xs uppercase tracking-wider ${isProfitMode ? 'text-accent-success dark:text-accent-success' : isCelebration ? 'text-accent-warning dark:text-accent-warning' : 'text-neutral-500 dark:text-neutral-400'}`}>{title}</p>
+        <Icon className={`w-4 h-4 ${isProfitMode ? 'text-accent-success' : isCelebration ? 'text-accent-warning animate-bounce' : color.icon}`} />
       </div>
       
       <div className="flex items-end justify-between mt-0.5 gap-2 min-h-[28px] relative z-10">
         {secondaryValue ? (
             <div className="flex-1 flex justify-between items-end min-w-0">
                 <div className="min-w-0">
-                    <h3 className={`text-2xl font-bold ${isProfitMode ? 'bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-amber-500 to-emerald-600 dark:from-emerald-400 dark:via-amber-300 dark:to-emerald-400 bg-[length:200%_auto] animate-shimmer' : isCelebration ? 'text-amber-600 dark:text-amber-400' : 'text-neutral-800 dark:text-white'} leading-tight tabular-nums truncate`}>{value}</h3>
+                    <h3 className={`text-2xl font-bold ${isProfitMode ? 'bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-amber-500 to-emerald-600 dark:from-emerald-400 dark:via-amber-300 dark:to-emerald-400 bg-[length:200%_auto] animate-shimmer' : isCelebration ? 'text-accent-warning dark:text-accent-warning' : 'text-neutral-800 dark:text-white'} leading-tight tabular-nums truncate`}>{value}</h3>
                 </div>
                 <div className="min-w-0 text-left">
-                    <span className="text-[8px] font-black text-neutral-400 block mb-0.5 uppercase tracking-tighter">{secondaryTitle}</span>
+                    <span className="text-2xs font-black text-neutral-400 block mb-0.5 uppercase tracking-tighter">{secondaryTitle}</span>
                     <h3 className="text-2xl font-bold text-primary leading-tight tabular-nums truncate">{secondaryValue}</h3>
                     {productionValue && (
-                        <div className="flex items-center gap-0.5 text-[9px] text-amber-500 dark:text-amber-400 font-extrabold justify-end select-none mt-0.5">
-                            <ScaleIcon className="w-3 h-3 text-amber-500 dark:text-amber-400 animate-pulse" />
+                        <div className="flex items-center gap-0.5 text-2xs text-accent-warning dark:text-accent-warning font-extrabold justify-end select-none mt-0.5">
+                            <ScaleIcon className="w-3 h-3 text-accent-warning dark:text-accent-warning animate-pulse" />
                             <span>{productionValue}</span>
                         </div>
                     )}
@@ -162,19 +162,19 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
         ) : (
             <>
                 <div className="min-w-0">
-                    <h3 className={`text-2xl font-bold ${isProfitMode ? 'bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-amber-500 to-emerald-600 dark:from-emerald-400 dark:via-amber-300 dark:to-emerald-400 bg-[length:200%_auto] animate-shimmer' : isCelebration ? 'text-amber-600 dark:text-amber-400' : 'text-neutral-800 dark:text-white'} leading-tight tabular-nums truncate`}>{value}</h3>
+                    <h3 className={`text-2xl font-bold ${isProfitMode ? 'bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-amber-500 to-emerald-600 dark:from-emerald-400 dark:via-amber-300 dark:to-emerald-400 bg-[length:200%_auto] animate-shimmer' : isCelebration ? 'text-accent-warning dark:text-accent-warning' : 'text-neutral-800 dark:text-white'} leading-tight tabular-nums truncate`}>{value}</h3>
                 </div>
                 <div className="flex-shrink-0 flex items-center gap-1.5 h-full">
                     {productionValue && (
-                        <div className="flex items-center gap-1 text-[10px] sm:text-xs text-amber-600 dark:text-amber-400 font-extrabold select-none bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-lg border border-amber-200/50 dark:border-amber-800/30">
-                            <ScaleIcon className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                        <div className="flex items-center gap-1 text-2xs sm:text-xs text-accent-warning dark:text-accent-warning font-extrabold select-none bg-accent-warning/10 dark:bg-accent-warning/20 px-2 py-0.5 rounded-lg border border-accent-warning/20/50 dark:border-accent-warning/30">
+                            <ScaleIcon className="w-3.5 h-3.5 text-accent-warning animate-pulse" />
                             <span>{productionValue}</span>
                         </div>
                     )}
                     {trend ? (
                         <TrendIndicator trend={trend} />
                     ) : subValue ? (
-                        <div className={`text-[9px] font-black ${isProfitMode ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/50 border-emerald-200 dark:border-emerald-700' : isCelebration ? 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/50 border-amber-200 dark:border-amber-700' : 'text-neutral-400 dark:text-neutral-500 bg-neutral-100 dark:bg-neutral-700/50 border-neutral-200/50 dark:border-neutral-600/30'} px-1.5 py-0.5 rounded border whitespace-nowrap`}>
+                        <div className={`text-2xs font-black ${isProfitMode ? 'text-accent-success dark:text-accent-success bg-accent-success/10 dark:bg-accent-success/20 border-accent-success/20 dark:border-accent-success/30' : isCelebration ? 'text-accent-warning dark:text-accent-warning bg-accent-warning/10 dark:bg-accent-warning/20 border-accent-warning/20 dark:border-accent-warning/30' : 'text-neutral-400 dark:text-neutral-500 bg-neutral-100 dark:bg-neutral-700/50 border-neutral-200/50 dark:border-neutral-600/30'} px-1.5 py-0.5 rounded border whitespace-nowrap`}>
                             {subValue}
                         </div>
                     ) : null}
@@ -432,11 +432,11 @@ const Dashboard: React.FC = () => {
   const userNameColor = useMemo(() => {
     if (!profile?.id) return 'text-primary';
     const colors = [
-      'text-emerald-500 dark:text-emerald-400',
-      'text-blue-500 dark:text-blue-400',
-      'text-rose-500 dark:text-rose-400',
+      'text-accent-success dark:text-accent-success',
+      'text-accent-info dark:text-accent-info',
+      'text-accent-danger dark:text-accent-danger',
       'text-violet-500 dark:text-violet-400',
-      'text-amber-500 dark:text-amber-400',
+      'text-accent-warning dark:text-accent-warning',
       'text-teal-500 dark:text-teal-400',
       'text-fuchsia-500 dark:text-fuchsia-400',
       'text-cyan-500 dark:text-cyan-400'
@@ -726,7 +726,7 @@ const Dashboard: React.FC = () => {
               <div className="relative z-30">
                   <button 
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-[11px] sm:text-xs font-black text-neutral-800 dark:text-neutral-200 shadow-xs hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-all active:scale-95 cursor-pointer outline-none select-none"
+                      className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl text-[11px] sm:text-xs font-black text-neutral-800 dark:text-neutral-200 shadow-xs hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-all tap cursor-pointer outline-none select-none"
                   >
                       <CalendarIcon className="w-3.5 h-3.5 text-primary" />
                       <span className="whitespace-nowrap">{periodLabels[period]}</span>
@@ -828,13 +828,13 @@ const Dashboard: React.FC = () => {
                 <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                     <button 
                         onClick={() => setActiveItem('settings')}
-                        className="bg-primary hover:bg-primary-dark text-white font-black px-8 py-4 rounded-2xl transition-all shadow-lg shadow-primary/20 active:scale-95 flex items-center justify-center gap-2"
+                        className="bg-primary hover:bg-primary-dark text-white font-black px-8 py-4 rounded-2xl transition-all shadow-lg shadow-primary/20 tap flex items-center justify-center gap-2"
                     >
                         الارتباط بحساب مالك
                     </button>
                     <button 
                         onClick={() => setActiveItem('invoices')}
-                        className="bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-neutral-800 dark:text-white border border-neutral-200 dark:border-neutral-700 font-black px-8 py-4 rounded-2xl transition-all shadow-sm active:scale-95"
+                        className="bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 text-neutral-800 dark:text-white border border-neutral-200 dark:border-neutral-700 font-black px-8 py-4 rounded-2xl transition-all shadow-sm tap"
                     >
                         البدء في إضافة بياناتي
                     </button>
@@ -847,11 +847,11 @@ const Dashboard: React.FC = () => {
         {partnerFinancials && (
           <div className="col-span-1 sm:col-span-2 xl:col-span-3 2xl:col-span-3 bg-gradient-to-br from-[#0c1328] via-[#0f2547] to-[#06101f] text-white rounded-xl shadow-lg flex flex-col justify-between overflow-hidden relative group border border-blue-900/60 transition-all hover:shadow-xl">
               {/* Soft decorative background glow */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-accent-info/10 rounded-full blur-2xl pointer-events-none"></div>
               
               <div className="p-3.5 relative z-10 flex flex-col justify-center gap-2 text-right w-full">
                   <div className="flex justify-between items-center mb-0.5">
-                      <div className="bg-blue-950/80 text-blue-300 px-2.5 py-0.5 rounded text-[10px] font-bold inline-flex items-center gap-1 border border-blue-800/50 backdrop-blur-sm">
+                      <div className="bg-blue-950/80 text-blue-300 px-2.5 py-0.5 rounded text-2xs font-bold inline-flex items-center gap-1 border border-blue-800/50 backdrop-blur-sm">
                         <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
                         <span>مرحباً، {partnerFinancials.personName}</span>
                       </div>
@@ -860,32 +860,32 @@ const Dashboard: React.FC = () => {
 
                   <div className="grid grid-cols-3 gap-2">
                       <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col justify-center shadow-inner">
-                          <p className="text-[9px] text-blue-300/80 font-bold mb-0.5">أرباحك المستحقة</p>
+                          <p className="text-2xs text-blue-300/80 font-bold mb-0.5">أرباحك المستحقة</p>
                           <p className="text-xs font-black truncate">{formatNumber(partnerFinancials.totalProfit)} ج.م</p>
                       </div>
                       <div className="bg-white/5 rounded-lg p-2 border border-white/5 flex flex-col justify-center shadow-inner">
-                          <p className="text-[9px] text-rose-300/80 font-bold mb-0.5">مسحوبات وسلف</p>
+                          <p className="text-2xs text-rose-300/80 font-bold mb-0.5">مسحوبات وسلف</p>
                           <p className="text-xs font-black truncate text-rose-200">{formatNumber(partnerFinancials.totalBorrowed)} ج.م</p>
                       </div>
                       <div className="bg-blue-600/90 rounded-lg p-2 border border-blue-400/40 shadow-[0_0_12px_rgba(59,130,246,0.5)] transform scale-102 z-10 relative flex flex-col justify-center items-center">
-                          <p className="text-[9px] text-cyan-200 font-black mb-0.5">المتبقي لك</p>
-                          <p className={`text-xs font-black truncate ${partnerFinancials.remaining >= 0 ? 'text-emerald-300 drop-shadow-[0_0_5px_rgba(52,211,153,0.6)]' : 'text-rose-400 drop-shadow-[0_0_5px_rgba(251,113,133,0.6)]'}`}>{formatNumber(partnerFinancials.remaining)} ج.م</p>
+                          <p className="text-2xs text-cyan-200 font-black mb-0.5">المتبقي لك</p>
+                          <p className={`text-xs font-black truncate ${partnerFinancials.remaining >= 0 ? 'text-emerald-300 drop-shadow-[0_0_5px_rgba(52,211,153,0.6)]' : 'text-accent-danger drop-shadow-[0_0_5px_rgba(251,113,133,0.6)]'}`}>{formatNumber(partnerFinancials.remaining)} ج.م</p>
                       </div>
                   </div>
 
                   {partnerFinancials.otherPartnerOverdrawn && partnerFinancials.remaining > 0 && (
-                      <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-2 mt-1.5 flex items-start gap-1.5 shadow-[0_0_12px_rgba(239,68,68,0.3)] animate-pulse">
+                      <div className="bg-accent-danger/10 border border-accent-danger/50 rounded-lg p-2 mt-1.5 flex items-start gap-1.5 shadow-[0_0_12px_rgba(239,68,68,0.3)] animate-pulse">
                           <span className="text-base animate-bounce mt-0">⚠️</span>
-                          <p className="text-[9.5px] leading-tight text-red-400 font-extrabold drop-shadow-[0_0_8px_rgba(239,68,68,0.85)]">
+                          <p className="text-[9.5px] leading-tight text-accent-danger font-extrabold drop-shadow-[0_0_8px_rgba(239,68,68,0.85)]">
                               تنبيه من الصندوق: شريكك ({partnerFinancials.overdrawnPartnerNames}) سحب بزيادة ({formatNumber(partnerFinancials.overdrawnAmount)} ج.م). سحبك لكامل رصيدك سيؤدي لعجز في التكلفة التأسيسية للعروة القادمة.
                           </p>
                       </div>
                   )}
 
                   {partnerFinancials.remaining < 0 && (
-                      <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-2 mt-1.5 flex items-start gap-1.5 shadow-[0_0_12px_rgba(239,68,68,0.3)] animate-pulse">
+                      <div className="bg-accent-danger/10 border border-accent-danger/50 rounded-lg p-2 mt-1.5 flex items-start gap-1.5 shadow-[0_0_12px_rgba(239,68,68,0.3)] animate-pulse">
                           <span className="text-base animate-bounce mt-0">⚠️</span>
-                          <p className="text-[9.5px] leading-tight text-red-400 font-extrabold drop-shadow-[0_0_8px_rgba(239,68,68,0.85)]">
+                          <p className="text-[9.5px] leading-tight text-accent-danger font-extrabold drop-shadow-[0_0_8px_rgba(239,68,68,0.85)]">
                               تنبيه من الصندوق: مسحوباتك تخطت أرباحك المستحقة بزيادة ({formatNumber(Math.abs(partnerFinancials.remaining))} ج.م). هذا المبلغ الزائد مأخوذ من السيولة التأسيسية للعروة القادمة {partnerFinancials.owedPartnerNames ? `أو من أرباح الشريك (${partnerFinancials.owedPartnerNames})` : 'أو من أرباح الشركاء الآخرين'}، ويرجى تسويته.
                           </p>
                       </div>
@@ -954,7 +954,7 @@ const Dashboard: React.FC = () => {
           sparklineData={weeklyChartData.recovery}
           isProfitMode={combinedRecoveryStats.isRecovered}
           color={{
-            icon: combinedRecoveryStats.isRecovered ? 'text-emerald-500' : 'text-primary',
+            icon: combinedRecoveryStats.isRecovered ? 'text-accent-success' : 'text-primary',
             glow: 'glow-on-hover-success',
             gradient: 'bg-gradient-to-br from-amber-50/20 to-transparent dark:from-amber-900/5',
             sparkline: combinedRecoveryStats.isRecovered ? '#10B981' : '#F59E0B',
@@ -1003,10 +1003,10 @@ const Dashboard: React.FC = () => {
             {/* Header */}
             <div className="flex justify-between items-start relative z-10">
               <div className="flex items-center gap-1.5">
-                <p className="font-bold text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                <p className="font-bold text-2xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                   ديون وحسابات المعلم
                 </p>
-                <span className="text-[9px] font-extrabold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200/60 dark:border-purple-800/40">
+                <span className="text-2xs font-extrabold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-200/60 dark:border-purple-800/40">
                   {merchantDebtStats.settlementPercentage}% مسدد
                 </span>
               </div>
@@ -1021,7 +1021,7 @@ const Dashboard: React.FC = () => {
                 </h3>
                 <span className="text-xs font-bold text-neutral-400">ج.م</span>
               </div>
-              <span className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/50 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-900/40">
+              <span className="text-2xs font-extrabold text-accent-info dark:text-accent-info bg-accent-info/10 dark:bg-accent-info/20 px-2 py-0.5 rounded-md border border-accent-info/20 dark:border-accent-info/30">
                 المتبقي المستحق
               </span>
             </div>
@@ -1034,9 +1034,9 @@ const Dashboard: React.FC = () => {
                   style={{ width: `${merchantDebtStats.settlementPercentage}%` }}
                 />
               </div>
-              <div className="flex justify-between items-center text-[10px] font-medium text-neutral-500 dark:text-neutral-400">
+              <div className="flex justify-between items-center text-2xs font-medium text-neutral-500 dark:text-neutral-400">
                 <span>الإجمالي: <strong className="font-bold text-neutral-700 dark:text-neutral-200 tabular-nums">{formatNumber(merchantDebtStats.grandTotalDebt)} ج.م</strong></span>
-                <span>المدفوع: <strong className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatNumber(merchantDebtStats.grandTotalSettled)} ج.م</strong></span>
+                <span>المدفوع: <strong className="font-bold text-accent-success dark:text-accent-success tabular-nums">{formatNumber(merchantDebtStats.grandTotalSettled)} ج.م</strong></span>
               </div>
             </div>
           </div>

@@ -75,7 +75,7 @@ const WorkerRecordRow: React.FC<WorkerRecordRowProps> = React.memo(({
                     {record.name}
                 </span>
                 {record.isUnnamed && (
-                    <span className="text-[8px] bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 px-1 py-0.5 rounded font-bold shrink-0">
+                    <span className="text-2xs bg-accent-success/10 dark:bg-accent-success/20 text-accent-success px-1 py-0.5 rounded font-bold shrink-0">
                         مجهول
                     </span>
                 )}
@@ -93,14 +93,14 @@ const WorkerRecordRow: React.FC<WorkerRecordRowProps> = React.memo(({
                     lang="en"
                     onChange={handleAmountChange}
                     placeholder="200" 
-                    className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/80 dark:border-neutral-805 rounded-md pl-8 pr-1 py-0.5 text-[11px] font-mono font-black text-emerald-600 dark:text-emerald-400 text-left outline-none" 
+                    className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/80 dark:border-neutral-805 rounded-md pl-8 pr-1 py-0.5 text-[11px] font-mono font-black text-accent-success dark:text-accent-success text-left outline-none" 
                 />
-                <span className="absolute left-1 top-1/2 -translate-y-1/2 text-[8px] text-neutral-400 font-bold font-mono">ج.م</span>
+                <span className="absolute left-1 top-1/2 -translate-y-1/2 text-2xs text-neutral-400 font-bold font-mono">ج.م</span>
             </div>
 
             {/* Toggle button group [كاش / آجل / مجزأ] */}
             {record.isUnnamed ? (
-                <span className="text-[9px] text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded font-semibold shrink-0">
+                <span className="text-2xs text-accent-success bg-accent-success/10 dark:bg-accent-success/20 px-2 py-0.5 rounded font-semibold shrink-0">
                     💵 كاش فوري
                 </span>
             ) : (
@@ -108,9 +108,9 @@ const WorkerRecordRow: React.FC<WorkerRecordRowProps> = React.memo(({
                     <button
                         type="button"
                         onClick={() => onUpdatePaymentMethod(record.id, 'cash')}
-                        className={`px-1.5 py-0.5 text-[8.5px] sm:text-[10px] font-semibold rounded transition-all cursor-pointer ${
+                        className={`px-1.5 py-0.5 text-[8.5px] sm:text-2xs font-semibold rounded transition-all cursor-pointer ${
                             record.paymentMethod === 'cash'
-                                ? 'bg-emerald-500 text-white font-bold shadow-xs'
+                                ? 'bg-accent-success text-white font-bold shadow-xs'
                                 : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
@@ -119,9 +119,9 @@ const WorkerRecordRow: React.FC<WorkerRecordRowProps> = React.memo(({
                     <button
                         type="button"
                         onClick={() => onUpdatePaymentMethod(record.id, 'credit')}
-                        className={`px-1.5 py-0.5 text-[8.5px] sm:text-[10px] font-semibold rounded transition-all cursor-pointer ${
+                        className={`px-1.5 py-0.5 text-[8.5px] sm:text-2xs font-semibold rounded transition-all cursor-pointer ${
                             record.paymentMethod === 'credit'
-                                ? 'bg-rose-500 text-white font-bold shadow-xs'
+                                ? 'bg-accent-danger text-white font-bold shadow-xs'
                                 : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
@@ -134,7 +134,7 @@ const WorkerRecordRow: React.FC<WorkerRecordRowProps> = React.memo(({
                             onUpdatePaymentMethod(record.id, 'split', half);
                             onOpenNotes(record.id);
                         }}
-                        className={`px-1.5 py-0.5 text-[8.5px] sm:text-[10px] font-semibold rounded transition-all cursor-pointer ${
+                        className={`px-1.5 py-0.5 text-[8.5px] sm:text-2xs font-semibold rounded transition-all cursor-pointer ${
                             record.paymentMethod === 'split' 
                                 ? 'bg-indigo-500 text-white font-bold shadow-xs' 
                                 : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
@@ -150,12 +150,12 @@ const WorkerRecordRow: React.FC<WorkerRecordRowProps> = React.memo(({
                 <button
                     type="button"
                     onClick={() => onOpenNotes(record.id)}
-                    className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-emerald-600 rounded transition-all relative cursor-pointer"
+                    className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-accent-success rounded transition-all relative cursor-pointer"
                     title="ملاحظات العامل وتفاصيل الحساب"
                 >
                     📝
                     {((record.notes && record.notes.trim()) || record.paymentMethod === 'split') && (
-                        <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+                        <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-accent-success rounded-full animate-ping" />
                     )}
                 </button>
 
@@ -163,7 +163,7 @@ const WorkerRecordRow: React.FC<WorkerRecordRowProps> = React.memo(({
                 <button
                     type="button"
                     onClick={() => onRemove(record.id)}
-                    className="p-1 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-neutral-400 hover:text-rose-500 rounded transition-all cursor-pointer"
+                    className="p-1 hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 text-neutral-400 hover:text-accent-danger rounded transition-all cursor-pointer"
                     title="إزالة من كشف اليوم"
                 >
                     🗑️
@@ -184,18 +184,18 @@ const OtherExpenseRow: React.FC<OtherExpenseRowProps> = React.memo(({ item, onRe
     return (
         <div className="flex justify-between items-center p-1.5 bg-neutral-100/50 dark:bg-neutral-900/30 rounded-lg text-[11px] border border-neutral-150/20">
             <div className="flex items-center gap-1.5 font-bold">
-                <span className="text-amber-500">🥪</span>
+                <span className="text-accent-warning">🥪</span>
                 <span className="text-neutral-750 dark:text-neutral-300">{item.description}</span>
-                <span className={`text-[8px] px-1 py-0.5 rounded font-black ${item.paymentMethod === 'cash' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40' : 'bg-rose-50 text-rose-500 dark:bg-rose-950/40'}`}>
+                <span className={`text-2xs px-1 py-0.5 rounded font-black ${item.paymentMethod === 'cash' ? 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20' : 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20'}`}>
                     {item.paymentMethod === 'cash' ? 'كاش' : 'آجل'}
                 </span>
             </div>
             <div className="flex items-center gap-3 font-semibold">
-                <span className="font-mono text-amber-600 dark:text-amber-400 font-extrabold">{item.amount} ج.م</span>
+                <span className="font-mono text-accent-warning dark:text-accent-warning font-extrabold">{item.amount} ج.م</span>
                 <button
                     type="button"
                     onClick={() => onRemove(item.id)}
-                    className="text-neutral-400 hover:text-rose-500 text-xs font-bold cursor-pointer"
+                    className="text-neutral-400 hover:text-accent-danger text-xs font-bold cursor-pointer"
                     title="حذف"
                 >
                     ✕
@@ -800,7 +800,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
         return (
             <div className="space-y-6 py-4 px-1 text-right animate-fade-in">
                 <div className="text-center space-y-2">
-                    <div className="w-16 h-16 mx-auto bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center text-3xl shadow-inner animate-pulse">
+                    <div className="w-16 h-16 mx-auto bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning rounded-full flex items-center justify-center text-3xl shadow-inner animate-pulse">
                         🌱
                     </div>
                     <h3 className="text-lg font-black text-neutral-800 dark:text-neutral-100 mt-3 font-sans">
@@ -824,15 +824,15 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                 }}
                                 className={`group p-5 rounded-3xl border-2 text-right transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg cursor-pointer flex flex-col justify-between h-44 ${
                                     isMine
-                                        ? 'bg-emerald-50/20 hover:bg-emerald-50/50 dark:bg-emerald-950/10 dark:hover:bg-emerald-950/25 border-emerald-500/20 hover:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20'
-                                        : 'bg-indigo-50/20 hover:bg-indigo-50/50 dark:bg-indigo-950/10 dark:hover:bg-indigo-950/25 border-indigo-500/20 hover:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20'
+                                        ? 'bg-accent-success/10/20 hover:bg-accent-success/10/50 dark:bg-accent-success/20/10 dark:hover:bg-accent-success/20/25 border-accent-success/20 hover:border-accent-success focus:ring-4 focus:ring-accent-success'
+                                        : 'bg-accent-info/10 hover:bg-accent-info/10 dark:bg-accent-info/20 dark:hover:bg-indigo-950/25 border-indigo-500/20 hover:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20'
                                 }`}
                             >
                                 <div className="flex items-center justify-between w-full">
-                                    <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase ${
+                                    <span className={`text-2xs font-black px-2.5 py-1 rounded-full uppercase ${
                                         isMine 
-                                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' 
-                                            : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300'
+                                            ? 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success' 
+                                            : 'bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info'
                                     }`}>
                                         {isMine ? 'الصوبة الرئيسية (الخاصة بي)' : 'صوبة خارجية (أبي وأخي)'}
                                     </span>
@@ -842,17 +842,17 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                 </div>
 
                                 <div className="space-y-1 my-2">
-                                    <h4 className="text-sm sm:text-base font-black text-neutral-855 dark:text-white group-hover:text-amber-500 transition-colors">
+                                    <h4 className="text-sm sm:text-base font-black text-neutral-855 dark:text-white group-hover:text-accent-warning transition-colors">
                                         {gh.name}
                                     </h4>
-                                    <p className="text-[10px] sm:text-[11px] font-semibold text-neutral-400 dark:text-neutral-400 leading-normal">
+                                    <p className="text-2xs sm:text-[11px] font-semibold text-neutral-400 dark:text-neutral-400 leading-normal">
                                         {isMine 
                                             ? 'ترتبط بحسابات العروة الحالية وتؤثر على صافي أرباحك وتكاليف التشغيل.' 
                                             : 'حساب منفصل تماماً، ستصرف اليوميات كاش من الخزنة لضبط رصيد صوبة أبي.'}
                                     </p>
                                 </div>
 
-                                <div className="flex items-center gap-1.5 text-[9px] font-black justify-end text-neutral-400 dark:text-neutral-500 mt-auto group-hover:underline">
+                                <div className="flex items-center gap-1.5 text-2xs font-black justify-end text-neutral-400 dark:text-neutral-500 mt-auto group-hover:underline">
                                     <span>اضغط للتحديد ودخول الدفتر</span>
                                     <span>←</span>
                                 </div>
@@ -862,7 +862,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                 </div>
 
                 <div className="pt-4 flex flex-col items-center gap-3">
-                    <p className="text-[10px] font-bold text-amber-600 bg-amber-500/5 px-4 py-2 rounded-xl text-center border border-amber-500/10 leading-relaxed">
+                    <p className="text-2xs font-bold text-accent-warning bg-accent-warning/5 px-4 py-2 rounded-xl text-center border border-accent-warning/20 leading-relaxed">
                         ⚠️ هذا الاختيار الإجباري صُمم لحماية حسابات الصوب المختلفة من التداخل وتسهيل جرد الربح بدقة وشفافية.
                     </p>
                     <button
@@ -896,26 +896,26 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                             <button
                                 type="button"
                                 onClick={() => setHasSelectedGh(false)}
-                                className="text-[10px] text-emerald-600 dark:text-emerald-400 hover:underline font-bold"
+                                className="text-2xs text-accent-success dark:text-accent-success hover:underline font-bold"
                             >
                                 (تغيير)
                             </button>
                         </div>
                         
                         {/* Connected Crop Cycle */}
-                        <div className="text-[9px] font-bold text-neutral-450 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800/80 px-2 py-0.5 rounded">
+                        <div className="text-2xs font-bold text-neutral-450 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800/80 px-2 py-0.5 rounded">
                             {cyclesWithCalculations.find(c => c.id === cycleId)?.name || 'العروة الحالية'}
                         </div>
                     </div>
 
                     {/* Shift Type Segmented Control */}
                     <div className="flex flex-col pt-1.5 pb-0.5">
-                        <span className="text-[9px] font-bold text-neutral-405 dark:text-neutral-450 mb-1">وردية العمل / الفترة</span>
+                        <span className="text-2xs font-bold text-neutral-405 dark:text-neutral-450 mb-1">وردية العمل / الفترة</span>
                         <div className="grid grid-cols-3 gap-1 bg-neutral-100 dark:bg-neutral-900/60 p-0.5 rounded-lg border border-neutral-200/50 dark:border-neutral-800">
                             {[
-                                { id: 'morning', label: '🌅 صباحية', activeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400 border-amber-300/50' },
-                                { id: 'evening', label: '🌇 مسائية', activeColor: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-400 border-indigo-300/50' },
-                                { id: 'full_day', label: '☀️ يوم كامل', activeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-300/50' }
+                                { id: 'morning', label: '🌅 صباحية', activeColor: 'bg-accent-warning/10 text-accent-warning dark:bg-accent-warning/20 dark:text-accent-warning border-accent-warning/20/50' },
+                                { id: 'evening', label: '🌇 مسائية', activeColor: 'bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info border-indigo-300/50' },
+                                { id: 'full_day', label: '☀️ يوم كامل', activeColor: 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border-accent-success/20/50' }
                             ].map((shift) => (
                                 <button
                                     key={shift.id}
@@ -939,32 +939,32 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                         <div className="grid grid-cols-2 gap-3">
                             {/* Date Input */}
                             <div className="flex flex-col">
-                                <span className="text-[9px] font-bold text-neutral-405 dark:text-neutral-450 mb-0.5">التاريخ</span>
+                                <span className="text-2xs font-bold text-neutral-405 dark:text-neutral-450 mb-0.5">التاريخ</span>
                                 <input 
                                     type="date" 
                                     required 
                                     value={date} 
                                     onChange={e => setDate(e.target.value)} 
-                                    className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-2.5 py-1.5 text-xs font-mono font-semibold text-neutral-700 dark:text-neutral-200 outline-none focus:ring-1 focus:ring-emerald-500/20" 
+                                    className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-2.5 py-1.5 text-xs font-mono font-semibold text-neutral-700 dark:text-neutral-200 outline-none focus:ring-1 focus:ring-accent-success" 
                                 />
                             </div>
 
                             {/* Default wage Setup */}
                             <div className="flex flex-col">
-                                <label className="text-[9px] font-bold text-neutral-405 dark:text-neutral-450 mb-0.5 flex justify-between items-center">
+                                <label className="text-2xs font-bold text-neutral-405 dark:text-neutral-450 mb-0.5 flex justify-between items-center">
                                     <span>يومية افتراضية</span>
                                     {workerRecords.length > 0 && (
                                         <button
                                             type="button"
                                             onClick={handleApplyWageToAll}
-                                            className="text-[8px] text-emerald-600 hover:underline cursor-pointer font-bold"
+                                            className="text-2xs text-accent-success hover:underline cursor-pointer font-bold"
                                             title="تطبيق اليومية على الكشف"
                                         >
                                             تعميم
                                         </button>
                                     )}
                                 </label>
-                                <div className="flex items-center gap-1 bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-2 py-1.5 focus-within:ring-1 focus-within:ring-emerald-500/20">
+                                <div className="flex items-center gap-1 bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-2 py-1.5 focus-within:ring-1 focus-within:ring-accent-success">
                                     <span dir="ltr" className="font-mono flex-1">
                                         <input 
                                             type="text" 
@@ -972,12 +972,12 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                             pattern="[0-9]*"
                                             value={amountPerWorker} 
                                             onChange={e => setAmountPerWorker(e.target.value)} 
-                                            className="w-full bg-transparent text-left outline-none border-none p-0 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400" 
+                                            className="w-full bg-transparent text-left outline-none border-none p-0 text-xs font-mono font-bold text-accent-success dark:text-accent-success" 
                                             dir="ltr"
                                             lang="en"
                                         />
                                     </span>
-                                    <span className="text-[9px] text-neutral-400 font-bold shrink-0">ج.م</span>
+                                    <span className="text-2xs text-neutral-400 font-bold shrink-0">ج.م</span>
                                 </div>
                             </div>
                         </div>
@@ -986,11 +986,11 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                         <div className="flex flex-col space-y-1.5 p-2.5 bg-neutral-50 dark:bg-neutral-950/60 rounded-xl border border-neutral-200/50 dark:border-neutral-800">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-black text-neutral-700 dark:text-neutral-300">
+                                    <span className="text-2xs font-black text-neutral-700 dark:text-neutral-300">
                                         🎯 الأنشطة والمهام (اختر نشاطاً أو أكثر):
                                     </span>
                                     {selectedActivities.length > 0 && (
-                                        <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+                                        <span className="text-2xs font-black px-1.5 py-0.5 rounded-full bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success">
                                             {selectedActivities.length} محدد
                                         </span>
                                     )}
@@ -1000,7 +1000,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                     <button
                                         type="button"
                                         onClick={() => setIsAddingNewActivity(!isAddingNewActivity)}
-                                        className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                                        className="text-2xs font-black text-accent-success dark:text-accent-success hover:underline flex items-center gap-0.5 cursor-pointer"
                                     >
                                         <PlusIcon className="w-3 h-3" />
                                         <span>نشاط جديد</span>
@@ -1031,12 +1031,12 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                             }
                                         }}
                                         placeholder="اكتب اسم النشاط الجديد (مثل: تقليم شتلات)..."
-                                        className="flex-1 bg-white dark:bg-neutral-900 border border-emerald-500 rounded-lg px-2.5 py-1 text-xs font-bold outline-none text-right"
+                                        className="flex-1 bg-white dark:bg-neutral-900 border border-accent-success rounded-lg px-2.5 py-1 text-xs font-bold outline-none text-right"
                                     />
                                     <button
                                         type="button"
                                         onClick={handleCreateNewActivity}
-                                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-colors cursor-pointer"
+                                        className="px-2.5 py-1 bg-accent-success hover:bg-accent-success/90 text-white rounded-lg text-xs font-black transition-colors cursor-pointer"
                                     >
                                         إضافة واختيار
                                     </button>
@@ -1046,7 +1046,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                             setIsAddingNewActivity(false);
                                             setCustomActivityInput('');
                                         }}
-                                        className="p-1 text-neutral-400 hover:text-rose-500 rounded-lg"
+                                        className="p-1 text-neutral-400 hover:text-accent-danger rounded-lg"
                                     >
                                         <XMarkIcon className="w-4 h-4" />
                                     </button>
@@ -1062,14 +1062,14 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                             key={act}
                                             type="button"
                                             onClick={() => toggleActivity(act)}
-                                            className={`text-[10px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 shadow-2xs font-bold select-none ${
+                                            className={`text-2xs px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 shadow-2xs font-bold select-none ${
                                                 isSelected
-                                                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs font-black scale-[1.02]'
+                                                    ? 'bg-accent-success border-emerald-600 text-white shadow-xs font-black scale-[1.02]'
                                                     : 'bg-white dark:bg-neutral-900 border-neutral-200/80 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800/80'
                                             }`}
                                         >
                                             <span>{act}</span>
-                                            <span className={`text-[9px] ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
+                                            <span className={`text-2xs ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
                                                 {isSelected ? '✓' : '+'}
                                             </span>
                                         </button>
@@ -1079,19 +1079,19 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
 
                             {/* Multi-Activity Cost Division Insight Banner */}
                             {selectedActivities.length > 1 && (
-                                <div className="mt-1 p-1.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-lg text-[9.5px] font-bold text-amber-800 dark:text-amber-300 flex items-center justify-between">
+                                <div className="mt-1 p-1.5 bg-accent-warning/10 dark:bg-accent-warning/20 border border-accent-warning/20/50 dark:border-accent-warning/30 rounded-lg text-[9.5px] font-bold text-accent-warning dark:text-accent-warning flex items-center justify-between">
                                     <span className="flex items-center gap-1">
                                         <span>⚡ تقسيم تلقائي:</span>
                                         <span>{selectedActivities.join(' + ')}</span>
                                     </span>
-                                    <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 shrink-0">
+                                    <span className="font-mono font-black text-accent-success dark:text-accent-success shrink-0">
                                         ({Math.round((Number(amountPerWorker) || 0) / selectedActivities.length)} ج.م / نشاط)
                                     </span>
                                 </div>
                             )}
 
                             {selectedActivities.length === 0 && (
-                                <div className="text-[9px] font-bold text-amber-600 dark:text-amber-400 pt-0.5">
+                                <div className="text-2xs font-bold text-accent-warning dark:text-accent-warning pt-0.5">
                                     ⚠️ يرجى النقر على نشاط واحد على الأقل لتحديده لهذا الكشف.
                                 </div>
                             )}
@@ -1101,7 +1101,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
 
                 {/* Validation errors */}
                 {validationError && (
-                    <div className="p-2 border border-rose-100 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/10 text-rose-600 dark:text-rose-450 rounded-lg text-xs leading-relaxed font-bold animate-shake">
+                    <div className="p-2 border border-accent-danger/20 dark:border-accent-danger/30 bg-accent-danger/10/50 dark:bg-accent-danger/20/10 text-accent-danger dark:text-accent-danger rounded-lg text-xs leading-relaxed font-bold animate-shake">
                         ⚠️ {validationError}
                     </div>
                 )}
@@ -1118,13 +1118,13 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                 setSearchTerm(e.target.value);
                                 setManualWorkerName(e.target.value);
                             }}
-                            className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200/80 dark:border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-800 dark:text-neutral-100 outline-none focus:ring-1 focus:ring-emerald-500/20"
+                            className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-200/80 dark:border-neutral-800 rounded-lg px-2.5 py-1.5 text-xs text-neutral-800 dark:text-neutral-100 outline-none focus:ring-1 focus:ring-accent-success"
                         />
                         {searchTerm.trim() && !filteredWorkers.includes(searchTerm.trim()) && (
                             <button 
                                 type="button" 
                                 onClick={handleAddManualWorker}
-                                className="absolute left-1 top-1/2 -translate-y-1/2 bg-emerald-500 hover:bg-emerald-600 text-white px-2.5 py-1 text-[10px] font-black rounded-md transition-all cursor-pointer shadow-sm"
+                                className="absolute left-1 top-1/2 -translate-y-1/2 bg-accent-success hover:bg-accent-success text-white px-2.5 py-1 text-2xs font-black rounded-md transition-all cursor-pointer shadow-sm"
                             >
                                 + حضور جديد
                             </button>
@@ -1136,7 +1136,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                         <button 
                             type="button" 
                             onClick={handleAddUnnamedWorker}
-                            className="bg-amber-50 hover:bg-amber-105 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 px-3 py-1.5 text-[10px] font-black rounded-lg shrink-0 transition-all border border-amber-200/40 dark:border-amber-900/20 cursor-pointer flex items-center gap-1 shadow-xs"
+                            className="bg-accent-warning/10 hover:bg-amber-105 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning px-3 py-1.5 text-2xs font-black rounded-lg shrink-0 transition-all border border-accent-warning/20/40 dark:border-accent-warning/30 cursor-pointer flex items-center gap-1 shadow-xs"
                         >
                             👥 مجهول (كاش)
                         </button>
@@ -1152,14 +1152,14 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                     key={w}
                                     type="button"
                                     onClick={() => toggleWorkerSelection(w)}
-                                    className={`text-[10px] px-2.5 py-1.5 rounded-lg border transition-all shrink-0 cursor-pointer flex items-center gap-1 shadow-xs ${
+                                    className={`text-2xs px-2.5 py-1.5 rounded-lg border transition-all shrink-0 cursor-pointer flex items-center gap-1 shadow-xs ${
                                         isSel
-                                            ? 'bg-emerald-600 border-emerald-600 text-white font-extrabold shadow-sm'
+                                            ? 'bg-accent-success border-emerald-600 text-white font-extrabold shadow-sm'
                                             : 'bg-white dark:bg-neutral-900 border-neutral-150 dark:border-neutral-800 text-neutral-600 dark:text-neutral-450 hover:bg-neutral-50 dark:hover:bg-neutral-850'
                                     }`}
                                 >
                                     <span>{w}</span>
-                                    <span className="text-[9px]">{isSel ? '✓' : '+'}</span>
+                                    <span className="text-2xs">{isSel ? '✓' : '+'}</span>
                                 </button>
                             );
                         })}
@@ -1175,19 +1175,19 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                         key={w}
                                         type="button"
                                         onClick={() => toggleWorkerSelection(w)}
-                                        className={`px-2 py-1 rounded-lg text-right transition-all border text-[10px] cursor-pointer flex items-center gap-1 ${
+                                        className={`px-2 py-1 rounded-lg text-right transition-all border text-2xs cursor-pointer flex items-center gap-1 ${
                                             isSelected 
-                                                ? 'bg-emerald-50/40 dark:bg-emerald-950/15 border-emerald-305 dark:border-emerald-805 text-emerald-850 dark:text-emerald-400 font-bold shadow-none' 
+                                                ? 'bg-accent-success/10/40 dark:bg-accent-success/20 border-emerald-305 dark:border-emerald-805 text-emerald-850 dark:text-accent-success font-bold shadow-none' 
                                                 : 'bg-white dark:bg-neutral-900 border-neutral-150 dark:border-neutral-800 text-neutral-600 dark:text-neutral-450 hover:bg-neutral-50'
                                         }`}
                                     >
                                         <span>{w}</span>
-                                        {isSelected && <span className="text-[9px] text-emerald-700">✓</span>}
+                                        {isSelected && <span className="text-2xs text-accent-success">✓</span>}
                                     </button>
                                 );
                             })}
                             {filteredWorkers.length === 0 && (
-                                <div className="text-center py-2 text-[10px] font-bold text-neutral-400 w-full">
+                                <div className="text-center py-2 text-2xs font-bold text-neutral-400 w-full">
                                     لا توجد عمالة مطابقة للبحث. اكتب الاسم في الأعلى وانقر زر "إضافة".
                                 </div>
                             )}
@@ -1201,15 +1201,15 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                             value={notes} 
                             onChange={e => setNotes(e.target.value)} 
                             placeholder="✍️ كرت ملاحظة عامة مخصصة للكشف بالكامل اختيارية..." 
-                            className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-150 dark:border-neutral-850 rounded-lg px-2.5 py-1.5 text-[11px] outline-none text-neutral-750 dark:text-neutral-300 focus:ring-1 focus:ring-emerald-500/20" 
+                            className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-150 dark:border-neutral-850 rounded-lg px-2.5 py-1.5 text-[11px] outline-none text-neutral-750 dark:text-neutral-300 focus:ring-1 focus:ring-accent-success" 
                         />
                     </div>
 
                     {/* 4. TODAY'S ATTENDANCE FLAT LIST OF WORKERS */}
                     <div className="space-y-1.5 pt-2 border-t border-neutral-100 dark:border-neutral-800/60">
                         <div className="flex justify-between items-center px-1">
-                            <h3 className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">العمال الحاضرون اليوم <span className="font-mono">({workerRecords.length})</span></h3>
-                            <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">
+                            <h3 className="text-2xs font-bold text-neutral-400 uppercase tracking-wider">العمال الحاضرون اليوم <span className="font-mono">({workerRecords.length})</span></h3>
+                            <span className="text-2xs text-accent-success dark:text-accent-success font-bold">
                                 (انقر 📝 لإثبات السلف والملاحظات والمجهود)
                             </span>
                         </div>
@@ -1217,7 +1217,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                         {workerRecords.length === 0 ? (
                             <div className="border border-dashed border-neutral-200 dark:border-neutral-800 p-8 rounded-xl text-center shadow-none bg-neutral-50/20">
                                 <p className="text-[11px] font-bold text-neutral-400">كشف التحضير فارغ</p>
-                                <p className="text-[9px] text-neutral-400 mt-0.5">انقر على عمال من الأعلى لبدء كشف اليوميات.</p>
+                                <p className="text-2xs text-neutral-400 mt-0.5">انقر على عمال من الأعلى لبدء كشف اليوميات.</p>
                             </div>
                         ) : (
                             <div className="space-y-1 max-h-[300px] overflow-y-auto pr-0.5 custom-scrollbar">
@@ -1243,7 +1243,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                             🥪 مصروفات اليوم الأخرى (فطور، شاي وضيافة، مواصلات، إلخ)
                         </span>
                         {otherExpenses.length > 0 && (
-                            <span className="text-[10px] bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full font-black font-mono">
+                            <span className="text-2xs bg-accent-warning/10 text-accent-warning px-2 py-0.5 rounded-full font-black font-mono">
                                 + {formatNumber(totalsSummary.totalOtherExpenses)} ج.م
                             </span>
                         )}
@@ -1258,7 +1258,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                         <span className="flex items-center gap-1.5">
                             {isExpensesExpanded ? '✨ إخفاء لوحة الإدخال' : '➕ إضافة مصروفات أخرى (فطور، شاي، مواصلات...)'}
                         </span>
-                        <span className="text-neutral-400 text-[10px]">{isExpensesExpanded ? '▲' : '▼'}</span>
+                        <span className="text-neutral-400 text-2xs">{isExpensesExpanded ? '▲' : '▼'}</span>
                     </button>
 
                     {isExpensesExpanded && (
@@ -1266,13 +1266,13 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                             <div className="grid grid-cols-1 gap-2">
                                 {/* Row 1: description */}
                                 <div className="space-y-0.5">
-                                    <span className="text-[9px] font-bold text-neutral-455 dark:text-neutral-500 block">وصف المصروف</span>
+                                    <span className="text-2xs font-bold text-neutral-455 dark:text-neutral-500 block">وصف المصروف</span>
                                     <input
                                         type="text"
                                         placeholder="مثال: فطار للعمال، شاي وضيافة..."
                                         value={otherDesc}
                                         onChange={e => setOtherDesc(e.target.value)}
-                                        className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-2.5 py-1.5 text-xs text-neutral-800 dark:text-neutral-100 outline-none focus:ring-1 focus:ring-amber-500/20"
+                                        className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-2.5 py-1.5 text-xs text-neutral-800 dark:text-neutral-100 outline-none focus:ring-1 focus:ring-accent-warning"
                                     />
                                 </div>
 
@@ -1280,7 +1280,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                 <div className="flex gap-2 items-end">
                                     {/* Expense amount */}
                                     <div className="flex-1 space-y-0.5">
-                                        <span className="text-[9px] font-bold text-neutral-455 dark:text-neutral-500 block">المبلغ</span>
+                                        <span className="text-2xs font-bold text-neutral-455 dark:text-neutral-500 block">المبلغ</span>
                                         <div className="relative">
                                             <input
                                                 type="text"
@@ -1289,11 +1289,11 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                                 placeholder="0"
                                                 value={otherAmt}
                                                 onChange={e => setOtherAmt(e.target.value)}
-                                                className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg pl-8 pr-1.5 py-1.5 text-xs font-mono font-bold text-amber-600 text-left outline-none focus:ring-1 focus:ring-amber-500/20"
+                                                className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg pl-8 pr-1.5 py-1.5 text-xs font-mono font-bold text-accent-warning text-left outline-none focus:ring-1 focus:ring-accent-warning"
                                                 dir="ltr"
                                                 lang="en"
                                             />
-                                            <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] text-neutral-400 font-bold font-mono">ج.م</span>
+                                            <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-2xs text-neutral-400 font-bold font-mono">ج.م</span>
                                         </div>
                                         {/* Quick Amount Chips */}
                                         <div className="flex gap-1.5 mt-1.5">
@@ -1302,7 +1302,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                                     key={val}
                                                     type="button"
                                                     onClick={() => setOtherAmt(val)}
-                                                    className="text-xs bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 px-2.5 py-1 rounded-full cursor-pointer hover:bg-green-100 dark:hover:bg-emerald-950/30 hover:text-green-800 dark:hover:text-green-300 transition-all font-bold"
+                                                    className="text-xs bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 px-2.5 py-1 rounded-full cursor-pointer hover:bg-accent-success/10 dark:hover:bg-accent-success/20 hover:text-accent-success dark:hover:text-green-300 transition-all font-bold"
                                                 >
                                                     {val}
                                                 </button>
@@ -1312,11 +1312,11 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
 
                                     {/* payment method: cash / credit */}
                                     <div className="w-24 space-y-0.5 self-start">
-                                        <span className="text-[9px] font-bold text-neutral-455 dark:text-neutral-500 block">طريقة الصرف</span>
+                                        <span className="text-2xs font-bold text-neutral-455 dark:text-neutral-500 block">طريقة الصرف</span>
                                         <select
                                             value={otherPayMethod}
                                             onChange={e => setOtherPayMethod(e.target.value as 'cash' | 'credit')}
-                                            className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-1.5 py-1.5 text-xs font-bold text-neutral-700 dark:text-neutral-200 outline-none cursor-pointer focus:ring-1 focus:ring-amber-500/20"
+                                            className="w-full bg-white dark:bg-neutral-950 border border-neutral-200/60 dark:border-neutral-805 rounded-lg px-1.5 py-1.5 text-xs font-bold text-neutral-700 dark:text-neutral-200 outline-none cursor-pointer focus:ring-1 focus:ring-accent-warning"
                                         >
                                             <option value="cash">كاش</option>
                                             <option value="credit">آجل</option>
@@ -1328,7 +1328,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                         type="button"
                                         onClick={handleAddOtherExpense}
                                         disabled={!otherDesc.trim() || !otherAmt || Number(otherAmt) <= 0}
-                                        className="bg-amber-500 hover:bg-amber-600 disabled:opacity-40 text-white font-extrabold px-3 py-1 cursor-pointer h-[32px] self-start mt-4 rounded-lg text-xs shrink-0 transition-all flex items-center justify-center gap-1"
+                                        className="bg-accent-warning hover:bg-accent-warning disabled:opacity-40 text-white font-extrabold px-3 py-1 cursor-pointer h-[32px] self-start mt-4 rounded-lg text-xs shrink-0 transition-all flex items-center justify-center gap-1"
                                     >
                                         ➕ إضافة
                                     </button>
@@ -1342,7 +1342,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                         key={preset}
                                         type="button"
                                         onClick={() => setOtherDesc(preset)}
-                                        className="text-xs bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 px-2.5 py-1 rounded-full cursor-pointer hover:bg-green-100 dark:hover:bg-emerald-950/30 hover:text-green-800 dark:hover:text-green-300 transition-all font-bold border border-neutral-150/40 dark:border-neutral-800/80"
+                                        className="text-xs bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 px-2.5 py-1 rounded-full cursor-pointer hover:bg-accent-success/10 dark:hover:bg-accent-success/20 hover:text-accent-success dark:hover:text-green-300 transition-all font-bold border border-neutral-150/40 dark:border-neutral-800/80"
                                     >
                                         {preset}
                                     </button>
@@ -1393,7 +1393,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
 
                             {/* Worker-specific individual notes */}
                             <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-neutral-450 block">ملاحظة خاصة بهذا العامل (اختياري):</label>
+                                <label className="text-2xs font-bold text-neutral-450 block">ملاحظة خاصة بهذا العامل (اختياري):</label>
                                 <textarea
                                     value={rec.notes || ''}
                                     onChange={e => {
@@ -1401,15 +1401,15 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                         setWorkerRecords(prev => prev.map(r => r.id === rec.id ? { ...r, notes: newVal } : r));
                                     }}
                                     placeholder="سلفة، عمل نصف يوم، سحب صوبة، خصم تأخر..."
-                                    className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-250 dark:border-neutral-800/80 rounded-lg p-2 text-xs font-semibold focus:ring-1 focus:ring-emerald-500/20 outline-none text-neutral-800 dark:text-neutral-100 resize-none h-16"
+                                    className="w-full bg-neutral-50 dark:bg-neutral-950 border border-neutral-250 dark:border-neutral-800/80 rounded-lg p-2 text-xs font-semibold focus:ring-1 focus:ring-accent-success outline-none text-neutral-800 dark:text-neutral-100 resize-none h-16"
                                 />
                             </div>
 
                             {/* Split options detail inputs */}
                             {isSplit && (
-                                <div className="bg-indigo-50/15 dark:bg-indigo-950/10 p-2.5 rounded-xl border border-indigo-100/50 dark:border-indigo-900/20 space-y-2">
+                                <div className="bg-accent-info/10 dark:bg-accent-info/20 p-2.5 rounded-xl border border-accent-info/20 dark:border-accent-info/30 space-y-2">
                                     <div className="space-y-1">
-                                        <label className="text-[9px] font-bold text-indigo-700 dark:text-indigo-400">المبلغ المستلم كاش فوري (ج.م):</label>
+                                        <label className="text-2xs font-bold text-accent-info dark:text-accent-info">المبلغ المستلم كاش فوري (ج.م):</label>
                                         <div className="relative">
                                             <input 
                                                 type="text" 
@@ -1424,19 +1424,19 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                                     setWorkerRecords(prev => prev.map(r => r.id === rec.id ? { ...r, cashAmount: val } : r));
                                                 }}
                                                 placeholder="..." 
-                                                className="w-full bg-white dark:bg-neutral-950 border border-indigo-205 dark:border-indigo-905 rounded-lg px-2 py-1 text-xs font-mono font-black text-indigo-600 text-left pl-9" 
+                                                className="w-full bg-white dark:bg-neutral-950 border border-indigo-205 dark:border-indigo-905 rounded-lg px-2 py-1 text-xs font-mono font-black text-accent-info text-left pl-9" 
                                             />
-                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[8px] text-neutral-400 font-bold font-mono">ج.م</span>
+                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-2xs text-neutral-400 font-bold font-mono">ج.م</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between text-[10px] text-neutral-550 dark:text-neutral-400 pt-1 border-t border-indigo-100/20">
-                                        <span className="flex items-center gap-1">💵 كاش: <span className="text-emerald-600 font-black">ج.م</span><span dir="ltr" lang="en" className="font-mono font-bold text-emerald-600">{parsedCash}</span></span>
+                                    <div className="flex items-center justify-between text-2xs text-neutral-550 dark:text-neutral-400 pt-1 border-t border-accent-info/20">
+                                        <span className="flex items-center gap-1">💵 كاش: <span className="text-accent-success font-black">ج.م</span><span dir="ltr" lang="en" className="font-mono font-bold text-accent-success">{parsedCash}</span></span>
                                         <span className="flex items-center gap-1">📝 آجل: <span className="text-rose-550 font-black">ج.م</span><span dir="ltr" lang="en" className="font-mono font-bold text-rose-550">{remainingCredit}</span></span>
                                     </div>
 
                                     {parsedCash > parsedWage && (
-                                        <p className="text-[9px] font-bold text-rose-500 animate-pulse">
+                                        <p className="text-2xs font-bold text-accent-danger animate-pulse">
                                             ⚠️ خطأ: مبلغ الكاش يتعدى الأجر!
                                         </p>
                                     )}
@@ -1447,7 +1447,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                 <button
                                     type="button"
                                     onClick={() => setNotesEditingWorkerId(null)}
-                                    className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs px-4 py-1.5 rounded-lg transition-all cursor-pointer"
+                                    className="bg-accent-success hover:bg-accent-success text-white font-bold text-xs px-4 py-1.5 rounded-lg transition-all cursor-pointer"
                                 >
                                     تم
                                 </button>
@@ -1461,19 +1461,19 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
             <div className="sticky bottom-0 bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800/80 pt-2 pb-1.5 z-10 space-y-2 mt-auto">
                 {/* Compact summary state view */}
                 {(workerRecords.length > 0 || otherExpenses.length > 0) && (
-                    <div className="bg-emerald-50/20 dark:bg-emerald-950/5 p-2 rounded-lg border border-emerald-100/30 dark:border-emerald-900/10 space-y-1.5 animate-fade-in">
-                        <div className="flex items-center justify-between text-[10px] font-bold text-neutral-500">
+                    <div className="bg-accent-success/10/20 dark:bg-accent-success/20/5 p-2 rounded-lg border border-accent-success/20/30 dark:border-accent-success/30/10 space-y-1.5 animate-fade-in">
+                        <div className="flex items-center justify-between text-2xs font-bold text-neutral-500">
                             <span>📊 خلاصة التكلفة لليوم</span>
                             {workerRecords.length > 0 && (
-                                <span>الحضور الكلي: <span className="font-mono text-emerald-600" lang="en" dir="ltr">{totalsSummary.count}</span> أفراد</span>
+                                <span>الحضور الكلي: <span className="font-mono text-accent-success" lang="en" dir="ltr">{totalsSummary.count}</span> أفراد</span>
                             )}
                         </div>
                         
                         <div className="grid grid-cols-3 gap-1.5 text-center">
                             <div className="bg-white/40 dark:bg-neutral-950/20 py-1 px-1.5 rounded border border-neutral-100/20 flex flex-col items-center justify-center">
-                                <span className="text-[8px] text-neutral-400 block font-semibold leading-none mb-1">إجمالي التكلفة</span>
+                                <span className="text-2xs text-neutral-400 block font-semibold leading-none mb-1">إجمالي التكلفة</span>
                                 <span className="text-[11px] text-neutral-700 dark:text-neutral-300 tabular-nums font-bold inline-flex items-center justify-center gap-0.5 leading-none">
-                                    <span className="text-[9px] text-neutral-450">ج.م</span> <span dir="ltr" lang="en" className="font-mono font-black">{formatNumber(totalsSummary.overallTotal)}</span>
+                                    <span className="text-2xs text-neutral-450">ج.م</span> <span dir="ltr" lang="en" className="font-mono font-black">{formatNumber(totalsSummary.overallTotal)}</span>
                                 </span>
                                 {totalsSummary.totalOtherExpenses > 0 && (
                                     <span className="text-[7.5px] text-neutral-400 dark:text-neutral-500 mt-0.5" dir="rtl">
@@ -1481,16 +1481,16 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                                     </span>
                                 )}
                             </div>
-                            <div className="bg-emerald-500/5 py-1 px-1.5 rounded border border-emerald-500/10 flex flex-col items-center justify-center">
-                                <span className="text-[8px] text-emerald-600 block font-semibold leading-none mb-1">💵 كاش اليوم</span>
-                                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 tabular-nums font-bold inline-flex items-center justify-center gap-0.5 leading-none">
-                                    <span className="text-[9px] text-emerald-500/80">ج.م</span> <span dir="ltr" lang="en" className="font-mono font-black">{formatNumber(totalsSummary.overallCash)}</span>
+                            <div className="bg-accent-success/5 py-1 px-1.5 rounded border border-accent-success/20 flex flex-col items-center justify-center">
+                                <span className="text-2xs text-accent-success block font-semibold leading-none mb-1">💵 كاش اليوم</span>
+                                <span className="text-[11px] text-accent-success dark:text-accent-success tabular-nums font-bold inline-flex items-center justify-center gap-0.5 leading-none">
+                                    <span className="text-2xs text-accent-success/80">ج.م</span> <span dir="ltr" lang="en" className="font-mono font-black">{formatNumber(totalsSummary.overallCash)}</span>
                                 </span>
                             </div>
-                            <div className="bg-rose-500/5 py-1 px-1.5 rounded border border-rose-500/10 flex flex-col items-center justify-center">
-                                <span className="text-[8px] text-rose-505 dark:text-rose-455 block font-semibold leading-none mb-1">📝 آجل متبقي</span>
-                                <span className="text-[11px] text-rose-505 dark:text-rose-400 tabular-nums font-bold inline-flex items-center justify-center gap-0.5 leading-none">
-                                    <span className="text-[9px] text-rose-400/80">ج.م</span> <span dir="ltr" lang="en" className="font-mono font-black">{formatNumber(totalsSummary.overallCredit)}</span>
+                            <div className="bg-accent-danger/5 py-1 px-1.5 rounded border border-accent-danger/20 flex flex-col items-center justify-center">
+                                <span className="text-2xs text-rose-505 dark:text-rose-455 block font-semibold leading-none mb-1">📝 آجل متبقي</span>
+                                <span className="text-[11px] text-rose-505 dark:text-accent-danger tabular-nums font-bold inline-flex items-center justify-center gap-0.5 leading-none">
+                                    <span className="text-2xs text-accent-danger/80">ج.م</span> <span dir="ltr" lang="en" className="font-mono font-black">{formatNumber(totalsSummary.overallCredit)}</span>
                                 </span>
                             </div>
                         </div>
@@ -1510,7 +1510,7 @@ const UnifiedLaborForm: React.FC<UnifiedLaborFormProps> = ({
                         type="submit" 
                         onClick={triggerSaveHaptic}
                         disabled={isSubmitting || (workerRecords.length === 0 && otherExpenses.length === 0)} 
-                        className="flex-[2] py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-black transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1 leading-none font-sans"
+                        className="flex-[2] py-2 bg-accent-success hover:bg-accent-success text-white rounded-lg text-xs font-black transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1 leading-none font-sans"
                     >
                         {isSubmitting ? (
                             <span>جاري ترحيل القيود...</span>

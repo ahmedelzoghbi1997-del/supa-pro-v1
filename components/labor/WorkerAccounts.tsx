@@ -6,7 +6,7 @@ import { useData } from '../../contexts/DataContext';
 import Modal from '../shared/Modal';
 import StaggerItem from '../shared/StaggerItem';
 import EditLaborForm from './EditLaborForm';
-import { renderShiftBadge } from './LaborLedger';
+import { renderShiftBadge } from './laborBadges';
 
 interface WorkerAccountsProps {
     laborExpenses: Expense[];
@@ -321,7 +321,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                 <div className="bg-white dark:bg-neutral-900 rounded-xl p-8 text-center border border-neutral-200 dark:border-neutral-800 shadow-2xs animate-fade-in">
                     <UserIcon className="w-8 h-8 text-neutral-300 dark:text-neutral-700 mx-auto mb-2 animate-pulse" />
                     <h3 className="text-xs font-black text-neutral-800 dark:text-neutral-200">لا يوجد عمال يطابقون مسمى البحث</h3>
-                    <p className="text-[10px] font-bold text-neutral-400 mt-1">جرب تغيير فلتر الصوبة أو البحث باسم آخر.</p>
+                    <p className="text-2xs font-bold text-neutral-400 mt-1">جرب تغيير فلتر الصوبة أو البحث باسم آخر.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-start">
@@ -377,21 +377,21 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                         <div className="flex items-center gap-2 min-w-0">
                                             <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                                                 isOwed
-                                                    ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/50'
+                                                    ? 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20/50'
                                                     : hasAdvance
-                                                        ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50'
+                                                        ? 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger border border-accent-danger/20/50'
                                                         : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
                                             }`}>
                                                 <UserIcon className="w-3.5 h-3.5" />
                                             </div>
                                             <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                                                 <h3 className="text-sm font-black text-neutral-900 dark:text-neutral-50 truncate tracking-tight">{name}</h3>
-                                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
+                                                <span className="text-2xs font-bold px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
                                                     {stat.recordCount} يومية
                                                 </span>
                                                 {/* Greenhouse Badges */}
                                                 {stat.greenhouses && stat.greenhouses.size > 0 && Array.from(stat.greenhouses).map((ghTag, gIdx) => (
-                                                    <span key={gIdx} className="text-[9px] font-bold px-1 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60">
+                                                    <span key={gIdx} className="text-2xs font-bold px-1 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60">
                                                         {ghTag}
                                                     </span>
                                                 ))}
@@ -402,16 +402,16 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                         <button
                                             type="button"
                                             onClick={() => setExpandedWorker(isExpanded ? null : name)}
-                                            className={`h-7 px-2 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer select-none shrink-0 ${
+                                            className={`h-7 px-2 rounded-lg text-2xs font-bold flex items-center gap-1 transition-all cursor-pointer select-none shrink-0 ${
                                                 isExpanded 
-                                                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800' 
+                                                    ? 'bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info border border-accent-info/20 dark:border-accent-info/30' 
                                                     : 'bg-neutral-50 text-neutral-600 hover:bg-neutral-100 dark:bg-neutral-800/80 dark:text-neutral-300 border border-neutral-200/80 dark:border-neutral-700/60'
                                             }`}
                                             title={isExpanded ? 'إخفاء كشف الحساب' : 'عرض كشف الحساب'}
                                         >
                                             <ClipboardIcon className="w-3 h-3" />
                                             <span>{isExpanded ? 'إغلاق' : 'كشف حساب'}</span>
-                                            <span className={`text-[8px] transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+                                            <span className={`text-2xs transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
                                         </button>
                                     </div>
 
@@ -419,20 +419,20 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                     <div className="flex items-center justify-between gap-2 pt-1 border-t border-neutral-100 dark:border-neutral-800/80">
                                         {/* Compact Balance */}
                                         <div className="flex items-baseline gap-1.5 text-right">
-                                            <span className="text-[10px] font-extrabold text-neutral-400 dark:text-neutral-500">
+                                            <span className="text-2xs font-extrabold text-neutral-400 dark:text-neutral-500">
                                                 {isOwed ? 'له:' : hasAdvance ? 'عليه سلف:' : 'الحساب:'}
                                             </span>
                                             <div className="flex items-baseline gap-1" dir="ltr">
                                                 <span className={`text-base sm:text-lg font-black font-mono tabular-nums ${
                                                     isOwed
-                                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                                        ? 'text-accent-success dark:text-accent-success'
                                                         : hasAdvance
-                                                            ? 'text-rose-600 dark:text-rose-450'
+                                                            ? 'text-accent-danger dark:text-accent-danger'
                                                             : 'text-neutral-500'
                                                 }`}>
                                                     {formatNumber(Math.abs(stat.creditUnpaid))}
                                                 </span>
-                                                <span className="text-[10px] font-bold text-neutral-400">ج.م</span>
+                                                <span className="text-2xs font-bold text-neutral-400">ج.م</span>
                                             </div>
                                         </div>
 
@@ -445,7 +445,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                     handleOpenSettle(name, 'partial', 'pay');
                                                 }}
                                                 title="صرف سلفة نقدية"
-                                                className="h-7 px-2.5 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 rounded-lg flex items-center justify-center gap-1 transition-all active:scale-95 border border-amber-200/80 dark:border-amber-800/60 text-[10px] font-black cursor-pointer"
+                                                className="h-7 px-2.5 bg-accent-warning/10 hover:bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning rounded-lg flex items-center justify-center gap-1 transition-all tap border border-accent-warning/20/80 dark:border-accent-warning/30/60 text-2xs font-black cursor-pointer"
                                             >
                                                 <span className="text-xs font-black">+</span>
                                                 <span>سلفة</span>
@@ -457,9 +457,9 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                     handleOpenSettle(name, 'full');
                                                 }}
                                                 title="تصفية وتسديد الحساب"
-                                                className="h-7 px-2.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 rounded-lg flex items-center justify-center gap-1 transition-all active:scale-95 border border-emerald-200/80 dark:border-emerald-800/60 text-[10px] font-black cursor-pointer"
+                                                className="h-7 px-2.5 bg-accent-success/10 hover:bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded-lg flex items-center justify-center gap-1 transition-all tap border border-accent-success/20/80 dark:border-accent-success/30/60 text-2xs font-black cursor-pointer"
                                             >
-                                                <WalletIcon className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                                <WalletIcon className="w-3 h-3 text-accent-success dark:text-accent-success" />
                                                 <span>تسديد</span>
                                             </button>
                                         </div>
@@ -471,12 +471,12 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                     <div className="border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-950/30 p-2 sm:p-2.5 animate-slide-down">
                                         <div className="flex items-center justify-between gap-1 mb-1.5 px-1">
                                             <div className="flex items-center gap-1.5">
-                                                <ClipboardIcon className="w-3 h-3 text-indigo-500" />
-                                                <h4 className="text-[10px] font-black text-neutral-800 dark:text-neutral-200">
+                                                <ClipboardIcon className="w-3 h-3 text-accent-info" />
+                                                <h4 className="text-2xs font-black text-neutral-800 dark:text-neutral-200">
                                                     كشف الحساب
                                                 </h4>
                                             </div>
-                                            <span className="text-[9px] font-bold text-neutral-400">
+                                            <span className="text-2xs font-bold text-neutral-400">
                                                 {workerHistory.length} حركة
                                             </span>
                                         </div>
@@ -492,13 +492,13 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                 let badgeText = 'حركة';
                                                 
                                                 if (isAdvanceRepayment) {
-                                                    badgeClass = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
+                                                    badgeClass = 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success';
                                                     badgeText = 'سداد';
                                                 } else if (isAdvanceTaken) {
-                                                    badgeClass = 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300';
+                                                    badgeClass = 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger';
                                                     badgeText = 'سلفة';
                                                 } else if (isWageDeferred) {
-                                                    badgeClass = 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300';
+                                                    badgeClass = 'bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info';
                                                     badgeText = 'يومية آجل';
                                                 } else {
                                                     badgeClass = 'bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-300';
@@ -512,10 +512,10 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                     >
                                                         {/* Right: Date */}
                                                         <div className="flex flex-col items-center justify-center shrink-0 min-w-[36px] text-center">
-                                                            <span dir="ltr" className="font-mono text-[10px] font-bold text-neutral-700 dark:text-neutral-300">
+                                                            <span dir="ltr" className="font-mono text-2xs font-bold text-neutral-700 dark:text-neutral-300">
                                                                 {new Date(exp.date + 'T00:00:00').getMonth() + 1}/{new Date(exp.date + 'T00:00:00').getDate()}
                                                             </span>
-                                                            <span className="text-[8px] font-bold text-neutral-400">
+                                                            <span className="text-2xs font-bold text-neutral-400">
                                                                 {formatWeekdayShort(exp.date)}
                                                             </span>
                                                         </div>
@@ -525,14 +525,14 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                         {/* Center: Activity, Tags, and Shift */}
                                                         <div className="flex-1 min-w-0 text-right px-0.5 flex flex-col gap-0.5">
                                                             <div className="flex items-center gap-1 flex-wrap">
-                                                                <span className="text-[10px] font-bold text-neutral-800 dark:text-neutral-100 truncate" title={extractActivity(exp.description) || ''}>
+                                                                <span className="text-2xs font-bold text-neutral-800 dark:text-neutral-100 truncate" title={extractActivity(exp.description) || ''}>
                                                                     {extractActivity(exp.description)}
                                                                 </span>
-                                                                <span className={`text-[8px] font-black px-1 py-0.2 rounded ${badgeClass}`}>
+                                                                <span className={`text-2xs font-black px-1 py-0.2 rounded ${badgeClass}`}>
                                                                     {badgeText}
                                                                 </span>
                                                                 {ghTag && (
-                                                                    <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
+                                                                    <span className="text-2xs font-bold px-1 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
                                                                         {ghTag}
                                                                     </span>
                                                                 )}
@@ -549,16 +549,16 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                             <div className="flex items-center gap-0.5" dir="ltr">
                                                                 <span className={`font-mono text-[11px] font-black tabular-nums ${
                                                                     exp.amount < 0 || isAdvanceRepayment
-                                                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                                                        ? 'text-accent-success dark:text-accent-success'
                                                                         : isAdvanceTaken
-                                                                            ? 'text-rose-600 dark:text-rose-450'
+                                                                            ? 'text-accent-danger dark:text-accent-danger'
                                                                             : 'text-neutral-800 dark:text-neutral-200'
                                                                 }`}>
                                                                     {exp.amount < 0 ? `+${formatNumber(Math.abs(exp.amount))}` : formatNumber(exp.amount)}
                                                                 </span>
-                                                                <span className="text-[8px] text-neutral-400 font-medium">ج.م</span>
+                                                                <span className="text-2xs text-neutral-400 font-medium">ج.م</span>
                                                             </div>
-                                                            <span className="text-[8px] font-mono text-neutral-400 dark:text-neutral-500" dir="rtl">
+                                                            <span className="text-2xs font-mono text-neutral-400 dark:text-neutral-500" dir="rtl">
                                                                 رصيد: <span dir="ltr" className="font-bold inline-block">{exp.runningBalance < 0 ? '- ' : ''}{formatNumber(Math.abs(exp.runningBalance))}</span>
                                                             </span>
                                                         </div>
@@ -571,7 +571,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                                     setEditingExpense(exp);
                                                                 }}
                                                                 title="تعديل"
-                                                                className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-amber-600 dark:hover:text-amber-400 rounded transition-colors cursor-pointer"
+                                                                className="p-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-accent-warning dark:hover:text-accent-warning rounded transition-colors cursor-pointer"
                                                             >
                                                                 <PencilIcon className="w-3 h-3" />
                                                             </button>
@@ -581,7 +581,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                                                     setExpenseToDelete(exp);
                                                                 }}
                                                                 title="حذف"
-                                                                className="p-1 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-neutral-400 hover:text-rose-600 dark:hover:text-rose-450 rounded transition-colors cursor-pointer"
+                                                                className="p-1 hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 text-neutral-400 hover:text-accent-danger dark:hover:text-accent-danger rounded transition-colors cursor-pointer"
                                                             >
                                                                 <TrashIcon className="w-3 h-3" />
                                                             </button>
@@ -609,7 +609,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                             onClick={() => { setSettleType('full'); setSettleAmount(''); }}
                             className={`flex-1 pb-2.5 text-xs sm:text-sm font-black transition-all relative cursor-pointer ${
                                 settleType === 'full' 
-                                    ? 'text-indigo-600 dark:text-indigo-400 font-black' 
+                                    ? 'text-accent-info dark:text-accent-info font-black' 
                                     : 'text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300'
                             }`}
                         >
@@ -623,7 +623,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                             onClick={() => { setSettleType('partial'); }}
                             className={`flex-1 pb-2.5 text-xs sm:text-sm font-black transition-all relative cursor-pointer ${
                                 settleType === 'partial' 
-                                    ? 'text-indigo-600 dark:text-indigo-400 font-black' 
+                                    ? 'text-accent-info dark:text-accent-info font-black' 
                                     : 'text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300'
                             }`}
                         >
@@ -636,26 +636,26 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
 
                     {settleType === 'full' ? (
                         <div className="space-y-3">
-                            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs sm:text-sm font-bold border border-emerald-150/40 dark:border-emerald-900/30 leading-relaxed">
+                            <div className="p-4 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded-xl text-xs sm:text-sm font-bold border border-emerald-150/40 dark:border-accent-success/30 leading-relaxed">
                                 {((workerStats.find(([name]) => name === settlingWorker)?.[1].creditUnpaid || 0)) < 0 ? (
                                     <span>هل تريد تصفية ديون العامل الآجل وسلفياته (<span className="font-extrabold">{settlingWorker}</span>) بالكامل؟ سيتم تسجيل قبض كامل الدين كاش للداخل.</span>
                                 ) : (
                                     <span>هل تريد تصفية جميع يوميات العامل (<span className="font-extrabold">{settlingWorker}</span>) الآجلة وتحويلها إلى "كاش" ليتم خصمها من الخزنة الآن؟</span>
                                 )}
                             </div>
-                            <div className="bg-neutral-50 dark:bg-neutral-900/30 p-3 rounded-lg text-[10px] leading-relaxed text-neutral-500 font-bold border border-neutral-150/40 dark:border-neutral-800/40">
+                            <div className="bg-neutral-50 dark:bg-neutral-900/30 p-3 rounded-lg text-2xs leading-relaxed text-neutral-500 font-bold border border-neutral-150/40 dark:border-neutral-800/40">
                                 ملاحظة: هذا الإجراء سيقوم تلقائياً بخصم/تسجيل الأموال لتصفية رصيد العامل ليرجع إلى (خالص).
                             </div>
                         </div>
                     ) : (
                         <div className="space-y-3.5 animate-fade-in">
-                            <div className="p-3 bg-indigo-50/40 dark:bg-indigo-950/15 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold border border-indigo-100/50 dark:border-indigo-900/30 leading-relaxed">
-                                <p className="mb-1">تسجيل دفعة جزئية نقدية للعامل: <span className="font-black text-indigo-600 dark:text-indigo-400">{settlingWorker}</span></p>
+                            <div className="p-3 bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info rounded-xl text-xs font-bold border border-accent-info/20 dark:border-accent-info/30 leading-relaxed">
+                                <p className="mb-1">تسجيل دفعة جزئية نقدية للعامل: <span className="font-black text-accent-info dark:text-accent-info">{settlingWorker}</span></p>
                                 <p>الرصيد المتبقي له حالياً: <span className="font-black text-xs">
                                     {((workerStats.find(([name]) => name === settlingWorker)?.[1].creditUnpaid || 0)) < 0 ? (
-                                        <span className="inline-flex items-center gap-1">عليه سلفيات بقيمة: <span className="font-bold text-rose-600 dark:text-rose-455">ج.م</span><span dir="ltr" className="font-mono">{formatNumber(Math.abs((workerStats.find(([name]) => name === settlingWorker)?.[1].creditUnpaid || 0)))}</span></span>
+                                        <span className="inline-flex items-center gap-1">عليه سلفيات بقيمة: <span className="font-bold text-accent-danger dark:text-rose-455">ج.م</span><span dir="ltr" className="font-mono">{formatNumber(Math.abs((workerStats.find(([name]) => name === settlingWorker)?.[1].creditUnpaid || 0)))}</span></span>
                                     ) : (
-                                        <span className="inline-flex items-center gap-1">له متبقي بقيمة: <span className="font-bold text-emerald-600 dark:text-emerald-400">ج.م</span><span dir="ltr" className="font-mono">{formatNumber((workerStats.find(([name]) => name === settlingWorker)?.[1].creditUnpaid || 0))}</span></span>
+                                        <span className="inline-flex items-center gap-1">له متبقي بقيمة: <span className="font-bold text-accent-success dark:text-accent-success">ج.م</span><span dir="ltr" className="font-mono">{formatNumber((workerStats.find(([name]) => name === settlingWorker)?.[1].creditUnpaid || 0))}</span></span>
                                     )}
                                 </span></p>
                             </div>
@@ -669,16 +669,16 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                         onClick={() => setSettleDirection('receive')}
                                         className={`flex-1 flex items-start gap-2 py-2 px-3 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                                             settleDirection === 'receive' 
-                                                ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/80 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/50' 
+                                                ? 'bg-accent-success/10 text-accent-success border-accent-success/80 dark:bg-accent-success/15 dark:text-accent-success dark:border-accent-success/50' 
                                                 : 'bg-neutral-50 text-neutral-500 border-transparent dark:bg-neutral-850 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-750'
                                         }`}
                                     >
                                         <div className={`mt-0.5 w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${settleDirection === 'receive' ? 'border-emerald-600 dark:border-emerald-405' : 'border-neutral-300 dark:border-neutral-600'}`}>
-                                            {settleDirection === 'receive' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />}
+                                            {settleDirection === 'receive' && <div className="w-1.5 h-1.5 rounded-full bg-accent-success dark:bg-emerald-400" />}
                                         </div>
                                         <div className="flex flex-col text-right">
                                             <span>استرداد نقدية / سداد من العامل</span>
-                                            <span className="text-[9px] font-medium opacity-70 mt-0.5">يخفض ديونه</span>
+                                            <span className="text-2xs font-medium opacity-70 mt-0.5">يخفض ديونه</span>
                                         </div>
                                     </button>
                                     <button
@@ -695,14 +695,14 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                         </div>
                                         <div className="flex flex-col text-right">
                                             <span>صرف نقدية / خصم من الحساب</span>
-                                            <span className="text-[9px] font-medium opacity-70 mt-0.5">يقلل مستحقاته</span>
+                                            <span className="text-2xs font-medium opacity-70 mt-0.5">يقلل مستحقاته</span>
                                         </div>
                                     </button>
                                 </div>
                             </div>
 
                             {/* Focal Point amount input */}
-                            <div className="bg-indigo-50/15 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-150 dark:border-neutral-800 flex flex-col items-center justify-center gap-1.5">
+                            <div className="bg-accent-info/10 dark:bg-neutral-900/60 p-4 rounded-xl border border-neutral-150 dark:border-neutral-800 flex flex-col items-center justify-center gap-1.5">
                                 <label className="text-[11px] font-black text-neutral-400 dark:text-neutral-500">المبلغ المراد تسجيله (ج.م)</label>
                                 <div className="relative w-full max-w-[200px]">
                                     <input
@@ -721,7 +721,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-gray-500 dark:text-neutral-400">بيان حركة السداد (اختياري):</label>
+                                <label className="text-2xs font-black text-gray-500 dark:text-neutral-400">بيان حركة السداد (اختياري):</label>
                                 <input
                                     type="text"
                                     value={settleNote}
@@ -730,11 +730,11 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                     className="w-full bg-neutral-50 dark:bg-neutral-905 border border-neutral-200 dark:border-neutral-750 rounded-xl px-3 py-2 text-xs font-bold focus:ring-2 focus:ring-indigo-500/25 outline-none text-neutral-800 dark:text-neutral-100 text-right"
                                 />
                             </div>
-                            <div className="bg-neutral-50 dark:bg-neutral-900/20 p-2.5 rounded-lg text-[10px] leading-relaxed text-neutral-500 font-bold border border-neutral-150/40 dark:border-neutral-800/40">
+                            <div className="bg-neutral-50 dark:bg-neutral-900/20 p-2.5 rounded-lg text-2xs leading-relaxed text-neutral-500 font-bold border border-neutral-150/40 dark:border-neutral-800/40">
                                 {settleDirection === 'receive' ? (
-                                    <span className="flex flex-wrap items-center gap-1">سيتم قبض <span className="font-black text-neutral-800 dark:text-neutral-100">ج.م</span><span dir="ltr" lang="en" className="font-mono font-black text-emerald-600">{settleAmount || '0'}</span> وتخفيض الدين المطلوب منه.</span>
+                                    <span className="flex flex-wrap items-center gap-1">سيتم قبض <span className="font-black text-neutral-800 dark:text-neutral-100">ج.م</span><span dir="ltr" lang="en" className="font-mono font-black text-accent-success">{settleAmount || '0'}</span> وتخفيض الدين المطلوب منه.</span>
                                 ) : (
-                                    <span className="flex flex-wrap items-center gap-1">سيتم صرف <span className="font-black text-neutral-800 dark:text-neutral-100">ج.م</span><span dir="ltr" lang="en" className="font-mono font-black text-rose-500">{settleAmount || '0'}</span> منصرف ورفع الحساب.</span>
+                                    <span className="flex flex-wrap items-center gap-1">سيتم صرف <span className="font-black text-neutral-800 dark:text-neutral-100">ج.م</span><span dir="ltr" lang="en" className="font-mono font-black text-accent-danger">{settleAmount || '0'}</span> منصرف ورفع الحساب.</span>
                                 )}
                             </div>
                         </div>
@@ -751,7 +751,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                         <button
                             onClick={handleSettleAccountConfirm}
                             disabled={isSettling}
-                            className={`flex-1 py-2.5 text-white rounded-xl text-sm font-black transition-all shadow-sm disabled:opacity-50 cursor-pointer ${settleType === 'full' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-indigo-500 hover:bg-indigo-600'}`}
+                            className={`flex-1 py-2.5 text-white rounded-xl text-sm font-black transition-all shadow-sm disabled:opacity-50 cursor-pointer ${settleType === 'full' ? 'bg-accent-success hover:bg-accent-success' : 'bg-indigo-500 hover:bg-indigo-600'}`}
                         >
                             {isSettling ? 'جاري التسجيل...' : 'تأكيد ودفع'}
                         </button>
@@ -769,9 +769,9 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
             {/* Delete Modal */}
             <Modal isOpen={!!expenseToDelete} onClose={() => setExpenseToDelete(null)} title="تأكيد الحذف" size="md">
                 <div className="space-y-4 text-right">
-                    <div className="p-4 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300 rounded-xl text-sm font-bold border border-rose-100 dark:border-rose-900/50">
+                    <div className="p-4 bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger rounded-xl text-sm font-bold border border-accent-danger/20 dark:border-accent-danger/30">
                         {expenseToDelete && expenseToDelete.amount < 0 ? (
-                            <span className="flex flex-wrap items-center gap-1">هل أنت متأكد من حذف حركة السداد هذه؟ سيتم حذفه من الخزنة ليرتفع متبقي أو عجز السلفيات على العامل بمقدار <span className="font-semibold text-rose-500">ج.م</span><span dir="ltr" className="font-mono font-black text-rose-600 dark:text-rose-455">{formatNumber(Math.abs(expenseToDelete.amount))}</span> بشكل نهائي.</span>
+                            <span className="flex flex-wrap items-center gap-1">هل أنت متأكد من حذف حركة السداد هذه؟ سيتم حذفه من الخزنة ليرتفع متبقي أو عجز السلفيات على العامل بمقدار <span className="font-semibold text-accent-danger">ج.م</span><span dir="ltr" className="font-mono font-black text-accent-danger dark:text-rose-455">{formatNumber(Math.abs(expenseToDelete.amount))}</span> بشكل نهائي.</span>
                         ) : (
                             <span>هل أنت متأكد من حذف هذه الحركة؟ سيتم إزالتها من المصروفات وحسابات العمال بشكل نهائي.</span>
                         )}
@@ -800,7 +800,7 @@ const WorkerAccounts: React.FC<WorkerAccountsProps> = ({
                                     setIsDeleting(false);
                                 }
                             }}
-                            className="flex-1 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-sm font-black transition-all shadow-sm disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer"
+                            className="flex-1 py-2.5 bg-accent-danger hover:bg-accent-danger text-white rounded-lg text-sm font-black transition-all shadow-sm disabled:opacity-50 flex justify-center items-center gap-2 cursor-pointer"
                         >
                             {isDeleting ? 'جاري الحذف...' : 'نعم، احذف'}
                             {!isDeleting && <TrashIcon className="w-4 h-4" />}

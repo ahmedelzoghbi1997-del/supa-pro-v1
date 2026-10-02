@@ -24,6 +24,7 @@
     "@capacitor/status-bar": "^8.0.3",
     "@google/genai": "^0.14.0",
     "@supabase/supabase-js": "^2.76.0",
+    "@tanstack/react-virtual": "^3.14.13",
     "canvas-confetti": "^1.9.4",
     "capacitor-native-biometric": "^4.2.2",
     "dexie": "^4.2.1",

@@ -34,7 +34,7 @@ const CategorySummaryCard: React.FC<CategorySummaryCardProps> = ({
   return (
     <button
       onClick={onClick}
-      className="group w-full bg-white dark:bg-neutral-850 p-4 rounded-2xl shadow-soft border border-neutral-100/85 dark:border-neutral-750 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 text-right active:scale-[0.985] flex flex-col gap-3"
+      className="group w-full bg-white dark:bg-neutral-850 p-4 rounded-2xl shadow-soft border border-neutral-100/85 dark:border-neutral-750 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 text-right tap flex flex-col gap-3"
     >
       <div className="flex items-center justify-between w-full gap-4">
         <div className="flex items-center gap-4">
@@ -48,7 +48,7 @@ const CategorySummaryCard: React.FC<CategorySummaryCardProps> = ({
             <h3 className="text-sm sm:text-[15px] font-bold text-neutral-800 dark:text-neutral-100 leading-snug">
               {category.name}
             </h3>
-            <p className="text-[10px] sm:text-xs text-neutral-400 font-medium bg-neutral-100 dark:bg-neutral-800 px-2.5 py-0.5 rounded-lg leading-none">
+            <p className="text-2xs sm:text-xs text-neutral-400 font-medium bg-neutral-100 dark:bg-neutral-800 px-2.5 py-0.5 rounded-lg leading-none">
               {count} حركات
             </p>
           </div>
@@ -63,7 +63,7 @@ const CategorySummaryCard: React.FC<CategorySummaryCardProps> = ({
           </p>
           {percentage > 0 && (
             <span
-              className={`text-[10px] font-extrabold px-2 py-0.5 rounded-lg border ${meta.badgeBg}`}
+              className={`text-2xs font-extrabold px-2 py-0.5 rounded-lg border ${meta.badgeBg}`}
             >
               %{percentage.toFixed(1)}
             </span>
@@ -195,21 +195,21 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
   return (
     <div className="space-y-8">
       {/* Unified Agriculture Expenses Card - Exactly matching the premium, compact size and footprint of the invoices card */}
-      <Card className="flex items-center justify-between border-rose-300/80 dark:border-rose-800/50 p-4 rounded-2xl shadow-sm bg-rose-100/70 dark:bg-rose-900/20">
+      <Card className="flex items-center justify-between border-accent-danger/20/80 dark:border-accent-danger/30 p-4 rounded-2xl shadow-sm bg-accent-danger/10/70 dark:bg-accent-danger/20">
         {/* القسم الأيمن: إجمالي المصروفات والتقسيم التفصيلي الصغير له */}
         <div className="flex items-center gap-3 min-w-0">
-          <TrendingDownIcon className="h-8 w-8 text-rose-500 shrink-0" />
+          <TrendingDownIcon className="h-8 w-8 text-accent-danger shrink-0" />
           <div className="text-right">
             <p className="text-neutral-500 dark:text-neutral-400 text-xs font-black">
               إجمالي المصروفات
             </p>
-            <p className="text-2xl font-black text-rose-600 dark:text-rose-400 tabular-nums leading-none mt-1">
+            <p className="text-2xl font-black text-accent-danger dark:text-accent-danger tabular-nums leading-none mt-1">
               {formatNumber(Math.round(totals.total))}
               <span className="text-xs mr-1 opacity-75">ج.م</span>
             </p>
 
             {/* التأسيس والتشغيل تفصيلياً بخط صغير تحت المبلغ الأساسي */}
-            <div className="flex items-center gap-3 mt-1.5 text-[10px] text-neutral-400 dark:text-neutral-500 font-bold select-none whitespace-nowrap">
+            <div className="flex items-center gap-3 mt-1.5 text-2xs text-neutral-400 dark:text-neutral-500 font-bold select-none whitespace-nowrap">
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" />
                 تأسيس:{" "}
@@ -219,7 +219,7 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
               </span>
               <span className="w-[1px] h-2.5 bg-neutral-200 dark:bg-neutral-800" />
               <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-success inline-block" />
                 تشغيل:{" "}
                 <strong className="text-neutral-600 dark:text-neutral-305 tabular-nums font-extrabold">
                   {formatNumber(Math.round(totals.operating))} ج.م
@@ -231,12 +231,12 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
 
         {/* القسم الأيسر: إحصائيات متوازنة لمظهر متناسق تماماً */}
         <div className="text-left pl-1">
-          <p className="text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-xs font-black">
+          <p className="text-neutral-500 dark:text-neutral-400 text-2xs sm:text-xs font-black">
             حركات الصرف
           </p>
           <p className="text-base sm:text-lg font-black text-neutral-800 dark:text-neutral-350 tabular-nums leading-none mt-1">
             {expenses.length}{" "}
-            <span className="text-[10px] sm:text-xs opacity-75 font-bold">
+            <span className="text-2xs sm:text-xs opacity-75 font-bold">
               حركة
             </span>
           </p>
@@ -271,12 +271,12 @@ const ExpensesList: React.FC<ExpensesListProps> = ({
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2 opacity-50">
               <ClockIcon className="w-4 h-4" />
-              <h3 className="text-[10px] font-black uppercase tracking-widest">
+              <h3 className="text-2xs font-black uppercase tracking-widest">
                 أحدث الحركات
               </h3>
             </div>
             {expenses.length > 5 && (
-              <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500">
+              <span className="text-2xs font-bold text-neutral-400 dark:text-neutral-500">
                 يعرض أحدث 5
               </span>
             )}

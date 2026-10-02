@@ -15,7 +15,7 @@ const ToggleSwitch = ({ checked, onChange, disabled = false }: { checked: boolea
                 className="sr-only peer" 
                 disabled={disabled} 
             />
-            <div className={`w-14 h-8 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-emerald-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 ${disabled ? 'opacity-40' : ''}`}></div>
+            <div className={`w-14 h-8 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-accent-success peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-accent-success ${disabled ? 'opacity-40' : ''}`}></div>
         </label>
     );
 };
@@ -65,14 +65,14 @@ const SystemToggle: React.FC<SystemToggleProps> = ({ title, description, system,
     };
 
     return (
-        <div className={`flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white dark:bg-neutral-800 p-4 rounded-lg border ${hasData && isEnabled ? 'border-amber-100 dark:border-amber-900/30' : 'border-transparent'}`}>
+        <div className={`flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white dark:bg-neutral-800 p-4 rounded-lg border ${hasData && isEnabled ? 'border-accent-warning/20 dark:border-accent-warning/30' : 'border-transparent'}`}>
             <div className="flex-1">
                 <div className="flex items-center gap-2">
                     <h4 className={`font-semibold text-lg ${!isDependencyEnabled ? 'text-neutral-400 dark:text-neutral-500' : 'text-slate-800 dark:text-white'}`}>{title}</h4>
                     {isEnabled && hasData && (
                         <div className="group relative">
-                            <WarningIcon className="w-4 h-4 text-amber-500" />
-                            <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-neutral-900 text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none shadow-xl border border-white/10 leading-relaxed">
+                            <WarningIcon className="w-4 h-4 text-accent-warning" />
+                            <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-neutral-900 text-white text-2xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none shadow-xl border border-white/10 leading-relaxed">
                                 نظام محمي: لا يمكن التعطيل لوجود سجلات مرتبطة.
                             </div>
                         </div>
@@ -80,7 +80,7 @@ const SystemToggle: React.FC<SystemToggleProps> = ({ title, description, system,
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                     {description}
-                    {dependency && !isDependencyEnabled && <span className="text-rose-500 font-bold"> (يجب تفعيل نظام {dependency === 'treasury' ? 'الخزنة' : ''} أولاً)</span>}
+                    {dependency && !isDependencyEnabled && <span className="text-accent-danger font-bold"> (يجب تفعيل نظام {dependency === 'treasury' ? 'الخزنة' : ''} أولاً)</span>}
                 </p>
             </div>
             <div className="flex-shrink-0 ml-auto sm:ml-4">

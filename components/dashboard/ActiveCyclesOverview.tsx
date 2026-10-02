@@ -31,7 +31,7 @@ const ActiveCyclesOverview: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-neutral-800 dark:text-neutral-100">{cycle.name}</p>
                   {cycle.profit > 0 && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-black bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20 dark:border-accent-success/30">
                       <Rocket className="w-3 h-3" />
                       {term.singular} رابحة
                     </span>

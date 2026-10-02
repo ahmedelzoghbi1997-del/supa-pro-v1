@@ -31,12 +31,12 @@ interface FarmerCardProps {
 
 const StatMini = ({ label, value, type }: { label: string; value: number; type: 'income' | 'expense' }) => (
     <div className="flex flex-col gap-0.5">
-        <span className="text-[8px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{label}</span>
+        <span className="text-2xs font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{label}</span>
         <div className="flex items-baseline gap-1">
-            <span className={`text-sm font-black tabular-nums ${type === 'income' ? 'text-emerald-600 dark:text-emerald-500' : 'text-rose-600 dark:text-rose-500'}`}>
+            <span className={`text-sm font-black tabular-nums ${type === 'income' ? 'text-accent-success dark:text-accent-success' : 'text-accent-danger dark:text-accent-danger'}`}>
                 {formatNumber(value)}
             </span>
-            <span className="text-[8px] font-bold opacity-40">ج.م</span>
+            <span className="text-2xs font-bold opacity-40">ج.م</span>
         </div>
     </div>
 );
@@ -100,7 +100,7 @@ const FarmerCard: React.FC<FarmerCardProps> = ({ farmer, allCycles, onDelete, on
               </div>
               <div className="min-w-0">
                   <h3 className="text-sm font-black text-neutral-800 dark:text-white truncate leading-tight">{farmer.name}</h3>
-                  <div className="flex items-center gap-1 mt-0.5 text-[8px] font-bold text-neutral-400">
+                  <div className="flex items-center gap-1 mt-0.5 text-2xs font-bold text-neutral-400">
                     <span className="uppercase tracking-widest">ID #{farmer.id.substring(0, 4)}</span>
                   </div>
               </div>
@@ -120,13 +120,13 @@ const FarmerCard: React.FC<FarmerCardProps> = ({ farmer, allCycles, onDelete, on
             <div className="relative group/del">
                 <button 
                     onClick={handleDeleteClick} 
-                    className={`p-1.5 transition-all rounded-lg ${!canDelete ? 'opacity-20 grayscale cursor-not-allowed' : 'text-neutral-300 hover:text-rose-500 hover:bg-rose-50'}`}
+                    className={`p-1.5 transition-all rounded-lg ${!canDelete ? 'opacity-20 grayscale cursor-not-allowed' : 'text-neutral-300 hover:text-accent-danger hover:bg-accent-danger/10'}`}
                     aria-label="حذف مزارع"
                 >
                     <TrashIcon className="w-4 h-4" />
                 </button>
                 {!canDelete && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-neutral-900 text-white text-[9px] rounded-lg opacity-0 group-hover/del:opacity-100 transition-opacity z-10 pointer-events-none shadow-xl border border-white/10 leading-relaxed text-center">
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-neutral-900 text-white text-2xs rounded-lg opacity-0 group-hover/del:opacity-100 transition-opacity z-10 pointer-events-none shadow-xl border border-white/10 leading-relaxed text-center">
                         نظام الحماية: لا يمكن حذف مزارع لديه سجلات مالية أو عروات مرتبطة.
                     </div>
                 )}
@@ -135,13 +135,13 @@ const FarmerCard: React.FC<FarmerCardProps> = ({ farmer, allCycles, onDelete, on
           </div>
       </div>
 
-      <div className={`relative overflow-hidden px-4 py-3 rounded-2xl border transition-all ${balance < 0 ? 'bg-rose-600 border-rose-700 text-white' : 'bg-neutral-900 dark:bg-black border-neutral-800 text-white'}`}>
+      <div className={`relative overflow-hidden px-4 py-3 rounded-2xl border transition-all ${balance < 0 ? 'bg-accent-danger border-rose-700 text-white' : 'bg-neutral-900 dark:bg-black border-neutral-800 text-white'}`}>
           <div className="relative z-10 flex justify-between items-center">
               <div className="flex flex-col">
-                <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-60 mb-0.5">الرصيد الصافي المتبقي</span>
+                <span className="text-2xs font-black uppercase tracking-[0.2em] opacity-60 mb-0.5">الرصيد الصافي المتبقي</span>
                 <div className="flex items-baseline gap-1.5">
                     <span className="text-xl font-black tabular-nums tracking-tighter">{formatNumber(balance)}</span>
-                    <span className="text-[10px] font-bold opacity-50">ج.م</span>
+                    <span className="text-2xs font-bold opacity-50">ج.م</span>
                 </div>
               </div>
               <UserIcon className="w-4 h-4 text-primary-light opacity-80" />
@@ -156,12 +156,12 @@ const FarmerCard: React.FC<FarmerCardProps> = ({ farmer, allCycles, onDelete, on
       </div>
 
       <div className="flex items-center gap-2 mt-1">
-          <button onClick={() => onViewStatement(farmer.id)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded-xl font-black text-[10px] hover:bg-neutral-50 border border-neutral-200 dark:border-neutral-700">
+          <button onClick={() => onViewStatement(farmer.id)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded-xl font-black text-2xs hover:bg-neutral-50 border border-neutral-200 dark:border-neutral-700">
               <ClipboardDocumentIcon className="w-3.5 h-3.5 opacity-50" />
               <span>كشف الحساب</span>
           </button>
           {onAddWithdrawal && (
-          <button onClick={() => onAddWithdrawal(farmer.id)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-xl font-black text-[10px] hover:bg-primary-dark transition-all active:scale-95 shadow-md shadow-primary/10">
+          <button onClick={() => onAddWithdrawal(farmer.id)} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-xl font-black text-2xs hover:bg-primary-dark transition-all tap shadow-md shadow-primary/10">
               <PlusIcon className="w-3.5 h-3.5" />
               <span>تسجيل سحب</span>
           </button>

@@ -28,8 +28,8 @@ class ErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-neutral-100 p-6 text-center font-sans" dir="rtl">
-          <div className="bg-white p-8 rounded-[2rem] shadow-2xl max-w-lg border border-rose-100">
-            <div className="w-20 h-20 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="bg-white p-8 rounded-[2rem] shadow-2xl max-w-lg border border-accent-danger/20">
+            <div className="w-20 h-20 bg-accent-danger/10 text-accent-danger rounded-full flex items-center justify-center mx-auto mb-6">
                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-12 h-12">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
@@ -39,7 +39,7 @@ class ErrorBoundary extends React.Component<Props, State> {
             
             <button 
                 onClick={() => hardResetLocalDB()} 
-                className="w-full py-4 px-4 bg-emerald-500 text-white font-black rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-600 transition-all active:scale-95"
+                className="w-full py-4 px-4 bg-accent-success text-white font-black rounded-xl shadow-lg shadow-emerald-200 hover:bg-accent-success transition-all tap"
             >
                 إعادة ضبط الذاكرة وتشغيل التطبيق
             </button>

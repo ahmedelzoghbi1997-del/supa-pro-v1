@@ -284,19 +284,19 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 text-right" dir="rtl">
-            <div className="bg-amber-50 dark:bg-neutral-900/40 p-3 rounded-2xl border border-amber-100/60 dark:border-neutral-800 text-xs font-bold text-amber-800 dark:text-neutral-400">
+            <div className="bg-accent-warning/10 dark:bg-neutral-900/40 p-3 rounded-2xl border border-accent-warning/20/60 dark:border-neutral-800 text-xs font-bold text-accent-warning dark:text-neutral-400">
                 ⚠️ تعديل هذا السجل سيقوم بإعادة جدولة وتحديث كشف يومية العمل وتحليلات الأنشطة تلقائياً.
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Transaction Type Dropdown */}
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">نوع المعاملة <span className="text-rose-500">*</span></label>
+                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">نوع المعاملة <span className="text-accent-danger">*</span></label>
                     <select 
                         required 
                         value={transactionType} 
                         onChange={e => setTransactionType(e.target.value)} 
-                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-amber-500/20"
+                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-accent-warning"
                     >
                         <option value="wage_deferred">يومية عمل - آجل (يُضاف لحسابه)</option>
                         <option value="wage_cash">يومية عمل - نقدي (صرف فوري)</option>
@@ -322,12 +322,12 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
 
                 {/* Greenhouse Dropdown */}
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">الصوبة المستفيدة <span className="text-rose-500">*</span></label>
+                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">الصوبة المستفيدة <span className="text-accent-danger">*</span></label>
                     <select 
                         required 
                         value={greenhouseId} 
                         onChange={e => setGreenhouseId(e.target.value)} 
-                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-amber-500/20"
+                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-accent-warning"
                     >
                         {currentGhs.map(gh => (
                             <option key={gh.id} value={gh.id}>
@@ -339,19 +339,19 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
 
                 {/* Date */}
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">التاريخ <span className="text-rose-500">*</span></label>
+                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">التاريخ <span className="text-accent-danger">*</span></label>
                     <input 
                         type="date" 
                         required 
                         value={date} 
                         onChange={e => setDate(e.target.value)} 
-                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-mono font-bold focus:ring-2 focus:ring-amber-500/20 text-right" 
+                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-mono font-bold focus:ring-2 focus:ring-accent-warning text-right" 
                     />
                 </div>
 
                 {/* Amount */}
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">المبلغ <span className="text-rose-500">*</span></label>
+                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">المبلغ <span className="text-accent-danger">*</span></label>
                     <div className="relative">
                         <input 
                             type="text" 
@@ -361,7 +361,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                             required 
                             value={amount} 
                             onChange={e => setAmount(e.target.value)} 
-                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl pl-10 pr-3 py-2 text-sm font-mono font-bold focus:ring-2 focus:ring-amber-500/20 text-left" 
+                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl pl-10 pr-3 py-2 text-sm font-mono font-bold focus:ring-2 focus:ring-accent-warning text-left" 
                             dir="ltr" 
                         />
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400 font-mono">ج.م</span>
@@ -371,14 +371,14 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                 {/* Operational Expense description if operational */}
                 {transactionType === 'labor_operational' && (
                     <div className="space-y-1 md:col-span-2">
-                        <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">بيان المصروف التشغيلي <span className="text-rose-500">*</span></label>
+                        <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300">بيان المصروف التشغيلي <span className="text-accent-danger">*</span></label>
                         <input 
                             type="text" 
                             required 
                             placeholder="مثال: شراء مأكل وفطور للعمال، مواصلات..." 
                             value={operationalDesc} 
                             onChange={e => setOperationalDesc(e.target.value)} 
-                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-amber-500/20" 
+                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-accent-warning" 
                         />
                     </div>
                 )}
@@ -392,7 +392,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                                     🎯 الأنشطة والمهام (اختر نشاطاً أو أكثر):
                                 </span>
                                 {selectedActivities.length > 0 && (
-                                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300">
+                                    <span className="text-2xs font-black px-2 py-0.5 rounded-full bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success">
                                         {selectedActivities.length} محدد
                                     </span>
                                 )}
@@ -401,7 +401,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                             <button
                                 type="button"
                                 onClick={() => setIsAddingNewActivity(!isAddingNewActivity)}
-                                className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                                className="text-2xs font-black text-accent-success dark:text-accent-success hover:underline flex items-center gap-0.5 cursor-pointer"
                             >
                                 <PlusIcon className="w-3.5 h-3.5" />
                                 <span>نشاط جديد</span>
@@ -423,12 +423,12 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                                         }
                                     }}
                                     placeholder="اسم النشاط الجديد..."
-                                    className="flex-1 bg-white dark:bg-neutral-900 border border-emerald-500 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none text-right"
+                                    className="flex-1 bg-white dark:bg-neutral-900 border border-accent-success rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none text-right"
                                 />
                                 <button
                                     type="button"
                                     onClick={handleCreateNewActivity}
-                                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 bg-accent-success hover:bg-accent-success/90 text-white rounded-lg text-xs font-black transition-colors cursor-pointer"
                                 >
                                     إضافة واختيار
                                 </button>
@@ -438,7 +438,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                                         setIsAddingNewActivity(false);
                                         setNewActivityInput('');
                                     }}
-                                    className="p-1.5 text-neutral-400 hover:text-rose-500 rounded-lg"
+                                    className="p-1.5 text-neutral-400 hover:text-accent-danger rounded-lg"
                                 >
                                     <XMarkIcon className="w-4 h-4" />
                                 </button>
@@ -456,12 +456,12 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                                         onClick={() => toggleActivity(act)}
                                         className={`text-xs px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 shadow-2xs font-bold select-none ${
                                             isSelected
-                                                ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs font-black scale-[1.02]'
+                                                ? 'bg-accent-success border-emerald-600 text-white shadow-xs font-black scale-[1.02]'
                                                 : 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                                         }`}
                                     >
                                         <span>{act}</span>
-                                        <span className={`text-[9px] ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
+                                        <span className={`text-2xs ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
                                             {isSelected ? '✓' : '+'}
                                         </span>
                                     </button>
@@ -471,19 +471,19 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
 
                         {/* Split Cost Preview Banner */}
                         {selectedActivities.length > 1 && (
-                            <div className="mt-1 p-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-lg text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center justify-between">
+                            <div className="mt-1 p-2 bg-accent-warning/10 dark:bg-accent-warning/20 border border-accent-warning/20/50 dark:border-accent-warning/30 rounded-lg text-xs font-bold text-accent-warning dark:text-accent-warning flex items-center justify-between">
                                 <span className="flex items-center gap-1">
                                     <span>⚡ توزيع التكلفة بالتساوي:</span>
                                     <span>{selectedActivities.join(' + ')}</span>
                                 </span>
-                                <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 shrink-0">
+                                <span className="font-mono font-black text-accent-success dark:text-accent-success shrink-0">
                                     ({Math.round((Number(amount) || 0) / selectedActivities.length)} ج.م لكل نشاط)
                                 </span>
                             </div>
                         )}
 
                         {selectedActivities.length === 0 && (
-                            <p className="text-[10px] font-bold text-rose-500 pt-0.5">
+                            <p className="text-2xs font-bold text-accent-danger pt-0.5">
                                 ⚠️ يجب اختيار نشاط واحد على الأقل ليتم حفظ التعديل.
                             </p>
                         )}
@@ -506,7 +506,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                                     onClick={() => setShiftType(shift.id as any)}
                                     className={`py-2 px-3 text-xs font-bold rounded-lg transition-all text-center cursor-pointer border ${
                                         shiftType === shift.id
-                                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400 border-amber-300'
+                                            ? 'bg-accent-warning/10 text-accent-warning dark:bg-accent-warning/20 dark:text-accent-warning border-accent-warning/20'
                                             : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
                                     }`}
                                 >
@@ -533,13 +533,13 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                         placeholder="مثل: تأخير ساعتين، إحضار أدوات خاصة..." 
                         value={additionalNotes} 
                         onChange={e => setAdditionalNotes(e.target.value)} 
-                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-amber-500/20" 
+                        className="w-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-sm font-bold focus:ring-2 focus:ring-accent-warning" 
                     />
                 </div>
             </div>
 
             {error && (
-                <div className="bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 p-3 rounded-xl border border-rose-100 dark:border-rose-900/50 text-xs font-bold leading-relaxed">
+                <div className="bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger p-3 rounded-xl border border-accent-danger/20 dark:border-accent-danger/30 text-xs font-bold leading-relaxed">
                     {error}
                 </div>
             )}
@@ -556,7 +556,7 @@ const EditLaborForm: React.FC<EditLaborFormProps> = ({ expense, onClose }) => {
                     type="submit" 
                     onClick={triggerSaveHaptic}
                     disabled={isSubmitting} 
-                    className="flex-[2] py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-black transition-all shadow-sm disabled:opacity-50"
+                    className="flex-[2] py-2.5 bg-accent-warning hover:bg-accent-warning text-white rounded-xl text-sm font-black transition-all shadow-sm disabled:opacity-50"
                 >
                     {isSubmitting ? 'جاري الحفظ...' : 'تعديل السجل'}
                 </button>

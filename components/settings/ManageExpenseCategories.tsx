@@ -5,6 +5,7 @@ import { useSettings } from '../../contexts/SettingsContext';
 import type { ExpenseCategory } from '../../types';
 import { PlusIcon, TrashIcon, PencilIcon } from '../Icons';
 import Modal from '../shared/Modal';
+import Button from '../shared/Button';
 import { useToast } from '../../hooks/useToast';
 
 interface ManageExpenseCategoriesProps {
@@ -75,20 +76,33 @@ const CategoryForm: React.FC<{
                 )}
                 <div className="flex items-center">
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={isLaborCategory} onChange={e => setIsLaborCategory(e.target.checked)} className="form-checkbox h-4 w-4 text-amber-600 rounded focus:ring-amber-500" />
+                        <input type="checkbox" checked={isLaborCategory} onChange={e => setIsLaborCategory(e.target.checked)} className="form-checkbox h-4 w-4 text-accent-warning rounded focus:ring-accent-warning" />
                         <span className="text-sm font-bold text-neutral-600 dark:text-neutral-300">تصنيف عمالة؟ (مثل أجور ويوميات العمال)</span>
                     </label>
                 </div>
                 <div className="flex items-center">
                     <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={isDiscountCategory} onChange={e => setIsDiscountCategory(e.target.checked)} className="form-checkbox h-4 w-4 text-emerald-600 rounded focus:ring-emerald-500" />
+                        <input type="checkbox" checked={isDiscountCategory} onChange={e => setIsDiscountCategory(e.target.checked)} className="form-checkbox h-4 w-4 text-accent-success rounded focus:ring-accent-success" />
                         <span className="text-sm font-bold text-neutral-600 dark:text-neutral-300">تصنيف خصومات؟ (مثل الخصم المكتسب)</span>
                     </label>
                 </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={onCancel} className="py-2 px-4 bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-50 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-all duration-200 active:scale-95 text-sm font-semibold">إلغاء</button>
-                <button type="submit" className="py-2 px-4 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-all duration-200 active:scale-95 text-sm">{initialData ? 'حفظ' : 'إضافة الفئة'}</button>
+                <Button 
+                    type="button" 
+                    variant="secondary"
+                    size="sm"
+                    onClick={onCancel}
+                >
+                    إلغاء
+                </Button>
+                <Button 
+                    type="submit" 
+                    variant="primary"
+                    size="sm"
+                >
+                    {initialData ? 'حفظ' : 'إضافة الفئة'}
+                </Button>
             </div>
         </form>
     );
@@ -122,25 +136,39 @@ const CategoryItem: React.FC<{
                 <p className="font-semibold">{category.name}</p>
                 <div className="flex items-center gap-1.5 flex-wrap">
                     {settings.systems.suppliers && category.is_supplier_category && (
-                        <span className="text-xs px-2.5 py-0.5 font-semibold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                        <span className="text-xs px-2.5 py-0.5 font-semibold rounded-full bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info">
                             موردين
                         </span>
                     )}
                     {category.is_labor_category && (
-                        <span className="text-xs px-2.5 py-0.5 font-semibold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                        <span className="text-xs px-2.5 py-0.5 font-semibold rounded-full bg-accent-warning/10 text-accent-warning dark:bg-accent-warning/20 dark:text-accent-warning">
                             عمالة
                         </span>
                     )}
                     {category.is_discount_category && (
-                        <span className="text-xs px-2.5 py-0.5 font-semibold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
+                        <span className="text-xs px-2.5 py-0.5 font-semibold rounded-full bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success">
                             خصم
                         </span>
                     )}
                 </div>
             </div>
             <div className="flex items-center gap-1">
-                <button onClick={() => onEdit(category)} className="p-2 rounded-full text-neutral-500 hover:text-primary hover:bg-primary/10 transition-colors"><PencilIcon className="w-5 h-5" /></button>
-                <button onClick={() => onDelete(category.id)} className="p-2 rounded-full text-neutral-500 hover:text-accent-danger hover:bg-accent-danger/10 transition-colors"><TrashIcon className="w-5 h-5" /></button>
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => onEdit(category)} 
+                    className="!p-2 !rounded-full text-neutral-500 hover:text-primary hover:bg-primary/10"
+                    icon={<PencilIcon className="w-5 h-5" />}
+                    aria-label="تعديل الفئة"
+                />
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => onDelete(category.id)} 
+                    className="!p-2 !rounded-full text-neutral-500 hover:text-accent-danger hover:bg-accent-danger/10"
+                    icon={<TrashIcon className="w-5 h-5" />}
+                    aria-label="حذف الفئة"
+                />
             </div>
         </div>
     );
@@ -212,20 +240,23 @@ const ManageExpenseCategories: React.FC<ManageExpenseCategoriesProps> = ({ onClo
                     هل أنت متأكد من رغبتك في حذف فئة "{categoryToDelete?.name}"؟ لا يمكن التراجع عن هذا الإجراء.
                 </p>
                 <div className="mt-6 flex justify-start gap-4 flex-row-reverse">
-                    <button 
+                    <Button 
+                        variant="danger"
+                        size="sm"
                         onClick={confirmDelete} 
                         disabled={isDeleting}
-                        className="rounded-lg bg-accent-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        loading={isDeleting}
                     >
-                        {isDeleting ? 'جاري الحذف...' : 'حذف'}
-                    </button>
-                    <button 
+                        حذف
+                    </Button>
+                    <Button 
+                        variant="secondary"
+                        size="sm"
                         onClick={() => setCategoryToDelete(null)} 
                         disabled={isDeleting}
-                        className="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-4 py-2 text-sm font-semibold text-neutral-800 dark:text-neutral-100 shadow-sm hover:bg-neutral-200 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         إلغاء
-                    </button>
+                    </Button>
                 </div>
             </Modal>
             <div className="max-h-[70vh] flex flex-col">
@@ -262,20 +293,27 @@ const ManageExpenseCategories: React.FC<ManageExpenseCategoriesProps> = ({ onClo
                             onCancel={() => setIsAdding(false)}
                         />
                     ) : (
-                    <button 
+                    <Button 
+                        variant="ghost"
                         onClick={() => {
                             setIsAdding(true);
                             setEditingCategory(null);
                         }} 
-                        className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-neutral-300 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 font-semibold py-3 px-6 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                        className="w-full !flex !items-center !justify-center !gap-2 border-2 border-dashed border-neutral-300 dark:border-neutral-700 !text-neutral-500 dark:!text-neutral-400 !font-semibold !py-3 !px-6 !rounded-lg hover:!bg-neutral-100 dark:hover:!bg-neutral-800 transition-colors"
+                        icon={<PlusIcon className="w-5 h-5" />}
                     >
-                        <PlusIcon className="w-5 h-5" />
-                        <span>إضافة فئة جديدة</span>
-                    </button>
+                        إضافة فئة جديدة
+                    </Button>
                     )}
                 </div>
                  <div className="mt-8 flex justify-end">
-                    <button onClick={onClose} className="py-2 px-6 bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-50 font-semibold rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors">إغلاق</button>
+                    <Button 
+                        variant="secondary"
+                        onClick={onClose} 
+                        className="py-2 px-6"
+                    >
+                        إغلاق
+                    </Button>
                 </div>
             </div>
         </>

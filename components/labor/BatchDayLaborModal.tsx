@@ -4,7 +4,7 @@ import { useSettings } from '../../contexts/SettingsContext';
 import { CheckIcon, PlusIcon, SparklesIcon, CalendarIcon } from '../Icons';
 import type { Expense } from '../../types';
 import { formatNumber } from '../../utils/helpers';
-import { renderShiftBadge, renderEntryIcon } from './LaborLedger';
+import { renderShiftBadge, renderEntryIcon } from './laborBadges';
 import { triggerSaveHaptic } from '../../lib/haptics';
 
 interface BatchDayLaborModalProps {
@@ -53,11 +53,11 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
         <div
             className={`p-3 rounded-2xl border transition-all ${
                 row.isModified
-                    ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800/80 shadow-xs'
+                    ? 'bg-accent-warning/10/40 dark:bg-accent-warning/20 border-accent-warning/20 dark:border-accent-warning/30/80 shadow-xs'
                     : row.isOperational
                     ? 'bg-neutral-50/80 dark:bg-neutral-900/40 border-neutral-200/80 dark:border-neutral-800'
                     : isChecked
-                    ? 'bg-white dark:bg-neutral-900 border-indigo-200 dark:border-indigo-900/60 shadow-2xs'
+                    ? 'bg-white dark:bg-neutral-900 border-accent-info/20 dark:border-accent-info/30 shadow-2xs'
                     : 'bg-white dark:bg-neutral-900/60 border-neutral-200 dark:border-neutral-800 opacity-80'
             }`}
         >
@@ -69,11 +69,11 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => onToggleSelect(row.id)}
-                            className="mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer accent-indigo-600 shrink-0"
+                            className="mt-1 w-4 h-4 rounded text-accent-info focus:ring-indigo-500 cursor-pointer accent-indigo-600 shrink-0"
                         />
                     ) : (
                         <div 
-                            className="mt-0.5 w-5 h-5 rounded-md bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-400 dark:text-neutral-500 shrink-0 text-[10px]"
+                            className="mt-0.5 w-5 h-5 rounded-md bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-400 dark:text-neutral-500 shrink-0 text-2xs"
                             title="منصرف إضافي / تشغيلي مستقل غير مرتبط بأنشطة العمالة"
                         >
                             🔒
@@ -91,19 +91,19 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                             {isWage && renderShiftBadge(row.shiftType)}
                             
                             {row.isOperational && (
-                                <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60">
+                                <span className="text-2xs font-black px-2 py-0.5 rounded-md bg-accent-warning/10 text-accent-warning dark:bg-accent-warning/20 dark:text-accent-warning border border-accent-warning/20/60 dark:border-accent-warning/30/60">
                                     منصرف تشغيلي / إضافي
                                 </span>
                             )}
 
                             {row.isAdvanceOrSettlement && (
-                                <span className="text-[9px] font-black px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
+                                <span className="text-2xs font-black px-2 py-0.5 rounded-md bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info border border-accent-info/20 dark:border-accent-info/30">
                                     دفعة / سداد مالي
                                 </span>
                             )}
 
                             {row.isModified && (
-                                <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-500 text-white">
+                                <span className="text-2xs font-black px-1.5 py-0.2 rounded bg-accent-warning text-white">
                                     مُعدّل
                                 </span>
                             )}
@@ -113,11 +113,11 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                         {isWage ? (
                             <div className="mt-2 space-y-1.5">
                                 <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400">الأنشطة المحددة:</span>
+                                    <span className="text-2xs font-bold text-neutral-500 dark:text-neutral-400">الأنشطة المحددة:</span>
                                     {row.selectedActivities.map(act => (
                                         <span
                                             key={act}
-                                            className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-md font-black text-[11px] border border-indigo-200 dark:border-indigo-800 shadow-2xs"
+                                            className="inline-flex items-center gap-1 bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info px-2 py-0.5 rounded-md font-black text-[11px] border border-accent-info/20 dark:border-accent-info/30 shadow-2xs"
                                         >
                                             <span>{act}</span>
                                             {row.selectedActivities.length > 1 && (
@@ -127,7 +127,7 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                                                         e.stopPropagation();
                                                         onRemoveActivity(row.id, act);
                                                     }}
-                                                    className="text-indigo-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer font-bold ml-0.5 text-xs"
+                                                    className="text-indigo-400 hover:text-accent-danger dark:hover:text-accent-danger cursor-pointer font-bold ml-0.5 text-xs"
                                                     title="حذف هذا النشاط"
                                                 >
                                                     ✕
@@ -147,11 +147,11 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                                                 key={customAct}
                                                 type="button"
                                                 onClick={() => onRemoveActivity(row.id, customAct)}
-                                                className="text-[11px] px-2 py-0.5 rounded-md border transition-all cursor-pointer font-black bg-amber-500 border-amber-500 text-white shadow-2xs flex items-center gap-1"
+                                                className="text-[11px] px-2 py-0.5 rounded-md border transition-all cursor-pointer font-black bg-accent-warning border-accent-warning text-white shadow-2xs flex items-center gap-1"
                                                 title="نشاط مخصص/قديم - اضغط للحذف"
                                             >
                                                 <span>{customAct}</span>
-                                                <span className="text-[10px]">✕</span>
+                                                <span className="text-2xs">✕</span>
                                             </button>
                                         ))
                                     }
@@ -165,7 +165,7 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                                                 onClick={() => onToggleActivity(row.id, act)}
                                                 className={`text-[11px] px-2 py-0.5 rounded-md border transition-all cursor-pointer font-bold ${
                                                     isSelected
-                                                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs font-black'
+                                                        ? 'bg-accent-success border-emerald-600 text-white shadow-2xs font-black'
                                                         : 'bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
                                                 }`}
                                             >
@@ -177,7 +177,7 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                             </div>
                         ) : (
                             <div className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-300 font-bold flex items-center gap-1.5 bg-neutral-100/70 dark:bg-neutral-800/60 p-1.5 rounded-lg">
-                                <span className="text-[10px] text-neutral-400">تفاصيل المنصرف:</span>
+                                <span className="text-2xs text-neutral-400">تفاصيل المنصرف:</span>
                                 <span>{row.operationalDesc || row.originalExpense.description}</span>
                             </div>
                         )}
@@ -187,13 +187,13 @@ const LaborRowItem = React.memo<LaborRowItemProps>(({
                 {/* Amount and Payment method */}
                 <div className="text-left shrink-0">
                     <div className="flex items-center gap-1 justify-end font-mono font-black text-xs text-neutral-900 dark:text-neutral-100">
-                        <span className="text-[9px] text-neutral-400">ج.م</span>
+                        <span className="text-2xs text-neutral-400">ج.م</span>
                         <span>{formatNumber(row.amount)}</span>
                     </div>
-                    <span className={`text-[9px] font-black px-1.5 py-0.5 rounded mt-1 inline-block ${
+                    <span className={`text-2xs font-black px-1.5 py-0.5 rounded mt-1 inline-block ${
                         row.isCredit 
-                            ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' 
-                            : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400'
+                            ? 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger' 
+                            : 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success'
                     }`}>
                         {row.isCredit ? 'آجل' : 'نقداً'}
                     </span>
@@ -611,14 +611,14 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
     return (
         <div className="space-y-4 text-right max-h-[85vh] flex flex-col" dir="rtl">
             {/* Header Banner */}
-            <div className="bg-indigo-50 dark:bg-indigo-950/40 p-3.5 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between flex-wrap gap-2 shrink-0">
+            <div className="bg-accent-info/10 dark:bg-accent-info/20 p-3.5 rounded-2xl border border-accent-info/20 dark:border-accent-info/30 flex items-center justify-between flex-wrap gap-2 shrink-0">
                 <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-xs">
                         <CalendarIcon className="w-5 h-5" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-black text-indigo-950 dark:text-indigo-200">{dateFormatted}</h3>
-                        <p className="text-xs font-bold text-indigo-700/80 dark:text-indigo-400">
+                        <h3 className="text-sm font-black text-indigo-950 dark:text-accent-info">{dateFormatted}</h3>
+                        <p className="text-xs font-bold text-accent-info/80 dark:text-accent-info">
                             {wageRows.length} يومية عمالة {operationalRowsCount > 0 ? `• ${operationalRowsCount} منصرف تشغيلي` : ''} • إجمالي {formatNumber(rows.reduce((s, r) => s + r.amount, 0))} ج.م
                         </p>
                     </div>
@@ -626,7 +626,7 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
 
                 <div className="flex items-center gap-2">
                     {modifiedCount > 0 && (
-                        <span className="text-[11px] font-black px-2.5 py-1 rounded-lg bg-amber-500 text-white shadow-2xs animate-pulse">
+                        <span className="text-[11px] font-black px-2.5 py-1 rounded-lg bg-accent-warning text-white shadow-2xs animate-pulse">
                             {modifiedCount} يومية تم تعديلها
                         </span>
                     )}
@@ -641,7 +641,7 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                             <button
                                 type="button"
                                 onClick={toggleSelectAll}
-                                className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                className="text-xs font-black text-accent-info dark:text-accent-info hover:underline flex items-center gap-1 cursor-pointer"
                             >
                                 <CheckIcon className="w-4 h-4" />
                                 <span>{selectedIds.length === wageRows.length ? 'إلغاء تحديد الكل' : `تحديد جميع العمال (${wageRows.length})`}</span>
@@ -651,7 +651,7 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                             </span>
                         </div>
 
-                        <div className="flex items-center gap-1.5 bg-white dark:bg-neutral-800 p-0.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-[10px] font-bold">
+                        <div className="flex items-center gap-1.5 bg-white dark:bg-neutral-800 p-0.5 rounded-lg border border-neutral-200 dark:border-neutral-700 text-2xs font-bold">
                             <button
                                 type="button"
                                 onClick={() => setBulkMode('multi')}
@@ -673,7 +673,7 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-[11px] font-black text-neutral-700 dark:text-neutral-300">
                             <span className="flex items-center gap-1">
-                                <SparklesIcon className="w-3.5 h-3.5 text-amber-500" />
+                                <SparklesIcon className="w-3.5 h-3.5 text-accent-warning" />
                                 <span>
                                     {bulkMode === 'multi'
                                         ? `اضغط على أي نشاط لإضافته أو إزالته من العمال المحددين (${selectedWageRows.length}):`
@@ -685,7 +685,7 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                             <button
                                 type="button"
                                 onClick={() => setIsCreatingNewActivity(!isCreatingNewActivity)}
-                                className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 cursor-pointer text-[10px]"
+                                className="text-accent-success dark:text-accent-success hover:underline flex items-center gap-0.5 cursor-pointer text-2xs"
                             >
                                 <PlusIcon className="w-3 h-3" />
                                 <span>إضافة نشاط جديد</span>
@@ -706,12 +706,12 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                                         }
                                     }}
                                     placeholder="اسم النشاط الجديد..."
-                                    className="flex-1 bg-white dark:bg-neutral-900 border border-emerald-500 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none text-right"
+                                    className="flex-1 bg-white dark:bg-neutral-900 border border-accent-success rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none text-right"
                                 />
                                 <button
                                     type="button"
                                     onClick={handleCreateNewActivity}
-                                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-colors cursor-pointer shrink-0"
+                                    className="px-3 py-1.5 bg-accent-success hover:bg-accent-success/90 text-white rounded-lg text-xs font-black transition-colors cursor-pointer shrink-0"
                                 >
                                     تطبيق وإضافة
                                 </button>
@@ -733,15 +733,15 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                                             selectedIds.length === 0
                                                 ? 'opacity-40 cursor-not-allowed bg-neutral-100 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-400'
                                                 : isCommon
-                                                ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs font-black ring-2 ring-emerald-500/30'
+                                                ? 'bg-accent-success border-emerald-600 text-white shadow-xs font-black ring-2 ring-accent-success'
                                                 : isPartial
-                                                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-dashed border-emerald-500 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
-                                                : 'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-neutral-700 active:scale-95 shadow-2xs'
+                                                ? 'bg-accent-success/10 dark:bg-accent-success/20 border-dashed border-accent-success dark:border-accent-success/30 text-accent-success dark:text-accent-success font-bold hover:bg-accent-success/10 dark:hover:bg-accent-success/20/60'
+                                                : 'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-accent-info/10 hover:text-accent-info dark:hover:bg-neutral-700 tap shadow-2xs'
                                         }`}
                                     >
                                         <span>{act}</span>
                                         {isCommon && <span className="text-[11px]">✓</span>}
-                                        {isPartial && <span className="text-[10px] opacity-75">(جزئي)</span>}
+                                        {isPartial && <span className="text-2xs opacity-75">(جزئي)</span>}
                                     </button>
                                 );
                             })}
@@ -757,7 +757,7 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                                     {commonActivities.map(act => (
                                         <span
                                             key={act}
-                                            className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-200 px-2 py-0.5 rounded-md border border-emerald-300 dark:border-emerald-700 font-black text-[10.5px]"
+                                            className="inline-flex items-center gap-1 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-emerald-200 px-2 py-0.5 rounded-md border border-accent-success/20 dark:border-accent-success/30 font-black text-[10.5px]"
                                         >
                                             <span>{act}</span>
                                             {commonActivities.length > 1 && (
@@ -767,7 +767,7 @@ const BatchDayLaborModal: React.FC<BatchDayLaborModalProps> = ({ date, expenses,
                                                         e.stopPropagation();
                                                         handleRemoveBulkActivity(act);
                                                     }}
-                                                    className="w-3.5 h-3.5 rounded-full hover:bg-emerald-200 dark:hover:bg-emerald-800 flex items-center justify-center text-[9px] cursor-pointer"
+                                                    className="w-3.5 h-3.5 rounded-full hover:bg-emerald-200 dark:hover:bg-emerald-800 flex items-center justify-center text-2xs cursor-pointer"
                                                     title="إزالة هذا النشاط من المحددين"
                                                 >
                                                     ✕

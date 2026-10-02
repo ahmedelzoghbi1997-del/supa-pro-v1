@@ -777,7 +777,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
         <div className="w-full max-w-sm flex flex-col items-center space-y-8">
           
           <div className="text-center space-y-3">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center animate-pulse">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-accent-warning/10 border border-accent-warning/20 text-accent-warning flex items-center justify-center animate-pulse">
               <Shield className="h-8 w-8" />
             </div>
             <h2 className="text-2xl font-black tracking-tight">{heading}</h2>
@@ -794,7 +794,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                   key={index}
                   className={`w-4 h-4 rounded-full border-2 transition-all duration-200 transform ${
                     hasDigit 
-                      ? 'bg-amber-500 border-amber-500 scale-110 shadow-lg shadow-amber-500/50' 
+                      ? 'bg-accent-warning border-accent-warning scale-110 shadow-lg shadow-amber-500/50' 
                       : 'border-neutral-700 bg-neutral-800'
                   }`}
                 />
@@ -803,7 +803,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
           </div>
 
           {error && (
-            <div className="text-red-400 text-sm font-semibold bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20 text-center animate-bounce">
+            <div className="text-accent-danger text-sm font-semibold bg-accent-danger/10 px-4 py-2 rounded-xl border border-accent-danger/20 text-center animate-bounce">
               {error}
             </div>
           )}
@@ -813,7 +813,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
               <button
                 key={num}
                 onClick={() => handlePinDigitPress(num)}
-                className="w-16 h-16 rounded-full bg-neutral-800 hover:bg-neutral-700 text-2xl font-bold flex items-center justify-center transition-all active:scale-95 border border-neutral-700/50 text-white"
+                className="w-16 h-16 rounded-full bg-neutral-800 hover:bg-neutral-700 text-2xl font-bold flex items-center justify-center transition-all tap border border-neutral-700/50 text-white"
               >
                 {num}
               </button>
@@ -825,21 +825,21 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialFlow = 'login', onAuthComple
                 setPinSetupAccount(null);
                 setError(null);
               }}
-              className="w-16 h-16 rounded-full bg-neutral-900 text-neutral-400 hover:text-white flex items-center justify-center text-sm font-semibold transition-all active:scale-95"
+              className="w-16 h-16 rounded-full bg-neutral-900 text-neutral-400 hover:text-white flex items-center justify-center text-sm font-semibold transition-all tap"
             >
               إلغاء
             </button>
             
             <button
               onClick={() => handlePinDigitPress('0')}
-              className="w-16 h-16 rounded-full bg-neutral-800 hover:bg-neutral-700 text-2xl font-bold flex items-center justify-center transition-all active:scale-95 border border-neutral-700/50 text-white"
+              className="w-16 h-16 rounded-full bg-neutral-800 hover:bg-neutral-700 text-2xl font-bold flex items-center justify-center transition-all tap border border-neutral-700/50 text-white"
             >
               0
             </button>
             
             <button
               onClick={handlePinBackspace}
-              className="w-16 h-16 rounded-full bg-neutral-900 text-neutral-400 hover:text-white flex items-center justify-center transition-all active:scale-95"
+              className="w-16 h-16 rounded-full bg-neutral-900 text-neutral-400 hover:text-white flex items-center justify-center transition-all tap"
               aria-label="Delete"
             >
               <Delete className="h-6 w-6" />
@@ -1119,7 +1119,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                             }}
                             onClick={() => !isEditing && !loading && onSelect(acc)}
                             className={`group relative flex items-center justify-between p-4 rounded-2xl transition-all duration-300 w-full text-right ${
-                                loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'
+                                loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer tap'
                             } bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-purple-300 dark:hover:border-purple-500/40 hover:shadow-sm overflow-hidden`}
                         >
                             <div className="flex items-center gap-4 flex-1 min-w-0 z-10">
@@ -1176,12 +1176,12 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                     )}
                                     <div className="flex items-center gap-2 mt-1 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                                         {!acc.isVirtual ? (
-                                            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                            <span className="flex items-center gap-1 text-accent-success dark:text-accent-success">
                                                 <Shield className="w-3.5 h-3.5" /> مالك رئيسي
                                                 <span className="text-neutral-400 font-normal mr-1" dir="ltr">{acc.email}</span>
                                             </span>
                                         ) : (
-                                            <span className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
+                                            <span className="flex items-center gap-1 text-accent-info dark:text-accent-info">
                                                 <User className="w-3.5 h-3.5" /> رابط صوبة 
                                                 <span className="text-neutral-400 font-normal mr-1" dir="ltr">{acc.username}</span>
                                             </span>
@@ -1200,7 +1200,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                         }}
                                         className={`p-2 rounded-full transition-all duration-300 pointer-events-auto ${
                                             acc.biometricEnabled
-                                                ? 'text-emerald-500 bg-emerald-50/80 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'
+                                                ? 'text-accent-success bg-accent-success/10/80 dark:bg-accent-success/10 hover:bg-accent-success/10 dark:hover:bg-accent-success/20'
                                                 : 'text-neutral-300 dark:text-neutral-600 hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                                         }`}
                                         title={acc.biometricEnabled ? "تعطيل الدخول بالبصمة" : "تمكين الدخول بالبصمة"}
@@ -1216,7 +1216,7 @@ const SavedAccountsView: React.FC<SavedAccountsViewProps> = ({
                                     e.stopPropagation();
                                     if (!loading) onRemove(acc.id);
                                 }}
-                                className="absolute top-2 left-2 p-1.5 text-neutral-200 dark:text-neutral-700 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors z-20 pointer-events-auto"
+                                className="absolute top-2 left-2 p-1.5 text-neutral-200 dark:text-neutral-700 hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 rounded-md transition-colors z-20 pointer-events-auto"
                                 title="إزالة الحساب من القائمة"
                             >
                                 <TrashIcon className="h-3.5 w-3.5" />

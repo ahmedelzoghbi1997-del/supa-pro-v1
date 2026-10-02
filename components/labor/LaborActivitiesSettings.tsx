@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useSettings } from '../../contexts/SettingsContext';
 import { useData } from '../../contexts/DataContext';
 import { PlusIcon, TrashIcon, PencilIcon, CheckIcon, XMarkIcon, SparklesIcon } from '../Icons';
+import Button from '../shared/Button';
 
 interface LaborActivitiesSettingsProps {
     onClose: () => void;
@@ -380,7 +381,7 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
             {/* Greenhouse Management Section */}
             <div className="relative flex py-2 items-center">
                 <div className="flex-grow border-t border-neutral-200 dark:border-neutral-700/60"></div>
-                <span className="flex-shrink mx-4 text-[10px] font-black text-neutral-400 uppercase tracking-widest">إدارة وتسمية الصُوَب الزراعية</span>
+                <span className="flex-shrink mx-4 text-2xs font-black text-neutral-400 uppercase tracking-widest">إدارة وتسمية الصُوَب الزراعية</span>
                 <div className="flex-grow border-t border-neutral-200 dark:border-neutral-700/60"></div>
             </div>
 
@@ -394,47 +395,53 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                         className="w-full bg-white dark:bg-neutral-900 border border-neutral-250 dark:border-neutral-700 rounded-xl px-4 py-2 text-xs font-bold focus:ring-2 focus:ring-indigo-500/25 outline-none text-right"
                     />
                     <div className="flex items-center justify-between gap-3 text-right">
-                        <span className="text-[10px] font-black text-neutral-400">نوع الصيبة ومحاسبتها:</span>
+                        <span className="text-2xs font-black text-neutral-400">نوع الصيبة ومحاسبتها:</span>
                         <div className="flex items-center gap-1.5">
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => setNewGhType('mine')}
-                                className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all ${
+                                className={`!px-2.5 !py-1 !text-2xs !font-black !rounded-lg transition-all ${
                                     newGhType === 'mine' 
-                                        ? 'bg-emerald-500 text-white shadow-xs' 
-                                        : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'
+                                        ? '!bg-accent-success !text-white shadow-xs' 
+                                        : '!bg-neutral-200 dark:!bg-neutral-800 !text-neutral-500'
                                 }`}
                             >
                                 تابعة لإنتاجي 🌿
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => setNewGhType('external')}
-                                className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all ${
+                                className={`!px-2.5 !py-1 !text-2xs !font-black !rounded-lg transition-all ${
                                     newGhType === 'external' 
-                                        ? 'bg-indigo-600 text-white shadow-xs' 
-                                        : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'
+                                        ? '!bg-indigo-600 !text-white shadow-xs' 
+                                        : '!bg-neutral-200 dark:!bg-neutral-800 !text-neutral-500'
                                 }`}
                             >
                                 صوبة منفصلة (خزنة فقط) 🏠
-                            </button>
+                            </Button>
                         </div>
                     </div>
-                    <button
+                    <Button
+                        variant="primary"
+                        size="sm"
                         onClick={handleAddGh}
-                        className="w-full py-2 bg-indigo-600 text-white font-black text-xs rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1.5"
+                        icon={<PlusIcon className="w-3.5 h-3.5" />}
+                        className="w-full !py-2 !bg-indigo-600 !text-white !rounded-xl hover:!bg-indigo-700"
                     >
-                        <PlusIcon className="w-3.5 h-3.5" />
-                        <span>إضافة صوبة جديدة ➕</span>
-                    </button>
+                        إضافة صوبة جديدة ➕
+                    </Button>
                 </div>
 
                 <div className="space-y-1.5 pt-2 border-t border-neutral-200/50 dark:border-neutral-800/60">
                     {greenhouses.map((gh) => (
                         <div key={gh.id} className="flex flex-col gap-2 p-2 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800/85">
                             {deletingGhId === gh.id ? (
-                                <div className="flex-1 flex flex-col gap-2 p-2.5 bg-rose-500/5 dark:bg-rose-500/10 rounded-xl border border-rose-500/30">
-                                    <span className="text-[10px] font-black text-rose-600 dark:text-rose-450 leading-tight">
+                                <div className="flex-1 flex flex-col gap-2 p-2.5 bg-accent-danger/5 dark:bg-accent-danger/10 rounded-xl border border-accent-danger/20">
+                                    <span className="text-2xs font-black text-accent-danger dark:text-accent-danger leading-tight">
                                         ⚠️ تحذير: سيتم حذف هذه الصوبة ونهائياً جميع بيانات العمالة واليوميات والمنصرفات والمسحوبات المسجلة تحت اسمها!
                                     </span>
                                     <div className="flex items-center gap-2">
@@ -443,21 +450,26 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                                             value={confirmText}
                                             onChange={(e) => setConfirmText(e.target.value)}
                                             placeholder="اكتب كلمة 'حذف' للتأكيد..."
-                                            className="flex-1 bg-white dark:bg-neutral-900 border border-rose-500/40 focus:border-rose-500/90 rounded-lg px-2 py-1 text-xs font-bold text-right outline-none text-rose-700 dark:text-rose-400 placeholder-rose-300 dark:placeholder-rose-800/60"
+                                            className="flex-1 bg-white dark:bg-neutral-900 border border-accent-danger/40 focus:border-accent-danger/90 rounded-lg px-2 py-1 text-xs font-bold text-right outline-none text-accent-danger dark:text-accent-danger placeholder-rose-300 dark:placeholder-rose-800/60"
                                         />
-                                        <button 
+                                        <Button 
+                                            variant="danger"
+                                            size="sm"
                                             onClick={() => confirmDeleteGh(gh.id)}
                                             disabled={confirmText !== 'حذف'}
-                                            className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:bg-neutral-200 dark:disabled:bg-neutral-800 text-white text-[10px] font-black rounded-lg transition-colors cursor-pointer"
+                                            className="!px-3 !py-1.5 !text-2xs !rounded-lg"
                                         >
                                             تأكيد وحذف البيانات
-                                        </button>
-                                        <button 
+                                        </Button>
+                                        <Button 
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={() => { setDeletingGhId(null); setConfirmText(''); }} 
-                                            className="p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg"
+                                            className="!p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 !rounded-lg"
+                                            aria-label="إلغاء"
                                         >
                                             <XMarkIcon className="w-4 h-4" />
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             ) : editingGhId === gh.id ? (
@@ -469,33 +481,33 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                                         onChange={(e) => setEditingGhValue(e.target.value)}
                                         className="flex-1 bg-white dark:bg-neutral-900 border border-indigo-500 rounded-lg px-2 py-1 text-xs font-bold text-right"
                                     />
-                                    <button onClick={saveGhEdit} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                                    <Button variant="ghost" size="sm" onClick={saveGhEdit} className="!p-1 text-accent-success hover:bg-accent-success/10 !rounded" aria-label="حفظ">
                                         <CheckIcon className="w-4 h-4" />
-                                    </button>
-                                    <button onClick={() => setEditingGhId(null)} className="p-1 text-rose-600 hover:bg-rose-50 rounded">
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={() => setEditingGhId(null)} className="!p-1 text-accent-danger hover:bg-accent-danger/10 !rounded" aria-label="إلغاء">
                                         <XMarkIcon className="w-4 h-4" />
-                                    </button>
+                                    </Button>
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-between w-full">
                                     <div className="flex items-center gap-2">
-                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${
+                                        <span className={`text-2xs font-black px-1.5 py-0.5 rounded-md ${
                                             gh.type === 'mine' 
-                                                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/10' 
-                                                : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/10'
+                                                ? 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20/10' 
+                                                : 'bg-accent-info/10 text-accent-info dark:bg-accent-info/20'
                                         }`}>
                                             {gh.type === 'mine' ? 'تابعة للمزرعة' : 'صوبة مستقلة'}
                                         </span>
                                         <span className="text-xs font-black text-neutral-700 dark:text-neutral-200">{gh.name}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <button onClick={() => startEditingGh(gh.id, gh.name)} className="p-1 text-neutral-400 hover:text-indigo-650 rounded">
+                                        <Button variant="ghost" size="sm" onClick={() => startEditingGh(gh.id, gh.name)} className="!p-1 text-neutral-400 hover:text-indigo-650 !rounded" aria-label="تعديل">
                                             <PencilIcon className="w-3.5 h-3.5" />
-                                        </button>
+                                        </Button>
                                         {!gh.is_default && (
-                                            <button onClick={() => { setDeletingGhId(gh.id); setConfirmText(''); }} className="p-1 text-neutral-400 hover:text-rose-600 rounded">
+                                            <Button variant="ghost" size="sm" onClick={() => { setDeletingGhId(gh.id); setConfirmText(''); }} className="!p-1 text-neutral-400 hover:text-accent-danger !rounded" aria-label="حذف">
                                                 <TrashIcon className="w-3.5 h-3.5" />
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
@@ -508,19 +520,21 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
             {/* Activities Management Section */}
             <div className="relative flex py-2 items-center justify-between">
                 <div className="flex-grow border-t border-neutral-200 dark:border-neutral-700/60"></div>
-                <span className="flex-shrink mx-4 text-[10px] font-black text-neutral-400 uppercase tracking-widest">تعديل قائمة الأنشطة واليوميات</span>
+                <span className="flex-shrink mx-4 text-2xs font-black text-neutral-400 uppercase tracking-widest">تعديل قائمة الأنشطة واليوميات</span>
                 <div className="flex-grow border-t border-neutral-200 dark:border-neutral-700/60"></div>
             </div>
 
             <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">الأنشطة المسجلة ({activities.length})</span>
-                <button
+                <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={handleRestoreDefaults}
-                    className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
+                    className="!p-0 text-2xs font-bold !text-accent-warning hover:underline"
                 >
-                    <span>🔄 استعادة الأنشطة النموذجية</span>
-                </button>
+                    🔄 استعادة الأنشطة النموذجية
+                </Button>
             </div>
 
             <div className="flex gap-2">
@@ -529,14 +543,16 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                     value={newActivity}
                     onChange={(e) => setNewActivity(e.target.value)}
                     placeholder="اسم النشاط الجديد..."
-                    className="flex-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-4 py-2 text-sm font-bold focus:ring-2 focus:ring-amber-500/20 text-right outline-none"
+                    className="flex-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl px-4 py-2 text-sm font-bold focus:ring-2 focus:ring-accent-warning text-right outline-none"
                 />
-                <button
+                <Button
+                    variant="primary"
+                    size="sm"
                     onClick={handleAdd}
-                    className="p-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors cursor-pointer"
-                >
-                    <PlusIcon className="w-5 h-5" />
-                </button>
+                    icon={<PlusIcon className="w-5 h-5" />}
+                    className="!p-2 !bg-accent-warning hover:!bg-accent-warning !text-white !rounded-xl"
+                    aria-label="إضافة نشاط"
+                />
             </div>
 
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -552,25 +568,25 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                                         autoFocus
                                         value={editingValue}
                                         onChange={(e) => setEditingValue(e.target.value)}
-                                        className="flex-1 bg-white dark:bg-neutral-900 border border-amber-500 rounded-lg px-2 py-1 text-xs font-bold text-right outline-none"
+                                        className="flex-1 bg-white dark:bg-neutral-900 border border-accent-warning rounded-lg px-2 py-1 text-xs font-bold text-right outline-none"
                                     />
-                                    <button onClick={saveEdit} className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
+                                    <Button variant="ghost" size="sm" onClick={saveEdit} className="!p-1 text-accent-success hover:bg-accent-success/10 !rounded" aria-label="حفظ">
                                         <CheckIcon className="w-4 h-4" />
-                                    </button>
-                                    <button onClick={() => setEditingIndex(null)} className="p-1 text-rose-600 hover:bg-rose-50 rounded">
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={() => setEditingIndex(null)} className="!p-1 text-accent-danger hover:bg-accent-danger/10 !rounded" aria-label="إلغاء">
                                         <XMarkIcon className="w-4 h-4" />
-                                    </button>
+                                    </Button>
                                 </div>
                             ) : (
                                 <>
                                     <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300">{activity}</span>
                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => startEditing(index)} className="p-1.5 text-neutral-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors cursor-pointer">
+                                        <Button variant="ghost" size="sm" onClick={() => startEditing(index)} className="!p-1.5 text-neutral-400 hover:text-accent-warning hover:bg-accent-warning/10 dark:hover:bg-accent-warning/20 !rounded-lg" aria-label="تعديل">
                                             <PencilIcon className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => handleDelete(index)} className="p-1.5 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors cursor-pointer">
+                                        </Button>
+                                        <Button variant="ghost" size="sm" onClick={() => handleDelete(index)} className="!p-1.5 text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 !rounded-lg" aria-label="حذف">
                                             <TrashIcon className="w-4 h-4" />
-                                        </button>
+                                        </Button>
                                     </div>
                                 </>
                             )}
@@ -584,20 +600,20 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                 <div className="space-y-3 pt-2">
                     <div className="relative flex py-2 items-center justify-between">
                         <div className="flex-grow border-t border-neutral-200 dark:border-neutral-700/60"></div>
-                        <span className="flex-shrink mx-4 text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-1">
+                        <span className="flex-shrink mx-4 text-2xs font-black text-accent-info dark:text-accent-info uppercase tracking-widest flex items-center gap-1">
                             <SparklesIcon className="w-3 h-3" />
                             <span>أداة الاستبدال والتوحيد الشامل للأنشطة القديمة</span>
                         </span>
                         <div className="flex-grow border-t border-neutral-200 dark:border-neutral-700/60"></div>
                     </div>
 
-                    <div className="bg-indigo-50/50 dark:bg-indigo-950/30 p-3.5 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-3">
+                    <div className="bg-accent-info/10 dark:bg-accent-info/20 p-3.5 rounded-2xl border border-accent-info/20 dark:border-accent-info/30 space-y-3">
                         <p className="text-[11px] font-bold text-neutral-600 dark:text-neutral-300 leading-relaxed">
                             اختر أي مسمى نشاط مسجل في السجلات السابقة لتحويله فوراً إلى مسمى جديد معتمد بضغطة زر واحدة:
                         </p>
 
                         {replaceSuccessMsg && (
-                            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold animate-fade-in">
+                            <div className="p-2.5 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20 dark:border-accent-success/30 rounded-xl text-xs font-bold animate-fade-in">
                                 {replaceSuccessMsg}
                             </div>
                         )}
@@ -605,7 +621,7 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {/* Old Source Activity Dropdown */}
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-neutral-500 dark:text-neutral-400">
+                                <label className="text-2xs font-black text-neutral-500 dark:text-neutral-400">
                                     النشاط القديم الموجود بالسجلات:
                                 </label>
                                 <select
@@ -624,7 +640,7 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
 
                             {/* Target Standardized Activity */}
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-neutral-500 dark:text-neutral-400">
+                                <label className="text-2xs font-black text-neutral-500 dark:text-neutral-400">
                                     النشاط الجديد المراد التطبيق عليه:
                                 </label>
                                 <select
@@ -641,37 +657,37 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                             </div>
                         </div>
 
-                        <button
+                        <Button
                             type="button"
+                            variant="primary"
+                            size="md"
+                            loading={isReplacing}
                             onClick={handleExecuteReplace}
                             disabled={isReplacing || !sourceOldActivity || matchingExpensesForReplace.length === 0}
-                            className={`w-full py-2.5 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                            className={`w-full !py-2.5 !px-3 !rounded-xl !text-xs !font-black ${
                                 !sourceOldActivity || matchingExpensesForReplace.length === 0
-                                    ? 'bg-neutral-200 dark:bg-neutral-800 text-neutral-400 cursor-not-allowed'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+                                    ? '!bg-neutral-200 dark:!bg-neutral-800 !text-neutral-400 !border-transparent'
+                                    : '!bg-indigo-600 hover:!bg-indigo-700 !text-white shadow-sm'
                             }`}
                         >
                             {isReplacing ? (
-                                <span>جاري الاستبدال ({replaceProgress?.current}/{replaceProgress?.total})...</span>
+                                `جاري الاستبدال (${replaceProgress?.current}/${replaceProgress?.total})...`
                             ) : (
-                                <span>
-                                    {sourceOldActivity 
-                                        ? `استبدال "${sourceOldActivity}" ⬅️ "${targetNewActivity}" في (${matchingExpensesForReplace.length}) يومية`
-                                        : 'اختر نشاطاً قديماً للبدء'
-                                    }
-                                </span>
+                                sourceOldActivity 
+                                    ? `استبدال "${sourceOldActivity}" ⬅️ "${targetNewActivity}" في (${matchingExpensesForReplace.length}) يومية`
+                                    : 'اختر نشاطاً قديماً للبدء'
                             )}
-                        </button>
+                        </Button>
                     </div>
 
                     {/* Auto Deduplication & Cleanup Tool */}
-                    <div className="bg-amber-50/50 dark:bg-amber-950/20 p-3.5 rounded-2xl border border-amber-200/60 dark:border-amber-900/40 space-y-2.5">
+                    <div className="bg-accent-warning/10/50 dark:bg-accent-warning/20 p-3.5 rounded-2xl border border-accent-warning/20/60 dark:border-accent-warning/30 space-y-2.5">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-black text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                            <span className="text-xs font-black text-amber-900 dark:text-accent-warning flex items-center gap-1.5">
                                 <span>🧹</span>
                                 <span>أداة تنظيف وتصحيح الأنشطة المكررة في السجلات</span>
                             </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200/70 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+                            <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-amber-200/70 dark:bg-accent-warning/20/60 text-amber-900 dark:text-amber-200">
                                 {expensesWithDuplicates.length} سجلات بها تكرار
                             </span>
                         </div>
@@ -680,44 +696,46 @@ const LaborActivitiesSettings: React.FC<LaborActivitiesSettingsProps> = ({ onClo
                         </p>
 
                         {cleanDuplicatesMsg && (
-                            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-bold">
+                            <div className="p-2.5 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20 dark:border-accent-success/30 rounded-xl text-xs font-bold">
                                 {cleanDuplicatesMsg}
                             </div>
                         )}
 
-                        <button
+                        <Button
                             type="button"
+                            variant="primary"
+                            size="md"
+                            loading={isCleaningDuplicates}
                             onClick={handleExecuteCleanDuplicates}
                             disabled={isCleaningDuplicates || expensesWithDuplicates.length === 0}
-                            className={`w-full py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                            className={`w-full !py-2 !px-3 !rounded-xl !text-xs !font-black ${
                                 expensesWithDuplicates.length === 0
-                                    ? 'bg-neutral-100 dark:bg-neutral-800/60 text-neutral-400 cursor-not-allowed border border-neutral-200 dark:border-neutral-700'
-                                    : 'bg-amber-600 hover:bg-amber-700 text-white shadow-sm'
+                                    ? '!bg-neutral-100 dark:!bg-neutral-800/60 !text-neutral-400 !border !border-neutral-200 dark:!border-neutral-700'
+                                    : '!bg-accent-warning hover:!bg-accent-warning/90 !text-white shadow-sm'
                             }`}
                         >
                             {isCleaningDuplicates ? (
-                                <span>جاري التنظيف والإصلاح...</span>
+                                'جاري التنظيف والإصلاح...'
                             ) : (
-                                <span>
-                                    {expensesWithDuplicates.length > 0 
-                                        ? `إصلاح وحذف التكرارات الآن (${expensesWithDuplicates.length} يومية)`
-                                        : '✅ جميع اليوميات نظيفة وسليمة ولا يوجد تكرار'
-                                    }
-                                </span>
+                                expensesWithDuplicates.length > 0 
+                                    ? `إصلاح وحذف التكرارات الآن (${expensesWithDuplicates.length} يومية)`
+                                    : '✅ جميع اليوميات نظيفة وسليمة ولا يوجد تكرار'
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}
 
             <div className="pt-2">
-                <button
+                <Button
                     type="button"
+                    variant="secondary"
+                    size="md"
                     onClick={onClose}
-                    className="w-full py-2.5 bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 rounded-xl text-sm font-bold transition-all cursor-pointer"
+                    className="w-full !py-2.5 !rounded-xl"
                 >
                     إغلاق
-                </button>
+                </Button>
             </div>
         </div>
     );

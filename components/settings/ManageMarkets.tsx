@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { useSettings } from '../../contexts/SettingsContext';
 import { useData } from '../../contexts/DataContext';
 import { PlusIcon, TrashIcon, PencilIcon, CheckIcon, XMarkIcon } from '../Icons';
+import Button from '../shared/Button';
 import { useToast } from '../../hooks/useToast';
 
 interface ManageMarketsProps {
@@ -98,37 +99,50 @@ const ManageMarkets: React.FC<ManageMarketsProps> = ({ onClose }) => {
                                             className={`${inputClasses} !p-1.5 ${errors.editName ? errorInputClasses : ''}`}
                                             autoFocus
                                         />
-                                        {errors.editName && <p className="text-accent-danger text-[10px] mt-1">{errors.editName}</p>}
+                                        {errors.editName && <p className="text-accent-danger text-2xs mt-1">{errors.editName}</p>}
                                     </div>
-                                    <button onClick={handleSaveEdit} className="p-1.5 bg-emerald-500 text-white rounded-md hover:bg-emerald-600 transition-colors">
-                                        <CheckIcon className="w-4 h-4" />
-                                    </button>
-                                    <button onClick={() => setEditingMarket(null)} className="p-1.5 bg-neutral-300 dark:bg-neutral-600 text-neutral-700 dark:text-neutral-200 rounded-md hover:bg-neutral-400 transition-colors">
-                                        <XMarkIcon className="w-4 h-4" />
-                                    </button>
+                                    <Button 
+                                        variant="primary"
+                                        size="sm"
+                                        onClick={handleSaveEdit} 
+                                        className="!p-1.5 !rounded-md !bg-accent-success hover:!bg-accent-success"
+                                        icon={<CheckIcon className="w-4 h-4" />}
+                                        aria-label="حفظ التعديل"
+                                    />
+                                    <Button 
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() => setEditingMarket(null)} 
+                                        className="!p-1.5 !rounded-md"
+                                        icon={<XMarkIcon className="w-4 h-4" />}
+                                        aria-label="إلغاء التعديل"
+                                    />
                                 </div>
                             ) : (
                                 <>
                                     <p className="font-semibold text-neutral-800 dark:text-neutral-100">{market}</p>
                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button 
+                                        <Button 
+                                            variant="ghost"
+                                            size="sm"
                                             onClick={() => handleStartEdit(market)} 
-                                            className="p-2 rounded-full text-neutral-500 hover:text-primary hover:bg-primary/10 transition-colors"
+                                            className="!p-2 !rounded-full text-neutral-500 hover:text-primary hover:bg-primary/10"
                                             title="تعديل"
-                                        >
-                                            <PencilIcon className="w-4 h-4" />
-                                        </button>
+                                            icon={<PencilIcon className="w-4 h-4" />}
+                                        />
                                         
                                         <div className="relative group/tip">
-                                            <button 
+                                            <Button 
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={() => handleDeleteMarket(market)} 
-                                                className={`p-2 rounded-full transition-colors ${isUsed ? 'opacity-20 grayscale cursor-not-allowed' : 'text-neutral-500 hover:text-accent-danger hover:bg-accent-danger/10'}`}
+                                                disabled={isUsed}
+                                                className={`!p-2 !rounded-full transition-colors ${isUsed ? 'opacity-20 grayscale cursor-not-allowed' : 'text-neutral-500 hover:text-accent-danger hover:bg-accent-danger/10'}`}
                                                 title={isUsed ? "لا يمكن الحذف" : "حذف"}
-                                            >
-                                                <TrashIcon className="w-4 h-4" />
-                                            </button>
+                                                icon={<TrashIcon className="w-4 h-4" />}
+                                            />
                                             {isUsed && (
-                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-1.5 bg-neutral-900 text-white text-[8px] rounded-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-10 pointer-events-none text-center leading-normal">
+                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 p-1.5 bg-neutral-900 text-white text-2xs rounded-md opacity-0 group-hover/tip:opacity-100 transition-opacity z-10 pointer-events-none text-center leading-normal">
                                                     سوق نشط: يحتوي على فواتير.
                                                 </div>
                                             )}
@@ -160,18 +174,26 @@ const ManageMarkets: React.FC<ManageMarketsProps> = ({ onClose }) => {
                             />
                              {errors.newName && <p className="text-accent-danger text-xs mt-1 text-right">{errors.newName}</p>}
                         </div>
-                        <button
+                        <Button
+                            variant="primary"
                             onClick={handleAddMarket}
-                            className="flex-shrink-0 flex items-center gap-2 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-dark transition active:scale-95"
+                            className="flex-shrink-0 flex items-center gap-2 py-3 px-4 tap"
+                            icon={<PlusIcon className="h-5 w-5" />}
                         >
-                            <PlusIcon className="h-5 w-5" />
                             <span className="hidden sm:inline">إضافة</span>
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}
             <div className="mt-6 flex justify-end">
-                <button onClick={onClose} className="py-2 px-6 bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-50 font-semibold rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors text-sm">إغلاق</button>
+                <Button 
+                    variant="secondary"
+                    size="sm"
+                    onClick={onClose} 
+                    className="py-2 px-6"
+                >
+                    إغلاق
+                </Button>
             </div>
         </div>
     );

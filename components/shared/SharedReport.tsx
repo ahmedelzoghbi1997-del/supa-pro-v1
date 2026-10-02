@@ -1464,11 +1464,11 @@ const SharedReport = () => {
 
             {/* بطاقة ملخص كشف الحساب */}
             <div className="flex flex-col gap-4">
-              <div className="relative bg-emerald-600 rounded-3xl p-6 text-white shadow-lg shadow-emerald-900/10 overflow-hidden border border-white/10">
+              <div className="relative bg-accent-success rounded-3xl p-6 text-white shadow-lg shadow-emerald-900/10 overflow-hidden border border-white/10">
                 <div className="relative z-10">
                   <div className="flex items-center gap-1.5 opacity-80 mb-1">
                     <WalletIcon className="w-4 h-4" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">
+                    <span className="text-2xs font-black uppercase tracking-widest">
                       الرصيد الصافي المتاح
                     </span>
                   </div>
@@ -1499,23 +1499,23 @@ const SharedReport = () => {
 
               <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 flex flex-col justify-center">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-emerald-600 font-black text-sm shrink-0 border border-neutral-200/50 dark:border-neutral-600/50">
+                  <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-accent-success font-black text-sm shrink-0 border border-neutral-200/50 dark:border-neutral-600/50">
                     {(farmer?.name || fallbackName)?.charAt(0)}
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-black text-sm text-neutral-800 dark:text-neutral-100 truncate">
                       {farmer?.name || fallbackName}
                     </h3>
-                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-tight">
+                    <p className="text-2xs text-neutral-500 font-bold uppercase tracking-tight">
                       سجل المعاملات النشط
                     </p>
                   </div>
                 </div>
-                <div className="mt-3 flex justify-between items-center bg-neutral-50 dark:bg-neutral-900/50 p-2 rounded-xl text-[10px]">
+                <div className="mt-3 flex justify-between items-center bg-neutral-50 dark:bg-neutral-900/50 p-2 rounded-xl text-2xs">
                   <span className="text-neutral-500 font-bold">
                     عدد العمليات:
                   </span>
-                  <span className="font-black text-emerald-600 bg-emerald-600/10 px-2 py-0.5 rounded-md">
+                  <span className="font-black text-accent-success bg-accent-success/10 px-2 py-0.5 rounded-md">
                     {farmerWithdrawals.length} عملية
                   </span>
                 </div>
@@ -1525,12 +1525,12 @@ const SharedReport = () => {
             {/* سجل المسحوبات */}
             <div className="space-y-3">
               <div className="flex items-center justify-between px-1">
-                <div className="flex items-center gap-2 border-r-4 border-rose-500 pr-2">
+                <div className="flex items-center gap-2 border-r-4 border-accent-danger pr-2">
                   <h3 className="font-black text-neutral-800 dark:text-white text-sm uppercase tracking-wider">
                     سجل المسحوبات النقدية
                   </h3>
                 </div>
-                <div className="text-[9px] font-black text-neutral-400 uppercase bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-lg">
+                <div className="text-2xs font-black text-neutral-400 uppercase bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-lg">
                   التاريخ
                 </div>
               </div>
@@ -1543,23 +1543,23 @@ const SharedReport = () => {
                       className="bg-white dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-700/50 px-4 py-3 rounded-2xl flex items-center justify-between gap-3 hover:shadow-sm transition-all"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-accent-danger/10 dark:bg-accent-danger/20 flex items-center justify-center text-accent-danger dark:text-accent-danger shrink-0">
                           <TrendingDownIcon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
                           <h4 className="font-bold text-xs text-neutral-800 dark:text-neutral-100 truncate">
                             {w.description || "سحب نقدي"}
                           </h4>
-                          <div className="flex items-center gap-2 mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-400 font-bold">
+                          <div className="flex items-center gap-2 mt-0.5 text-2xs text-neutral-500 dark:text-neutral-400 font-bold">
                             <CalendarIcon className="w-3 h-3 opacity-70" />
                             <span>{w.date}</span>
                           </div>
                         </div>
                       </div>
                       <div className="text-left shrink-0">
-                        <p className="text-sm font-black text-rose-600 dark:text-rose-400 tracking-tight tabular-nums">
+                        <p className="text-sm font-black text-accent-danger dark:text-accent-danger tracking-tight tabular-nums">
                           {formatNumber(w.amount)}
-                          <span className="text-[9px] mr-1 font-bold opacity-70">
+                          <span className="text-2xs mr-1 font-bold opacity-70">
                             ج.م
                           </span>
                         </p>
@@ -1577,9 +1577,9 @@ const SharedReport = () => {
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-2xl border border-blue-100 dark:border-blue-900/30 flex items-start gap-3">
+            <div className="bg-accent-info/10 dark:bg-accent-info/20 p-4 rounded-2xl border border-accent-info/20 dark:border-accent-info/30 flex items-start gap-3">
               <div className="w-1 h-6 bg-blue-500 rounded-full shrink-0"></div>
-              <p className="text-[10px] text-blue-800 dark:text-blue-300 leading-normal font-semibold">
+              <p className="text-2xs text-accent-info dark:text-accent-info leading-normal font-semibold">
                 ملاحظة: "إجمالي المستحقات" يتم تحديثه لحظياً بناءً على فواتير
                 المبيعات المسجلة في هذه العروة المسندة للمزارع.
               </p>
@@ -1615,7 +1615,7 @@ const SharedReport = () => {
                   className="cursor-pointer p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex justify-between items-center hover:border-blue-500/30 transition-all group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl bg-blue-600/10 text-blue-600 group-hover:scale-110 transition-transform">
+                    <div className="p-3 rounded-xl bg-accent-info/10 text-accent-info group-hover:scale-110 transition-transform">
                       <UserIcon className="w-5 h-5" />
                     </div>
                     <p className="text-sm font-black text-neutral-800 dark:text-neutral-200">
@@ -1626,9 +1626,9 @@ const SharedReport = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <p className="text-lg font-black text-blue-600 tabular-nums">
+                    <p className="text-lg font-black text-accent-info tabular-nums">
                       {formatNumber(total)}{" "}
-                      <span className="text-[10px] opacity-50 mr-1">ج.م</span>
+                      <span className="text-2xs opacity-50 mr-1">ج.م</span>
                     </p>
                     <ChevronLeftIcon className="w-4 h-4 text-neutral-400" />
                   </div>
@@ -1674,7 +1674,7 @@ const SharedReport = () => {
                 <h3 className="font-black text-sm text-neutral-800 dark:text-neutral-100 truncate">
                   {fallbackName}
                 </h3>
-                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-tight">
+                <p className="text-2xs text-neutral-500 font-bold uppercase tracking-tight">
                   سجل السلف الشخصية
                 </p>
               </div>
@@ -1697,7 +1697,7 @@ const SharedReport = () => {
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <CalendarIcon className="w-3 h-3 text-neutral-400" />
-                          <span className="text-[10px] font-bold text-neutral-400">
+                          <span className="text-2xs font-bold text-neutral-400">
                             {a.date}
                           </span>
                         </div>
@@ -1705,7 +1705,7 @@ const SharedReport = () => {
                     </div>
                     <p className="text-lg font-black text-purple-600 tabular-nums">
                       {formatNumber(a.amount)}{" "}
-                      <span className="text-[10px] opacity-50 mr-1">ج.م</span>
+                      <span className="text-2xs opacity-50 mr-1">ج.م</span>
                     </p>
                   </div>
                 ))
@@ -1767,7 +1767,7 @@ const SharedReport = () => {
                   <div className="flex items-center gap-3">
                     <p className="text-lg font-black text-purple-600 tabular-nums">
                       {formatNumber(total)}{" "}
-                      <span className="text-[10px] opacity-50 mr-1">ج.م</span>
+                      <span className="text-2xs opacity-50 mr-1">ج.م</span>
                     </p>
                     <ChevronLeftIcon className="w-4 h-4 text-neutral-400" />
                   </div>
@@ -1798,10 +1798,10 @@ const SharedReport = () => {
           {cashExpenses.map((e) => (
             <div
               key={e.id}
-              className="p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex justify-between items-center group hover:border-rose-500/30 transition-all"
+              className="p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex justify-between items-center group hover:border-accent-danger/20 transition-all"
             >
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-rose-500/10 text-rose-500">
+                <div className="p-3 rounded-xl bg-accent-danger/10 text-accent-danger">
                   <WalletIcon className="w-5 h-5" />
                 </div>
                 <div>
@@ -1814,15 +1814,15 @@ const SharedReport = () => {
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <CalendarIcon className="w-3 h-3 text-neutral-400" />
-                    <span className="text-[10px] font-bold text-neutral-400">
+                    <span className="text-2xs font-bold text-neutral-400">
                       {e.date}
                     </span>
                   </div>
                 </div>
               </div>
-              <p className="text-lg font-black text-rose-500 tabular-nums">
+              <p className="text-lg font-black text-accent-danger tabular-nums">
                 {formatNumber(e.amount)}{" "}
-                <span className="text-[10px] opacity-50 mr-1">ج.م</span>
+                <span className="text-2xs opacity-50 mr-1">ج.م</span>
               </p>
             </div>
           ))}
@@ -1884,11 +1884,11 @@ const SharedReport = () => {
 
             {/* بطاقة ملخص كشف حساب المورد */}
             <div className="flex flex-col gap-4">
-              <div className="relative bg-amber-600 rounded-3xl p-6 text-white shadow-lg shadow-amber-900/10 overflow-hidden border border-white/10">
+              <div className="relative bg-accent-warning rounded-3xl p-6 text-white shadow-lg shadow-amber-900/10 overflow-hidden border border-white/10">
                 <div className="relative z-10">
                   <div className="flex items-center gap-1.5 opacity-80 mb-1">
                     <WalletIcon className="w-4 h-4" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">
+                    <span className="text-2xs font-black uppercase tracking-widest">
                       الرصيد المتبقي للمورد
                     </span>
                   </div>
@@ -1919,14 +1919,14 @@ const SharedReport = () => {
 
               <div className="bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-2xl p-4 flex flex-col justify-center">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-amber-600 font-black text-sm shrink-0 border border-neutral-200/50 dark:border-neutral-600/50">
+                  <div className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-accent-warning font-black text-sm shrink-0 border border-neutral-200/50 dark:border-neutral-600/50">
                     {(supplier?.name || fallbackName)?.charAt(0)}
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-black text-sm text-neutral-800 dark:text-neutral-100 truncate">
                       {supplier?.name || fallbackName}
                     </h3>
-                    <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-tight">
+                    <p className="text-2xs text-neutral-500 font-bold uppercase tracking-tight">
                       سجل المعاملات الآجل
                     </p>
                   </div>
@@ -1944,11 +1944,11 @@ const SharedReport = () => {
                   allTransactions.map((tx) => (
                     <div
                       key={tx.id}
-                      className="p-4 bg-white dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-700 flex justify-between items-center group hover:border-amber-500/30 transition-all"
+                      className="p-4 bg-white dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-700 flex justify-between items-center group hover:border-accent-warning/20 transition-all"
                     >
                       <div className="flex items-center gap-4">
                         <div
-                          className={`p-3 rounded-xl ${tx.type === "purchase" ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"}`}
+                          className={`p-3 rounded-xl ${tx.type === "purchase" ? "bg-accent-danger/10 text-accent-danger" : "bg-accent-success/10 text-accent-success"}`}
                         >
                           {tx.type === "purchase" ? (
                             <CreditCardIcon className="w-5 h-5" />
@@ -1965,7 +1965,7 @@ const SharedReport = () => {
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             <CalendarIcon className="w-3 h-3 text-neutral-400" />
-                            <span className="text-[10px] font-bold text-neutral-400">
+                            <span className="text-2xs font-bold text-neutral-400">
                               {tx.date}
                             </span>
                           </div>
@@ -1973,11 +1973,11 @@ const SharedReport = () => {
                       </div>
                       <div className="text-left shrink-0">
                         <p
-                          className={`text-sm font-black ${tx.type === "purchase" ? "text-rose-600" : "text-emerald-600"} tracking-tight tabular-nums`}
+                          className={`text-sm font-black ${tx.type === "purchase" ? "text-accent-danger" : "text-accent-success"} tracking-tight tabular-nums`}
                         >
                           {tx.type === "purchase" ? "-" : "+"}
                           {formatNumber(tx.amount)}
-                          <span className="text-[9px] mr-1 font-bold opacity-70">
+                          <span className="text-2xs mr-1 font-bold opacity-70">
                             ج.م
                           </span>
                         </p>
@@ -2038,7 +2038,7 @@ const SharedReport = () => {
                   className="cursor-pointer p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex justify-between items-center hover:border-amber-600/30 transition-all group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-xl bg-amber-600/10 text-amber-600 group-hover:scale-110 transition-transform">
+                    <div className="p-3 rounded-xl bg-accent-warning/10 text-accent-warning group-hover:scale-110 transition-transform">
                       <CreditCardIcon className="w-5 h-5" />
                     </div>
                     <p className="text-sm font-black text-neutral-800 dark:text-neutral-200">
@@ -2046,9 +2046,9 @@ const SharedReport = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <p className="text-lg font-black text-amber-600 tabular-nums">
+                    <p className="text-lg font-black text-accent-warning tabular-nums">
                       {formatNumber(total)}{" "}
-                      <span className="text-[10px] opacity-50 mr-1">ج.م</span>
+                      <span className="text-2xs opacity-50 mr-1">ج.م</span>
                     </p>
                     <ChevronLeftIcon className="w-4 h-4 text-neutral-400" />
                   </div>
@@ -2170,8 +2170,8 @@ const SharedReport = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-950 p-4 text-center">
         <div className="bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-xl max-w-md w-full border border-neutral-100 dark:border-neutral-800">
-          <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <SafeIcon className="w-8 h-8 text-rose-500" />
+          <div className="w-16 h-16 bg-accent-danger/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <SafeIcon className="w-8 h-8 text-accent-danger" />
           </div>
           <h1 className="text-xl font-black text-neutral-800 dark:text-white mb-2">
             عفواً
@@ -2290,7 +2290,7 @@ const SharedReport = () => {
                 isProfitMode={recoveryStats.isRecovered}
                 color={{
                   icon: recoveryStats.isRecovered
-                    ? "text-emerald-500"
+                    ? "text-accent-success"
                     : "text-primary",
                   glow: "glow-on-hover-success",
                   gradient:
@@ -2390,11 +2390,11 @@ const SharedReport = () => {
                       <div className="flex flex-col items-center md:items-start group">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
-                          <span className="text-[10px] font-black opacity-60 uppercase tracking-widest">
+                          <span className="text-2xs font-black opacity-60 uppercase tracking-widest">
                             كاش
                           </span>
                         </div>
-                        <p className="text-2xl sm:text-3xl font-black tabular-nums text-emerald-400 tracking-tighter">
+                        <p className="text-2xl sm:text-3xl font-black tabular-nums text-accent-success tracking-tighter">
                           {formatNumber(treasuryStats.balance)}
                         </p>
                       </div>
@@ -2403,7 +2403,7 @@ const SharedReport = () => {
                       <div className="flex flex-col items-center md:items-start group">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]"></div>
-                          <span className="text-[10px] font-black opacity-60 uppercase tracking-widest">
+                          <span className="text-2xs font-black opacity-60 uppercase tracking-widest">
                             بنك
                           </span>
                         </div>
@@ -2418,25 +2418,25 @@ const SharedReport = () => {
                 {/* الإيرادات والمصروفات */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <p className="text-[9px] sm:text-[10px] font-black opacity-40 uppercase tracking-wider mb-1">
+                    <p className="text-2xs sm:text-2xs font-black opacity-40 uppercase tracking-wider mb-1">
                       إجمالي الإيرادات
                     </p>
-                    <p className="text-lg font-bold tabular-nums text-emerald-400">
+                    <p className="text-lg font-bold tabular-nums text-accent-success">
                       {formatNumber(treasuryStats.inflows.totalRevenue)}
                     </p>
                   </div>
                   <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                    <p className="text-[9px] sm:text-[10px] font-black opacity-40 uppercase tracking-wider mb-1">
+                    <p className="text-2xs sm:text-2xs font-black opacity-40 uppercase tracking-wider mb-1">
                       إجمالي الخارج
                     </p>
-                    <p className="text-lg font-bold tabular-nums text-rose-400">
+                    <p className="text-lg font-bold tabular-nums text-accent-danger">
                       {formatNumber(treasuryStats.outflows.totalDeductions)}
                     </p>
                   </div>
                 </div>
               </div>
               <div className="absolute top-0 right-0 w-80 h-80 bg-primary/20 rounded-full blur-[120px] -mr-40 -mt-40"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent-info/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -2445,7 +2445,7 @@ const SharedReport = () => {
                 value={treasuryStats.outflows.supplierPayments.amount}
                 count={treasuryStats.outflows.supplierPayments.transactionCount}
                 icon={CreditCardIcon}
-                colorClass="text-amber-600"
+                colorClass="text-accent-warning"
                 bgColorClass="bg-white dark:bg-neutral-800"
                 subLabel={
                   extraInfo.lastSupplier
@@ -2473,7 +2473,7 @@ const SharedReport = () => {
                   treasuryStats.outflows.farmerWithdrawals.transactionCount
                 }
                 icon={FarmerAccountIcon}
-                colorClass="text-blue-600"
+                colorClass="text-accent-info"
                 bgColorClass="bg-white dark:bg-neutral-800"
                 subLabel={`المزارع: ${extraInfo.responsibleFarmer}`}
                 subIcon={UserIcon}
@@ -2495,7 +2495,7 @@ const SharedReport = () => {
                   treasuryStats.outflows.operatingExpenses.transactionCount
                 }
                 icon={WalletIcon}
-                colorClass="text-rose-500"
+                colorClass="text-accent-danger"
                 bgColorClass="bg-white dark:bg-neutral-800"
                 subLabel="نثريات نقدية يومية"
                 onClick={() => {
@@ -2518,8 +2518,8 @@ const SharedReport = () => {
               />
             </div>
 
-            <div className="p-4 sm:p-6 bg-blue-50 dark:bg-blue-900/10 rounded-[1.5rem] sm:rounded-[2rem] border border-blue-100 dark:border-blue-900/30">
-              <p className="text-[10px] sm:text-xs text-blue-700 dark:text-blue-300 font-bold leading-relaxed text-center">
+            <div className="p-4 sm:p-6 bg-accent-info/10 dark:bg-accent-info/20 rounded-[1.5rem] sm:rounded-[2rem] border border-accent-info/20 dark:border-accent-info/30">
+              <p className="text-2xs sm:text-xs text-accent-info dark:text-accent-info font-bold leading-relaxed text-center">
                 رصيد الخزنة يمثل المال الفعلي "الكاش" الموجود في عهدة هذه العروة
                 حالياً. لا تُحتسب المصروفات الآجلة هنا إلا بعد سدادها نقدياً
                 للمورد.

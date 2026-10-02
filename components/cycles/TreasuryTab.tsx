@@ -28,22 +28,22 @@ const StatMiniCard = ({ label, value, icon: Icon, colorClass, count, subLabel, s
                 <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div className="text-left">
-                <span className="text-[9px] sm:text-[10px] font-black text-neutral-400 bg-neutral-50 dark:bg-neutral-950 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-neutral-100 dark:border-neutral-800 tabular-nums">
+                <span className="text-2xs sm:text-2xs font-black text-neutral-400 bg-neutral-50 dark:bg-neutral-950 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-neutral-100 dark:border-neutral-800 tabular-nums">
                     {count} حركات
                 </span>
             </div>
         </div>
         <div>
-            <p className="text-[9px] sm:text-[11px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-tight sm:tracking-widest mb-1">{label}</p>
+            <p className="text-2xs sm:text-[11px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-tight sm:tracking-widest mb-1">{label}</p>
             <p className={`text-sm sm:text-2xl font-black ${colorClass} tracking-tighter tabular-nums mb-2 sm:mb-3`}>
                 {formatNumber(value)}
-                <span className="text-[8px] sm:text-xs mr-1 opacity-60 font-bold">ج.م</span>
+                <span className="text-2xs sm:text-xs mr-1 opacity-60 font-bold">ج.م</span>
             </p>
             
             {subLabel && (
                 <div className="flex items-center gap-1 sm:gap-1.5 pt-2 sm:pt-3 border-t border-neutral-100 dark:border-neutral-800/60">
                     {SubIcon && <SubIcon className="w-2.5 h-2.5 sm:w-3 h-3 text-neutral-400" />}
-                    <span className="text-[8px] sm:text-[10px] font-bold text-neutral-500 dark:text-neutral-450 truncate max-w-full">{subLabel}</span>
+                    <span className="text-2xs sm:text-2xs font-bold text-neutral-500 dark:text-neutral-450 truncate max-w-full">{subLabel}</span>
                 </div>
             )}
         </div>
@@ -446,14 +446,14 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
             {/* Hero Balance Card */}
             <div className="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 rounded-3xl p-5 sm:p-6 text-white shadow-xl border border-white/5">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] -ml-24 -mb-24 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent-success/10 rounded-full blur-[80px] -ml-24 -mb-24 pointer-events-none"></div>
                 
                 <div className="relative z-10 space-y-5 text-center">
                     {/* Main Balance Container */}
                     <div>
                         <div className="flex items-center justify-center gap-1.5 opacity-80 mb-2">
                             <WalletIcon className="w-4 h-4 text-indigo-300" />
-                            <h2 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-indigo-100">الرصيد الإجمالي للخزنة (كاش + بنك)</h2>
+                            <h2 className="text-2xs sm:text-xs font-black uppercase tracking-[0.2em] text-indigo-100">الرصيد الإجمالي للخزنة (كاش + بنك)</h2>
                         </div>
                         <div className="flex items-baseline justify-center gap-1.5">
                             <span className="text-4xl sm:text-5xl font-black tracking-tighter tabular-nums text-transparent bg-clip-text bg-gradient-to-br from-white to-neutral-300 drop-shadow-sm">{formatNumber(fund.balance + _bankBalance)}</span>
@@ -462,9 +462,9 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                     </div>
 
                     {ownerNetBalance > 0 && (
-                        <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 text-indigo-300 rounded-xl border border-indigo-500/20 max-w-fit mx-auto backdrop-blur-sm">
+                        <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-accent-info/10 text-indigo-300 rounded-xl border border-indigo-500/20 max-w-fit mx-auto backdrop-blur-sm">
                             <UserIcon className="w-3.5 h-3.5" />
-                            <span className="text-[10px] sm:text-xs font-bold">يتضمن تمويل شخصي المالك: <span className="text-indigo-200 font-black">{formatNumber(ownerNetBalance)}</span> ج.م</span>
+                            <span className="text-2xs sm:text-xs font-bold">يتضمن تمويل شخصي المالك: <span className="text-indigo-200 font-black">{formatNumber(ownerNetBalance)}</span> ج.م</span>
                         </div>
                     )}
                     
@@ -473,34 +473,34 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                         {/* Inflow */}
                         <div className="bg-white/5 backdrop-blur-md rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center group hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-1.5 mb-1.5">
-                                <div className="p-1 bg-emerald-500/20 rounded-xl text-emerald-400 group-hover:scale-110 transition-transform">
+                                <div className="p-1 bg-accent-success/20 rounded-xl text-accent-success group-hover:scale-110 transition-transform">
                                     <TrendingUpIcon className="w-3.5 h-3.5" />
                                 </div>
-                                <p className="text-[8px] sm:text-[9px] font-black text-emerald-100/60 uppercase tracking-widest">إجمالي الوارد</p>
+                                <p className="text-2xs sm:text-2xs font-black text-emerald-100/60 uppercase tracking-widest">إجمالي الوارد</p>
                             </div>
-                            <p className="text-xs sm:text-sm font-black tabular-nums text-emerald-400">{formatNumber(fund.inflows.totalRevenue + fund.inflows.bankWithdrawals + (fund.inflows.transferredBalance || 0) + (fund.inflows.manualFunding || 0) + (fund.inflows.jointDebtsFunding || 0) + (fund.inflows.individualDebtsFunding || 0))}</p>
+                            <p className="text-xs sm:text-sm font-black tabular-nums text-accent-success">{formatNumber(fund.inflows.totalRevenue + fund.inflows.bankWithdrawals + (fund.inflows.transferredBalance || 0) + (fund.inflows.manualFunding || 0) + (fund.inflows.jointDebtsFunding || 0) + (fund.inflows.individualDebtsFunding || 0))}</p>
                         </div>
 
                         {/* Outflow */}
                         <div className="bg-white/5 backdrop-blur-md rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center group hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-1.5 mb-1.5">
-                                <div className="p-1 bg-rose-500/20 rounded-xl text-rose-400 group-hover:scale-110 transition-transform">
+                                <div className="p-1 bg-accent-danger/20 rounded-xl text-accent-danger group-hover:scale-110 transition-transform">
                                     <TrendingDownIcon className="w-3.5 h-3.5" />
                                 </div>
-                                <p className="text-[8px] sm:text-[9px] font-black text-rose-100/60 uppercase tracking-widest">إجمالي الخارج</p>
+                                <p className="text-2xs sm:text-2xs font-black text-rose-100/60 uppercase tracking-widest">إجمالي الخارج</p>
                             </div>
-                            <p className="text-xs sm:text-sm font-black tabular-nums text-rose-400">{formatNumber(totalOutflow)}</p>
+                            <p className="text-xs sm:text-sm font-black tabular-nums text-accent-danger">{formatNumber(totalOutflow)}</p>
                         </div>
 
                         {/* Cash balance */}
                         <div className="bg-white/5 backdrop-blur-md rounded-2xl p-3 border border-white/10 flex flex-col items-center justify-center text-center group hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-1.5 mb-1.5">
-                                <div className="p-1 bg-amber-500/20 rounded-xl text-amber-400 group-hover:scale-110 transition-transform">
+                                <div className="p-1 bg-accent-warning/20 rounded-xl text-accent-warning group-hover:scale-110 transition-transform">
                                     <WalletIcon className="w-3.5 h-3.5" />
                                 </div>
-                                <p className="text-[8px] sm:text-[9px] font-black text-amber-100/60 uppercase tracking-widest">المتبقي نقداً (كاش)</p>
+                                <p className="text-2xs sm:text-2xs font-black text-amber-100/60 uppercase tracking-widest">المتبقي نقداً (كاش)</p>
                             </div>
-                            <p className="text-xs sm:text-sm font-black tabular-nums text-amber-400">{formatNumber(fund.balance)}</p>
+                            <p className="text-xs sm:text-sm font-black tabular-nums text-accent-warning">{formatNumber(fund.balance)}</p>
                         </div>
 
                         {/* Bank balance */}
@@ -509,7 +509,7 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                                 <div className="p-1 bg-blue-500/20 rounded-xl text-blue-400 group-hover:scale-110 transition-transform">
                                     <CreditCardIcon className="w-3.5 h-3.5" />
                                 </div>
-                                <p className="text-[8px] sm:text-[9px] font-black text-blue-100/60 uppercase tracking-widest">المتاح بالبنك</p>
+                                <p className="text-2xs sm:text-2xs font-black text-blue-100/60 uppercase tracking-widest">المتاح بالبنك</p>
                             </div>
                             <p className="text-xs sm:text-sm font-black tabular-nums text-blue-400">{formatNumber(_bankBalance)}</p>
                         </div>
@@ -524,7 +524,7 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                     value={fund.outflows.supplierPayments.amount} 
                     count={extraInfo.counts.supplier}
                     icon={CreditCardIcon} 
-                    colorClass="text-amber-600 dark:text-amber-400" 
+                    colorClass="text-accent-warning dark:text-accent-warning" 
                     subLabel={extraInfo.lastSupplier ? `آخر مورد: ${extraInfo.lastSupplier}` : "لا توجد مدفوعات"}
                     subIcon={TruckIcon}
                     onClick={() => openCategoryModal('suppliers')}
@@ -534,7 +534,7 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                     value={fund.outflows.farmerWithdrawals.amount} 
                     count={extraInfo.counts.farmer}
                     icon={FarmerAccountIcon} 
-                    colorClass="text-blue-600 dark:text-blue-400" 
+                    colorClass="text-accent-info dark:text-accent-info" 
                     subLabel={`المزارع: ${extraInfo.responsibleFarmer}`}
                     subIcon={UserIcon}
                     onClick={() => openCategoryModal('farmers')}
@@ -544,7 +544,7 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                     value={fund.outflows.operatingExpenses.amount} 
                     count={extraInfo.counts.expenses}
                     icon={WalletIcon} 
-                    colorClass="text-rose-600 dark:text-rose-400" 
+                    colorClass="text-accent-danger dark:text-accent-danger" 
                     subLabel="نثريات نقدية يومية"
                     onClick={() => openCategoryModal('expenses')}
                 />
@@ -553,7 +553,7 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                     value={fund.outflows.fatherLaborExpenses.amount} 
                     count={rawExpenses.filter(e => e.cycle_id === fund.id && e.payment_method === 'cash' && isExternalLabor(e)).length}
                     icon={UsersIcon} 
-                    colorClass="text-indigo-600 dark:text-indigo-400" 
+                    colorClass="text-accent-info dark:text-accent-info" 
                     subLabel="يوميات مسددة كاش منفصلة"
                 />
                 <StatMiniCard 
@@ -586,18 +586,18 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                         recentHistory.map((h, i) => {
                             const isOutflow = h.isOutflow === true;
                             const absoluteAmount = Math.abs(h.amount);
-                            const amountColorClass = isOutflow ? 'text-red-500' : 'text-green-600';
+                            const amountColorClass = isOutflow ? 'text-accent-danger' : 'text-accent-success';
                             const sign = isOutflow ? '-' : '+';
 
                             return (
                                 <div key={i} className="p-4 sm:p-5 flex items-center justify-between hover:bg-neutral-50/50 dark:hover:bg-neutral-800/20 transition-colors">
                                     <div className="flex items-center gap-3 sm:gap-4">
-                                        <div className={`p-2 sm:p-2.5 rounded-full ${isOutflow ? 'bg-rose-50 text-rose-500 dark:bg-rose-500/10 dark:text-rose-400' : 'bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400'}`}>
+                                        <div className={`p-2 sm:p-2.5 rounded-full ${isOutflow ? 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/10 dark:text-accent-danger' : 'bg-accent-success/10 text-accent-success dark:bg-accent-success/10 dark:text-accent-success'}`}>
                                             {isOutflow ? <TrendingDownIcon className="w-4 h-4 sm:w-5 sm:h-5" /> : <TrendingUpIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
                                         </div>
                                         <div>
                                             <p className="text-xs sm:text-sm font-black text-neutral-900 dark:text-white truncate max-w-[150px] sm:max-w-[250px]">{h.note}</p>
-                                            <p className="text-[10px] sm:text-xs text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">{h.typeLabel}</p>
+                                            <p className="text-2xs sm:text-xs text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">{h.typeLabel}</p>
                                         </div>
                                     </div>
                                     <div className="text-left">
@@ -616,8 +616,8 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
             </div>
 
             {/* Info Message Footer */}
-            <div className="p-4 sm:p-6 bg-indigo-50 dark:bg-indigo-900/10 rounded-[1.5rem] sm:rounded-[2rem] border border-indigo-100 dark:border-indigo-900/30">
-                <p className="text-[10px] sm:text-xs text-indigo-700 dark:text-indigo-300 font-bold leading-relaxed text-center">
+            <div className="p-4 sm:p-6 bg-accent-info/10 dark:bg-accent-info/20 rounded-[1.5rem] sm:rounded-[2rem] border border-accent-info/20 dark:border-accent-info/30">
+                <p className="text-2xs sm:text-xs text-accent-info dark:text-accent-info font-bold leading-relaxed text-center">
                     تم تصفية هذا الجدول التفصيلي ليوضح بدقة حركة "الكاش" الصادرة والواردة لصندوق عروة ({cycle.name}) وعلاقته بحسابات الموردين، والمزارعين، والمصروفات.
                 </p>
             </div>
@@ -667,7 +667,7 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                                     </div>
                                 ) : (
                                     <div className="space-y-2.5">
-                                        <p className="text-[10px] font-black text-neutral-400 uppercase tracking-wider mb-2">إجمالي المسحوبات التفصيلية حسب الأسماء والبنود:</p>
+                                        <p className="text-2xs font-black text-neutral-400 uppercase tracking-wider mb-2">إجمالي المسحوبات التفصيلية حسب الأسماء والبنود:</p>
                                         {groupedSummary.map((item, idx) => (
                                             <div 
                                                 key={item.id || idx} 
@@ -678,17 +678,17 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                                                 className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-850 border border-neutral-100 dark:border-neutral-800/40 hover:border-primary/40 dark:hover:border-primary/40 flex items-center justify-between cursor-pointer group transition duration-200"
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-900/10 text-indigo-650 dark:text-indigo-400 flex items-center justify-center shrink-0 font-black text-sm group-hover:scale-110 transition-transform">
+                                                    <div className="w-9 h-9 rounded-xl bg-accent-info/10 dark:bg-accent-info/20 text-indigo-650 dark:text-accent-info flex items-center justify-center shrink-0 font-black text-sm group-hover:scale-110 transition-transform">
                                                         {item.name.charAt(0)}
                                                     </div>
                                                     <div className="text-right">
                                                         <p className="text-sm font-black text-neutral-800 dark:text-neutral-200 group-hover:text-primary transition-colors">{item.name}</p>
-                                                        <p className="text-[10px] text-neutral-450 font-bold mt-0.5">عدد الحركات: {item.count}</p>
+                                                        <p className="text-2xs text-neutral-450 font-bold mt-0.5">عدد الحركات: {item.count}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-3 font-semibold">
                                                     <div className="text-left font-black text-base text-neutral-900 dark:text-white tabular-nums">
-                                                        {formatNumber(item.total)} <span className="text-[10px] font-bold opacity-70">ج.م</span>
+                                                        {formatNumber(item.total)} <span className="text-2xs font-bold opacity-70">ج.م</span>
                                                     </div>
                                                     <ChevronLeftIcon className="w-5 h-5 text-neutral-400 group-hover:text-primary group-hover:-translate-x-1 transition-all" />
                                                 </div>
@@ -701,14 +701,14 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                                 <div className="space-y-4">
                                     {/* Overview statement card */}
                                     <div className="bg-neutral-900 dark:bg-black rounded-2xl p-5 text-neutral-100 flex items-center justify-between border border-white/5 relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-accent-info/10 rounded-full blur-2xl pointer-events-none"></div>
                                         <div className="space-y-1 relative z-10">
-                                            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-wider">كشف حساب تفصيلي خلال العروة</p>
+                                            <p className="text-2xs font-black text-neutral-400 uppercase tracking-wider">كشف حساب تفصيلي خلال العروة</p>
                                             <p className="text-sm font-black text-white">{selectedSubItemName}</p>
                                         </div>
                                         <div className="text-left relative z-10">
-                                            <p className="text-[9px] font-bold text-neutral-400">إجمالي البند</p>
-                                            <p className="text-lg font-black text-rose-500 tracking-tight">
+                                            <p className="text-2xs font-bold text-neutral-400">إجمالي البند</p>
+                                            <p className="text-lg font-black text-accent-danger tracking-tight">
                                                 {formatNumber(individualTxData.reduce((s, x) => s + Math.abs(x.amount), 0))}
                                                 <span className="text-xs mr-1 opacity-85 font-black">ج.م</span>
                                             </p>
@@ -722,24 +722,24 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                                         </div>
                                     ) : (
                                         <div className="space-y-2">
-                                            <p className="text-[10px] font-black text-neutral-450 uppercase tracking-wider mb-2">سجل الحركات التفصيلية:</p>
+                                            <p className="text-2xs font-black text-neutral-450 uppercase tracking-wider mb-2">سجل الحركات التفصيلية:</p>
                                             {individualTxData.map((item, idx) => (
                                                 <div key={item.id || idx} className="p-3.5 rounded-xl bg-neutral-50/70 dark:bg-neutral-800/20 border border-neutral-100 dark:border-neutral-800/50 flex items-center justify-between transition hover:border-neutral-200 dark:hover:border-neutral-700">
                                                     <div className="space-y-1 text-right">
                                                         <p className="text-xs sm:text-sm font-black text-neutral-800 dark:text-neutral-200">{item.name}</p>
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-[10px] text-neutral-400 font-bold tabular-nums">
+                                                            <span className="text-2xs text-neutral-400 font-bold tabular-nums">
                                                                 {new Date(item.date).toLocaleDateString('en-GB')}
                                                             </span>
                                                             {item.note && (
-                                                                <span className="text-[9px] px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-500 dark:text-neutral-400 font-black">
+                                                                <span className="text-2xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-500 dark:text-neutral-400 font-black">
                                                                     {item.note}
                                                                 </span>
                                                             )}
                                                         </div>
                                                     </div>
-                                                    <div className="text-left font-black text-sm sm:text-base text-rose-600 dark:text-rose-400 tabular-nums">
-                                                        {formatNumber(item.amount)} <span className="text-[10px] font-bold opacity-70">ج.م</span>
+                                                    <div className="text-left font-black text-sm sm:text-base text-accent-danger dark:text-accent-danger tabular-nums">
+                                                        {formatNumber(item.amount)} <span className="text-2xs font-bold opacity-70">ج.م</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -754,7 +754,7 @@ const TreasuryTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                             <span className="text-xs sm:text-sm text-neutral-500">
                                 {!selectedSubItemId ? "إجمالي الفئة للعروة:" : "إجمالي المعاملات للبند:"}
                             </span>
-                            <span className="text-sm sm:text-lg text-rose-600 dark:text-rose-400 tabular-nums">
+                            <span className="text-sm sm:text-lg text-accent-danger dark:text-accent-danger tabular-nums">
                                 {formatNumber(
                                     !selectedSubItemId 
                                         ? groupedSummary.reduce((s, x) => s + x.total, 0)

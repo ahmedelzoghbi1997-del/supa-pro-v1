@@ -130,7 +130,8 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                     </div>
                     <button 
                         onClick={onClose}
-                        className="p-1.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-500 dark:text-neutral-400 transition-all cursor-pointer"
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-xl bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-500 dark:text-neutral-400 transition-all cursor-pointer"
+                        aria-label="إغلاق"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -142,8 +143,9 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                     <div className="flex items-center justify-between gap-2 p-2 bg-neutral-50 dark:bg-neutral-850 rounded-2xl border border-neutral-150/40 dark:border-neutral-800/40">
                         <button 
                             onClick={handleNextWeek}
-                            className="p-1.5 rounded-lg bg-white dark:bg-neutral-800 hover:bg-neutral-100 text-neutral-600 dark:text-neutral-300 transition-all border border-neutral-200 dark:border-neutral-750 cursor-pointer shadow-xs active:scale-95"
+                            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-lg bg-white dark:bg-neutral-800 hover:bg-neutral-100 text-neutral-600 dark:text-neutral-300 transition-all border border-neutral-200 dark:border-neutral-750 cursor-pointer shadow-xs tap"
                             title="الأسبوع التالي"
+                            aria-label="الأسبوع التالي"
                         >
                             <ChevronRight className="w-4 h-4" />
                         </button>
@@ -152,22 +154,23 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                             <span className="text-[10.5px] font-black text-neutral-750 dark:text-neutral-300">
                                 {startDayFormatted} – {endDayFormatted}
                             </span>
-                            <span className="text-[9px] font-bold text-neutral-400">
+                            <span className="text-2xs font-bold text-neutral-400">
                                 عام {yearStr}
                             </span>
                         </div>
 
                         <button 
                             onClick={handleCurrentWeek}
-                            className="px-2.5 py-1 text-[10px] font-black rounded-md bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 transition-all border border-neutral-200 dark:border-neutral-750 cursor-pointer shadow-xs active:scale-95"
+                            className="min-h-[44px] px-3 py-1 text-2xs font-black rounded-md bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 transition-all border border-neutral-200 dark:border-neutral-750 cursor-pointer shadow-xs tap inline-flex items-center justify-center"
                         >
                             اليوم
                         </button>
 
                         <button 
                             onClick={handlePrevWeek}
-                            className="p-1.5 rounded-lg bg-white dark:bg-neutral-800 hover:bg-neutral-100 text-neutral-600 dark:text-neutral-300 transition-all border border-neutral-200 dark:border-neutral-750 cursor-pointer shadow-xs active:scale-95"
+                            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-lg bg-white dark:bg-neutral-800 hover:bg-neutral-100 text-neutral-600 dark:text-neutral-300 transition-all border border-neutral-200 dark:border-neutral-750 cursor-pointer shadow-xs tap"
                             title="الأسبوع السابق"
+                            aria-label="الأسبوع السابق"
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
@@ -221,7 +224,7 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                                                         const { compounds } = deserializeCompounds(task.details);
                                                         const compoundsStr = compounds.map(c => c.name + (c.amount ? ` (${c.amount})` : '')).join(' + ');
                                                         text = `تسميد: ${compoundsStr || task.subCategory || 'تسميد ومغذيات'}`;
-                                                        badgeStyle = 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/30';
+                                                        badgeStyle = 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20 dark:border-accent-success/30';
                                                         icon = <Leaf className="w-3 h-3 shrink-0" />;
                                                         break;
                                                     }
@@ -229,7 +232,7 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                                                         const { compounds } = deserializeCompounds(task.details);
                                                         const compoundsStr = compounds.map(c => c.name + (c.amount ? ` (${c.amount})` : '')).join(' + ');
                                                         text = `رش: ${compoundsStr || task.subCategory || 'رش وقائي'}`;
-                                                        badgeStyle = 'bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/30';
+                                                        badgeStyle = 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info border border-accent-info/20 dark:border-accent-info/30';
                                                         icon = <Shield className="w-3 h-3 shrink-0" />;
                                                         break;
                                                     }
@@ -237,7 +240,7 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                                                     case 'إصابات': {
                                                         const { pestName, severity } = deserializePest(task.details);
                                                         text = `مكافحة آفة: ${pestName || task.subCategory || 'إصابة نشطة'}${severity ? ` (${severity})` : ''}`;
-                                                        badgeStyle = 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-900/30';
+                                                        badgeStyle = 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger border border-accent-danger/20 dark:border-accent-danger/30';
                                                         icon = <ShieldAlert className="w-3 h-3 shrink-0" />;
                                                         break;
                                                     }
@@ -257,13 +260,13 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                                                     }
                                                     case 'حصاد': {
                                                         text = `حصاد: ${task.quantity ? `${task.quantity} ${task.unit || 'قفص'}` : ''} ${task.subCategory || ''}`.trim() || 'حصاد';
-                                                        badgeStyle = 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/30';
+                                                        badgeStyle = 'bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning border border-accent-warning/20 dark:border-accent-warning/30';
                                                         icon = <ShoppingBag className="w-3 h-3 shrink-0" />;
                                                         break;
                                                     }
                                                     case 'عمالة': {
                                                         text = `عمالة: ${task.workersCount ? `${task.workersCount} عمال` : task.details || 'عمالة يدوي'}`;
-                                                        badgeStyle = 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/30';
+                                                        badgeStyle = 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info border border-accent-info/20 dark:border-accent-info/30';
                                                         icon = <Users className="w-3 h-3 shrink-0" />;
                                                         break;
                                                     }
@@ -286,7 +289,7 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                                                 );
                                             })
                                         ) : (
-                                            <span className="text-[10px] text-neutral-350 dark:text-neutral-600 font-bold self-center">لا توجد أنشطة</span>
+                                            <span className="text-2xs text-neutral-350 dark:text-neutral-600 font-bold self-center">لا توجد أنشطة</span>
                                         )}
                                     </div>
                                 </div>
@@ -295,19 +298,19 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                     </div>
 
                     {/* Legend info block */}
-                    <div className="p-3 bg-neutral-50 dark:bg-neutral-850 rounded-xl border border-neutral-150 dark:border-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 space-y-1.5 leading-relaxed">
+                    <div className="p-3 bg-neutral-50 dark:bg-neutral-850 rounded-xl border border-neutral-150 dark:border-neutral-800 text-2xs text-neutral-500 dark:text-neutral-400 space-y-1.5 leading-relaxed">
                         <div className="font-bold text-neutral-700 dark:text-neutral-300">💡 توضيح الرموز والألوان:</div>
-                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[9px] font-black">
+                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-2xs font-black">
                             <div className="flex items-center gap-1.5">
                                 <span className="inline-block w-2.5 h-2.5 rounded-full bg-sky-500"></span>
                                 <span>ري بالصوبة</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span className="inline-block w-2.5 h-2.5 rounded-full bg-accent-success"></span>
                                 <span>تسميد ومغذيات</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <span className="inline-block w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                                <span className="inline-block w-2.5 h-2.5 rounded-full bg-accent-danger"></span>
                                 <span>رش ومكافحة آفات</span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -315,7 +318,7 @@ export const WeeklyRadarModal: React.FC<WeeklyRadarModalProps> = ({ onClose, dai
                                 <span>عمليات وعمالة يدوي</span>
                             </div>
                             <div className="flex items-center gap-1.5 col-span-2">
-                                <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                <span className="inline-block w-2.5 h-2.5 rounded-full bg-accent-warning"></span>
                                 <span>إنتاج وحصاد المحصول</span>
                             </div>
                         </div>

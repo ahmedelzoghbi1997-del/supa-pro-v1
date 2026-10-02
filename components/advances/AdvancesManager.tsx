@@ -190,14 +190,14 @@ const AdvancesManager: React.FC = () => {
                 <p className="text-neutral-500 dark:text-neutral-400">
                     هل أنت متأكد من تصفير حساب <strong>{persons.find(p => p.id === personToZero?.id)?.name}</strong> بالكامل؟
                 </p>
-                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/50 rounded-xl text-xs text-amber-800 dark:text-amber-400 font-bold leading-relaxed space-y-1.5">
+                <div className="mt-3 p-3 bg-accent-warning/10 dark:bg-accent-warning/20 border border-accent-warning/20 dark:border-accent-warning/30 rounded-xl text-xs text-accent-warning dark:text-accent-warning font-bold leading-relaxed space-y-1.5">
                     <p>• سيتم وضع علامة "تمت التسوية" على جميع السلف والمسحوبات غير المسددة لهذا الشخص.</p>
                     <p>• سيصبح رصيد حسابه مساوياً لـ (0) ج.م.</p>
                     <p>• رصيد الخزنة الفعلي وحفظ الحسابات التاريخي لن يتأثرا لضمان بقائها دقيقة بنسبة 100% محاسبيًا.</p>
                 </div>
                 <div className="mt-4 text-right" dir="rtl">
                     <label className="block text-xs font-bold text-neutral-600 dark:text-neutral-400 mb-1.5">
-                        لتأكيد التصفير، يرجى كتابة <strong className="text-rose-600 dark:text-rose-400">حذف نهائي</strong> في الحقل أدناه:
+                        لتأكيد التصفير، يرجى كتابة <strong className="text-accent-danger dark:text-accent-danger">حذف نهائي</strong> في الحقل أدناه:
                     </label>
                     <input
                         type="text"

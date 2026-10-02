@@ -28,8 +28,8 @@
     </script>
     <link rel="icon" type="image/png" href="/app-logo.png" />
     
-    <!-- PWA Optimized Viewport: Prevents user scaling, enables cover fit -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
+    <!-- PWA Optimized Viewport: Accessible scaling enabled up to 5x, cover fit -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     
     <!-- PWA Meta Tags -->
@@ -58,7 +58,7 @@
 
     <link rel="stylesheet" href="/src/index.css" />
   </head>
-  <body class="bg-neutral-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 select-none">
+  <body class="bg-neutral-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   

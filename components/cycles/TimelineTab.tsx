@@ -47,30 +47,30 @@ const TimelineItem: React.FC<{
             case 'start': 
                 return { 
                     icon: LeafIcon, 
-                    color: 'text-indigo-600 dark:text-indigo-400', 
-                    bg: 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/80',
-                    badgeBg: 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300'
+                    color: 'text-accent-info dark:text-accent-info', 
+                    bg: 'bg-accent-info/10 dark:bg-accent-info/20 border-accent-info/20 dark:border-accent-info/30',
+                    badgeBg: 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info'
                 };
             case 'invoice': 
                 return { 
                     icon: TrendingUpIcon, 
-                    color: 'text-emerald-600 dark:text-emerald-400', 
-                    bg: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/80',
-                    badgeBg: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                    color: 'text-accent-success dark:text-accent-success', 
+                    bg: 'bg-accent-success/10 dark:bg-accent-success/20 border-accent-success/20 dark:border-accent-success/30/80',
+                    badgeBg: 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success'
                 };
             case 'expense': 
                 return { 
                     icon: TrendingDownIcon, 
-                    color: 'text-rose-600 dark:text-rose-400', 
-                    bg: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/80',
-                    badgeBg: 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300'
+                    color: 'text-accent-danger dark:text-accent-danger', 
+                    bg: 'bg-accent-danger/10 dark:bg-accent-danger/20 border-accent-danger/20 dark:border-accent-danger/30/80',
+                    badgeBg: 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger'
                 };
             case 'daily_log': 
                 return { 
                     icon: SparklesIcon, 
-                    color: 'text-amber-600 dark:text-amber-400', 
-                    bg: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/80',
-                    badgeBg: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
+                    color: 'text-accent-warning dark:text-accent-warning', 
+                    bg: 'bg-accent-warning/10 dark:bg-accent-warning/20 border-accent-warning/20 dark:border-accent-warning/30/80',
+                    badgeBg: 'bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning'
                 };
             case 'done': 
                 return { 
@@ -114,7 +114,7 @@ const TimelineItem: React.FC<{
                 {isNewest && (
                     <span className="absolute -top-1 -left-1 flex h-3.5 w-3.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
+                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-accent-success"></span>
                     </span>
                 )}
             </motion.div>
@@ -129,7 +129,7 @@ const TimelineItem: React.FC<{
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2">
-                        <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${badgeBg}`}>
+                        <span className={`text-2xs font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${badgeBg}`}>
                             {event.type === 'start' && 'بداية العروة'}
                             {event.type === 'invoice' && 'فاتورة توريد'}
                             {event.type === 'expense' && 'مصروف تشغيلي'}
@@ -141,7 +141,7 @@ const TimelineItem: React.FC<{
                         </h4>
                     </div>
                     
-                    <div className="flex items-center gap-1 bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 text-neutral-400 dark:text-neutral-500 px-3 py-1 rounded-full text-[10px] font-bold shrink-0 w-fit">
+                    <div className="flex items-center gap-1 bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 text-neutral-400 dark:text-neutral-500 px-3 py-1 rounded-full text-2xs font-bold shrink-0 w-fit">
                         <Clock className="w-3 h-3 text-neutral-400" />
                         <span className="tabular-nums">{event.dateLabel}</span>
                     </div>
@@ -154,12 +154,12 @@ const TimelineItem: React.FC<{
                 {/* Amount display for financial transactions */}
                 {event.amount != null && (
                     <div className="mt-3 flex items-center justify-between">
-                        <div className={`text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-2xl flex items-center gap-1.5 w-fit shadow-xs ${event.amount > 0 ? 'bg-emerald-50/50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-100/50' : 'bg-rose-50/50 text-rose-500 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-100/50'}`}>
+                        <div className={`text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-2xl flex items-center gap-1.5 w-fit shadow-xs ${event.amount > 0 ? 'bg-accent-success/10/50 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20/50' : 'bg-accent-danger/10/50 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger border border-accent-danger/20/50'}`}>
                             <span>{event.amount > 0 ? 'إيراد لليد:' : 'منصرف لليد:'}</span>
                             <span className="tabular-nums font-black text-sm">
                                 {event.amount > 0 ? '+' : ''}{formatNumber(Math.abs(event.amount))}
                             </span>
-                            <span className="text-[10px] font-bold">ج.م</span>
+                            <span className="text-2xs font-bold">ج.م</span>
                         </div>
                         
                         <div className="text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300">
@@ -171,7 +171,7 @@ const TimelineItem: React.FC<{
                 {/* Optional expanding indicator for non-financial but detailed items */}
                 {event.amount == null && (event.tasks?.length || event.description) && (
                     <div className="mt-2.5 flex justify-end">
-                        <div className="text-neutral-400 dark:text-neutral-500 text-[10px] font-bold flex items-center gap-1">
+                        <div className="text-neutral-400 dark:text-neutral-500 text-2xs font-bold flex items-center gap-1">
                             <span>{isExpanded ? 'عرض أقل' : 'عرض التفاصيل'}</span>
                             {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </div>
@@ -192,7 +192,7 @@ const TimelineItem: React.FC<{
                             {/* 1. Expand invoice items */}
                             {event.type === 'invoice' && event.invoiceItems && (
                                 <div className="space-y-3 font-sans">
-                                    <h5 className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                                    <h5 className="text-2xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-1.5 mb-2">
                                         <Tag className="w-3.5 h-3.5 text-neutral-400" /> تفاصيل الأسعار والكمية
                                     </h5>
                                     
@@ -201,7 +201,7 @@ const TimelineItem: React.FC<{
                                             <div key={id} className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-100 dark:border-neutral-800 flex justify-between items-center whitespace-nowrap">
                                                 <div className="flex flex-col">
                                                     <span className="font-extrabold text-neutral-800 dark:text-neutral-250 select-text">{item.fruit_type || 'صنف'}</span>
-                                                    <span className="text-[10px] text-neutral-400 tracking-tight tabular-nums mt-0.5">{formatNumber(item.quantity)} كجم × {item.price_per_kg} ج</span>
+                                                    <span className="text-2xs text-neutral-400 tracking-tight tabular-nums mt-0.5">{formatNumber(item.quantity)} كجم × {item.price_per_kg} ج</span>
                                                 </div>
                                                 <span className="font-black text-neutral-900 dark:text-white tabular-nums">
                                                     {formatNumber(Number(item.quantity) * Number(item.price_per_kg))} ج
@@ -211,7 +211,7 @@ const TimelineItem: React.FC<{
                                     </div>
 
                                     {event.packagingInfo && (
-                                        <div className="p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 text-[10px] font-extrabold text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5 mt-2">
+                                        <div className="p-3 rounded-2xl bg-accent-success/5 border border-accent-success/20 text-2xs font-extrabold text-accent-success dark:text-accent-success flex items-center gap-1.5 mt-2">
                                             <span>📦 الطرود الموردة:</span>
                                             <span className="font-bold tabular-nums">({event.packagingInfo.count} {event.packagingInfo.type === 'carton' ? 'كرتونة' : 'قفص'})</span>
                                         </div>
@@ -222,7 +222,7 @@ const TimelineItem: React.FC<{
                             {/* 2. Expand expense options */}
                             {event.type === 'expense' && (
                                 <div className="space-y-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                                    <h5 className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                                    <h5 className="text-2xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-1.5 mb-2">
                                         <CreditCard className="w-3.5 h-3.5 text-neutral-400" /> تفاصيل المعاملة المصرفية
                                     </h5>
                                     <div className="flex flex-wrap items-center gap-3">
@@ -243,14 +243,14 @@ const TimelineItem: React.FC<{
                             {/* 3. Expand tasks items */}
                             {event.type === 'daily_log' && event.tasks && event.tasks.length > 0 && (
                                 <div className="space-y-2 font-sans">
-                                    <h5 className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                                    <h5 className="text-2xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-1.5 mb-2">
                                         <LeafIcon className="w-3.5 h-3.5 text-neutral-450" /> المهام والعمليات المسجلة
                                     </h5>
                                     
                                     <div className="space-y-2">
                                         {event.tasks.map((taskStr, id) => (
-                                            <div key={id} className="flex gap-2 p-3 rounded-2xl bg-amber-500/5 border border-amber-500/10 text-xs">
-                                                <span className="text-amber-500">•</span>
+                                            <div key={id} className="flex gap-2 p-3 rounded-2xl bg-accent-warning/5 border border-accent-warning/20 text-xs">
+                                                <span className="text-accent-warning">•</span>
                                                 <div className="text-neutral-700 dark:text-neutral-300 select-text">
                                                     {taskStr}
                                                 </div>
@@ -274,7 +274,7 @@ const TimelineItem: React.FC<{
                             {/* 5. Close season done details */}
                             {event.type === 'done' && (
                                 <div className="text-xs text-neutral-500 dark:text-neutral-450 leading-relaxed font-sans space-y-2">
-                                    <p className="font-exrabold text-emerald-600 dark:text-emerald-400">✅ تم إغلاق موسم العروة وحصاد الأرباح بنجاح.</p>
+                                    <p className="font-exrabold text-accent-success dark:text-accent-success">✅ تم إغلاق موسم العروة وحصاد الأرباح بنجاح.</p>
                                     <p>تم إغلاق دفاتر العروة نهائياً. تم تخزين كافة العمليات المالية من فواتير مبيعات ومشتريات مغذيات لتكون مرجعاً للأعوام القادمة.</p>
                                 </div>
                             )}
@@ -482,21 +482,21 @@ const TimelineTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                     </button>
                     <button 
                         onClick={() => setActiveFilter('invoices')}
-                        className={`px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${activeFilter === 'invoices' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-500'}`}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${activeFilter === 'invoices' ? 'bg-accent-success text-white shadow-sm' : 'bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-500'}`}
                     >
                         <InvoicesIcon className="w-3.5 h-3.5" />
                         <span>مبيعات وتوريدات</span>
                     </button>
                     <button 
                         onClick={() => setActiveFilter('expenses')}
-                        className={`px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${activeFilter === 'expenses' ? 'bg-rose-600 text-white shadow-sm' : 'bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-500'}`}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${activeFilter === 'expenses' ? 'bg-accent-danger text-white shadow-sm' : 'bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-500'}`}
                     >
                         <WalletIcon className="w-3.5 h-3.5" />
                         <span>مصروفات تشغيلية</span>
                     </button>
                     <button 
                         onClick={() => setActiveFilter('logs')}
-                        className={`px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${activeFilter === 'logs' ? 'bg-amber-600 text-white shadow-sm' : 'bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-500'}`}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${activeFilter === 'logs' ? 'bg-accent-warning text-white shadow-sm' : 'bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-500'}`}
                     >
                         <SparklesIcon className="w-3.5 h-3.5" />
                         <span>سجلات زراعية</span>
@@ -534,14 +534,14 @@ const TimelineTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                     <div className="mt-8 flex flex-col items-center gap-2">
                         <button
                             onClick={() => setVisibleCount(prev => prev + 15)}
-                            className="px-6 py-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/40 border border-indigo-150 dark:border-indigo-800/80 text-indigo-600 dark:text-indigo-400 font-extrabold text-xs flex items-center gap-2 cursor-pointer transition-all duration-300 shadow-sm"
+                            className="px-6 py-3 rounded-2xl bg-accent-info/10 hover:bg-accent-info/10 dark:bg-accent-info/20 dark:hover:bg-indigo-900/40 border border-indigo-150 dark:border-accent-info/30 text-accent-info dark:text-accent-info font-extrabold text-xs flex items-center gap-2 cursor-pointer transition-all duration-300 shadow-sm"
                         >
                             <ChevronDown className="w-4 h-4" />
                             <span>عرض المزيد من الحركات ({filteredEvents.length - visibleCount} متبقية)</span>
                         </button>
                         <button
                             onClick={() => setVisibleCount(filteredEvents.length)}
-                            className="text-[10px] font-bold text-neutral-400 hover:text-neutral-500 hover:underline transition-colors cursor-pointer"
+                            className="text-2xs font-bold text-neutral-400 hover:text-neutral-500 hover:underline transition-colors cursor-pointer"
                         >
                             عرض الكل دفعة واحدة
                         </button>

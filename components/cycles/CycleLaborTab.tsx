@@ -41,7 +41,7 @@ const CycleLaborTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
     return (
         <div className="space-y-6 animate-fade-in pb-12 mt-6">
             <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-xl">
+                <div className="p-2.5 bg-accent-warning/10 text-accent-warning rounded-xl">
                     <ChartPieIcon className="w-5 h-5" />
                 </div>
                 <div>
@@ -53,42 +53,42 @@ const CycleLaborTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
             <div className={`grid grid-cols-1 ${cycle.responsible_farmer_id ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4`}>
                 {/* 1. Gross Farmer Share */}
                 {cycle.responsible_farmer_id && (
-                <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl p-5 border border-emerald-200 dark:border-emerald-800/30">
+                <div className="bg-accent-success/10 dark:bg-accent-success/10 rounded-2xl p-5 border border-accent-success/20 dark:border-accent-success/30">
                     <div className="flex justify-between items-start mb-3">
-                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg">
+                        <div className="p-2 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success rounded-lg">
                             <TrendingUpIcon className="w-5 h-5" />
                         </div>
-                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/50 px-2 py-1 rounded-full">نسبة المزارع</span>
+                        <span className="text-2xs font-bold text-accent-success dark:text-accent-success bg-accent-success/10 dark:bg-accent-success/20 px-2 py-1 rounded-full">نسبة المزارع</span>
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-1">إجمالي المستحق لك</p>
+                        <p className="text-xs font-bold text-accent-success dark:text-accent-success mb-1">إجمالي المستحق لك</p>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            <span className="text-3xl font-black text-accent-success dark:text-accent-success tabular-nums">
                                 {formatNumber(stats.grossFarmerShare)}
                             </span>
-                            <span className="text-xs font-bold text-emerald-500">ج.م</span>
+                            <span className="text-xs font-bold text-accent-success">ج.م</span>
                         </div>
                     </div>
                 </div>
                 )}
 
                 {/* 2. Total Labor Cost */}
-                <div className="bg-rose-50 dark:bg-rose-500/10 rounded-2xl p-5 border border-rose-200 dark:border-rose-800/30">
+                <div className="bg-accent-danger/10 dark:bg-accent-danger/10 rounded-2xl p-5 border border-accent-danger/20 dark:border-accent-danger/30">
                     <div className="flex justify-between items-start mb-3">
-                        <div className="p-2 bg-rose-100 dark:bg-rose-900/30 text-rose-600 rounded-lg">
+                        <div className="p-2 bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger rounded-lg">
                             <UsersIcon className="w-5 h-5" />
                         </div>
-                        <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/50 px-2 py-1 rounded-full">الخصومات</span>
+                        <span className="text-2xs font-bold text-accent-danger dark:text-accent-danger bg-accent-danger/10 dark:bg-accent-danger/20 px-2 py-1 rounded-full">الخصومات</span>
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-rose-700 dark:text-rose-300 mb-1">إجمالي ما تم صرفه للعمالة</p>
+                        <p className="text-xs font-bold text-accent-danger dark:text-accent-danger mb-1">إجمالي ما تم صرفه للعمالة</p>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                            <span className="text-3xl font-black text-accent-danger dark:text-accent-danger tabular-nums">
                                 {formatNumber(stats.totalLaborCost)}
                             </span>
-                            <span className="text-xs font-bold text-rose-500">ج.م</span>
+                            <span className="text-xs font-bold text-accent-danger">ج.م</span>
                         </div>
-                        <p className="text-[10px] font-bold text-rose-500/80 mt-1">بإجمالي {stats.totalWorkersCount} يومية</p>
+                        <p className="text-2xs font-bold text-accent-danger/80 mt-1">بإجمالي {stats.totalWorkersCount} يومية</p>
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@ const CycleLaborTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                             <div className="p-2 bg-white/20 backdrop-blur-sm text-white rounded-lg">
                                 <WalletIcon className="w-5 h-5" />
                             </div>
-                            <span className="text-[10px] items-center flex font-bold text-indigo-100 bg-black/20 px-2 py-1 rounded-full">
+                            <span className="text-2xs items-center flex font-bold text-indigo-100 bg-black/20 px-2 py-1 rounded-full">
                                 صافي الربح
                             </span>
                         </div>
@@ -133,7 +133,7 @@ const CycleLaborTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                                     <p className="text-xs text-neutral-500 mt-1">{exp.date}</p>
                                 </div>
                                 <div className="text-right">
-                                    <span className="font-black text-rose-600 dark:text-rose-400">{formatNumber(exp.amount)} ج.م</span>
+                                    <span className="font-black text-accent-danger dark:text-accent-danger">{formatNumber(exp.amount)} ج.م</span>
                                 </div>
                             </div>
                         ))}

@@ -25,29 +25,29 @@ const AdvanceRow: React.FC<{
     return (
         <div className={`group bg-white dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-700/50 px-4 py-2.5 rounded-xl flex items-center justify-between gap-3 hover:shadow-sm hover:border-primary/30 transition-all ${isHighlighted ? 'animate-highlight' : ''}`}>
             <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSettled || isRepayment ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isSettled || isRepayment ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success' : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'}`}>
                     <TrendingDownIcon className={`w-4 h-4 ${isRepayment ? 'rotate-180' : ''}`} />
                 </div>
                 <div className="min-w-0">
                     <div className="flex items-center gap-2">
                         <h4 className="font-bold text-xs text-neutral-800 dark:text-neutral-100 truncate">{rawReason}</h4>
                         {advance.funding_source === 'external_debt' && (
-                            <span className="shrink-0 text-[8px] font-black px-1.5 py-0.5 bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-450 rounded border border-sky-100 dark:border-sky-900/50">
+                            <span className="shrink-0 text-2xs font-black px-1.5 py-0.5 bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-450 rounded border border-sky-100 dark:border-sky-900/50">
                                 تمويل خارجي (بدون كاش)
                             </span>
                         )}
                         {isSettled && (
-                            <span className="shrink-0 text-[8px] font-bold px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 rounded">
+                            <span className="shrink-0 text-2xs font-bold px-1.5 py-0.5 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded">
                                 تمت التسوية
                             </span>
                         )}
                         {isRepayment && (
-                            <span className="shrink-0 text-[8px] font-bold px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 rounded">
+                            <span className="shrink-0 text-2xs font-bold px-1.5 py-0.5 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded">
                                 سداد
                             </span>
                         )}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-400 font-bold">
+                    <div className="flex items-center gap-2 mt-0.5 text-2xs text-neutral-500 dark:text-neutral-400 font-bold">
                         <div className="flex items-center gap-1">
                             <CalendarIcon className="w-3 h-3 opacity-70" />
                             <span>{advance.date}</span>
@@ -61,9 +61,9 @@ const AdvanceRow: React.FC<{
             
             <div className="flex items-center gap-4 shrink-0">
                 <div className="text-left">
-                    <p className={`text-sm font-black tracking-tight ${isSettled ? 'text-neutral-400 line-through' : isRepayment ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                    <p className={`text-sm font-black tracking-tight ${isSettled ? 'text-neutral-400 line-through' : isRepayment ? 'text-accent-success dark:text-accent-success' : 'text-accent-danger dark:text-accent-danger'}`}>
                         <span dir="ltr"> {isRepayment ? '+' : ''}{formatCurrency(Math.abs(advance.amount)).replace('EGP', '')} </span>
-                        <span className="text-[9px] mr-0.5 font-bold opacity-70">ج.م</span>
+                        <span className="text-2xs mr-0.5 font-bold opacity-70">ج.م</span>
                     </p>
                 </div>
                 
@@ -75,7 +75,7 @@ const AdvanceRow: React.FC<{
                         </button>
                         )}
                         {onDelete && (
-                        <button onClick={() => onDelete(advance.id)} className="p-1.5 text-neutral-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors">
+                        <button onClick={() => onDelete(advance.id)} className="p-1.5 text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 rounded-lg transition-colors">
                             <TrashIcon className="w-3.5 h-3.5" />
                         </button>
                         )}
@@ -128,7 +128,7 @@ const PersonStatement: React.FC<PersonStatementProps> = ({ personId, onEdit, onD
                             <div>
                                 <div className="flex items-center gap-1.5 opacity-80 mb-1">
                                     <WalletIcon className="w-4 h-4" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">الرصيد</span>
+                                    <span className="text-2xs font-black uppercase tracking-widest">الرصيد</span>
                                 </div>
                                 <div className="flex items-baseline gap-1.5">
                                     <h2 className="text-3xl font-black tracking-tighter tabular-nums text-purple-400">
@@ -138,10 +138,10 @@ const PersonStatement: React.FC<PersonStatementProps> = ({ personId, onEdit, onD
                                 </div>
                             </div>
                             <div className="border-t md:border-t-0 md:border-r border-neutral-850 md:pr-4 pt-3 md:pt-0">
-                                <div className="text-[10px] opacity-75 font-bold mb-1">إجمالي السحب التاريخي</div>
+                                <div className="text-2xs opacity-75 font-bold mb-1">إجمالي السحب التاريخي</div>
                                 <div className="flex items-baseline gap-1 font-black text-lg text-neutral-300">
                                     {formatNumber(totalHistorical)}
-                                    <span className="text-[10px] opacity-50 font-bold mr-0.5">ج.م</span>
+                                    <span className="text-2xs opacity-50 font-bold mr-0.5">ج.م</span>
                                 </div>
                             </div>
                         </div>
@@ -156,7 +156,7 @@ const PersonStatement: React.FC<PersonStatementProps> = ({ personId, onEdit, onD
                             </div>
                             <div className="min-w-0">
                                 <h3 className="font-black text-sm text-neutral-800 dark:text-neutral-100 truncate">{person.name}</h3>
-                                <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-tight">سجل سلف الموظف</p>
+                                <p className="text-2xs text-neutral-500 font-bold uppercase tracking-tight">سجل سلف الموظف</p>
                             </div>
                         </div>
                     </div>

@@ -4,6 +4,7 @@ import { useData } from '../../contexts/DataContext';
 import { useToast } from '../../hooks/useToast';
 import { ShieldIcon, CheckCircleIcon } from '../Icons';
 import { Copy, Check, Clock, RefreshCw, AlertTriangle, Key } from 'lucide-react';
+import Button from '../shared/Button';
 
 /**
  * دالة توليد كود ربط عشوائي فائق الأمان (Crypto-Secure)
@@ -352,7 +353,7 @@ const LinkToOwner: React.FC = () => {
         return (
             <div className="bg-white dark:bg-neutral-800 rounded-3xl p-6 shadow-soft border border-neutral-100 dark:border-neutral-700 space-y-6">
                 <div className="flex items-center gap-3">
-                    <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl">
+                    <div className="p-3 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded-2xl">
                         <CheckCircleIcon className="w-6 h-6" />
                     </div>
                     <div>
@@ -366,12 +367,14 @@ const LinkToOwner: React.FC = () => {
                         <p className="text-xs font-bold text-neutral-400 mb-1">مرتبط بحساب</p>
                         <p className="font-bold text-neutral-800 dark:text-neutral-200">حساب المالك الرئيسي</p>
                     </div>
-                    <button 
+                    <Button 
+                        variant="ghost"
+                        size="sm"
                         onClick={handleUnlink}
-                        className="px-4 py-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl text-xs font-bold transition-all border border-rose-100 dark:border-rose-900/30"
+                        className="!px-4 !py-2 !text-accent-danger hover:!bg-accent-danger/10 dark:hover:!bg-accent-danger/20 !rounded-xl !text-xs !font-bold transition-all border !border-accent-danger/20 dark:!border-accent-danger/30"
                     >
                         فك الارتباط
-                    </button>
+                    </Button>
                 </div>
             </div>
         );
@@ -382,7 +385,7 @@ const LinkToOwner: React.FC = () => {
             {/* بطاقة إدخال كود المالك للربط */}
             <div className="bg-white dark:bg-neutral-800 rounded-3xl p-6 shadow-soft border border-neutral-100 dark:border-neutral-700">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl">
+                    <div className="p-3 bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info rounded-2xl">
                         <ShieldIcon className="w-6 h-6" />
                     </div>
                     <div>
@@ -393,8 +396,8 @@ const LinkToOwner: React.FC = () => {
 
                 {/* تحذير القفل المؤقت في حالة تجاوز عدد المحاولات */}
                 {lockout.isLocked && (
-                    <div className="mb-5 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/40 rounded-2xl flex items-start gap-3 text-rose-700 dark:text-rose-300">
-                        <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-rose-500" />
+                    <div className="mb-5 p-4 bg-accent-danger/10 dark:bg-accent-danger/20 border border-accent-danger/20 dark:border-accent-danger/30 rounded-2xl flex items-start gap-3 text-accent-danger dark:text-accent-danger">
+                        <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-accent-danger" />
                         <div className="text-xs leading-relaxed">
                             <p className="font-bold mb-1">تم قفل إدخال الكود مؤقتاً لحماية الحسابات</p>
                             <p>تم إدخال كود غير صحيح 5 مرات متتالية. يرجى الانتظار لمدة <strong>{lockout.remainingMinutes} دقيقة</strong> قبل المحاولة مرة أخرى.</p>
@@ -407,7 +410,7 @@ const LinkToOwner: React.FC = () => {
                         <div className="flex justify-between items-center mb-2 px-1">
                             <label className="text-xs font-black text-neutral-400 uppercase tracking-widest">كود الربط</label>
                             {lockout.failedCount > 0 && !lockout.isLocked && (
-                                <span className="text-[11px] font-bold text-amber-500">
+                                <span className="text-[11px] font-bold text-accent-warning">
                                     محاولات خاطئة: {lockout.failedCount} من {MAX_FAILED_ATTEMPTS}
                                 </span>
                             )}
@@ -422,13 +425,15 @@ const LinkToOwner: React.FC = () => {
                             onChange={(e) => setCode(e.target.value.toUpperCase())}
                         />
                     </div>
-                    <button
+                    <Button
                         type="submit"
+                        variant="primary"
+                        loading={loading}
                         disabled={loading || lockout.isLocked || !code.trim()}
-                        className="w-full h-14 bg-primary hover:bg-primary-dark text-white rounded-2xl font-black text-sm transition-all shadow-lg shadow-primary/20 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                        className="w-full !h-14 !rounded-2xl !font-black !text-sm transition-all shadow-lg shadow-primary/20 tap"
                     >
-                        {loading ? 'جاري التحقق...' : lockout.isLocked ? `مغلق مؤقتاً (${lockout.remainingMinutes} دقيقة)` : 'تأكيد الربط بالحساب'}
-                    </button>
+                        {lockout.isLocked ? `مغلق مؤقتاً (${lockout.remainingMinutes} دقيقة)` : 'تأكيد الربط بالحساب'}
+                    </Button>
                 </form>
             </div>
 
@@ -436,7 +441,7 @@ const LinkToOwner: React.FC = () => {
             <div className="bg-white dark:bg-neutral-800 rounded-3xl p-6 shadow-soft border border-neutral-100 dark:border-neutral-700 space-y-5">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl">
+                        <div className="p-3 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded-2xl">
                             <Key className="w-6 h-6" />
                         </div>
                         <div>
@@ -449,7 +454,7 @@ const LinkToOwner: React.FC = () => {
                 <div className="bg-neutral-50 dark:bg-neutral-900/40 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-700/60 space-y-3">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div className="w-full sm:w-auto text-center sm:text-right">
-                            <span className="text-[10px] uppercase font-black tracking-wider text-neutral-400 block mb-1">
+                            <span className="text-2xs uppercase font-black tracking-wider text-neutral-400 block mb-1">
                                 الكود الحالي (مشفر عشوائياً)
                             </span>
                             {myLinkingCode ? (
@@ -457,14 +462,15 @@ const LinkToOwner: React.FC = () => {
                                     <span className="text-2xl font-black tracking-widest text-primary font-mono select-all">
                                         {myLinkingCode}
                                     </span>
-                                    <button
+                                    <Button
                                         type="button"
+                                        variant="ghost"
+                                        size="sm"
                                         onClick={() => handleCopyCode(myLinkingCode)}
-                                        className="p-2 text-neutral-400 hover:text-primary hover:bg-neutral-200/50 dark:hover:bg-neutral-700/50 rounded-xl transition-all"
+                                        className="!p-2 text-neutral-400 hover:text-primary hover:bg-neutral-200/50 dark:hover:bg-neutral-700/50 !rounded-xl transition-all"
                                         title="نسخ الكود"
-                                    >
-                                        {copied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
-                                    </button>
+                                        icon={copied ? <Check className="w-5 h-5 text-accent-success" /> : <Copy className="w-5 h-5" />}
+                                    />
                                 </div>
                             ) : (
                                 <span className="text-sm font-bold text-neutral-400 italic">
@@ -477,12 +483,12 @@ const LinkToOwner: React.FC = () => {
                         <div className="flex items-center gap-2">
                             {myLinkingCode && (
                                 isCodeExpired ? (
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-accent-warning/10 text-accent-warning dark:bg-accent-warning/20 dark:text-accent-warning border border-accent-warning/20/60 dark:border-accent-warning/30">
                                         <Clock className="w-3.5 h-3.5" />
                                         منتهي الصلاحية
                                     </span>
                                 ) : (
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20/60 dark:border-accent-success/30">
                                         <Clock className="w-3.5 h-3.5" />
                                         صالح (متبقي {hoursRemaining} ساعة)
                                     </span>
@@ -500,15 +506,17 @@ const LinkToOwner: React.FC = () => {
                     )}
                 </div>
 
-                <button
+                <Button
                     type="button"
+                    variant="secondary"
                     onClick={handleGenerateNewCode}
                     disabled={generatingCode}
-                    className="w-full py-3.5 px-4 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700/60 dark:hover:bg-neutral-700 text-neutral-800 dark:text-white rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+                    loading={generatingCode}
+                    className="w-full !py-3.5 !px-4 !rounded-2xl !font-bold !text-xs sm:!text-sm flex items-center justify-center gap-2 transition-all tap"
+                    icon={!generatingCode ? <RefreshCw className="w-4 h-4" /> : undefined}
                 >
-                    <RefreshCw className={`w-4 h-4 ${generatingCode ? 'animate-spin' : ''}`} />
-                    <span>{myLinkingCode ? 'توليد كود ربط جديد (صالح لمدة 24 ساعة)' : 'توليد كود ربط آمن (12 خانة مشفرة)'}</span>
-                </button>
+                    {myLinkingCode ? 'توليد كود ربط جديد (صالح لمدة 24 ساعة)' : 'توليد كود ربط آمن (12 خانة مشفرة)'}
+                </Button>
             </div>
         </div>
     );

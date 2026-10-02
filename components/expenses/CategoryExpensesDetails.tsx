@@ -46,7 +46,7 @@ const CategoryExpensesDetails: React.FC<CategoryExpensesDetailsProps> = ({
                     </div>
                     <div>
                         <h1 className="text-xl font-black text-neutral-800 dark:text-neutral-100">{category?.name}</h1>
-                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">سجل الحركات التفصيلي (تشغيلي وتأسيسي)</p>
+                        <p className="text-2xs font-bold text-neutral-400 uppercase tracking-widest">سجل الحركات التفصيلي (تشغيلي وتأسيسي)</p>
                     </div>
                 </div>
             </div>

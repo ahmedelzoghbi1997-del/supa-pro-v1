@@ -192,7 +192,7 @@ const CycleManager: React.FC = () => {
                     <button
                         onClick={confirmDeleteCycle}
                         disabled={isDeleting}
-                        className="rounded-lg bg-accent-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="rounded-lg bg-accent-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-danger/90 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isDeleting ? 'جاري الحذف...' : 'حذف'}
                     </button>
@@ -236,7 +236,7 @@ const CycleManager: React.FC = () => {
                 <div className="mt-6 flex justify-start gap-4 flex-row-reverse">
                     <button
                         onClick={confirmCloseCycle}
-                        className="rounded-lg bg-accent-warning px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-500"
+                        className="rounded-lg bg-accent-warning px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-warning"
                     >
                         نعم، قم بالإغلاق
                     </button>

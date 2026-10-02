@@ -188,13 +188,13 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onDelete, onEdit, onViewRe
                     {/* Header */}
                     <div className="flex justify-between items-start gap-3 mb-4">
                         <div className="min-w-0">
-                            <h3 className="text-lg font-black text-neutral-800 dark:text-neutral-100 truncate tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-200">{asset.name}</h3>
+                            <h3 className="text-lg font-black text-neutral-800 dark:text-neutral-100 truncate tracking-tight group-hover:text-accent-info dark:group-hover:text-indigo-400 transition-colors duration-200">{asset.name}</h3>
                             <p className="text-[11px] text-neutral-400 dark:text-neutral-500 font-bold mt-1 flex items-center gap-1">
                                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600" />
                                 {asset.establishment_date ? `تاريخ الإنشاء: ${asset.establishment_date}` : 'إنشاء منذ مدة'}
                             </p>
                         </div>
-                        <div className="bg-indigo-50/70 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 p-2.5 rounded-xl shrink-0 border border-indigo-100/30 dark:border-indigo-900/20 transition-all duration-300 group-hover:scale-110">
+                        <div className="bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info p-2.5 rounded-xl shrink-0 border border-accent-info/20 dark:border-accent-info/30 transition-all duration-300 group-hover:scale-110">
                            <AssetIcon className="h-5 w-5"/>
                         </div>
                     </div>
@@ -215,15 +215,15 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onDelete, onEdit, onViewRe
                         {/* Setup cost or Status */}
                         <div className="flex justify-between items-center pt-2.5 border-t border-neutral-150/40 dark:border-neutral-800/40">
                             <span className="text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-accent-warning" />
                                 <span>التكلفة التأسيسية:</span>
                             </span>
                             {asset.establishment_cost > 0 ? (
-                                <span className="font-extrabold text-amber-600 dark:text-amber-400 tabular-nums">
+                                <span className="font-extrabold text-accent-warning dark:text-accent-warning tabular-nums">
                                     {formatCurrency(asset.establishment_cost).replace('EGP', 'ج.م')}
                                 </span>
                             ) : (
-                                <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">
+                                <span className="text-2xs bg-accent-success/10 text-accent-success dark:text-accent-success px-2 py-0.5 rounded-full font-bold">
                                     أصل قائم
                                 </span>
                             )}
@@ -232,13 +232,13 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onDelete, onEdit, onViewRe
                         {/* Net profits after setup */}
                         <div className="flex justify-between items-center pt-2.5 border-t border-neutral-150/40 dark:border-neutral-800/40">
                             <span className="text-neutral-500 dark:text-neutral-400 font-bold flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-accent-success" />
                                 <div className="flex flex-col">
                                     <span>إجمالي ربح الأصل (المكتمل):</span>
-                                    {asset.establishment_cost > 0 && <span className="text-[9px] text-neutral-400 font-normal">شامل التكاليف</span>}
+                                    {asset.establishment_cost > 0 && <span className="text-2xs text-neutral-400 font-normal">شامل التكاليف</span>}
                                 </div>
                             </span>
-                            <span className={`font-black tabular-nums ${netProfitWithSetup >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                            <span className={`font-black tabular-nums ${netProfitWithSetup >= 0 ? 'text-accent-success dark:text-accent-success' : 'text-accent-danger dark:text-accent-danger'}`}>
                                 {formatCurrency(netProfitWithSetup).replace('EGP', 'ج.م')}
                             </span>
                         </div>
@@ -249,7 +249,7 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onDelete, onEdit, onViewRe
                                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                                 <span>معدل العائد (ROI):</span>
                             </span>
-                            <span className={`font-black text-[13px] tabular-nums ${roi >= 0 ? 'text-purple-600 dark:text-purple-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                            <span className={`font-black text-[13px] tabular-nums ${roi >= 0 ? 'text-purple-600 dark:text-purple-400' : 'text-accent-danger dark:text-accent-danger'}`}>
                                 {roi > 0 ? '+' : ''}{roi.toFixed(1)}%
                             </span>
                         </div>
@@ -260,14 +260,14 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onDelete, onEdit, onViewRe
                 <div className="flex items-center gap-2 pt-2 border-t border-neutral-100 dark:border-neutral-800/40">
                     <button 
                         onClick={() => onViewReport(asset.id)} 
-                        className="flex-grow bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white font-extrabold py-2 px-3 rounded-xl text-[11px] transition-all hover:shadow-[0_2px_8px_-1px_rgba(79,70,229,0.3)] duration-200 active:scale-[0.98] cursor-pointer"
+                        className="flex-grow bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white font-extrabold py-2 px-3 rounded-xl text-[11px] transition-all hover:shadow-[0_2px_8px_-1px_rgba(79,70,229,0.3)] duration-200 tap cursor-pointer"
                     >
                         عرض التقرير المالي
                     </button>
                     {onEdit && (
                         <button 
                             onClick={() => onEdit(asset.id)} 
-                            className="p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 border border-neutral-200/50 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 rounded-xl active:scale-95 transition cursor-pointer" 
+                            className="p-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 border border-neutral-200/50 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300 rounded-xl tap transition cursor-pointer" 
                             title="تعديل الأصل"
                             aria-label="تعديل"
                         >
@@ -277,7 +277,7 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset, onDelete, onEdit, onViewRe
                     {onDelete && (
                         <button 
                             onClick={handleDeleteClick} 
-                            className={`p-2 rounded-xl border active:scale-95 transition cursor-pointer ${!canDelete ? 'bg-neutral-50 dark:bg-neutral-900 border-neutral-200/40 dark:border-neutral-800/60 grayscale opacity-30 cursor-not-allowed' : 'bg-rose-50 hover:bg-rose-100 border-rose-100 text-rose-600 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 dark:border-rose-900/30 dark:text-rose-400'}`} 
+                            className={`p-2 rounded-xl border tap transition cursor-pointer ${!canDelete ? 'bg-neutral-50 dark:bg-neutral-900 border-neutral-200/40 dark:border-neutral-800/60 grayscale opacity-30 cursor-not-allowed' : 'bg-accent-danger/10 hover:bg-accent-danger/10 border-accent-danger/20 text-accent-danger dark:bg-accent-danger/20 dark:hover:bg-accent-danger/20 dark:border-accent-danger/30 dark:text-accent-danger'}`} 
                             title="حذف الأصل"
                             aria-label="حذف"
                         >
@@ -363,7 +363,7 @@ const AssetReport: React.FC<AssetReportProps> = ({ asset, onBack }) => {
                 </div>
                 
                 {/* Hero Yield Badge */}
-                <div className={`p-4 rounded-2xl flex flex-col items-center justify-center min-w-[160px] shadow-sm border ${asset.establishment_cost > 0 && !isCostCovered ? 'bg-amber-50/50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/50 text-amber-700 dark:text-amber-500' : 'bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400'}`}>
+                <div className={`p-4 rounded-2xl flex flex-col items-center justify-center min-w-[160px] shadow-sm border ${asset.establishment_cost > 0 && !isCostCovered ? 'bg-accent-warning/10/50 dark:bg-accent-warning/20 border-accent-warning/20 dark:border-accent-warning/30 text-accent-warning dark:text-accent-warning' : 'bg-accent-success/10/50 dark:bg-accent-success/20 border-accent-success/20 dark:border-accent-success/30 text-accent-success dark:text-accent-success'}`}>
                     <span className="text-xs font-semibold uppercase tracking-wider mb-1 opacity-80 text-center">
                         {asset.establishment_cost > 0 && !isCostCovered ? 'نسبة استرداد التكلفة' : 'عائد الاسترداد'}
                     </span>
@@ -385,27 +385,27 @@ const AssetReport: React.FC<AssetReportProps> = ({ asset, onBack }) => {
                             <h3 className="text-sm font-medium text-neutral-500">التكلفة التأسيسية</h3>
                         </div>
                         <p className="text-xl lg:text-2xl font-black">{formatCurrency(asset.establishment_cost)}</p>
-                        <p className="text-[10px] text-neutral-400 mt-1 font-bold">إجمالي تكلفة إنشاء الأصل</p>
+                        <p className="text-2xs text-neutral-400 mt-1 font-bold">إجمالي تكلفة إنشاء الأصل</p>
                     </div>
                 )}
                 
                 <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5 rounded-2xl shadow-sm">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg"><TrendingUpIcon className="w-5 h-5" /></div>
+                        <div className="p-2 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success rounded-lg"><TrendingUpIcon className="w-5 h-5" /></div>
                         <h3 className="text-sm font-medium text-neutral-500">أرباح العروات</h3>
                     </div>
-                    <p className="text-xl lg:text-2xl font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(totalOwnerProfit)}</p>
-                    <p className="text-[10px] text-neutral-400 mt-1 font-bold">تراكم أرباح العروات المكتملة</p>
+                    <p className="text-xl lg:text-2xl font-black text-accent-success dark:text-accent-success">{formatCurrency(totalOwnerProfit)}</p>
+                    <p className="text-2xs text-neutral-400 mt-1 font-bold">تراكم أرباح العروات المكتملة</p>
                 </div>
                 
                 {asset.establishment_cost > 0 && (
                     <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-5 rounded-2xl shadow-sm">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg"><ChartBarIcon className="w-5 h-5" /></div>
-                            <h3 className="text-sm font-medium text-indigo-800 dark:text-indigo-300">المتبقي للتغطية</h3>
+                            <div className="p-2 bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info rounded-lg"><ChartBarIcon className="w-5 h-5" /></div>
+                            <h3 className="text-sm font-medium text-accent-info dark:text-accent-info">المتبقي للتغطية</h3>
                         </div>
-                        <p className="text-xl lg:text-2xl font-black text-indigo-600 dark:text-indigo-400">{formatCurrency(Math.max(0, asset.establishment_cost - totalOwnerProfit))}</p>
-                        <p className="text-[10px] text-indigo-500 dark:text-indigo-400/70 mt-1 font-bold">الباقي لاسترداد التكلفة التأسيسية</p>
+                        <p className="text-xl lg:text-2xl font-black text-accent-info dark:text-accent-info">{formatCurrency(Math.max(0, asset.establishment_cost - totalOwnerProfit))}</p>
+                        <p className="text-2xs text-accent-info dark:text-accent-info/70 mt-1 font-bold">الباقي لاسترداد التكلفة التأسيسية</p>
                     </div>
                 )}
 
@@ -419,7 +419,7 @@ const AssetReport: React.FC<AssetReportProps> = ({ asset, onBack }) => {
                             {(totalOwnerProfit - (asset.establishment_cost || 0)) > 0 ? '+' : ''}{formatCurrency(totalOwnerProfit - (asset.establishment_cost || 0))}
                         </p>
                     </div>
-                    <p className="text-[10px] text-white/80">
+                    <p className="text-2xs text-white/80">
                         {asset.establishment_cost > 0 ? 'أرباح العروات بعد خصم التأسيس' : 'إجمالي أرباح الأصل'}
                     </p>
                 </div>
@@ -492,14 +492,14 @@ const AssetReport: React.FC<AssetReportProps> = ({ asset, onBack }) => {
                                         <td className="p-4 font-bold text-neutral-800 dark:text-neutral-200">{cycle.name}</td>
                                         <td className="p-4">
                                             {cycle.status === 'active' ? (
-                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">نشطة حالياً</span>
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success">نشطة حالياً</span>
                                             ) : (
                                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">مكتملة</span>
                                             )}
                                         </td>
-                                        <td className="p-4 text-emerald-600 dark:text-emerald-400 font-medium">{formatCurrency(cycle.revenue)}</td>
-                                        <td className="p-4 text-red-600 dark:text-red-400 font-medium">{formatCurrency(cycle.expenses)}</td>
-                                        <td className="p-4 font-black text-indigo-600 dark:text-indigo-400" dir="ltr">
+                                        <td className="p-4 text-accent-success dark:text-accent-success font-medium">{formatCurrency(cycle.revenue)}</td>
+                                        <td className="p-4 text-accent-danger dark:text-accent-danger font-medium">{formatCurrency(cycle.expenses)}</td>
+                                        <td className="p-4 font-black text-accent-info dark:text-accent-info" dir="ltr">
                                             {cycle.netOwnerProfit > 0 ? '+' : ''}{formatCurrency(cycle.netOwnerProfit)}
                                         </td>
                                     </tr>

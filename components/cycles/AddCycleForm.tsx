@@ -256,7 +256,7 @@ const AddCycleForm: React.FC<AddCycleFormProps> = ({ onSave, onCancel, initialDa
                         </select>
                         <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute top-1/2 -translate-y-1/2 left-3 pointer-events-none" />
                     </div>
-                    {assets.length === 0 && <p className="text-xs text-amber-600 dark:text-amber-500 mt-2 text-right">لا توجد أصول. الرجاء إضافة أصل من صفحة "إدارة الأصول" أولاً.</p>}
+                    {assets.length === 0 && <p className="text-xs text-accent-warning dark:text-accent-warning mt-2 text-right">لا توجد أصول. الرجاء إضافة أصل من صفحة "إدارة الأصول" أولاً.</p>}
                     <ErrorMessage error={errors.asset_id} />
                 </div>
                 <div>
@@ -347,7 +347,7 @@ const AddCycleForm: React.FC<AddCycleFormProps> = ({ onSave, onCancel, initialDa
                                     <button
                                         type="button"
                                         onClick={() => { setTransferMode('deduct'); setAdjustmentAmount(''); }}
-                                        className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all border cursor-pointer ${transferMode === 'deduct' ? 'bg-amber-500 text-white border-amber-500' : 'bg-neutral-50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700'}`}
+                                        className={`py-2.5 px-3 rounded-lg text-xs font-bold transition-all border cursor-pointer ${transferMode === 'deduct' ? 'bg-accent-warning text-white border-accent-warning' : 'bg-neutral-50 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700'}`}
                                     >
                                         خصم/سحب أرباح منه
                                     </button>
@@ -371,10 +371,10 @@ const AddCycleForm: React.FC<AddCycleFormProps> = ({ onSave, onCancel, initialDa
                                             value={adjustmentAmount}
                                             onChange={e => setAdjustmentAmount(e.target.value)}
                                             placeholder="مثال: 5000"
-                                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2.5 text-sm font-bold text-left outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
+                                            className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2.5 text-sm font-bold text-left outline-none focus:ring-2 focus:ring-accent-warning focus:border-accent-warning"
                                             dir="ltr"
                                         />
-                                        <p className="text-[10px] font-bold text-amber-600 dark:text-amber-500 mt-1">
+                                        <p className="text-2xs font-bold text-accent-warning dark:text-accent-warning mt-1">
                                             الرصيد النهائي الذي ستنطلق به عروتك الجديدة: <span className="font-extrabold text-xs font-mono">{(closedCycleToTransfer.balance - (parseFloat(adjustmentAmount) || 0)).toLocaleString('en-US')} ج.م</span>
                                         </p>
                                     </div>
@@ -393,7 +393,7 @@ const AddCycleForm: React.FC<AddCycleFormProps> = ({ onSave, onCancel, initialDa
                                             className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2.5 text-sm font-bold text-left outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-500"
                                             dir="ltr"
                                         />
-                                        <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+                                        <p className="text-2xs font-bold text-accent-info dark:text-accent-info mt-1">
                                             الرصيد النهائي الذي ستنطلق به عروتك الجديدة: <span className="font-extrabold text-xs font-mono">{(closedCycleToTransfer.balance + (parseFloat(adjustmentAmount) || 0)).toLocaleString('en-US')} ج.م</span>
                                         </p>
                                     </div>

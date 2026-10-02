@@ -39,7 +39,7 @@ const MoneyBox = ({ label, value, colorClass, bgColorClass, icon: Icon }: { labe
         </div>
         <div className="flex items-center gap-1.5 mb-1.5 relative z-10">
             <Icon className={`w-3.5 h-3.5 ${colorClass}`} />
-            <span className="text-[10px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400 whitespace-nowrap">{label}</span>
+            <span className="text-2xs font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400 whitespace-nowrap">{label}</span>
         </div>
         <div className="flex items-baseline gap-1 relative z-10 w-full overflow-hidden">
             <p className={`text-base sm:text-lg font-black ${colorClass} tracking-tight tabular-nums truncate`}>
@@ -64,9 +64,9 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
     const hasRestrictedActions = onEdit || onToggleStatus || onDelete;
 
     const statusMap = {
-        active: { label: 'نشطة', color: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20' },
+        active: { label: 'نشطة', color: 'text-accent-success', dot: 'bg-accent-success', bg: 'bg-accent-success/10', border: 'border-accent-success/20' },
         closed: { label: 'مكتملة', color: 'text-neutral-600 dark:text-neutral-400', dot: 'bg-neutral-400', bg: 'bg-neutral-100 dark:bg-neutral-800', border: 'border-neutral-200 dark:border-neutral-700' },
-        archived: { label: 'مؤرشفة', color: 'text-amber-600 dark:text-amber-400', dot: 'bg-amber-500', bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/20' },
+        archived: { label: 'مؤرشفة', color: 'text-accent-warning', dot: 'bg-accent-warning', bg: 'bg-accent-warning/10', border: 'border-accent-warning/20' },
     };
 
     const currentStatus = statusMap[cycle.status] || statusMap.closed;
@@ -75,8 +75,8 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
     const isProfitable = cycle.profit > 0;
     const isLoss = cycle.profit < 0;
     
-    const roiColor = isProfitable ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20' : 
-                     (isLoss ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20' : 
+    const roiColor = isProfitable ? 'text-accent-success bg-accent-success/10 border-accent-success/20' : 
+                     (isLoss ? 'text-accent-danger bg-accent-danger/10 border-accent-danger/20' : 
                                'text-neutral-500 bg-neutral-50 dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700');
                                
     const roiIcon = isProfitable ? <TrendingUpIcon className="w-3 h-3" /> : (isLoss ? <TrendingDownIcon className="w-3 h-3" /> : <BarChartSimpleIcon className="w-3 h-3" />);
@@ -120,31 +120,31 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
         if (daysPassed < 30) {
             return {
                 label: 'النمو الخضري',
-                color: 'text-emerald-600 dark:text-emerald-400',
-                bg: 'bg-emerald-500',
+                color: 'text-accent-success dark:text-accent-success',
+                bg: 'bg-accent-success',
                 percent: Math.min(100, Math.round((daysPassed / 30) * 100))
             };
         }
         if (daysPassed < 60) {
             return {
                 label: 'التزهير وعقد الثمار',
-                color: 'text-amber-600 dark:text-amber-400',
-                bg: 'bg-amber-500',
+                color: 'text-accent-warning dark:text-accent-warning',
+                bg: 'bg-accent-warning',
                 percent: Math.min(100, Math.round(((daysPassed - 30) / 30) * 100))
             };
         }
         if (daysPassed < 100) {
             return {
                 label: 'ذروة الجمع والبيع',
-                color: 'text-indigo-600 dark:text-indigo-400',
+                color: 'text-accent-info dark:text-accent-info',
                 bg: 'bg-indigo-500',
                 percent: Math.min(100, Math.round(((daysPassed - 60) / 40) * 100))
             };
         }
         return {
             label: 'الجمع الأخير والإنهاء',
-            color: 'text-rose-600 dark:text-rose-400',
-            bg: 'bg-rose-500',
+            color: 'text-accent-danger dark:text-accent-danger',
+            bg: 'bg-accent-danger',
             percent: Math.min(100, Math.round(((daysPassed - 100) / 20) * 100))
         };
     }, [daysPassed, cycle.status]);
@@ -187,9 +187,9 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                         <div className="flex items-center gap-2 mb-2">
                             <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border ${currentStatus.bg} ${currentStatus.border} ${currentStatus.color}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${currentStatus.dot} ${cycle.status === 'active' ? 'animate-pulse' : ''}`}></span>
-                                <span className="text-[9px] font-bold tracking-wider">{currentStatus.label}</span>
+                                <span className="text-2xs font-bold tracking-wider">{currentStatus.label}</span>
                             </div>
-                            <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[10px] font-bold ${roiColor}`}>
+                            <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-2xs font-bold ${roiColor}`}>
                                 {roiIcon}
                                 العائد {roi > 0 ? '+' : ''}{Math.round(roi)}%
                             </div>
@@ -219,10 +219,10 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                 {/* Progress Bar (Super thin & elegant) */}
                 <div className="mb-6 relative">
                     <div className="flex justify-between items-end mb-1.5">
-                        <span className={`text-[10px] font-black tracking-tight ${cropPhase.color}`}>{cropPhase.label}</span>
+                        <span className={`text-2xs font-black tracking-tight ${cropPhase.color}`}>{cropPhase.label}</span>
                         <div className="flex items-center gap-1">
                             <ClockIcon className="w-3 h-3 text-neutral-400" />
-                            <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 tabular-nums">
+                            <span className="text-2xs font-bold text-neutral-500 dark:text-neutral-400 tabular-nums">
                                 {daysPassed} يوم
                             </span>
                         </div>
@@ -241,22 +241,22 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                         label="الإيراد" 
                         value={cycle.revenue} 
                         icon={TrendingUpIcon} 
-                        colorClass="text-emerald-700 dark:text-emerald-400" 
-                        bgColorClass="bg-emerald-50/50 dark:bg-emerald-950/30" 
+                        colorClass="text-accent-success dark:text-accent-success" 
+                        bgColorClass="bg-accent-success/10/50 dark:bg-accent-success/20" 
                     />
                     <MoneyBox 
                         label="المصروف" 
                         value={cycle.expenses} 
                         icon={TrendingDownIcon} 
-                        colorClass="text-rose-700 dark:text-rose-400" 
-                        bgColorClass="bg-rose-50/50 dark:bg-rose-950/30" 
+                        colorClass="text-accent-danger dark:text-accent-danger" 
+                        bgColorClass="bg-accent-danger/10/50 dark:bg-accent-danger/20" 
                     />
                     <MoneyBox 
                         label="الربح" 
                         value={cycle.profit} 
                         icon={BarChartSimpleIcon} 
-                        colorClass="text-indigo-700 dark:text-indigo-400" 
-                        bgColorClass="bg-indigo-50/50 dark:bg-indigo-950/30" 
+                        colorClass="text-accent-info dark:text-accent-info" 
+                        bgColorClass="bg-accent-info/10 dark:bg-accent-info/20" 
                     />
                 </div>
             </div>
@@ -265,7 +265,7 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
             <div className="px-6 py-4 bg-neutral-50/50 dark:bg-neutral-800/20 border-t border-neutral-100 dark:border-white/5 flex items-center justify-between gap-3">
                 <button 
                     onClick={() => onViewReport(cycle.id)}
-                    className="flex-1 flex items-center justify-center gap-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold py-2.5 px-4 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all active:scale-95 text-xs sm:text-sm shadow-sm"
+                    className="flex-1 flex items-center justify-center gap-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold py-2.5 px-4 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all tap text-xs sm:text-sm shadow-sm"
                 >
                     <ClipboardDocumentIcon className="w-4 h-4 opacity-80"/>
                     <span className="truncate">فتح تقرير حسابات العروة</span>
@@ -275,7 +275,7 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                     {hasRestrictedActions && (
                         <button 
                             onClick={() => setMenuOpen(prev => !prev)}
-                            className={`p-2.5 rounded-xl transition-all active:scale-95 border ${isMenuOpen ? 'bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white' : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-600'}`}
+                            className={`p-2.5 rounded-xl transition-all tap border ${isMenuOpen ? 'bg-neutral-200 dark:bg-neutral-700 border-neutral-300 dark:border-neutral-600 text-neutral-900 dark:text-white' : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-300 dark:hover:border-neutral-600'}`}
                         >
                             <EllipsisVerticalIcon className="h-5 w-5"/>
                         </button>
@@ -304,7 +304,7 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                                         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                                     }
                                 }} className="w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl">
-                                    <WhatsAppIcon className="w-4 h-4 text-emerald-500" />
+                                    <WhatsAppIcon className="w-4 h-4 text-accent-success" />
                                     <span>مشاركة عبر واتساب</span>
                                 </button>
                                 <button onClick={async () => {
@@ -332,13 +332,13 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                                 </button>
                                 {onEdit && (
                                     <button onClick={() => { onEdit(cycle.id); setMenuOpen(false); }} className="w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl">
-                                        <PencilIcon className="w-4 h-4 text-blue-500" />
+                                        <PencilIcon className="w-4 h-4 text-accent-info" />
                                         <span>تعديل البيانات</span>
                                     </button>
                                 )}
                                 {onToggleStatus && (
                                     <button onClick={() => { onToggleStatus(cycle); setMenuOpen(false); }} className="w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700 rounded-xl">
-                                        <EyeSlashIcon className="w-4 h-4 text-amber-500" />
+                                        <EyeSlashIcon className="w-4 h-4 text-accent-warning" />
                                         <span>{cycle.status === 'active' ? 'إغلاق العروة' : 'تفعيل العروة'}</span>
                                     </button>
                                 )}
@@ -346,7 +346,7 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onDelete, onEdit, onViewRe
                                 {onDelete && (
                                     <button 
                                         onClick={() => { handleDeleteClick(); setMenuOpen(false); }} 
-                                        className={`w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold rounded-xl transition-all ${!canDelete ? 'opacity-30 grayscale cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30'}`}
+                                        className={`w-full text-right flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold rounded-xl transition-all ${!canDelete ? 'opacity-30 grayscale cursor-not-allowed' : 'text-accent-danger hover:bg-accent-danger/10'}`}
                                     >
                                         <TrashIcon className="w-4 h-4 flex-shrink-0" />
                                         <span>حذف العروة</span>

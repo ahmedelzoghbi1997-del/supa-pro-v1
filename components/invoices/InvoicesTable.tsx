@@ -29,18 +29,18 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
             <div
               key={invoice.id}
               onClick={() => onViewDetails?.(invoice)}
-              className="bg-white dark:bg-neutral-900 rounded-2xl p-3.5 border border-neutral-200/80 dark:border-neutral-800 shadow-sm active:scale-[0.99] transition-all cursor-pointer hover:border-emerald-200 dark:hover:border-emerald-800/50"
+              className="bg-white dark:bg-neutral-900 rounded-2xl p-3.5 border border-neutral-200/80 dark:border-neutral-800 shadow-sm tap transition-all cursor-pointer hover:border-accent-success/20 dark:hover:border-emerald-800/50"
             >
               {/* Header: Date, Market badge, Total */}
               <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-neutral-100 dark:border-neutral-800">
                 <div className="flex flex-col gap-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-2xs font-extrabold bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border border-accent-success/20/60 dark:border-accent-success/30">
                       <TruckIcon className="w-3 h-3" />
                       <span className="truncate max-w-[110px]">{invoice.market || 'سوق عام'}</span>
                     </span>
                     {invoice.cycle && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-700/60 truncate max-w-[90px]">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-2xs font-bold bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-700/60 truncate max-w-[90px]">
                         {invoice.cycle}
                       </span>
                     )}
@@ -53,11 +53,11 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
 
                 {/* Total amount */}
                 <div className="text-left shrink-0">
-                  <div className="bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
-                    <span className="text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                  <div className="bg-accent-success/10 px-2.5 py-1 rounded-xl border border-accent-success/20">
+                    <span className="text-base font-black text-accent-success tabular-nums">
                       {formatCurrency(total).replace('EGP', '')}
                     </span>
-                    <span className="text-[9px] font-bold text-emerald-600/70 dark:text-emerald-400/70 mr-1">ج.م</span>
+                    <span className="text-2xs font-bold text-accent-success/70 mr-1">ج.م</span>
                   </div>
                 </div>
               </div>
@@ -76,7 +76,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                     </div>
                   )}
                   {avgCageWeight > 0 && (
-                    <div className="text-[10px] font-extrabold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded-md border border-amber-200/50 dark:border-amber-800/40">
+                    <div className="text-2xs font-extrabold text-accent-warning bg-accent-warning/10 px-1.5 py-0.5 rounded-md border border-accent-warning/20">
                       ⚖️ {avgCageWeight.toFixed(1)} ك/{packagingLabel === 'كرتونة' ? 'ك' : 'ق'}
                     </div>
                   )}
@@ -92,7 +92,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                           navigator.clipboard.writeText(`${invoice.date} - ${invoice.market} - ${total}`);
                         }
                       }}
-                      className="p-1.5 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+                      className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                       aria-label="نسخ"
                       title="نسخ"
                     >
@@ -104,7 +104,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                           e.stopPropagation();
                           onEdit(invoice.id);
                         }}
-                        className="p-1.5 rounded-lg text-neutral-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-lg text-neutral-400 hover:bg-accent-info/10 hover:text-accent-info transition-colors"
                         aria-label="تعديل"
                         title="تعديل"
                       >
@@ -117,7 +117,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                           e.stopPropagation();
                           onDelete(invoice.id);
                         }}
-                        className="p-1.5 rounded-lg text-neutral-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-lg text-neutral-400 hover:bg-accent-danger/10 hover:text-accent-danger transition-colors"
                         aria-label="حذف"
                         title="حذف"
                       >
@@ -163,12 +163,12 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                       {invoice.date}
                     </td>
                     <td className={cellClasses}>
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-2xs font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
                         {invoice.cycle || '-'}
                       </span>
                     </td>
                     <td className={cellClasses}>
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-2xs font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
                         {invoice.market || '-'}
                       </span>
                     </td>
@@ -176,12 +176,12 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                       <div className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-400 font-semibold whitespace-nowrap">
                         <span>{formatNumber(totalWeight)} كجم</span>
                         {packagingCount > 0 && (
-                          <span className="text-[10px] opacity-70">({packagingCount} {packagingLabel})</span>
+                          <span className="text-2xs opacity-70">({packagingCount} {packagingLabel})</span>
                         )}
                       </div>
                     </td>
                     <td className={`${cellClasses} text-left whitespace-nowrap`}>
-                      <span dir="ltr" className="font-mono font-black text-emerald-600 dark:text-emerald-400 tabular-nums text-sm">
+                      <span dir="ltr" className="font-mono font-black text-accent-success tabular-nums text-sm">
                         {formatCurrency(total)}
                       </span>
                     </td>
@@ -194,7 +194,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                               navigator.clipboard.writeText(`${invoice.date} - ${invoice.market} - ${total}`);
                             }
                           }}
-                          className="p-1.5 rounded-md text-neutral-400 hover:bg-neutral-200/70 dark:hover:bg-neutral-700 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors" 
+                          className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-md text-neutral-400 hover:bg-neutral-200/70 dark:hover:bg-neutral-700 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors" 
                           aria-label="نسخ التفاصيل"
                           title="نسخ"
                         >
@@ -206,7 +206,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                               e.stopPropagation();
                               onEdit(invoice.id);
                             }} 
-                            className="p-1.5 rounded-md text-neutral-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" 
+                            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-md text-neutral-400 hover:bg-accent-info/10 hover:text-accent-info transition-colors" 
                             aria-label="تعديل الفاتورة"
                             title="تعديل"
                           >
@@ -219,7 +219,7 @@ const InvoicesTable: React.FC<InvoicesTableProps> = ({ invoices, onEdit, onDelet
                               e.stopPropagation();
                               onDelete(invoice.id);
                             }} 
-                            className="p-1.5 rounded-md text-neutral-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 transition-colors" 
+                            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-md text-neutral-400 hover:bg-accent-danger/10 hover:text-accent-danger transition-colors" 
                             aria-label="حذف الفاتورة"
                             title="حذف"
                           >

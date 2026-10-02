@@ -112,10 +112,10 @@ export const MonthlyNutrientAnalysis: React.FC<{
             <ChevronRightIcon className="w-4 h-4" />
           </button>
           <div className="text-center min-w-0">
-            <p className="text-[9px] font-black text-neutral-400 uppercase tracking-tighter">
+            <p className="text-2xs font-black text-neutral-400 uppercase tracking-tighter">
               فترة 30 يوم
             </p>
-            <p className="text-[10px] font-bold text-neutral-700 dark:text-neutral-200 tabular-nums">
+            <p className="text-2xs font-bold text-neutral-700 dark:text-neutral-200 tabular-nums">
               {stats.current.start.toLocaleDateString("ar-EG", {
                 day: "numeric",
                 month: "short",
@@ -140,14 +140,14 @@ export const MonthlyNutrientAnalysis: React.FC<{
         <div className="relative p-4 rounded-[1.5rem] bg-gradient-to-br from-indigo-50/30 to-white dark:from-indigo-900/5 dark:to-neutral-900 border border-indigo-100/50 dark:border-neutral-700 shadow-sm">
           <div className="flex items-center justify-between gap-4 relative z-10">
             <div className="flex-1">
-              <p className="text-[8px] font-black text-neutral-400 uppercase mb-0.5">
+              <p className="text-2xs font-black text-neutral-400 uppercase mb-0.5">
                 إجمالي المنصرف
               </p>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 tabular-nums">
                   {formatNumber(Math.round(stats.current.sum))}
                 </span>
-                <span className="text-[10px] font-bold text-neutral-400">
+                <span className="text-2xs font-bold text-neutral-400">
                   ج.م
                 </span>
               </div>
@@ -182,7 +182,7 @@ export const MonthlyNutrientAnalysis: React.FC<{
                 }}
               ></div>
             </div>
-            <span className="text-[10px] font-black text-neutral-500 dark:text-neutral-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
+            <span className="text-2xs font-black text-neutral-500 dark:text-neutral-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
               السابق
             </span>
           </div>
@@ -195,7 +195,7 @@ export const MonthlyNutrientAnalysis: React.FC<{
                 }}
               ></div>
             </div>
-            <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
+            <span className="text-2xs font-black text-indigo-600 dark:text-indigo-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
               الحالي
             </span>
           </div>
@@ -220,7 +220,7 @@ export const MarketEfficiencyAnalysis: React.FC<{ invoiceStatsList: InvoiceStats
         >
           <div className="flex flex-col items-center justify-center py-8 text-center text-neutral-400">
             <TruckIcon className="w-8 h-8 opacity-20 mb-2" />
-            <p className="text-[10px] italic">بانتظار تسجيل فواتير.</p>
+            <p className="text-2xs italic">بانتظار تسجيل فواتير.</p>
           </div>
         </GridCard>
       );
@@ -245,10 +245,10 @@ export const MarketEfficiencyAnalysis: React.FC<{ invoiceStatsList: InvoiceStats
               <ChevronRightIcon className="w-4 h-4" />
             </button>
             <div className="text-center min-w-0">
-              <p className="text-[9px] font-black text-neutral-400 truncate">
+              <p className="text-2xs font-black text-neutral-400 truncate">
                 {currentInv.market}
               </p>
-              <p className="text-[10px] font-bold text-neutral-700 dark:text-neutral-200 tabular-nums">
+              <p className="text-2xs font-bold text-neutral-700 dark:text-neutral-200 tabular-nums">
                 {currentInv.date}
               </p>
             </div>
@@ -263,14 +263,14 @@ export const MarketEfficiencyAnalysis: React.FC<{ invoiceStatsList: InvoiceStats
           <div className="relative p-4 rounded-[1.5rem] bg-gradient-to-br from-emerald-50/30 to-white dark:from-emerald-900/5 dark:to-neutral-900 border border-emerald-100/50 dark:border-neutral-700 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between gap-4 relative z-10">
               <div className="flex-1">
-                <p className="text-[8px] font-black text-neutral-400 uppercase mb-0.5">
+                <p className="text-2xs font-black text-neutral-400 uppercase mb-0.5">
                   صافي الكيلو الحقيقي
                 </p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
                     {currentInv.netPerRealKilo.toFixed(2)}
                   </span>
-                  <span className="text-[10px] font-bold text-neutral-400">
+                  <span className="text-2xs font-bold text-neutral-400">
                     ج.م
                   </span>
                 </div>
@@ -293,7 +293,7 @@ export const MarketEfficiencyAnalysis: React.FC<{ invoiceStatsList: InvoiceStats
                   }}
                 ></div>
               </div>
-              <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
+              <span className="text-2xs font-black text-emerald-600 dark:text-emerald-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
                 الصافي: {currentInv.netPerRealKilo.toFixed(1)}ج
               </span>
             </div>
@@ -304,7 +304,7 @@ export const MarketEfficiencyAnalysis: React.FC<{ invoiceStatsList: InvoiceStats
                   style={{ height: "100%" }}
                 ></div>
               </div>
-              <span className="text-[10px] font-black text-neutral-500 dark:text-neutral-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
+              <span className="text-2xs font-black text-neutral-500 dark:text-neutral-400 text-center uppercase whitespace-nowrap leading-normal pb-0.5">
                 السوق: {currentInv.declaredPrice.toFixed(1)}ج
               </span>
             </div>
@@ -352,18 +352,18 @@ export const DailyPulseAnalysis: React.FC<{
       <div className="space-y-4 h-full flex flex-col justify-between">
         <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-900/50 px-3 py-2 rounded-xl border border-neutral-100 dark:border-neutral-700">
           <div className="text-right">
-            <p className="text-[8px] font-black text-neutral-400 uppercase tracking-tighter">
+            <p className="text-2xs font-black text-neutral-400 uppercase tracking-tighter">
               إجمالي الجمع
             </p>
-            <p className="text-[10px] font-bold text-neutral-700 dark:text-neutral-200 tabular-nums">
+            <p className="text-2xs font-bold text-neutral-700 dark:text-neutral-200 tabular-nums">
               {formatNumber(Math.round(cycle.totalProductionKg || 0))} كجم
             </p>
           </div>
           <div className="text-left border-r border-neutral-200 dark:border-neutral-700 pr-3">
-            <p className="text-[8px] font-black text-neutral-400 uppercase tracking-tighter">
+            <p className="text-2xs font-black text-neutral-400 uppercase tracking-tighter">
               عمر الجمع
             </p>
-            <p className="text-[10px] font-bold text-amber-600 tabular-nums">
+            <p className="text-2xs font-bold text-amber-600 tabular-nums">
               {harvestDaysCount} يوم
             </p>
           </div>
@@ -371,14 +371,14 @@ export const DailyPulseAnalysis: React.FC<{
         <div className="relative p-4 rounded-[1.5rem] bg-gradient-to-br from-amber-50/30 to-white dark:from-amber-900/5 dark:to-neutral-900 border border-amber-100/50 dark:border-neutral-700 shadow-sm">
           <div className="flex items-center justify-between gap-4 relative z-10">
             <div className="flex-1">
-              <p className="text-[8px] font-black text-neutral-400 uppercase mb-0.5">
+              <p className="text-2xs font-black text-neutral-400 uppercase mb-0.5">
                 المعدل اليومي
               </p>
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-black text-amber-600 dark:text-amber-400 tabular-nums">
                   {(cycle.avgDailyProductionKg || 0).toFixed(1)}
                 </span>
-                <span className="text-[10px] font-bold text-neutral-400">
+                <span className="text-2xs font-bold text-neutral-400">
                   كج/يوم
                 </span>
               </div>
@@ -408,7 +408,7 @@ export const DailyPulseAnalysis: React.FC<{
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full flex items-center justify-center text-[8px] text-neutral-400 italic">
+            <div className="h-full flex items-center justify-center text-2xs text-neutral-400 italic">
               بانتظار بيانات.
             </div>
           )}

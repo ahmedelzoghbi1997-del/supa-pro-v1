@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSettings } from '../../contexts/SettingsContext';
 import { CyclesIcon, CalendarIcon } from '../Icons';
+import Button from '../shared/Button';
 
 const TerminologySettings: React.FC = () => {
     const { settings, updateSettings } = useSettings();
@@ -17,18 +18,20 @@ const TerminologySettings: React.FC = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">اختر المصطلح الذي يناسب طبيعة عملك (عروة للمحاصيل القصيرة، أو موسم للمحاصيل السنوية).</p>
                 <div className="bg-gray-100 dark:bg-neutral-800/50 p-1.5 rounded-lg flex items-center justify-between gap-2">
                     {termOptions.map((option) => (
-                        <button
+                        <Button
                             key={option.id}
+                            variant={settings.primaryTerm === option.id ? 'primary' : 'ghost'}
+                            size="sm"
                             onClick={() => updateSettings({ primaryTerm: option.id })}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-semibold transition-colors duration-300 ${
                                 settings.primaryTerm === option.id 
-                                    ? 'bg-primary text-white shadow-sm' 
-                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800/50'
+                                    ? '!bg-primary !text-white shadow-sm' 
+                                    : '!text-gray-500 dark:!text-gray-400 hover:!bg-gray-200 dark:hover:!bg-gray-800/50'
                             }`}
+                            icon={<option.icon className="w-5 h-5" />}
                         >
-                            <option.icon className="w-5 h-5" />
-                            <span>{option.label}</span>
-                        </button>
+                            {option.label}
+                        </Button>
                     ))}
                 </div>
             </div>

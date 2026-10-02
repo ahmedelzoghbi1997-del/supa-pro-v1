@@ -12,6 +12,7 @@ import { useUI } from '../contexts/UIContext';
 import AccountSwitcher from './shared/AccountSwitcher';
 import { PWAInstallButton } from './shared/PWAInstallButton';
 import Modal from './shared/Modal';
+import Button from './shared/Button';
 import { useToast } from '../hooks/useToast';
 import { triggerLightHaptic, triggerSaveHaptic } from '../lib/haptics';
 
@@ -78,7 +79,7 @@ const HeaderLogoTarget: React.FC<{ onOpenSidebar?: () => void }> = React.memo(({
       onClick={() => { if (onOpenSidebar) onOpenSidebar(); }}
     >
       <LogoIcon
-        className={`w-full h-full group-hover:scale-105 active:scale-95 transition-none ${
+        className={`w-full h-full group-hover:scale-105 tap transition-none ${
           isTransitioning && !hasTransitionCompleted ? 'opacity-0' : 'opacity-100'
         }`}
       />
@@ -185,24 +186,27 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
 
   return (
     <main className="flex-1 bg-transparent h-screen flex flex-col w-full max-w-full overflow-hidden relative">
-      <header className="flex-shrink-0 z-20 h-14 sm:h-16 flex justify-between items-center bg-neutral-100/90 dark:bg-neutral-900/90 backdrop-blur-xl px-4 sm:px-8 border-b border-neutral-200 dark:border-neutral-800 w-full transition-colors duration-300">
+      <header className="flex-shrink-0 z-20 h-14 sm:h-16 flex justify-between items-center bg-neutral-100/95 dark:bg-neutral-900/95 backdrop-blur-sm px-4 sm:px-8 border-b border-neutral-200 dark:border-neutral-800 w-full transition-colors duration-300">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-          <button 
+          <Button 
+              variant="ghost"
+              size="sm"
               onClick={() => {
                   triggerLightHaptic();
                   if (onOpenSidebar) onOpenSidebar();
               }}
-              className="p-2 -ml-2 rounded-full lg:hidden text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors active:scale-95"
+              className="!p-2 -ml-2 !rounded-full lg:!hidden text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors tap"
+              aria-label="القائمة الجانبية"
           >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-          </button>
+          </Button>
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <HeaderLogoTarget onOpenSidebar={onOpenSidebar} />
             <div className="flex flex-col min-w-0">
               <h1 className="text-base sm:text-lg font-bold text-neutral-800 dark:text-neutral-0 truncate animate-enter leading-tight">{activeItemLabel}</h1>
-              <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500 hidden sm:inline-block leading-tight">المحاسب الزراعي</span>
+              <span className="text-2xs font-bold text-neutral-400 dark:text-neutral-500 hidden sm:inline-block leading-tight">المحاسب الزراعي</span>
             </div>
           </div>
         </div>
@@ -213,30 +217,36 @@ const MainContent: React.FC<MainContentProps> = ({ activeItem, onOpenSidebar }) 
 
           <div className="h-6 w-px bg-neutral-300 dark:bg-neutral-700 mx-1 hidden sm:block"></div>
 
-          <button 
+          <Button 
+              variant="ghost"
+              size="sm"
               onClick={() => updateSettings({ theme: settings.theme === 'dark' ? 'light' : 'dark'})}
-              className="p-2 rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors active:scale-95"
+              className="!p-2 !rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors tap"
+              aria-label="تبديل المظهر"
           >
               {settings.theme === 'dark' ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
-          </button>
+          </Button>
           
           <div ref={notificationsRef} className="relative">
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 if (!isNotificationsOpen) {
                   markAllNotificationsAsRead();
                 }
                 setNotificationsOpen(prev => !prev);
               }}
-              className="relative p-2 rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 active:scale-95 transition-transform"
+              className="!relative !p-2 !rounded-full text-neutral-500 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 tap transition-transform"
+              aria-label="الإشعارات"
             >
               <BellIcon className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-danger text-white text-[10px] font-bold ring-2 ring-neutral-100 dark:ring-neutral-900 animate-pulse">
+                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent-danger text-white text-2xs font-bold ring-2 ring-neutral-100 dark:ring-neutral-900 animate-pulse">
                   {unreadCount}
                 </span>
               )}
-            </button>
+            </Button>
             <NotificationsPanel isOpen={isNotificationsOpen} onClose={() => setNotificationsOpen(false)} />
           </div>
         </div>

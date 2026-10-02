@@ -175,13 +175,13 @@ export const DailyLogManager: React.FC = () => {
                             onClick={() => setIsSmartAssistVisible(!isSmartAssistVisible)}
                             className={`shrink-0 relative flex items-center justify-center p-2.5 rounded-xl transition-all ${
                                 isSmartAssistVisible
-                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 shadow-sm'
-                                : 'bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-500'
+                                ? 'bg-accent-warning/10 text-accent-warning dark:bg-accent-warning/20 dark:text-accent-warning shadow-sm'
+                                : 'bg-accent-warning/10 text-accent-warning border border-accent-warning/20 hover:bg-accent-warning/10 dark:bg-accent-warning/10 dark:border-accent-warning/20 dark:text-accent-warning'
                             }`}
                             title="تنبيهات المساعد"
                         >
                             <Sparkles className="w-5 h-5" />
-                            <span className="absolute -top-1 -left-1 flex items-center justify-center w-4 h-4 bg-red-500 text-white border border-white dark:border-neutral-900 rounded-full text-[10px] font-black">
+                            <span className="absolute -top-1 -left-1 flex items-center justify-center w-4 h-4 bg-accent-danger text-white border border-white dark:border-neutral-900 rounded-full text-2xs font-black">
                                 {alerts.length}
                             </span>
                         </button>
@@ -191,14 +191,14 @@ export const DailyLogManager: React.FC = () => {
 
             {/* Smart Alerts */}
             {alerts.length > 0 && isSmartAssistVisible && (
-                <div className="bg-amber-50/80 dark:bg-amber-500/5 py-3 px-4 rounded-xl border border-amber-200/60 dark:border-amber-500/20 text-amber-800 dark:text-amber-400 text-xs font-semibold space-y-2 animate-in fade-in shrink-0">
+                <div className="bg-accent-warning/10/80 dark:bg-accent-warning/5 py-3 px-4 rounded-xl border border-accent-warning/20/60 dark:border-accent-warning/20 text-accent-warning dark:text-accent-warning text-xs font-semibold space-y-2 animate-in fade-in shrink-0">
                     <div className="flex items-center gap-2 font-black mb-1">
                         <Info className="w-4 h-4" />
                         <span>توصيات المساعد الذكي:</span>
                     </div>
                     {alerts.map((al, idx) => (
                         <div key={idx} className="flex items-start gap-2 pr-6">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-accent-warning mt-1.5 shrink-0"></div>
                             <p className="leading-relaxed">{al}</p>
                         </div>
                     ))}
@@ -238,7 +238,7 @@ export const DailyLogManager: React.FC = () => {
                         </div>
                         <button 
                             onClick={() => setSelectedDateFilter(null)}
-                            className="text-xs font-black text-rose-500 hover:text-rose-600 flex items-center gap-1 bg-white dark:bg-neutral-800 px-3 py-1.5 rounded-xl border border-rose-100 dark:border-rose-950/60 cursor-pointer shadow-sm"
+                            className="text-xs font-black text-accent-danger hover:text-accent-danger flex items-center gap-1 bg-white dark:bg-neutral-800 px-3 py-1.5 rounded-xl border border-accent-danger/20 dark:border-rose-950/60 cursor-pointer shadow-sm"
                         >
                             <span>إلغاء التصفية</span>
                             <X className="w-3 h-3" />
@@ -279,7 +279,7 @@ export const DailyLogManager: React.FC = () => {
                     {/* Weekly Summary Button */}
                     <button
                         onClick={() => setIsWeeklySummaryOpen(true)}
-                        className="shrink-0 flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-teal-500/10 active:scale-95"
+                        className="shrink-0 flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-black bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-teal-500/10 tap"
                     >
                         <span>📊 ملخص الأسبوع</span>
                     </button>
@@ -310,7 +310,7 @@ export const DailyLogManager: React.FC = () => {
             {/* Floating Action Button (FAB) */}
             <button
                 onClick={() => { setEditingLog(null); setIsModalOpen(true); }}
-                className="fixed bottom-24 left-6 z-50 flex items-center justify-center w-14 h-14 bg-primary hover:bg-opacity-95 text-white rounded-2xl font-black shadow-2xl shadow-emerald-500/20 active:scale-95 transition-all text-sm cursor-pointer lg:bottom-10"
+                className="fixed bottom-24 left-6 z-50 flex items-center justify-center w-14 h-14 bg-primary hover:bg-opacity-95 text-white rounded-2xl font-black shadow-2xl shadow-emerald-500/20 tap transition-all text-sm cursor-pointer lg:bottom-10"
             >
                 <Plus className="w-6 h-6" />
             </button>

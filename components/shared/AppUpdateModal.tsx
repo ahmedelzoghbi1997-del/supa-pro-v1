@@ -117,10 +117,10 @@ const AppUpdateModal: React.FC = () => {
                     )}
 
                     {updateInfo.is_mandatory && (
-                        <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-500/10 p-3 rounded-xl text-xs font-bold">
+                        <div className="flex items-center gap-2 text-accent-warning dark:text-accent-warning bg-accent-warning/10 dark:bg-accent-warning/10 p-3 rounded-xl text-xs font-bold">
                             <span className="relative flex h-2.5 w-2.5">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-warning"></span>
                             </span>
                             هذا التحديث إجباري لضمان استقرار التطبيق.
                         </div>
@@ -130,7 +130,7 @@ const AppUpdateModal: React.FC = () => {
                     <div className="flex flex-col gap-3 pt-2">
                         <button
                             onClick={handleUpdate}
-                            className="w-full py-3.5 px-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-black text-lg transition-all active:scale-[0.98] shadow-lg shadow-primary/25"
+                            className="w-full py-3.5 px-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-black text-lg transition-all tap shadow-lg shadow-primary/25"
                         >
                             تحديث الآن
                         </button>

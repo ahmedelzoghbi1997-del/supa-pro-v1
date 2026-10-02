@@ -21,9 +21,9 @@ interface NotificationsPanelProps {
 const getNotificationMeta = (type: NotificationType) => {
     switch(type) {
         case 'financial':
-            return { Icon: DollarIcon, iconBg: 'bg-red-100 dark:bg-red-500/20', iconColor: 'text-red-500' };
+            return { Icon: DollarIcon, iconBg: 'bg-accent-danger/10 dark:bg-accent-danger/20', iconColor: 'text-accent-danger' };
         case 'administrative':
-            return { Icon: UserGroupIcon, iconBg: 'bg-blue-100 dark:bg-blue-500/20', iconColor: 'text-blue-500' };
+            return { Icon: UserGroupIcon, iconBg: 'bg-accent-info/10 dark:bg-blue-500/20', iconColor: 'text-accent-info' };
         case 'insight':
             return { Icon: LightBulbIcon, iconBg: 'bg-purple-100 dark:bg-purple-500/20', iconColor: 'text-purple-500' };
         case 'system':

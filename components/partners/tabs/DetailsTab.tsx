@@ -42,7 +42,7 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
           <span className="text-xs font-black text-neutral-900 dark:text-white">
             المنهجية المحاسبية المعتمدة للذمة
           </span>
-          <span className="text-[10px] text-neutral-400 font-bold">
+          <span className="text-2xs text-neutral-400 font-bold">
             وفق النظام المحاسبي الزراعي
           </span>
         </div>
@@ -56,16 +56,16 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
               </span>
               <span
                 dir="ltr"
-                className="font-black text-emerald-600 dark:text-emerald-400 tracking-tight inline-flex items-center gap-0.5"
+                className="font-black text-accent-success dark:text-accent-success tracking-tight inline-flex items-center gap-0.5"
               >
                 <span>+</span>
                 <span>{formatNumber(partner.totalProfitsEarned)}</span>
-                <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">
+                <span className="text-2xs text-neutral-450 ml-1 font-sans" dir="rtl">
                   ج.م
                 </span>
               </span>
             </div>
-            <p className="text-[10px] text-slate-455 dark:text-neutral-440">
+            <p className="text-2xs text-slate-455 dark:text-neutral-440">
               حصتك المعتمدة الصافية من أرباح العروات المنتهية
             </p>
           </div>
@@ -78,16 +78,16 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
               </span>
               <span
                 dir="ltr"
-                className="font-bold text-rose-500 tracking-tight inline-flex items-center gap-0.5"
+                className="font-bold text-accent-danger tracking-tight inline-flex items-center gap-0.5"
               >
                 <span>-</span>
                 <span>{formatNumber(partner.totalCashWithdrawn)}</span>
-                <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">
+                <span className="text-2xs text-neutral-450 ml-1 font-sans" dir="rtl">
                   ج.م
                 </span>
               </span>
             </div>
-            <p className="text-[10px] text-slate-455 dark:text-neutral-440">
+            <p className="text-2xs text-slate-455 dark:text-neutral-440">
               التمويلات والسلف النقدية المسحوبة من الخزينة لحسابك
             </p>
           </div>
@@ -105,12 +105,12 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
                 >
                   <span>-</span>
                   <span>{formatNumber(partner.outstandingDebts)}</span>
-                  <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">
+                  <span className="text-2xs text-neutral-450 ml-1 font-sans" dir="rtl">
                     ج.م
                   </span>
                 </span>
               </div>
-              <p className="text-[10px] text-slate-455 dark:text-neutral-440">
+              <p className="text-2xs text-slate-455 dark:text-neutral-440">
                 صافي المتبقي من الديون والالتزامات المشتركة المخصصة لحسابك
               </p>
             </div>
@@ -125,16 +125,16 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
                 </span>
                 <span
                   dir="ltr"
-                  className="font-black text-emerald-500 tracking-tight inline-flex items-center gap-0.5"
+                  className="font-black text-accent-success tracking-tight inline-flex items-center gap-0.5"
                 >
                   <span>+</span>
                   <span>{formatNumber(partner.totalPersonalFunding)}</span>
-                  <span className="text-[10px] text-neutral-450 ml-1 font-sans" dir="rtl">
+                  <span className="text-2xs text-neutral-450 ml-1 font-sans" dir="rtl">
                     ج.م
                   </span>
                 </span>
               </div>
-              <p className="text-[10px] text-slate-450 dark:text-neutral-450">
+              <p className="text-2xs text-slate-450 dark:text-neutral-450">
                 تسويات نقدية أو تمويل شخصي تم إيداعه بالخزنة لتعزيز رصيدك
               </p>
             </div>
@@ -151,10 +151,10 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
               صافي مستحقات الذمة النهائية
             </p>
             <span
-              className={`inline-block text-[10px] font-black px-2 py-0.5 rounded-md mt-1 ${
+              className={`inline-block text-2xs font-black px-2 py-0.5 rounded-md mt-1 ${
                 partner.finalBalance >= 0
-                  ? 'bg-emerald-50 dark:bg-emerald-955/20 text-emerald-600'
-                  : 'bg-rose-50 dark:bg-rose-955/20 text-rose-500'
+                  ? 'bg-accent-success/10 dark:bg-emerald-955/20 text-accent-success'
+                  : 'bg-accent-danger/10 dark:bg-rose-955/20 text-accent-danger'
               }`}
             >
               {partner.finalBalance >= 0
@@ -165,7 +165,7 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({ partner }) => {
           <div dir="ltr" className="text-right">
             <span
               className={`text-2xl font-black ${
-                partner.finalBalance >= 0 ? 'text-emerald-500' : 'text-rose-550'
+                partner.finalBalance >= 0 ? 'text-accent-success' : 'text-rose-550'
               }`}
             >
               {partner.finalBalance >= 0 ? '+' : '-'}

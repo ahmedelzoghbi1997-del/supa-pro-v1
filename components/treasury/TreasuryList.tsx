@@ -30,24 +30,24 @@ const FundCard: React.FC<FundCardProps> = ({ fund, onViewDetails }) => {
     return (
         <button
             onClick={() => onViewDetails(fund.id)}
-            className="w-full text-right bg-emerald-500/[0.03] hover:bg-emerald-500/[0.07] dark:bg-emerald-500/[0.01] dark:hover:bg-emerald-500/[0.03] p-4 rounded-2xl border border-emerald-500/10 dark:border-emerald-500/10 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-emerald-500/30 group active:scale-[0.98] relative overflow-hidden"
+            className="w-full text-right bg-accent-success/[0.03] hover:bg-accent-success/[0.07] dark:bg-accent-success/[0.01] dark:hover:bg-accent-success/[0.03] p-4 rounded-2xl border border-accent-success/20 dark:border-accent-success/20 flex flex-col justify-between transition-all duration-200 hover:shadow-md hover:border-accent-success/20 group tap relative overflow-hidden"
         >
             <div className="w-full relative z-10 flex flex-col h-full justify-between">
                 <div>
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-2 min-w-0">
-                            <div className="bg-emerald-100/85 dark:bg-emerald-950/50 text-emerald-650 dark:text-emerald-400 p-2 rounded-xl shrink-0">
+                            <div className="bg-accent-success/10/85 dark:bg-accent-success/20 text-emerald-650 dark:text-accent-success p-2 rounded-xl shrink-0">
                                 <SafeIcon className="w-4 h-4" />
                             </div>
                             <h3 className="text-xs font-black text-neutral-850 dark:text-neutral-100 truncate">
                                 {fund.name.replace('صندوق: ', '')}
                             </h3>
                         </div>
-                        <ArrowLeftIcon className="w-3.5 h-3.5 text-neutral-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-all group-hover:-translate-x-0.5" />
+                        <ArrowLeftIcon className="w-3.5 h-3.5 text-neutral-400 group-hover:text-accent-success dark:group-hover:text-accent-success transition-all group-hover:-translate-x-0.5" />
                     </div>
 
                     <div className="flex flex-col gap-1 mb-4">
-                        <span className="text-[10px] font-bold text-neutral-450 dark:text-neutral-500 uppercase tracking-wider">الرصيد الحالي</span>
+                        <span className="text-2xs font-bold text-neutral-450 dark:text-neutral-500 uppercase tracking-wider">الرصيد الحالي</span>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-black text-neutral-900 dark:text-white tabular-nums tracking-tight">
                                 {formatNumber(fund.balance)}
@@ -57,25 +57,25 @@ const FundCard: React.FC<FundCardProps> = ({ fund, onViewDetails }) => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-emerald-500/10 w-full text-xs">
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-accent-success/20 w-full text-xs">
                     <div className="flex items-center gap-1.5 text-right min-w-0">
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100/50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 shrink-0 text-[10px]" aria-hidden="true">
+                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-accent-success/10/50 dark:bg-accent-success/20 text-accent-success dark:text-accent-success shrink-0 text-2xs" aria-hidden="true">
                             ↑
                         </span>
                         <div className="min-w-0">
                             <p className="text-[8.5px] font-bold text-neutral-450 dark:text-neutral-500 truncate">إجمالي الوارد</p>
-                            <p className="font-extrabold text-[11px] text-emerald-600 dark:text-emerald-400 tabular-nums truncate">
+                            <p className="font-extrabold text-[11px] text-accent-success dark:text-accent-success tabular-nums truncate">
                                 {formatNumber(totalInflow)}
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-1.5 text-right border-r border-emerald-500/10 pr-2.5 min-w-0">
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-rose-100/50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 shrink-0 text-[10px]" aria-hidden="true">
+                    <div className="flex items-center gap-1.5 text-right border-r border-accent-success/20 pr-2.5 min-w-0">
+                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-accent-danger/10/50 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger shrink-0 text-2xs" aria-hidden="true">
                             ↓
                         </span>
                         <div className="min-w-0">
                             <p className="text-[8.5px] font-bold text-neutral-450 dark:text-neutral-500 truncate">إجمالي المنصرف</p>
-                            <p className="font-extrabold text-[11px] text-rose-600 dark:text-rose-450 tabular-nums truncate">
+                            <p className="font-extrabold text-[11px] text-accent-danger dark:text-accent-danger tabular-nums truncate">
                                 {formatNumber(totalOutflow)}
                             </p>
                         </div>
@@ -96,7 +96,7 @@ const BankCard: React.FC<BankCardProps> = ({ account, balance, onViewDetails }) 
     return (
         <button
             onClick={() => onViewDetails(account.id)}
-            className="w-full text-right bg-indigo-500/[0.03] hover:bg-indigo-500/[0.07] dark:bg-indigo-500/[0.01] dark:hover:bg-indigo-500/[0.03] p-3.5 rounded-xl border border-indigo-500/10 dark:border-indigo-500/10 flex flex-col justify-between transition-all duration-200 hover:shadow-xs hover:border-indigo-500/30 group active:scale-[0.98] relative overflow-hidden"
+            className="w-full text-right bg-indigo-500/[0.03] hover:bg-indigo-500/[0.07] dark:bg-indigo-500/[0.01] dark:hover:bg-indigo-500/[0.03] p-3.5 rounded-xl border border-indigo-500/10 dark:border-indigo-500/10 flex flex-col justify-between transition-all duration-200 hover:shadow-xs hover:border-indigo-500/30 group tap relative overflow-hidden"
         >
             <div className="w-full relative z-10">
                 <div className="flex justify-between items-center mb-2">
@@ -114,12 +114,12 @@ const BankCard: React.FC<BankCardProps> = ({ account, balance, onViewDetails }) 
                 <div className="flex items-baseline justify-between gap-1 mt-1.5 pr-1 border-b border-indigo-500/[0.07] pb-2 mb-2">
                     <span className="text-lg font-black text-indigo-700 dark:text-indigo-300 tabular-nums tracking-tight">
                         {formatNumber(balance)}
-                        <span className="text-[10px] font-bold text-indigo-400 mr-0.5">ج.م</span>
+                        <span className="text-2xs font-bold text-indigo-400 mr-0.5">ج.م</span>
                     </span>
-                    <span className="text-[9px] font-bold text-indigo-600/80 dark:text-indigo-400 uppercase tracking-tight">الرصيد المتوفر بالبنك</span>
+                    <span className="text-2xs font-bold text-indigo-600/80 dark:text-indigo-400 uppercase tracking-tight">الرصيد المتوفر بالبنك</span>
                 </div>
 
-                <div className="pt-0.5 flex justify-between items-center text-[10px] text-neutral-450 dark:text-neutral-500 font-extrabold">
+                <div className="pt-0.5 flex justify-between items-center text-2xs text-neutral-450 dark:text-neutral-500 font-extrabold">
                     <span>كشف الحساب والعمليات</span>
                     <span className="text-indigo-500 dark:text-indigo-400 font-black">←</span>
                 </div>
@@ -234,7 +234,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                         
                         {/* Progress Bar */}
                         <div className="mt-8">
-                            <div className="flex justify-between text-[10px] font-black text-indigo-200 mb-2.5 uppercase tracking-widest">
+                            <div className="flex justify-between text-2xs font-black text-indigo-200 mb-2.5 uppercase tracking-widest">
                                 <span className="flex items-center gap-1.5">
                                     <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                                     <span>نقدية / كاش ({Math.round(cashPercentage)}%)</span>
@@ -254,15 +254,15 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
 
                 {/* Side Cards */}
                 <div className="col-span-1 bg-white dark:bg-neutral-900/30 rounded-[1.5rem] p-5 border border-neutral-200/65 dark:border-neutral-800/60 shadow-xs flex flex-col justify-center relative overflow-hidden group hover:shadow-md transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-emerald-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4 group-hover:bg-emerald-500/10 transition-all duration-300"></div>
+                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-accent-success/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4 group-hover:bg-accent-success/10 transition-all duration-300"></div>
                     <div className="relative z-10">
                         <div className="flex items-center gap-1.5 mb-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                            <p className="text-[10px] sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">إجمالي النقدية بالكاش</p>
+                            <div className="w-1.5 h-1.5 rounded-full bg-accent-success"></div>
+                            <p className="text-2xs sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">إجمالي النقدية بالكاش</p>
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-xl sm:text-2xl font-black text-neutral-800 dark:text-neutral-100 tabular-nums tracking-tighter">{formatNumber(totalCash)}</span>
-                            <span className="text-[10px] sm:text-xs font-bold text-neutral-400">ج.م</span>
+                            <span className="text-2xs sm:text-xs font-bold text-neutral-400">ج.م</span>
                         </div>
                     </div>
                 </div>
@@ -272,11 +272,11 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                     <div className="relative z-10">
                         <div className="flex items-center gap-1.5 mb-1.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
-                            <p className="text-[10px] sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">إجمالي الحسابات البنكية</p>
+                            <p className="text-2xs sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">إجمالي الحسابات البنكية</p>
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-xl sm:text-2xl font-black text-neutral-800 dark:text-neutral-100 tabular-nums tracking-tighter">{formatNumber(totalBank)}</span>
-                            <span className="text-[10px] sm:text-xs font-bold text-neutral-400">ج.م</span>
+                            <span className="text-2xs sm:text-xs font-bold text-neutral-400">ج.م</span>
                         </div>
                     </div>
                 </div>
@@ -290,7 +290,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                         onClick={() => setActiveTab('cash')}
                         className={`flex-1 sm:flex-none px-3.5 sm:px-5 py-2 rounded-md text-[13px] font-black transition-all duration-200 text-center ${
                             activeTab === 'cash' 
-                            ? 'bg-white dark:bg-neutral-850 text-emerald-600 dark:text-emerald-400 shadow-xs' 
+                            ? 'bg-white dark:bg-neutral-850 text-accent-success dark:text-accent-success shadow-xs' 
                             : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
                         }`}
                     >
@@ -321,7 +321,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                         className={`flex items-center justify-center gap-2 text-xs sm:text-sm font-bold w-full sm:w-auto px-5 py-2.5 rounded-xl transition-all duration-200 cursor-pointer border-2 border-dashed ${
                             activeTab === 'bank'
                                 ? 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700/50 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50'
-                                : 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700/50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50'
+                                : 'border-accent-success/20 bg-accent-success/10 text-accent-success hover:bg-accent-success/10 dark:border-accent-success/30 dark:bg-accent-success/20 dark:text-accent-success dark:hover:bg-accent-success/20'
                         }`}
                     >
                         <PlusIcon className="w-4 h-4 shrink-0" /> 
@@ -358,7 +358,7 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                                 <button
                                     type="button"
                                     onClick={() => setIsLedgerOpen(true)}
-                                    className="group flex items-center justify-between gap-4 w-full max-w-lg px-6 py-4 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-805 dark:hover:bg-neutral-750 text-neutral-800 dark:text-neutral-200 text-[13px] font-black rounded-2xl shadow-xs active:scale-[0.98] transition-all cursor-pointer border border-neutral-200/50 dark:border-neutral-800/60"
+                                    className="group flex items-center justify-between gap-4 w-full max-w-lg px-6 py-4 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-805 dark:hover:bg-neutral-750 text-neutral-800 dark:text-neutral-200 text-[13px] font-black rounded-2xl shadow-xs tap transition-all cursor-pointer border border-neutral-200/50 dark:border-neutral-800/60"
                                     id="toggle-statement-btn"
                                 >
                                     <div className="flex items-center gap-3">
@@ -418,11 +418,11 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                 title="تأسيس وإدارة خزائن الكاش الرقمية"
             >
                 <div className="space-y-4 text-right">
-                    <div className="bg-emerald-50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/40 flex items-start gap-3">
-                        <InfoIcon className="w-6 h-6 text-emerald-600 dark:text-emerald-400 mt-1 shrink-0" />
+                    <div className="bg-accent-success/10 dark:bg-accent-success/20 p-4 rounded-xl border border-accent-success/20 dark:border-accent-success/30 flex items-start gap-3">
+                        <InfoIcon className="w-6 h-6 text-accent-success dark:text-accent-success mt-1 shrink-0" />
                         <div>
-                            <h4 className="font-black text-emerald-800 dark:text-emerald-400">عروتك الزراعية هي محرك الخزائن</h4>
-                            <p className="text-sm text-emerald-700/85 dark:text-emerald-300 mt-1 leading-relaxed">
+                            <h4 className="font-black text-accent-success dark:text-accent-success">عروتك الزراعية هي محرك الخزائن</h4>
+                            <p className="text-sm text-accent-success/85 dark:text-accent-success mt-1 leading-relaxed">
                                 بدلاً من إدارة خزنة نقدية عشوائية، "المحاسب الزراعي" يطبق المعايير المحاسبية السليمة بحيث توجد **خزنة/عهدة مستقلة لكل عروة**.
                             </p>
                         </div>
@@ -432,15 +432,15 @@ const TreasuryList: React.FC<TreasuryListProps> = ({ funds, onViewDetails, onVie
                         <p className="font-extrabold text-neutral-800 dark:text-neutral-200">آلية العمل بداخل النظام:</p>
                         <div className="space-y-2.5 pr-2">
                             <div className="flex gap-2">
-                                <span className="text-emerald-500 font-black">١.</span>
+                                <span className="text-accent-success font-black">١.</span>
                                 <span>عند قيامك بإضافة عروة زراعية جديدة من صفحة العروات، يتم تأسيس صندوق كاش تلقائي يحمل نفس الاسم لتتبع التدفق المالي لتلك الأرض.</span>
                             </div>
                             <div className="flex gap-2">
-                                <span className="text-emerald-500 font-black">٢.</span>
+                                <span className="text-accent-success font-black">٢.</span>
                                 <span>كافة فواتير التوريد، والعمالة، والمشتريات والمسحوبات المصاحبة لتلك العروة تصب وتخصم من هذا الصندوق مباشرةً.</span>
                             </div>
                             <div className="flex gap-2">
-                                <span className="text-emerald-500 font-black">٣.</span>
+                                <span className="text-accent-success font-black">٣.</span>
                                 <span>بعد انتهاء العروة وحصادها، يُمكنك تسوية المتبقي وتوريد الفوائض لحسابك البنكي لإقفال الصندوق وعمل الأثر المزدوج في الحركات.</span>
                             </div>
                         </div>

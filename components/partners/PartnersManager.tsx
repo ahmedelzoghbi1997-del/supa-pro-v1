@@ -1139,7 +1139,7 @@ const PartnersManager: React.FC = () => {
                         </button>
                         <button
                             onClick={confirmDeleteDraw}
-                            className="px-4 py-2 text-sm font-bold bg-rose-500 hover:bg-rose-600 text-white rounded-xl"
+                            className="px-4 py-2 text-sm font-bold bg-accent-danger hover:bg-accent-danger text-white rounded-xl"
                         >
                             تأكيد الحذف
                         </button>
@@ -1161,7 +1161,7 @@ const PartnersManager: React.FC = () => {
                         </button>
                         <button
                             onClick={confirmDeletePartner}
-                            className="px-4 py-2 text-sm font-bold bg-rose-500 hover:bg-rose-600 text-white rounded-xl"
+                            className="px-4 py-2 text-sm font-bold bg-accent-danger hover:bg-accent-danger text-white rounded-xl"
                         >
                             تأكيد الحذف
                         </button>
@@ -1178,7 +1178,7 @@ const PartnersManager: React.FC = () => {
             >
                 <form onSubmit={handleSaveDraw} className="space-y-4 pt-1 text-right">
                     {drawError && (
-                        <div className="p-3 bg-rose-50 border border-rose-150 text-rose-600 rounded-xl text-xs font-bold leading-relaxed">
+                        <div className="p-3 bg-accent-danger/10 border border-rose-150 text-accent-danger rounded-xl text-xs font-bold leading-relaxed">
                             {drawError}
                         </div>
                     )}
@@ -1234,7 +1234,7 @@ const PartnersManager: React.FC = () => {
                                         onClick={() => setFundingSource('cash')}
                                         className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition-all ${
                                             fundingSource === 'cash'
-                                                ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                                                ? 'bg-accent-danger text-white border-rose-600 shadow-sm'
                                                 : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750'
                                         }`}
                                     >
@@ -1268,12 +1268,12 @@ const PartnersManager: React.FC = () => {
                                                 onClick={() => setEnteredTreasury(true)}
                                                 className={`py-2 px-2.5 text-xs font-medium rounded-xl border transition-all flex flex-col items-center justify-center gap-0.5 ${
                                                     enteredTreasury
-                                                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm font-black'
+                                                        ? 'bg-accent-success text-white border-emerald-600 shadow-sm font-black'
                                                         : 'bg-white dark:bg-neutral-900 text-neutral-750 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750 hover:bg-neutral-50/50'
                                                 }`}
                                             >
-                                                <span className="text-[10px]">دخل الخزنة كاش 💰</span>
-                                                <span className="text-[8px] opacity-85">دخل صندوق الخزنة كسيولة</span>
+                                                <span className="text-2xs">دخل الخزنة كاش 💰</span>
+                                                <span className="text-2xs opacity-85">دخل صندوق الخزنة كسيولة</span>
                                             </button>
                                             <button
                                                 type="button"
@@ -1284,8 +1284,8 @@ const PartnersManager: React.FC = () => {
                                                         : 'bg-white dark:bg-neutral-900 text-neutral-750 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750 hover:bg-neutral-50/50'
                                                 }`}
                                             >
-                                                <span className="text-[10px]">دين دفتري فقط 🏮</span>
-                                                <span className="text-[8px] opacity-85">التزام دفتري (خارج الخزنة)</span>
+                                                <span className="text-2xs">دين دفتري فقط 🏮</span>
+                                                <span className="text-2xs opacity-85">التزام دفتري (خارج الخزنة)</span>
                                             </button>
                                         </div>
                                     </div>
@@ -1306,7 +1306,7 @@ const PartnersManager: React.FC = () => {
                                         onClick={() => setDepositSource('own_pocket')}
                                         className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition-all ${
                                             depositSource === 'own_pocket'
-                                                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                                                ? 'bg-accent-success text-white border-emerald-600 shadow-sm'
                                                 : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750'
                                         }`}
                                     >
@@ -1317,7 +1317,7 @@ const PartnersManager: React.FC = () => {
                                         onClick={() => setDepositSource('merchant_debt')}
                                         className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition-all ${
                                             depositSource === 'merchant_debt'
-                                                ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                                                ? 'bg-accent-danger text-white border-rose-600 shadow-sm'
                                                 : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750'
                                         }`}
                                     >
@@ -1336,10 +1336,10 @@ const PartnersManager: React.FC = () => {
                                         value={debtNotes}
                                         onChange={(e) => setDebtNotes(e.target.value)}
                                         placeholder="مثال: دين من جهة تمويل سدد به رصيد الـ 9000 ج.م"
-                                        className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-neutral-250 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-850 dark:text-white focus:ring-2 focus:ring-rose-500/30 focus:outline-none text-right font-semibold"
+                                        className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-neutral-250 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-850 dark:text-white focus:ring-2 focus:ring-accent-danger focus:outline-none text-right font-semibold"
                                         required={depositSource === 'merchant_debt'}
                                     />
-                                    <span className="text-[10px] text-rose-600 dark:text-rose-450 font-bold block mt-1 leading-normal">
+                                    <span className="text-2xs text-accent-danger dark:text-accent-danger font-bold block mt-1 leading-normal">
                                         ⚠️ تنبيه محاسبي: سيقوم النظام بتسجيل حركتين متقابلتين في ذمتك المالية: إيداع كاش لتصفية الرصيد، وسحب إثبات مديونية بصفة دين على الشريك لضمان بقائه في ذمته المالية ليتم تحصيله من الأرباح مستقبلاً.
                                     </span>
                                 </div>
@@ -1357,7 +1357,7 @@ const PartnersManager: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => setFundingSource('own_pocket')}
-                                        className={`py-2 px-3 text-[10px] sm:text-xs font-bold rounded-xl border transition-all ${
+                                        className={`py-2 px-3 text-2xs sm:text-xs font-bold rounded-xl border transition-all ${
                                             fundingSource === 'own_pocket' || !fundingSource || fundingSource === 'cash' || fundingSource === 'external_debt'
                                                 ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
                                                 : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750'
@@ -1368,16 +1368,16 @@ const PartnersManager: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={() => setFundingSource('treasury')}
-                                        className={`py-2 px-3 text-[10px] sm:text-xs font-bold rounded-xl border transition-all ${
+                                        className={`py-2 px-3 text-2xs sm:text-xs font-bold rounded-xl border transition-all ${
                                             fundingSource === 'treasury'
-                                                ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                                                ? 'bg-accent-danger text-white border-rose-600 shadow-sm'
                                                 : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750'
                                         }`}
                                     >
                                         نقداً من خزينة المزرعة
                                     </button>
                                 </div>
-                                <span className="text-[9px] text-purple-600/80 dark:text-purple-400 font-bold block mt-2 text-right">
+                                <span className="text-2xs text-purple-600/80 dark:text-purple-400 font-bold block mt-2 text-right">
                                     {fundingSource === 'treasury' ? 'تحذير: سيتم خصم هذا المبلغ من رصيد الكاش بالخزنة.' : 'لن يتأثر رصيد سيولة الخزنة بهذه الدفعة.'}
                                 </span>
                             </div>
@@ -1398,7 +1398,7 @@ const PartnersManager: React.FC = () => {
                     <div className="flex justify-start gap-3 flex-row-reverse font-bold pt-4">
                         <button
                             type="submit"
-                            className={`px-5 py-2.5 text-white text-xs font-bold rounded-xl shadow-md ${drawType === 'draw' ? 'bg-rose-600 hover:bg-rose-750' : 'bg-emerald-600 hover:bg-emerald-750'}`}
+                            className={`px-5 py-2.5 text-white text-xs font-bold rounded-xl shadow-md ${drawType === 'draw' ? 'bg-accent-danger hover:bg-rose-750' : 'bg-accent-success hover:bg-emerald-750'}`}
                         >
                             تأكيد الترحيل وحفظ
                         </button>
@@ -1422,7 +1422,7 @@ const PartnersManager: React.FC = () => {
             >
                 <form onSubmit={handleSaveDebt} className="space-y-4 pt-1 text-right" dir="rtl">
                     {debtError && (
-                        <div className="p-3 bg-rose-50 border border-rose-150 text-rose-600 rounded-xl text-xs font-bold leading-normal">
+                        <div className="p-3 bg-accent-danger/10 border border-rose-150 text-accent-danger rounded-xl text-xs font-bold leading-normal">
                             {debtError}
                         </div>
                     )}
@@ -1474,12 +1474,12 @@ const PartnersManager: React.FC = () => {
                                 onClick={() => setEnteredTreasury(true)}
                                 className={`py-3 px-4 text-xs font-bold rounded-xl border transition-all flex flex-col items-center justify-center gap-1 ${
                                     enteredTreasury
-                                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                                        ? 'bg-accent-success text-white border-emerald-600 shadow-md'
                                         : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750 hover:bg-neutral-50/50'
                                 }`}
                             >
                                 <span className="font-black text-[11px]">دخل الخزنة كاش 💰</span>
-                                <span className="text-[9px] font-medium opacity-90">دخله سيولة نقدية في صندوق مشروع العروة</span>
+                                <span className="text-2xs font-medium opacity-90">دخله سيولة نقدية في صندوق مشروع العروة</span>
                             </button>
                             <button
                                 type="button"
@@ -1494,7 +1494,7 @@ const PartnersManager: React.FC = () => {
                                 }`}
                             >
                                 <span className="font-black text-[11px]">دين خارجي دفتري 🏮</span>
-                                <span className="text-[9px] font-medium opacity-90">التزام خارجي دفتري فقط (لا يوجد سيولة نقدية دخلت الحساب)</span>
+                                <span className="text-2xs font-medium opacity-90">التزام خارجي دفتري فقط (لا يوجد سيولة نقدية دخلت الحساب)</span>
                             </button>
                         </div>
 
@@ -1504,7 +1504,7 @@ const PartnersManager: React.FC = () => {
                                 <select
                                     value={debtCycleId || ''}
                                     onChange={(e) => setDebtCycleId(e.target.value || null)}
-                                    className="w-full text-xs px-3 py-2 rounded-xl border border-neutral-250 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-850 dark:text-white focus:ring-2 focus:ring-emerald-500/30 focus:outline-none font-bold text-right"
+                                    className="w-full text-xs px-3 py-2 rounded-xl border border-neutral-250 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-850 dark:text-white focus:ring-2 focus:ring-accent-success focus:outline-none font-bold text-right"
                                     required={enteredTreasury}
                                 >
                                     <option value="">-- اختر العروة/الموسم --</option>
@@ -1512,7 +1512,7 @@ const PartnersManager: React.FC = () => {
                                         <option key={c.id} value={c.id}>{c.name} {c.status === 'active' ? '(نشطة 🟢)' : '(مغلقة 🔴)'}</option>
                                     ))}
                                 </select>
-                                <p className="text-[10px] text-emerald-600 dark:text-emerald-450 font-bold block leading-relaxed mt-1">
+                                <p className="text-2xs text-accent-success dark:text-emerald-450 font-bold block leading-relaxed mt-1">
                                     ⚠️ تنبيه: سيتم احتساب قيمة هذا الدين كتمويل نقدي فوري وارد (Inflow) يرفع من رصيد صندوق المحصول الفعلي المحدد.
                                 </p>
                             </div>
@@ -1521,19 +1521,19 @@ const PartnersManager: React.FC = () => {
 
                     {debtTotalAmount > 0 && (
                         <div className="bg-neutral-50 dark:bg-neutral-800/40 p-3 rounded-2xl border border-neutral-150 flex items-center justify-between gap-2.5 mt-2">
-                            <span className="text-[10px] font-extrabold text-neutral-500">تقسيم فوري وسريع:</span>
+                            <span className="text-2xs font-extrabold text-neutral-500">تقسيم فوري وسريع:</span>
                             <div className="flex gap-2">
                                 <button
                                     type="button"
                                     onClick={() => handleDistributeDebt('equal')}
-                                    className="px-2.5 py-1.5 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg text-[9px] font-black"
+                                    className="px-2.5 py-1.5 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg text-2xs font-black"
                                 >
                                     بالتساوي (𝟱𝟬٪) ⚖
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => handleDistributeDebt('percentage')}
-                                    className="px-2.5 py-1.5 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg text-[9px] font-black"
+                                    className="px-2.5 py-1.5 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg text-2xs font-black"
                                 >
                                     حسب نسب الشراكة 📊
                                 </button>
@@ -1560,7 +1560,7 @@ const PartnersManager: React.FC = () => {
                                             placeholder="0.00"
                                             className="w-24 text-center text-xs font-bold px-2 py-1.5 rounded-lg border border-neutral-250 dark:border-neutral-700 bg-white dark:bg-neutral-850 text-neutral-850 dark:text-white"
                                         />
-                                        <span className="text-[10px] font-bold text-neutral-450">ج.م</span>
+                                        <span className="text-2xs font-bold text-neutral-450">ج.م</span>
                                     </div>
                                 </div>
                             ))}
@@ -1594,7 +1594,7 @@ const PartnersManager: React.FC = () => {
             >
                 <form onSubmit={handleSaveRepayDebt} className="space-y-4 pt-1 text-right" dir="rtl">
                     {repayError && (
-                        <div className="p-3 bg-rose-50 border border-rose-150 text-rose-600 rounded-xl text-xs font-bold leading-relaxed">
+                        <div className="p-3 bg-accent-danger/10 border border-rose-150 text-accent-danger rounded-xl text-xs font-bold leading-relaxed">
                             {repayError}
                         </div>
                     )}
@@ -1621,9 +1621,9 @@ const PartnersManager: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => setRepaySource('pocket')}
-                                className={`py-2 px-3 text-[10px] font-bold rounded-xl border transition-all ${
+                                className={`py-2 px-3 text-2xs font-bold rounded-xl border transition-all ${
                                     repaySource === 'pocket'
-                                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                                        ? 'bg-accent-success text-white border-emerald-600 shadow-sm'
                                         : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                                 }`}
                             >
@@ -1632,9 +1632,9 @@ const PartnersManager: React.FC = () => {
                             <button
                                 type="button"
                                 onClick={() => setRepaySource('treasury')}
-                                className={`py-2 px-3 text-[10px] font-bold rounded-xl border transition-all ${
+                                className={`py-2 px-3 text-2xs font-bold rounded-xl border transition-all ${
                                     repaySource === 'treasury'
-                                        ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                                        ? 'bg-accent-danger text-white border-rose-600 shadow-sm'
                                         : 'bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-750 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                                 }`}
                                 title="سيتم إنشاء حركة مصروف لسحب هذا المبلغ من سيولة خزنة المزرعة النقدية"
@@ -1659,10 +1659,10 @@ const PartnersManager: React.FC = () => {
                                     <div className="flex justify-between items-start text-xs">
                                         <span className="font-extrabold text-neutral-900 dark:text-white">{p.label}</span>
                                         <div className="flex flex-col items-end gap-1">
-                                            <span className="text-[10px] px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded font-bold text-neutral-500">
+                                            <span className="text-2xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded font-bold text-neutral-500">
                                                 مخصص: {formatNumber(allocation)} ج.م
                                             </span>
-                                            <span className="text-[10px] px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 rounded font-bold text-emerald-600">
+                                            <span className="text-2xs px-2 py-0.5 bg-accent-success/10 dark:bg-accent-success/20 rounded font-bold text-accent-success">
                                                 سُدد مسبقاً: {formatNumber(existingRepayment)} ج.م
                                             </span>
                                         </div>
@@ -1670,7 +1670,7 @@ const PartnersManager: React.FC = () => {
 
                                     <div className="grid grid-cols-2 gap-3 items-center">
                                         <div>
-                                            <label className="text-[10px] font-bold text-neutral-450 block mb-0.5">الدفعة الجديدة (ج.م)</label>
+                                            <label className="text-2xs font-bold text-neutral-450 block mb-0.5">الدفعة الجديدة (ج.م)</label>
                                             <input
                                                 type="number"
                                                 min="0"
@@ -1684,12 +1684,12 @@ const PartnersManager: React.FC = () => {
                                                     }));
                                                 }}
                                                 placeholder="0.00"
-                                                className="w-full text-xs font-bold px-2 py-1.5 rounded-lg border border-neutral-255 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-850 text-neutral-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 text-left"
+                                                className="w-full text-xs font-bold px-2 py-1.5 rounded-lg border border-neutral-255 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-850 text-neutral-850 dark:text-white focus:outline-none focus:ring-1 focus:ring-accent-success text-left"
                                             />
                                         </div>
                                         <div className="text-left select-none">
-                                            <span className="text-[10px] font-bold text-neutral-450 block mb-0.5">المتبقي للتسديد</span>
-                                            <span className={`text-xs font-extrabold tabular-nums ${remainingAfter > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                            <span className="text-2xs font-bold text-neutral-450 block mb-0.5">المتبقي للتسديد</span>
+                                            <span className={`text-xs font-extrabold tabular-nums ${remainingAfter > 0 ? 'text-accent-danger' : 'text-accent-success'}`}>
                                                 {formatNumber(remainingAfter)} ج.م
                                             </span>
                                         </div>
@@ -1702,7 +1702,7 @@ const PartnersManager: React.FC = () => {
                     <div className="flex justify-start gap-3 flex-row-reverse font-bold pt-2">
                         <button
                             type="submit"
-                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md"
+                            className="px-5 py-2.5 bg-accent-success hover:bg-accent-success/90 text-white text-xs font-bold rounded-xl shadow-md"
                         >
                             تأكيد السداد والترحيل
                         </button>
@@ -1728,14 +1728,14 @@ const PartnersManager: React.FC = () => {
                     <p className="text-sm font-black text-neutral-850 dark:text-neutral-200">
                         هل أنت متأكد من حذف هذا الالتزام/الدين بشكل كامل؟
                     </p>
-                    <p className="text-xs text-rose-650 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-955/20 p-3 rounded-lg border border-rose-150 leading-relaxed">
+                    <p className="text-xs text-rose-650 dark:text-accent-danger font-bold bg-accent-danger/10 dark:bg-rose-955/20 p-3 rounded-lg border border-rose-150 leading-relaxed">
                         ⚠️ تحذير: سيتم إلغاء تأثير هذا الدين المشترك بالكامل من حسابات وموازين الشركاء الفردية.
                     </p>
                     <div className="flex justify-start gap-3 flex-row-reverse font-bold pt-2">
                         <button
                             type="button"
                             onClick={confirmDeleteDebt}
-                            className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all active:scale-95"
+                            className="px-5 py-2.5 bg-accent-danger hover:bg-accent-danger/90 text-white text-xs font-bold rounded-xl transition-all tap"
                         >
                             نعم، احذف الدين
                         </button>
@@ -1770,12 +1770,12 @@ const PartnersManager: React.FC = () => {
                         </h4>
                         
                         {newPartnerError && (
-                            <p className="text-[10px] text-rose-500 font-bold">{newPartnerError}</p>
+                            <p className="text-2xs text-accent-danger font-bold">{newPartnerError}</p>
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-[10px] font-bold text-neutral-500 dark:text-neutral-400 mb-1">
+                                <label className="block text-2xs font-bold text-neutral-500 dark:text-neutral-400 mb-1">
                                     اسم الشريك:
                                 </label>
                                 <input
@@ -1788,7 +1788,7 @@ const PartnersManager: React.FC = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold text-neutral-500 dark:text-neutral-400 mb-1">
+                                <label className="block text-2xs font-bold text-neutral-500 dark:text-neutral-400 mb-1">
                                     نسبة الشراكة من الأرباح %:
                                 </label>
                                 <div className="relative flex items-center">
@@ -1837,7 +1837,7 @@ const PartnersManager: React.FC = () => {
                                         key={person.id} 
                                         className={`p-3 rounded-xl border transition-colors flex justify-between items-center ${
                                             isEditingThis 
-                                                ? 'bg-amber-50/20 dark:bg-amber-955/10 border-amber-300' 
+                                                ? 'bg-accent-warning/10/20 dark:bg-amber-955/10 border-accent-warning/20' 
                                                 : 'bg-neutral-50 dark:bg-neutral-900 border-neutral-150'
                                         }`}
                                     >
@@ -1865,7 +1865,7 @@ const PartnersManager: React.FC = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleSavePartnerEdit(person.id, editingPersonName, parseFloat(newPartnerPct) || 0)}
-                                                        className="p-1 px-2.5 bg-emerald-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-emerald-600 transition-colors"
+                                                        className="p-1 px-2.5 bg-accent-success text-white rounded-lg text-2xs font-bold flex items-center gap-1 hover:bg-accent-success transition-colors"
                                                     >
                                                         <CheckCircleIcon className="w-3.5 h-3.5" />
                                                         حفظ
@@ -1876,7 +1876,7 @@ const PartnersManager: React.FC = () => {
                                                             setEditingPersonId(null);
                                                             setNewPartnerPct('');
                                                         }}
-                                                        className="p-1 px-2.5 bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-lg text-[10px] font-bold hover:bg-neutral-350 transition-colors"
+                                                        className="p-1 px-2.5 bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200 rounded-lg text-2xs font-bold hover:bg-neutral-350 transition-colors"
                                                     >
                                                         إلغاء
                                                     </button>
@@ -1889,11 +1889,11 @@ const PartnersManager: React.FC = () => {
                                                         {person.name}
                                                     </span>
                                                     {currentPct > 0 ? (
-                                                        <span className="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-500/10">
+                                                        <span className="bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success text-2xs font-black px-2 py-0.5 rounded-full border border-accent-success/20">
                                                             شريك جاري ({currentPct}%)
                                                         </span>
                                                     ) : (
-                                                        <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 text-[9px] px-2 py-0.5 rounded-full">
+                                                        <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-500 text-2xs px-2 py-0.5 rounded-full">
                                                             شخص مسجل
                                                         </span>
                                                     )}
@@ -1906,14 +1906,14 @@ const PartnersManager: React.FC = () => {
                                                             setNewPartnerPct(String(currentPct));
                                                         }}
                                                         title="تعديل بيانات الشريك"
-                                                        className="p-1.5 bg-neutral-100 dark:bg-neutral-850 text-neutral-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-955/20 rounded-lg transition-colors border border-neutral-200 dark:border-neutral-800"
+                                                        className="p-1.5 bg-neutral-100 dark:bg-neutral-850 text-neutral-500 hover:text-accent-warning hover:bg-accent-warning/10 dark:hover:bg-amber-955/20 rounded-lg transition-colors border border-neutral-200 dark:border-neutral-800"
                                                     >
                                                         <PencilIcon className="w-3.5 h-3.5" />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeletePartner(person.id)}
                                                         title="حذف المستند والشريك"
-                                                        className="p-1.5 bg-neutral-100 dark:bg-neutral-850 text-neutral-500 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-955/10 rounded-lg transition-colors border border-neutral-200 dark:border-neutral-800"
+                                                        className="p-1.5 bg-neutral-100 dark:bg-neutral-850 text-neutral-500 hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-rose-955/10 rounded-lg transition-colors border border-neutral-200 dark:border-neutral-800"
                                                     >
                                                         <TrashIcon className="w-3.5 h-3.5" />
                                                     </button>
@@ -1946,7 +1946,7 @@ const PartnersManager: React.FC = () => {
             >
                 <form onSubmit={handleSaveProfitTransfer} className="space-y-4 pt-1 text-right" dir="rtl">
                     {ptError && (
-                        <div className="p-3 bg-rose-50 border border-rose-150 text-rose-600 rounded-xl text-xs font-bold leading-normal">
+                        <div className="p-3 bg-accent-danger/10 border border-rose-150 text-accent-danger rounded-xl text-xs font-bold leading-normal">
                             {ptError}
                         </div>
                     )}
@@ -2008,7 +2008,7 @@ const PartnersManager: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="text-xs font-black text-rose-600 block mb-1">
+                        <label className="text-xs font-black text-accent-danger block mb-1">
                             استقطاعات والالتزامات المخصومة من هذه العروة (إجباري)
                         </label>
                         <input
@@ -2020,7 +2020,7 @@ const PartnersManager: React.FC = () => {
                                 setPtDeductionsInput(sanitized);
                             }}
                             placeholder="مسودة: أدخل الالتزامات المخصومة (مثال: 50000)"
-                            className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50/20 dark:bg-rose-955/10 text-neutral-850 dark:text-white font-bold text-left focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 focus:outline-none"
+                            className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-accent-danger/20 dark:border-accent-danger/30 bg-accent-danger/10/20 dark:bg-rose-955/10 text-neutral-850 dark:text-white font-bold text-left focus:ring-2 focus:ring-accent-danger focus:border-accent-danger focus:outline-none"
                             required
                         />
                     </div>
@@ -2040,7 +2040,7 @@ const PartnersManager: React.FC = () => {
                                             {formatNumber(netDistVal)} ج.م
                                         </span>
                                     </div>
-                                    <div className="text-[10px] text-neutral-440 font-bold leading-normal">
+                                    <div className="text-2xs text-neutral-440 font-bold leading-normal">
                                         حسبة: (إجمالي الأرباح {formatNumber(totProfit)} ج.م) - (استقطاعات وديون {formatNumber(totDeds)} ج.م)
                                     </div>
                                 </div>
@@ -2072,18 +2072,18 @@ const PartnersManager: React.FC = () => {
                                                 <div key={partner.id} className="flex flex-col text-xs bg-white dark:bg-neutral-900 border border-neutral-100 p-2.5 rounded-xl space-y-2">
                                                     <div className="flex justify-between items-center">
                                                         <span className="font-extrabold text-slate-700 dark:text-neutral-200">{partner.label} ({partner.percentage || 50}%)</span>
-                                                        <span className="font-black text-emerald-600 font-mono" dir="ltr">+{formatNumber(share)} ج.م</span>
+                                                        <span className="font-black text-accent-success font-mono" dir="ltr">+{formatNumber(share)} ج.م</span>
                                                     </div>
                                                     
                                                     {cycleDrawings > 0 && (
                                                         <>
-                                                            <div className="flex justify-between items-center text-[10px]">
+                                                            <div className="flex justify-between items-center text-2xs">
                                                                 <span className="font-bold text-neutral-500">إجمالي السحب من العروة (بدون أرباح):</span>
-                                                                <span className="font-bold text-rose-500" dir="ltr">-{formatNumber(cycleDrawings)} ج.م</span>
+                                                                <span className="font-bold text-accent-danger" dir="ltr">-{formatNumber(cycleDrawings)} ج.م</span>
                                                             </div>
                                                             <div className="flex justify-between items-center pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                                                                <span className="font-bold text-neutral-600 dark:text-neutral-440 text-[10px]">صافي التصفية بعد خصم السحب:</span>
-                                                                <span className={`font-black ${netAfterDrawings >= 0 ? 'text-emerald-500' : 'text-rose-500'}`} dir="ltr">
+                                                                <span className="font-bold text-neutral-600 dark:text-neutral-440 text-2xs">صافي التصفية بعد خصم السحب:</span>
+                                                                <span className={`font-black ${netAfterDrawings >= 0 ? 'text-accent-success' : 'text-accent-danger'}`} dir="ltr">
                                                                     {netAfterDrawings >= 0 ? '+' : ''}{formatNumber(netAfterDrawings)} ج.م
                                                                 </span>
                                                             </div>
@@ -2108,7 +2108,7 @@ const PartnersManager: React.FC = () => {
                         </button>
                         <button
                             type="submit"
-                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                            className="px-5 py-2.5 bg-accent-success hover:bg-accent-success/90 text-white font-black text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm tap"
                         >
                             أكد مع حفظ الحركات بالتوزيع 💾
                         </button>
@@ -2203,7 +2203,7 @@ const PartnersManager: React.FC = () => {
                             <div className="pt-4 border-t border-neutral-150 dark:border-neutral-800 flex justify-center">
                                 <button
                                     onClick={() => setReportPartnerId(null)}
-                                    className="px-6 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-700 dark:text-neutral-350 font-black text-xs rounded-xl transition-all shadow-sm active:scale-95"
+                                    className="px-6 py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-700 dark:text-neutral-350 font-black text-xs rounded-xl transition-all shadow-sm tap"
                                     type="button"
                                 >
                                     إغلاق التقرير وذات البين ✕

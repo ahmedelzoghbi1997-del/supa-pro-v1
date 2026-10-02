@@ -34,12 +34,12 @@ interface SupplierCardProps {
 
 const StatMini = ({ label, value, type }: { label: string; value: number; type: 'income' | 'expense' }) => (
     <div className="flex flex-col gap-0.5">
-        <span className="text-[8px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{label}</span>
+        <span className="text-2xs font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{label}</span>
         <div className="flex items-baseline gap-1">
-            <span className={`text-sm font-black tabular-nums ${type === 'income' ? 'text-emerald-600 dark:text-emerald-500' : 'text-rose-600 dark:text-rose-500'}`}>
+            <span className={`text-sm font-black tabular-nums ${type === 'income' ? 'text-accent-success dark:text-accent-success' : 'text-accent-danger dark:text-accent-danger'}`}>
                 {formatNumber(value)}
             </span>
-            <span className="text-[8px] font-bold opacity-40">ج.م</span>
+            <span className="text-2xs font-bold opacity-40">ج.م</span>
         </div>
     </div>
 );
@@ -114,9 +114,9 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
               <div className="min-w-0">
                   <h3 className="text-sm font-black text-neutral-800 dark:text-white truncate leading-tight group-hover:text-primary transition-colors">{supplier.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[8px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">مورد #{supplier.id.substring(0, 4)}</span>
+                    <span className="text-2xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">مورد #{supplier.id.substring(0, 4)}</span>
                     <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-600"></span>
-                    <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded-md">{totalTransactionsCount} {totalTransactionsCount === 1 ? 'معاملة' : 'معاملات'}</span>
+                    <span className="text-2xs font-black text-accent-info dark:text-accent-info bg-accent-info/10 dark:bg-accent-info/20 px-1.5 py-0.5 rounded-md">{totalTransactionsCount} {totalTransactionsCount === 1 ? 'معاملة' : 'معاملات'}</span>
                   </div>
               </div>
           </div>
@@ -133,7 +133,7 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
               {onDelete && (
               <button 
                   onClick={() => canDelete ? onDelete(supplier.id) : showToast('المورد مرتبط بمعاملات نشطة', 'error')} 
-                  className={`p-1.5 transition-all rounded-xl ${!canDelete ? 'opacity-20 cursor-not-allowed' : 'text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20'}`}
+                  className={`p-1.5 transition-all rounded-xl ${!canDelete ? 'opacity-20 cursor-not-allowed' : 'text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20'}`}
                   title={canDelete ? "حذف المورد" : "لا يمكن حذف مورد مسجل عليه حركات"}
               >
                   <TrashIcon className="w-4 h-4" />
@@ -143,22 +143,22 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
       </div>
 
       {/* Main Feature: Net Balance Row (Gradient-styled based on status) */}
-      <div className={`relative overflow-hidden px-4.5 py-3.5 rounded-2xl border transition-all duration-300 ${balance > 0 ? 'bg-gradient-to-l from-rose-600 to-rose-700 dark:from-rose-950/40 dark:to-rose-900/40 border-rose-500/20 text-rose-50 dark:text-rose-100 shadow-md shadow-rose-200/5' : 'bg-gradient-to-l from-emerald-600 to-teal-600 dark:from-emerald-950/30 dark:to-teal-900/30 border-emerald-500/20 text-emerald-50 dark:text-emerald-100 shadow-sm'}`}>
+      <div className={`relative overflow-hidden px-4.5 py-3.5 rounded-2xl border transition-all duration-300 ${balance > 0 ? 'bg-gradient-to-l from-rose-600 to-rose-700 dark:from-rose-950/40 dark:to-rose-900/40 border-accent-danger/20 text-rose-50 dark:text-rose-100 shadow-md shadow-rose-200/5' : 'bg-gradient-to-l from-emerald-600 to-teal-600 dark:from-emerald-950/30 dark:to-teal-900/30 border-accent-success/20 text-emerald-50 dark:text-emerald-100 shadow-sm'}`}>
           <div className="relative z-10 flex justify-between items-center">
               <div className="flex flex-col">
-                <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">الرصيد المتبقي للمورد</span>
+                <span className="text-2xs font-black uppercase tracking-[0.2em] opacity-80 mb-1">الرصيد المتبقي للمورد</span>
                 <div className="flex items-baseline gap-1.5">
                     <span className="text-xl font-extrabold tabular-nums tracking-tighter">
                         {formatNumber(balance)}
                     </span>
-                    <span className="text-[10px] font-bold opacity-75">ج.م</span>
+                    <span className="text-2xs font-bold opacity-75">ج.م</span>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="p-1.5 bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-xl border border-white/10 dark:border-white/5 shadow-inner">
                   <UserIcon className="w-4 h-4" />
                 </div>
-                <span className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-md bg-white/15 dark:bg-black/30">
+                <span className="text-2xs font-extrabold px-1.5 py-0.5 rounded-md bg-white/15 dark:bg-black/30">
                   {balance > 0 ? 'مستحق السداد' : 'خالص الحساب ✓'}
                 </span>
               </div>
@@ -169,7 +169,7 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
       {/* Settlement Ratio Horizontal Progress Bar */}
       {totalDuesHistory > 0 && (
           <div className="flex flex-col gap-1.5 px-1">
-              <div className="flex justify-between items-center text-[9px] font-black">
+              <div className="flex justify-between items-center text-2xs font-black">
                   <span className="text-neutral-400">نسبة سداد الحساب</span>
                   <span className="text-primary tracking-tight tabular-nums">{settlementPercentage}%</span>
               </div>
@@ -194,7 +194,7 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
           <div className="flex items-center gap-2 w-full">
               <button 
                   onClick={() => onViewStatement(supplier.id)}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-1.5 bg-white hover:bg-neutral-50 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-600 dark:text-neutral-300 rounded-xl font-extrabold text-[10px] transition-all border border-neutral-200 dark:border-neutral-750/70"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-1.5 bg-white hover:bg-neutral-50 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-600 dark:text-neutral-300 rounded-xl font-extrabold text-2xs transition-all border border-neutral-200 dark:border-neutral-750/70"
               >
                   <ClipboardDocumentIcon className="w-3.5 h-3.5 opacity-50" />
                   <span>كشف الحساب</span>
@@ -202,7 +202,7 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
               {onAddPayment && (
                   <button 
                       onClick={() => onAddPayment(supplier.id)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 px-1.5 bg-primary hover:bg-primary/95 text-white rounded-xl font-extrabold text-[10px] transition-all shadow-sm shadow-primary/10 active:scale-95"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 px-1.5 bg-primary hover:bg-primary/95 text-white rounded-xl font-extrabold text-2xs transition-all shadow-sm shadow-primary/10 tap"
                   >
                       <PlusIcon className="w-3.5 h-3.5" />
                       <span>تسجيل دفع</span>
@@ -212,7 +212,7 @@ const SupplierCard: React.FC<SupplierCardProps> = ({ supplier, expenses, payment
           {onAddDiscount && (
               <button 
                   onClick={() => onAddDiscount(supplier.id)}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-violet-50/70 hover:bg-violet-100 dark:bg-violet-950/30 dark:hover:bg-violet-900/40 text-violet-600 dark:text-violet-450 rounded-xl font-black text-xs transition-all border border-violet-150 dark:border-violet-900/30 active:scale-95 duration-200"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-violet-50/70 hover:bg-violet-100 dark:bg-violet-950/30 dark:hover:bg-violet-900/40 text-violet-600 dark:text-violet-450 rounded-xl font-black text-xs transition-all border border-violet-150 dark:border-violet-900/30 tap duration-200"
               >
                   <LucideTag className="w-3.5 h-3.5" />
                   <span>خصم</span>
@@ -640,7 +640,7 @@ const SupplierManager: React.FC = () => {
                     <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 leading-relaxed">
                         هل أنت متأكد من رغبتك في حذف هذا الخصم الممنوح من المورد؟
                     </p>
-                    <div className="p-3.5 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-2xl text-rose-750 dark:text-rose-300 text-xs leading-relaxed font-bold">
+                    <div className="p-3.5 bg-accent-danger/10 dark:bg-accent-danger/20 border border-accent-danger/20 dark:border-accent-danger/30 rounded-2xl text-rose-750 dark:text-accent-danger text-xs leading-relaxed font-bold">
                         ⚠️ تنبيه مالي: حذف هذا الخصم سيؤدي إلى إعادة مديونية المورد لسابقتها (زيادة مطلوباتك)، وفي نفس الوقت سيقوم بزيادة مصروفات عروة الزراعة مما يخفض من صافي الأرباح تلقائياً.
                     </div>
                 </div>
@@ -648,14 +648,14 @@ const SupplierManager: React.FC = () => {
                     <button 
                         onClick={confirmDeleteDiscount} 
                         disabled={isDeletingDiscount}
-                        className="rounded-lg bg-accent-danger hover:bg-rose-650 px-5 py-2 text-white text-xs font-black disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
+                        className="rounded-lg bg-accent-danger hover:bg-rose-650 px-5 py-2 text-white text-xs font-black disabled:opacity-50 disabled:cursor-not-allowed tap transition-all"
                     >
                         {isDeletingDiscount ? 'جاري الحذف...' : 'نعم، احذف الخصم'}
                     </button>
                     <button 
                         onClick={() => setDiscountToDelete(null)} 
                         disabled={isDeletingDiscount}
-                        className="rounded-lg bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-white px-5 py-2 text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
+                        className="rounded-lg bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-white px-5 py-2 text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed tap transition-all"
                     >
                         إلغاء
                     </button>

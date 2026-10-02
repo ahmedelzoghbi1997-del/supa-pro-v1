@@ -12,10 +12,21 @@
 
 @theme {
   --font-weight-medium: 600;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --color-accent-danger: #F43F5E;
+  --color-accent-warning: #F59E0B;
+  --color-accent-success: #10B981;
+  --color-accent-info: #3B82F6;
+  --color-accent-purple: #8B5CF6;
 }
 
 .font-medium {
   font-weight: 600;
+}
+
+.tap {
+  @apply active:scale-[0.97] transition-transform duration-100;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

@@ -1,17 +1,35 @@
-import { useState, useEffect } from 'react';
-import React, { useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import React from 'react';
 import { useData } from '../../contexts/DataContext';
 import { useSettings } from '../../contexts/SettingsContext';
 import { UsersIcon, ChartPieIcon, CalendarIcon, SettingsIcon } from '../Icons';
 import { formatNumber } from '../../utils/helpers';
 import Modal from '../shared/Modal';
 import ExtendedFAB from '../shared/ExtendedFAB';
-import UnifiedLaborForm from './UnifiedLaborForm';
 import LaborLedger from './LaborLedger';
-import WorkerAccounts from './WorkerAccounts';
-import ActivityAnalysis from './ActivityAnalysis';
-import LaborActivitiesSettings from './LaborActivitiesSettings';
+
+const UnifiedLaborForm = lazy(() => import('./UnifiedLaborForm'));
+const WorkerAccounts = lazy(() => import('./WorkerAccounts'));
+const ActivityAnalysis = lazy(() => import('./ActivityAnalysis'));
+const LaborActivitiesSettings = lazy(() => import('./LaborActivitiesSettings'));
+
 type TabType = 'ledger' | 'workers' | 'analysis';
+
+const LABOR_KEYWORDS = ['عمالة', 'عماله', 'يومية', 'عامل', 'مزارع', 'فطار', 'نثريات', 'إكرامية', 'ضيافة'];
+
+const TabFallback = () => (
+  <div className="space-y-3 animate-pulse">
+    {[0, 1, 2].map(i => (
+      <div key={i} className="h-24 rounded-3xl bg-neutral-100 dark:bg-neutral-800" />
+    ))}
+  </div>
+);
+
+const ModalFallback = () => (
+  <div className="py-10 flex justify-center">
+    <div className="w-6 h-6 border-2 border-accent-warning border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const LaborManager: React.FC = () => {
     const { rawExpenses: expenses, expenseCategories, cyclesWithCalculations } = useData();
@@ -39,24 +57,19 @@ const LaborManager: React.FC = () => {
         return currentGhs[0]?.id || 'mine';
     });
 
-    const [hasInitializedFilter, setHasInitializedFilter] = useState(false);
-
-    useEffect(() => {
-        if (currentGhs && currentGhs.length > 0 && !hasInitializedFilter) {
-            setGreenhouseFilter(currentGhs[0].id);
-            setHasInitializedFilter(true);
-        }
-    }, [currentGhs, hasInitializedFilter]);
-
     // 1. Identify Labor Expenses
-    const laborCategories = expenseCategories.filter(c => 
-        c.name.includes('عمالة') || c.name.includes('عماله') || c.name.includes('يومية') || c.name.includes('عامل') || c.name.includes('مزارع') || c.name.includes('فطار') || c.name.includes('نثريات') || c.name.includes('إكرامية') || c.name.includes('ضيافة')
+    const laborCategories = useMemo(
+      () => expenseCategories.filter(c => LABOR_KEYWORDS.some(k => c.name.includes(k))),
+      [expenseCategories]
     );
-    const laborCategoryIds = laborCategories.map(c => c.id);
-
-    const allLaborExpenses = useMemo(() => {
-        return expenses.filter(e => laborCategoryIds.includes(e.category_id));
-    }, [expenses, laborCategoryIds]);
+    const laborCategoryIdSet = useMemo(
+      () => new Set(laborCategories.map(c => c.id)),
+      [laborCategories]
+    );
+    const allLaborExpenses = useMemo(
+      () => expenses.filter(e => laborCategoryIdSet.has(e.category_id)),
+      [expenses, laborCategoryIdSet]
+    );
 
     // 2. Filter by Greenhouse type dynamically (First)
     const ghFilteredLabor = useMemo(() => {
@@ -247,17 +260,17 @@ const LaborManager: React.FC = () => {
             totalWagesOnly,
             totalOperationalOnly
         };
-    }, [displayLabor]);
+    }, [displayLabor, allLaborExpenses]);
 
     return (
         <div className="space-y-3 max-w-7xl mx-auto pb-24 animate-page-enter">
             {/* Header with Integrated Merged Filters & Action Buttons */}
             <div className="bg-white dark:bg-neutral-800 p-3 sm:p-4 rounded-2xl border border-neutral-200 dark:border-neutral-700/50 shadow-xs relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-accent-warning/5 rounded-full blur-2xl pointer-events-none"></div>
 
                 {/* Left Side: Title & Merged Filter Selectors */}
                 <div className="flex items-center gap-2 flex-wrap min-w-0 relative z-10">
-                    <div className="p-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl shrink-0">
+                    <div className="p-2 bg-accent-warning/10 text-accent-warning dark:text-accent-warning rounded-xl shrink-0">
                         <UsersIcon className="w-5 h-5" />
                     </div>
                     
@@ -269,8 +282,8 @@ const LaborManager: React.FC = () => {
                     <div className="flex items-center gap-1.5 flex-wrap">
                     {/* Active Cycle Badge */}
                     {activeCycle && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-black rounded-xl border border-emerald-200/60 dark:border-emerald-800/40 shrink-0">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success text-xs font-black rounded-xl border border-accent-success/20/60 dark:border-accent-success/30 shrink-0">
+                            <span className="w-2 h-2 rounded-full bg-accent-success animate-pulse"></span>
                             <span>{activeCycle.name}</span>
                         </div>
                     )}
@@ -283,7 +296,7 @@ const LaborManager: React.FC = () => {
                                     onClick={() => setGreenhouseFilter('all')}
                                     className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                                         greenhouseFilter === 'all'
-                                            ? 'bg-white dark:bg-neutral-800 text-amber-600 dark:text-amber-400 shadow-xs'
+                                            ? 'bg-white dark:bg-neutral-800 text-accent-warning dark:text-accent-warning shadow-xs'
                                             : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
                                     }`}
                                 >
@@ -299,7 +312,7 @@ const LaborManager: React.FC = () => {
                                             onClick={() => setGreenhouseFilter(gh.id)}
                                             className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1 whitespace-nowrap cursor-pointer ${
                                                 isActive
-                                                    ? 'bg-white dark:bg-neutral-800 text-amber-600 dark:text-amber-400 shadow-xs'
+                                                    ? 'bg-white dark:bg-neutral-800 text-accent-warning dark:text-accent-warning shadow-xs'
                                                     : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
                                             }`}
                                         >
@@ -318,10 +331,10 @@ const LaborManager: React.FC = () => {
                     {/* Stats Trigger Button */}
                     <button
                         onClick={() => setIsStatsModalOpen(true)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-xl text-xs font-black transition-all border border-amber-500/20 active:scale-95 cursor-pointer shadow-2xs"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-accent-warning/10 hover:bg-accent-warning/20 text-accent-warning dark:text-accent-warning rounded-xl text-xs font-black transition-all border border-accent-warning/20 tap cursor-pointer shadow-2xs"
                         title="عرض الإحصائيات والملخص المالي"
                     >
-                        <ChartPieIcon className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <ChartPieIcon className="w-4 h-4 text-accent-warning dark:text-accent-warning" />
                         <span>الملخص المالي</span>
                     </button>
 
@@ -343,7 +356,7 @@ const LaborManager: React.FC = () => {
                     onClick={() => setActiveTab('ledger')}
                     className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm transition-all cursor-pointer ${
                         activeTab === 'ledger'
-                            ? 'bg-white dark:bg-neutral-800 text-amber-600 dark:text-amber-400 shadow-xs border border-neutral-200/50 dark:border-neutral-700/50'
+                            ? 'bg-white dark:bg-neutral-800 text-accent-warning dark:text-accent-warning shadow-xs border border-neutral-200/50 dark:border-neutral-700/50'
                             : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
                     }`}
                 >
@@ -356,7 +369,7 @@ const LaborManager: React.FC = () => {
                     onClick={() => setActiveTab('workers')}
                     className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm transition-all cursor-pointer ${
                         activeTab === 'workers'
-                            ? 'bg-white dark:bg-neutral-800 text-amber-600 dark:text-amber-400 shadow-xs border border-neutral-200/50 dark:border-neutral-700/50'
+                            ? 'bg-white dark:bg-neutral-800 text-accent-warning dark:text-accent-warning shadow-xs border border-neutral-200/50 dark:border-neutral-700/50'
                             : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
                     }`}
                 >
@@ -369,7 +382,7 @@ const LaborManager: React.FC = () => {
                     onClick={() => setActiveTab('analysis')}
                     className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-black text-xs sm:text-sm transition-all cursor-pointer ${
                         activeTab === 'analysis'
-                            ? 'bg-white dark:bg-neutral-800 text-amber-600 dark:text-amber-400 shadow-xs border border-neutral-200/50 dark:border-neutral-700/50'
+                            ? 'bg-white dark:bg-neutral-800 text-accent-warning dark:text-accent-warning shadow-xs border border-neutral-200/50 dark:border-neutral-700/50'
                             : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
                     }`}
                 >
@@ -382,13 +395,19 @@ const LaborManager: React.FC = () => {
             <div className="mt-4">
                 {activeTab === 'ledger' && <LaborLedger laborExpenses={displayLabor} />}
                 {activeTab === 'workers' && (
-                    <WorkerAccounts 
-                        laborExpenses={allLaborExpenses} 
-                        greenhouseFilter={greenhouseFilter}
-                        currentGhs={currentGhs}
-                    />
+                    <Suspense fallback={<TabFallback />}>
+                        <WorkerAccounts 
+                            laborExpenses={allLaborExpenses} 
+                            greenhouseFilter={greenhouseFilter}
+                            currentGhs={currentGhs}
+                        />
+                    </Suspense>
                 )}
-                {activeTab === 'analysis' && <ActivityAnalysis laborExpenses={actualOperatingLaborExpenses} />}
+                {activeTab === 'analysis' && (
+                    <Suspense fallback={<TabFallback />}>
+                        <ActivityAnalysis laborExpenses={actualOperatingLaborExpenses} />
+                    </Suspense>
+                )}
             </div>
 
             {/* Financial Stats Summary Modal / Bottom Sheet */}
@@ -402,56 +421,56 @@ const LaborManager: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3">
                         {/* 1. Total Day Labor Cost */}
                         <div className="p-3.5 bg-neutral-50 dark:bg-neutral-800/80 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/60 text-center flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] sm:text-xs font-black text-neutral-400 dark:text-neutral-400 uppercase tracking-wide">إجمالي تكلفة العمل</span>
+                            <span className="text-2xs sm:text-xs font-black text-neutral-400 dark:text-neutral-400 uppercase tracking-wide">إجمالي تكلفة العمل</span>
                             <div className="flex items-center justify-center gap-1 my-1">
                                 <span className="text-xs font-black text-neutral-400">ج.م</span>
                                 <span dir="ltr" className="text-base sm:text-lg font-black text-neutral-900 dark:text-neutral-100 font-mono tabular-nums">
                                     {formatNumber(stats.totalCost)}
                                 </span>
                             </div>
-                            <span className="text-[10px] font-bold text-neutral-400 truncate">
+                            <span className="text-2xs font-bold text-neutral-400 truncate">
                                 {stats.totalWorkersCount} يومية (أجور: {formatNumber(stats.totalWagesOnly)})
                             </span>
                         </div>
 
                         {/* 2. Outstanding Owed Credits (له) */}
-                        <div className="p-3.5 bg-rose-50/50 dark:bg-rose-950/20 rounded-2xl border border-rose-200/60 dark:border-rose-900/40 text-center flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] sm:text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-wide">مستحقات للعمال (له)</span>
+                        <div className="p-3.5 bg-accent-danger/10/50 dark:bg-accent-danger/20 rounded-2xl border border-accent-danger/20/60 dark:border-accent-danger/30 text-center flex flex-col justify-between space-y-1">
+                            <span className="text-2xs sm:text-xs font-black text-accent-danger dark:text-accent-danger uppercase tracking-wide">مستحقات للعمال (له)</span>
                             <div className="flex items-center justify-center gap-1 my-1">
-                                <span className="text-xs font-black text-rose-400">ج.م</span>
-                                <span dir="ltr" className="text-base sm:text-lg font-black text-rose-700 dark:text-rose-300 font-mono tabular-nums">
+                                <span className="text-xs font-black text-accent-danger">ج.م</span>
+                                <span dir="ltr" className="text-base sm:text-lg font-black text-accent-danger dark:text-accent-danger font-mono tabular-nums">
                                     {formatNumber(stats.totalCredit)}
                                 </span>
                             </div>
-                            <span className="text-[10px] font-bold text-rose-500/80 dark:text-rose-400/80 truncate">
+                            <span className="text-2xs font-bold text-accent-danger/80 dark:text-accent-danger/80 truncate">
                                 يوميات عمل آجلة متبقية
                             </span>
                         </div>
 
                         {/* 3. Worker Advances (عليه) */}
-                        <div className="p-3.5 bg-amber-50/50 dark:bg-amber-950/20 rounded-2xl border border-amber-200/60 dark:border-amber-900/40 text-center flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] sm:text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wide">سلفيات وقروض (عليه)</span>
+                        <div className="p-3.5 bg-accent-warning/10/50 dark:bg-accent-warning/20 rounded-2xl border border-accent-warning/20/60 dark:border-accent-warning/30 text-center flex flex-col justify-between space-y-1">
+                            <span className="text-2xs sm:text-xs font-black text-accent-warning dark:text-accent-warning uppercase tracking-wide">سلفيات وقروض (عليه)</span>
                             <div className="flex items-center justify-center gap-1 my-1">
-                                <span className="text-xs font-black text-amber-500">ج.م</span>
-                                <span dir="ltr" className="text-base sm:text-lg font-black text-amber-700 dark:text-amber-300 font-mono tabular-nums">
+                                <span className="text-xs font-black text-accent-warning">ج.م</span>
+                                <span dir="ltr" className="text-base sm:text-lg font-black text-accent-warning dark:text-accent-warning font-mono tabular-nums">
                                     {formatNumber(stats.totalAdvances)}
                                 </span>
                             </div>
-                            <span className="text-[10px] font-bold text-amber-600/80 dark:text-amber-400/80 truncate">
+                            <span className="text-2xs font-bold text-accent-warning/80 dark:text-accent-warning/80 truncate">
                                 سلف ودفعات مقدمة
                             </span>
                         </div>
 
                         {/* 4. Total Cash Outflow */}
-                        <div className="p-3.5 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-200/60 dark:border-emerald-900/40 text-center flex flex-col justify-between space-y-1">
-                            <span className="text-[10px] sm:text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">الخارج النقدي الفعلي</span>
+                        <div className="p-3.5 bg-accent-success/10/50 dark:bg-accent-success/20 rounded-2xl border border-accent-success/20/60 dark:border-accent-success/30 text-center flex flex-col justify-between space-y-1">
+                            <span className="text-2xs sm:text-xs font-black text-accent-success dark:text-accent-success uppercase tracking-wide">الخارج النقدي الفعلي</span>
                             <div className="flex items-center justify-center gap-1 my-1">
-                                <span className="text-xs font-black text-emerald-500">ج.م</span>
-                                <span dir="ltr" className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-300 font-mono tabular-nums">
+                                <span className="text-xs font-black text-accent-success">ج.م</span>
+                                <span dir="ltr" className="text-base sm:text-lg font-black text-accent-success dark:text-accent-success font-mono tabular-nums">
                                     {formatNumber(stats.totalCashPaidOverall)}
                                 </span>
                             </div>
-                            <span className="text-[10px] font-bold text-emerald-600/80 dark:text-emerald-400/80 truncate">
+                            <span className="text-2xs font-bold text-accent-success/80 dark:text-accent-success/80 truncate">
                                 كاش + سداد سلفيات
                             </span>
                         </div>
@@ -472,19 +491,27 @@ const LaborManager: React.FC = () => {
             </Modal>
 
             <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="تسجيل يومية وحضور عمالة" size="md">
-                <UnifiedLaborForm 
-                    onClose={() => setIsAddModalOpen(false)} 
-                    defaultCycleId={selectedCycleId !== 'all' ? selectedCycleId : undefined} 
-                    laborCategories={laborCategories}
-                    onManageActivities={() => {
-                        setIsAddModalOpen(false);
-                        setIsSettingsModalOpen(true);
-                    }}
-                />
+                {isAddModalOpen && (
+                    <Suspense fallback={<ModalFallback />}>
+                        <UnifiedLaborForm 
+                            onClose={() => setIsAddModalOpen(false)} 
+                            defaultCycleId={selectedCycleId !== 'all' ? selectedCycleId : undefined} 
+                            laborCategories={laborCategories}
+                            onManageActivities={() => {
+                                setIsAddModalOpen(false);
+                                setIsSettingsModalOpen(true);
+                            }}
+                        />
+                    </Suspense>
+                )}
             </Modal>
 
             <Modal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} title="إعدادات وتخصيص دفتر العمالة" size="sm">
-                <LaborActivitiesSettings onClose={() => setIsSettingsModalOpen(false)} />
+                {isSettingsModalOpen && (
+                    <Suspense fallback={<ModalFallback />}>
+                        <LaborActivitiesSettings onClose={() => setIsSettingsModalOpen(false)} />
+                    </Suspense>
+                )}
             </Modal>
 
             <ExtendedFAB onClick={() => setIsAddModalOpen(true)} label="يومية" />

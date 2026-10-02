@@ -3,6 +3,7 @@ import React from 'react';
 import { useSettings } from '../../contexts/SettingsContext';
 import Card from '../shared/Card';
 import Modal from '../shared/Modal';
+import Button from '../shared/Button';
 import { DiscountType } from '../../types';
 import ManageExpenseCategories from './ManageExpenseCategories';
 import ManageMarkets from './ManageMarkets';
@@ -46,17 +47,19 @@ const FinancialSettings: React.FC = () => {
                             
                             <div className="bg-gray-100 dark:bg-neutral-800/50 p-1.5 rounded-lg flex items-center justify-between gap-2 max-w-sm">
                                 {discountTypeOptions.map((option) => (
-                                    <button
+                                    <Button
                                         key={option.id}
+                                        variant={settings.discountType === option.id ? 'primary' : 'ghost'}
+                                        size="sm"
                                         onClick={() => updateSettings({ discountType: option.id })}
-                                        className={`flex-1 text-center py-2 rounded-md text-sm font-semibold transition-colors duration-300 ${
+                                        className={`flex-1 text-center py-2 text-sm font-semibold transition-colors duration-300 ${
                                             settings.discountType === option.id 
-                                                ? 'bg-primary text-white shadow-sm' 
-                                                : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800/50'
+                                                ? '!bg-primary !text-white shadow-sm' 
+                                                : '!text-gray-500 dark:!text-gray-400 hover:!bg-gray-200 dark:hover:!bg-gray-800/50'
                                         }`}
                                     >
                                         {option.label}
-                                    </button>
+                                    </Button>
                                 ))}
                             </div>
                         </div>
@@ -68,9 +71,13 @@ const FinancialSettings: React.FC = () => {
                                 <h4 className="font-semibold text-lg text-slate-800 dark:text-white">إدارة فئات المصروفات</h4>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">إضافة أو تعديل فئات المصروفات وتحديد نوعها (تشغيلي أو تأسيسي).</p>
                             </div>
-                            <button onClick={() => setCategoriesModalOpen(true)} className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-slate-800 dark:text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            <Button 
+                                variant="secondary"
+                                onClick={() => setCategoriesModalOpen(true)} 
+                                className="w-full sm:w-auto py-2 px-6"
+                            >
                                 إدارة
-                            </button>
+                            </Button>
                         </div>
                     </Card>
 
@@ -80,9 +87,13 @@ const FinancialSettings: React.FC = () => {
                                 <h4 className="font-semibold text-lg text-slate-800 dark:text-white">إدارة أسواق البيع</h4>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">تخصيص قائمة الأسواق المتاحة عند إضافة فاتورة بيع.</p>
                             </div>
-                            <button onClick={() => setMarketsModalOpen(true)} className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-slate-800 dark:text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            <Button 
+                                variant="secondary"
+                                onClick={() => setMarketsModalOpen(true)} 
+                                className="w-full sm:w-auto py-2 px-6"
+                            >
                                 إدارة
-                            </button>
+                            </Button>
                         </div>
                     </Card>
 
@@ -92,9 +103,13 @@ const FinancialSettings: React.FC = () => {
                                 <h4 className="font-semibold text-lg text-slate-800 dark:text-white">إدارة بنود الخصومات</h4>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">حفظ أسماء الخصومات الشائعة لسهولة إدخالها في الفواتير.</p>
                             </div>
-                            <button onClick={() => setDeductionsModalOpen(true)} className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-slate-800 dark:text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            <Button 
+                                variant="secondary"
+                                onClick={() => setDeductionsModalOpen(true)} 
+                                className="w-full sm:w-auto py-2 px-6"
+                            >
                                 إدارة
-                            </button>
+                            </Button>
                         </div>
                     </Card>
                 </div>

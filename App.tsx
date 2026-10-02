@@ -26,7 +26,6 @@ import { triggerLightHaptic } from "./lib/haptics";
 
 import { Capacitor } from "@capacitor/core";
 import { App as CapApp } from "@capacitor/app";
-import { useToast } from "./hooks/useToast";
 import { registerForPushNotifications } from "./lib/notifications";
 import { initOTAUpdate } from "./lib/otaUpdate";
 import { Preferences } from "@capacitor/preferences";
@@ -138,7 +137,7 @@ class GlobalErrorBoundary extends React.Component<{children: React.ReactNode}, {
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-950 p-6">
           <div className="bg-white dark:bg-neutral-900 rounded-3xl p-8 shadow-2xl flex flex-col items-center max-w-sm text-center border border-neutral-100 dark:border-neutral-800">
-            <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-accent-danger/10 text-accent-danger rounded-full flex items-center justify-center mb-6">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -147,7 +146,7 @@ class GlobalErrorBoundary extends React.Component<{children: React.ReactNode}, {
             <p className="text-sm text-neutral-500 mb-8">لقد واجه التطبيق مشكلة غير متوقعة. يرجى إعادة التحميل للمحاولة مرة أخرى.</p>
             <button 
               onClick={() => window.location.reload()}
-              className="w-full bg-primary text-white font-bold py-4 rounded-2xl active:scale-95 transition-transform"
+              className="w-full bg-primary text-white font-bold py-4 rounded-2xl tap transition-transform"
             >
               إعادة تحميل التطبيق
             </button>
@@ -168,7 +167,6 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
 
   const activeItemRef = React.useRef(activeItem);
   const { settings } = useSettings();
-  const { showToast } = useToast();
   const { isAnyModalOpen } = useOpenModals();
   const lastBackPressTime = React.useRef<number>(0);
 
@@ -210,13 +208,19 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
     [activeItem],
   );
 
+  // 1. Theme and UI Scale DOM attributes
   useEffect(() => {
     const root = window.document.documentElement;
-    if (settings?.accentColor)
+    if (settings?.accentColor) {
       root.setAttribute("data-theme-color", settings.accentColor);
-    if (settings?.uiScale) root.setAttribute("data-ui-scale", settings.uiScale);
+    }
+    if (settings?.uiScale) {
+      root.setAttribute("data-ui-scale", settings.uiScale);
+    }
+  }, [settings?.accentColor, settings?.uiScale]);
 
-    // Capacitor Hardware Back Button Handling
+  // 2. Capacitor Hardware Back Button Listener
+  useEffect(() => {
     let backListener: any;
     const initBackListener = async () => {
       if (Capacitor.isNativePlatform()) {
@@ -262,15 +266,24 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
 
     initBackListener();
 
-    // Request Notification Permission and register for push (Android/iOS only)
+    return () => {
+      if (backListener) backListener.remove();
+      if (exitTimerRef.current) clearInterval(exitTimerRef.current);
+    };
+  }, [handleNavigation, isAnyModalOpen]);
+
+  // 3. Push Notifications and OTA Updates Initialization
+  useEffect(() => {
     const initNotifications = async () => {
       await registerForPushNotifications(profile.id);
     };
 
     initNotifications();
     initOTAUpdate();
+  }, [profile.id]);
 
-    // Session Expiry Listeners (Double Guarantee)
+  // 4. App Resume & Visibility Change Listeners
+  useEffect(() => {
     const handleInactive = () => {
       // Intentionally left empty as we don't clear sessions anymore
     };
@@ -300,12 +313,10 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      if (backListener) backListener.remove();
       if (appStateListener) appStateListener.remove();
-      if (exitTimerRef.current) clearInterval(exitTimerRef.current);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [settings, handleNavigation, showToast]);
+  }, []);
 
   return (
     <UIProvider>
@@ -317,7 +328,7 @@ const AppContent: React.FC<{ profile: Profile }> = ({ profile }) => {
             <div className="fixed bottom-20 sm:bottom-8 inset-x-0 z-[300] flex justify-center items-center px-4 pointer-events-none animate-enter">
               <div className="bg-neutral-900/95 dark:bg-neutral-800/95 backdrop-blur-md text-white px-4 py-2.5 rounded-full shadow-2xl border border-neutral-700/60 flex items-center gap-3 text-xs font-semibold">
                 <span>اضغط مرة أخرى للخروج من التطبيق</span>
-                <span className="w-5 h-5 rounded-full bg-emerald-500 text-white font-black text-[11px] flex items-center justify-center animate-pulse">
+                <span className="w-5 h-5 rounded-full bg-accent-success text-white font-black text-[11px] flex items-center justify-center animate-pulse">
                   {exitCountdown}
                 </span>
               </div>

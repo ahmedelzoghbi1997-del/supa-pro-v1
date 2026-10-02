@@ -120,7 +120,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                     <button 
                         onClick={confirmDelete} 
                         disabled={isDeleting}
-                        className="rounded-lg bg-accent-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="rounded-lg bg-accent-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-danger disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isDeleting ? 'جاري الحذف...' : 'حذف'}
                     </button>
@@ -140,7 +140,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                             <FarmerAccountIcon className="w-8 h-8"/>
                             <h2 className="text-2xl font-bold">إدارة الأشخاص</h2>
                         </div>
-                        <button onClick={onClose} className="p-1 text-gray-400 hover:text-slate-800 dark:hover:text-white">
+                        <button onClick={onClose} className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1 text-gray-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition-colors">
                             <XMarkIcon className="w-6 w-6" />
                         </button>
                     </div>
@@ -174,7 +174,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                                 className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition"
                             >
                                 <option value="">بدون ربط (مستخدم غير مسجل)</option>
-                                <option value="shared_debt" className="text-rose-500 font-bold bg-rose-50 dark:bg-rose-900/20">
+                                <option value="shared_debt" className="text-accent-danger font-bold bg-accent-danger/10 dark:bg-accent-danger/20">
                                     🔴 مديونية عامة (تخصم مسحوباته من صافي الأرباح الموزعة)
                                 </option>
                                 {virtualMembers.map(vm => (
@@ -200,7 +200,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                                     placeholder="مثال: 25 (اتركها فارغة لغير الشركاء)"
                                     className="w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-3 text-right focus:ring-2 focus:ring-primary focus:border-primary transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
-                                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-1">
+                                <p className="text-2xs text-neutral-400 dark:text-neutral-500 mt-1">
                                     تُستخدم لحساب الأرباح المستحقة والمتبقية للشريك على لوحة التحكم تلقائياً وتجعله يظهر في قائمة الشركاء.
                                 </p>
                             </div>
@@ -242,18 +242,18 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                                     <div className="flex flex-col text-right">
                                         <span className="font-semibold text-sm">{person.name}</span>
                                         {person.virtual_id === 'shared_debt' && (
-                                            <span className="text-[10px] text-rose-500 bg-rose-50 dark:bg-rose-900/20 px-1.5 py-0.5 rounded font-bold self-start mt-0.5">
+                                            <span className="text-2xs text-accent-danger bg-accent-danger/10 dark:bg-accent-danger/20 px-1.5 py-0.5 rounded font-bold self-start mt-0.5">
                                                 مديونية عامة
                                             </span>
                                         )}
                                         <div className="flex flex-col gap-0.5 mt-0.5 self-start items-start text-right">
                                             {pairedMember && (
-                                                <span className="text-[10px] text-primary font-bold">
+                                                <span className="text-2xs text-primary font-bold">
                                                     مرتبط بحساب: {pairedMember.full_name} ({pairedMember.role === 'partner' ? 'شريك' : 'مطلع'})
                                                 </span>
                                             )}
                                             {settings?.person_partner_percentages?.[person.id] !== undefined && settings.person_partner_percentages[person.id] > 0 && (
-                                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
+                                                <span className="text-2xs text-accent-success dark:text-accent-success font-bold">
                                                     شريك في الأرباح: {settings.person_partner_percentages[person.id]}%
                                                 </span>
                                             )}
@@ -262,7 +262,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                                     <div className="flex items-center gap-1 flex-row-reverse">
                                         <button 
                                             onClick={() => handleDeleteRequest(person.id)} 
-                                            className={`p-1.5 rounded-full transition-colors ${hasActiveBalance ? 'opacity-30 grayscale cursor-not-allowed text-neutral-400' : 'text-neutral-500 hover:text-accent-danger hover:bg-accent-danger/10'}`}
+                                            className={`min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-full transition-colors ${hasActiveBalance ? 'opacity-30 grayscale cursor-not-allowed text-neutral-400' : 'text-neutral-500 hover:text-accent-danger hover:bg-accent-danger/10'}`}
                                             title={hasActiveBalance ? "لا يمكن حذف الشخص لوجود رصيد سلف فعال بذمته" : "حذف الاسم"}
                                             disabled={hasActiveBalance}
                                         >
@@ -270,7 +270,7 @@ const ManagePersonsPopup: React.FC<ManagePersonsPopupProps> = ({ isOpen, onClose
                                         </button>
                                         <button 
                                             onClick={() => startEditing(person)} 
-                                            className="p-1.5 rounded-full text-neutral-500 hover:text-primary hover:bg-primary/10 transition-colors"
+                                            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-full text-neutral-500 hover:text-primary hover:bg-primary/10 transition-colors"
                                             title="تعديل أو تعديل الربط"
                                         >
                                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

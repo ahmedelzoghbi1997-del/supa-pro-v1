@@ -20,7 +20,7 @@ interface ExpenseCardProps {
 }
 
 const InfoItem: React.FC<{ value: string; icon: React.FC<{ className?: string }> }> = ({ value, icon: Icon }) => (
-    <div className="flex items-center gap-1 text-neutral-400 dark:text-neutral-500 text-[9px] sm:text-[10px] shrink-0">
+    <div className="flex items-center gap-1 text-neutral-400 dark:text-neutral-500 text-2xs sm:text-2xs shrink-0">
         <Icon className="h-3 w-3 flex-shrink-0 opacity-50" />
         <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">{value}</span>
     </div>
@@ -47,9 +47,9 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
         if (isEstablishment) {
             activeTags.push({
                 label: 'تأسيس',
-                textColor: 'text-blue-600 dark:text-blue-400',
-                bgColor: 'bg-blue-50 dark:bg-blue-900/30',
-                borderColor: 'border-blue-200 dark:border-blue-800/50'
+                textColor: 'text-accent-info dark:text-accent-info',
+                bgColor: 'bg-accent-info/10 dark:bg-accent-info/20',
+                borderColor: 'border-accent-info/20 dark:border-accent-info/30'
             });
         }
 
@@ -66,9 +66,9 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
             // "نقدي" تظهر فقط في حالة المصاريف التشغيلية اليومية
             activeTags.push({
                 label: 'نقدي',
-                textColor: 'text-emerald-600 dark:text-emerald-400',
-                bgColor: 'bg-emerald-50 dark:bg-emerald-900/30',
-                borderColor: 'border-emerald-200 dark:border-emerald-800/50'
+                textColor: 'text-accent-success dark:text-accent-success',
+                bgColor: 'bg-accent-success/10 dark:bg-accent-success/20',
+                borderColor: 'border-accent-success/20 dark:border-accent-success/30'
             });
         }
 
@@ -92,7 +92,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
             id={`expense-${expense.id}`}
             data-id={expense.id}
             ref={cardRef}
-            className={`group relative bg-white dark:bg-neutral-800 py-3 px-3.5 sm:px-4 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right active:scale-[0.99] flex items-center justify-between gap-3 w-full overflow-hidden ${animationClass}`}
+            className={`group relative bg-white dark:bg-neutral-800 py-3 px-3.5 sm:px-4 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right tap flex items-center justify-between gap-3 w-full overflow-hidden ${animationClass}`}
             style={{ 
                 animationDelay: isNew ? '0ms' : `${Math.min(index * 30, 600)}ms`
             }}
@@ -108,7 +108,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                         {tags.map((tag, tIdx) => (
                             <span 
                                 key={tIdx}
-                                className={`text-[8px] font-black px-1.5 py-px rounded-full border ${tag.bgColor} ${tag.textColor} ${tag.borderColor} shadow-sm whitespace-nowrap`}
+                                className={`text-2xs font-black px-1.5 py-px rounded-full border ${tag.bgColor} ${tag.textColor} ${tag.borderColor} shadow-sm whitespace-nowrap`}
                             >
                                 {tag.label}
                             </span>
@@ -128,7 +128,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                 <div className="text-left min-w-[60px]">
                     <p className={`text-sm sm:text-base font-black tabular-nums tracking-tighter ${primaryTextColor}`}>
                         {formatNumber(Math.round(amount))}
-                        <span className="text-[9px] mr-0.5 opacity-50 font-bold uppercase">ج.م</span>
+                        <span className="text-2xs mr-0.5 opacity-50 font-bold uppercase">ج.م</span>
                     </p>
                 </div>
                 
@@ -137,7 +137,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                         {onEdit && (
                             <button 
                                 onClick={(e) => { e.stopPropagation(); onEdit(expense.id); }} 
-                                className="p-1.5 sm:p-1 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-blue-500 bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200/50 dark:border-neutral-700/60 shadow-sm sm:shadow-none sm:bg-transparent sm:dark:bg-transparent sm:border-transparent active:scale-95 transition-all"
+                                className="p-1.5 sm:p-1 rounded-lg text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-accent-info bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200/50 dark:border-neutral-700/60 shadow-sm sm:shadow-none sm:bg-transparent sm:dark:bg-transparent sm:border-transparent tap transition-all"
                                 aria-label="تعديل"
                             >
                                 <PencilIcon className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
@@ -146,7 +146,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
                         {onDelete && (
                             <button 
                                 onClick={(e) => { e.stopPropagation(); onDelete(expense.id); }} 
-                                className="p-1.5 sm:p-1 rounded-lg text-neutral-500 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-rose-500 bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200/50 dark:border-neutral-700/60 shadow-sm sm:shadow-none sm:bg-transparent sm:dark:bg-transparent sm:border-transparent active:scale-95 transition-all"
+                                className="p-1.5 sm:p-1 rounded-lg text-neutral-500 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-accent-danger bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200/50 dark:border-neutral-700/60 shadow-sm sm:shadow-none sm:bg-transparent sm:dark:bg-transparent sm:border-transparent tap transition-all"
                                 aria-label="حذف"
                             >
                                 <TrashIcon className="h-3.5 w-3.5 sm:h-3 sm:w-3" />

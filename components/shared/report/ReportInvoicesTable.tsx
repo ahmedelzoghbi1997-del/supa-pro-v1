@@ -42,7 +42,7 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
                 border border-neutral-100 dark:border-neutral-700/60
                 border-r-[2px] border-r-emerald-400/50 dark:border-r-emerald-400/40
                 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-r-emerald-400/80
-                cursor-pointer active:scale-[0.99] group
+                cursor-pointer tap group
                 ${animationClass}
               `}
               style={{
@@ -57,20 +57,20 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
                       {inv.description || "فاتورة توريد محصول"}
                     </p>
                     <div className="flex items-center gap-x-3 mt-1 overflow-x-auto scrollbar-hide w-full pb-0.5">
-                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-[11px] shrink-0">
+                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-2xs sm:text-[11px] shrink-0">
                         <CalendarIcon className="h-3 w-3 flex-shrink-0 opacity-70" />
                         <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">
                           {formatShortDate(inv.date)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-[11px] shrink-0">
+                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-2xs sm:text-[11px] shrink-0">
                         <TruckIcon className="h-3 w-3 flex-shrink-0 opacity-70" />
                         <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">
                           {inv.market}
                         </span>
                       </div>
                       <div className="flex items-center gap-x-2">
-                        <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-[11px] shrink-0">
+                        <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-2xs sm:text-[11px] shrink-0">
                           <ScaleIcon className="h-3 w-3 flex-shrink-0 opacity-70" />
                           <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">
                             {formatNumber(totalWeight)}ك
@@ -78,7 +78,7 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
                         </div>
                         {inv.packaging_count && inv.packaging_count > 0 && (
                           <>
-                            <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-[11px] shrink-0">
+                            <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-2xs sm:text-[11px] shrink-0">
                               <BoxIcon className="h-3 w-3 flex-shrink-0 opacity-70" />
                               <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">
                                 {formatNumber(inv.packaging_count)}{" "}
@@ -88,7 +88,7 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
                               </span>
                             </div>
                             {totalWeight > 0 && (
-                              <div className="flex items-center gap-1 text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded text-[9px] font-black border border-amber-200/50 dark:border-amber-500/20 shrink-0">
+                              <div className="flex items-center gap-1 text-accent-warning dark:text-accent-warning bg-accent-warning/10 dark:bg-accent-warning/10 px-1.5 py-0.5 rounded text-2xs font-black border border-accent-warning/20/50 dark:border-accent-warning/20 shrink-0">
                                 <span>⚖️</span>
                                 <span>
                                   {(totalWeight / inv.packaging_count).toFixed(
@@ -105,9 +105,9 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
                   </div>
 
                   <div className="flex flex-col items-end shrink-0 pl-1">
-                    <p className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-400 tabular-nums leading-none">
+                    <p className="text-base sm:text-lg font-black text-accent-success dark:text-accent-success tabular-nums leading-none">
                       {formatCurrency(totalAmount).replace("EGP", "")}
-                      <span className="text-[9px] mr-0.5 opacity-50 font-bold text-neutral-500 dark:text-neutral-400">
+                      <span className="text-2xs mr-0.5 opacity-50 font-bold text-neutral-500 dark:text-neutral-400">
                         ج.م
                       </span>
                     </p>
@@ -120,9 +120,9 @@ export const ReportInvoicesTable: React.FC<ReportInvoicesTableProps> = ({
                     {(inv.price_items || []).map((item, idx) => (
                       <div
                         key={idx}
-                        className={`text-[9px] font-bold px-1.5 py-px rounded border flex items-center gap-0.5 ${
+                        className={`text-2xs font-bold px-1.5 py-px rounded border flex items-center gap-0.5 ${
                           idx === 0
-                            ? "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-800/30"
+                            ? "text-accent-success dark:text-accent-success bg-accent-success/10 dark:bg-accent-success/20 border-accent-success/20 dark:border-accent-success/30"
                             : "text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700"
                         }`}
                       >

@@ -232,7 +232,7 @@ const AddAdvanceForm: React.FC<AddAdvanceFormProps> = ({ onSave, onCancel, initi
                             </button>
                         )}
                     </div>
-                    {isAddingForSpecificPerson && <p className="text-[10px] text-primary font-bold mt-1">يتم الإضافة لهذا الشخص بناءً على اختيارك من القائمة الرئيسية.</p>}
+                    {isAddingForSpecificPerson && <p className="text-2xs text-primary font-bold mt-1">يتم الإضافة لهذا الشخص بناءً على اختيارك من القائمة الرئيسية.</p>}
                     <ErrorMessage error={errors.personId} />
                 </div>
 

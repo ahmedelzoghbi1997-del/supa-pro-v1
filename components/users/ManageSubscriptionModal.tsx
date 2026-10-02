@@ -165,7 +165,7 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({ user,
     };
     
     const renderRemainingTime = () => {
-        const timeClass = remainingTime.isExpired ? "text-neutral-500" : remainingTime.days < 7 ? "text-amber-500" : "text-primary";
+        const timeClass = remainingTime.isExpired ? "text-neutral-500" : remainingTime.days < 7 ? "text-accent-warning" : "text-primary";
 
         if (remainingTime.isExpired) {
             return <p className={`font-bold text-3xl ${timeClass} mt-1`}>منتهي</p>;
@@ -190,8 +190,8 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({ user,
         <>
             <Modal isOpen={isCancelConfirmOpen} onClose={() => setCancelConfirmOpen(false)} title="تأكيد إلغاء الاشتراك">
                 <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50 sm:h-10 sm:w-10">
-                        <WarningIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                    <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-accent-danger/10 dark:bg-accent-danger/20 sm:h-10 sm:w-10">
+                        <WarningIcon className="h-6 w-6 text-accent-danger dark:text-accent-danger" />
                     </div>
                     <div className="mt-0 text-right">
                         <p className="text-neutral-600 dark:text-neutral-300">هل أنت متأكد من رغبتك في إلغاء اشتراك هذا المستخدم؟ سيتم إلغاء وصوله إلى التطبيق فورًا.</p>
@@ -216,7 +216,7 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({ user,
                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
                         {/* Right Column: Status */}
                         <div className="space-y-4">
-                            <div className={`bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-lg text-center border-2 ${remainingTime.isExpired ? "border-neutral-300 dark:border-neutral-600" : remainingTime.days < 7 ? "border-amber-400 dark:border-amber-500" : "border-primary"}`}>
+                            <div className={`bg-neutral-50 dark:bg-neutral-800/50 p-4 rounded-lg text-center border-2 ${remainingTime.isExpired ? "border-neutral-300 dark:border-neutral-600" : remainingTime.days < 7 ? "border-amber-400 dark:border-accent-warning" : "border-primary"}`}>
                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">الوقت المتبقي</p>
                                 {renderRemainingTime()}
                             </div>
@@ -245,8 +245,8 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({ user,
                             <fieldset>
                                 <legend className="font-semibold mb-2 text-neutral-800 dark:text-neutral-100">تفعيل/تمديد الاشتراك</legend>
                                 <div className="grid grid-cols-3 gap-2 mb-3">
-                                    <button onClick={() => handleSubscriptionUpdate('trial')} className="p-2 bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/50 dark:hover:bg-blue-900 text-blue-800 dark:text-blue-300 font-semibold rounded-lg text-sm">تجريبي</button>
-                                    <button onClick={() => handleSubscriptionUpdate('monthly')} className="p-2 bg-green-100 hover:bg-green-200 dark:bg-green-900/50 dark:hover:bg-green-900 text-green-800 dark:text-green-300 font-semibold rounded-lg text-sm">شهري</button>
+                                    <button onClick={() => handleSubscriptionUpdate('trial')} className="p-2 bg-accent-info/10 hover:bg-blue-200 dark:bg-accent-info/20 dark:hover:bg-blue-900 text-accent-info dark:text-accent-info font-semibold rounded-lg text-sm">تجريبي</button>
+                                    <button onClick={() => handleSubscriptionUpdate('monthly')} className="p-2 bg-accent-success/10 hover:bg-green-200 dark:bg-accent-success/20 dark:hover:bg-accent-success/20 text-accent-success dark:text-accent-success font-semibold rounded-lg text-sm">شهري</button>
                                     <button onClick={() => handleSubscriptionUpdate('yearly')} className="p-2 bg-purple-100 hover:bg-purple-200 dark:bg-purple-900/50 dark:hover:bg-purple-900 text-purple-800 dark:text-purple-300 font-semibold rounded-lg text-sm">سنوي</button>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2 mb-2">
@@ -258,9 +258,9 @@ const ManageSubscriptionModal: React.FC<ManageSubscriptionModalProps> = ({ user,
                                 <button onClick={handleCustomSubscription} disabled={!isCustomDurationValid} className="w-full p-2 bg-primary text-white font-semibold rounded-lg text-sm hover:bg-primary-dark disabled:bg-primary/50">تفعيل مخصص</button>
                             </fieldset>
                             
-                            <div className="p-4 border-t border-dashed border-red-500/50">
-                                <h4 className="font-semibold text-red-600 dark:text-red-400 mb-2">منطقة الخطر</h4>
-                                <button onClick={() => setCancelConfirmOpen(true)} className="w-full p-2 bg-red-100 hover:bg-red-200 dark:bg-red-900/50 dark:hover:bg-red-900 text-red-800 dark:text-red-300 font-semibold rounded-lg text-sm">إلغاء الاشتراك الحالي</button>
+                            <div className="p-4 border-t border-dashed border-accent-danger/50">
+                                <h4 className="font-semibold text-accent-danger dark:text-accent-danger mb-2">منطقة الخطر</h4>
+                                <button onClick={() => setCancelConfirmOpen(true)} className="w-full p-2 bg-accent-danger/10 hover:bg-red-200 dark:bg-accent-danger/20 dark:hover:bg-accent-danger/20 text-accent-danger dark:text-accent-danger font-semibold rounded-lg text-sm">إلغاء الاشتراك الحالي</button>
                             </div>
 
                         </div>

@@ -79,7 +79,7 @@ const SubscriptionPage: React.FC = () => {
             </div>
             
             {settings.subscription_page_message && (
-                <div className="mb-6 bg-blue-50 dark:bg-neutral-800/50 p-4 rounded-lg">
+                <div className="mb-6 bg-accent-info/10 dark:bg-neutral-800/50 p-4 rounded-lg">
                     <p className="font-semibold text-neutral-800 dark:text-neutral-200">{settings.subscription_page_message}</p>
                 </div>
             )}
@@ -136,13 +136,13 @@ const SubscriptionPage: React.FC = () => {
                 </div>
             </div>
 
-            <div className="mt-8 text-center bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-700/50">
-                <p className="font-semibold text-green-800 dark:text-green-300">لتجديد الاشتراك أو الاستفسار، تواصل معنا عبر واتساب:</p>
+            <div className="mt-8 text-center bg-accent-success/10 dark:bg-accent-success/20 p-6 rounded-lg border border-accent-success/20 dark:border-accent-success/30">
+                <p className="font-semibold text-accent-success dark:text-accent-success">لتجديد الاشتراك أو الاستفسار، تواصل معنا عبر واتساب:</p>
                 <a 
                     href={`https://wa.me/${settings.support_whatsapp}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="mt-3 inline-flex items-center gap-3 text-lg font-bold text-green-600 dark:text-green-400 hover:underline"
+                    className="mt-3 inline-flex items-center gap-3 text-lg font-bold text-accent-success dark:text-accent-success hover:underline"
                 >
                     <WhatsAppIcon className="w-6 h-6" />
                     <span>{settings.support_whatsapp}</span>

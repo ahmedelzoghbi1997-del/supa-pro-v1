@@ -47,7 +47,7 @@ const PersonCard: React.FC<PersonCardProps> = ({ person, personAdvances, onDelet
               <div className="min-w-0">
                   <h3 className="text-sm font-black text-neutral-800 dark:text-white truncate leading-tight">{person.name}</h3>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-[8px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{personAdvances.length} سلفة مسجلة</span>
+                    <span className="text-2xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{personAdvances.length} سلفة مسجلة</span>
                   </div>
               </div>
           </div>
@@ -56,7 +56,7 @@ const PersonCard: React.FC<PersonCardProps> = ({ person, personAdvances, onDelet
               onClick={() => canDelete && onDelete(person.id)} 
               disabled={!canDelete}
               title={!canDelete ? "لا يمكن حذف الشخص لوجود رصيد متبقي مستحق بذمته" : "حذف الشخص"}
-              className={`p-1.5 transition-all rounded-lg ${!canDelete ? 'opacity-30 grayscale cursor-not-allowed text-neutral-400' : 'text-neutral-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20'}`}
+              className={`p-1.5 transition-all rounded-lg ${!canDelete ? 'opacity-30 grayscale cursor-not-allowed text-neutral-400' : 'text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20'}`}
           >
               <TrashIcon className="w-4 h-4" />
           </button>
@@ -66,13 +66,13 @@ const PersonCard: React.FC<PersonCardProps> = ({ person, personAdvances, onDelet
       <div className={`relative overflow-hidden px-4 py-3 rounded-2xl border bg-neutral-900 dark:bg-black border-neutral-800 text-white shadow-lg`}>
           <div className="relative z-10 flex justify-between items-center">
               <div className="flex flex-col">
-                <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-60 mb-0.5">إجمالي السلف</span>
+                <span className="text-2xs font-black uppercase tracking-[0.2em] opacity-60 mb-0.5">إجمالي السلف</span>
                 <div className="flex items-baseline gap-1.5">
                     <span className="text-sm font-bold text-purple-300">الرصيد: </span>
                     <span className="text-xl font-black tabular-nums tracking-tighter">
                         {formatNumber(totalAmount)}
                     </span>
-                    <span className="text-[10px] font-bold opacity-50">ج.م</span>
+                    <span className="text-2xs font-bold opacity-50">ج.م</span>
                 </div>
               </div>
               <div className="p-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/5 flex flex-col items-center gap-1">
@@ -83,7 +83,7 @@ const PersonCard: React.FC<PersonCardProps> = ({ person, personAdvances, onDelet
               <div className="relative z-10 mt-2 flex justify-end">
                   <button 
                       onClick={() => onZeroBalance(person.id, totalAmount)}
-                      className="text-[9px] font-bold px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all active:scale-95 shadow-sm"
+                      className="text-2xs font-bold px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all tap shadow-sm"
                   >
                       تصفير الحساب ↩
                   </button>
@@ -95,7 +95,7 @@ const PersonCard: React.FC<PersonCardProps> = ({ person, personAdvances, onDelet
       <div className="flex items-center gap-2 mt-1">
           <button 
               onClick={() => onViewStatement(person.id)}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded-xl font-black text-[10px] hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all border border-neutral-200 dark:border-neutral-700"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 rounded-xl font-black text-2xs hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all border border-neutral-200 dark:border-neutral-700"
           >
               <ClipboardDocumentIcon className="w-3.5 h-3.5 opacity-50" />
               <span>كشف الحساب</span>
@@ -103,7 +103,7 @@ const PersonCard: React.FC<PersonCardProps> = ({ person, personAdvances, onDelet
           {onAddAdvance && (
           <button 
               onClick={() => onAddAdvance(person.id)}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-xl font-black text-[10px] hover:bg-primary-dark transition-all shadow-md shadow-primary/10 active:scale-95"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white rounded-xl font-black text-2xs hover:bg-primary-dark transition-all shadow-md shadow-primary/10 tap"
           >
               <PlusIcon className="w-3.5 h-3.5" />
               <span>تسجيل سلفة / سداد</span>

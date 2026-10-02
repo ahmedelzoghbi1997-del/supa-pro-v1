@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useSettings } from '../../contexts/SettingsContext';
 import { PlusIcon, TrashIcon } from '../Icons';
+import Button from '../shared/Button';
 import { useToast } from '../../hooks/useToast';
 import { useData } from '../../contexts/DataContext';
 
@@ -60,18 +61,19 @@ const ManageDeductionItems: React.FC<ManageDeductionItemsProps> = ({ onClose }) 
                         <div key={item} className="bg-neutral-100 dark:bg-neutral-800 p-3 rounded-lg flex justify-between items-center">
                             <p className="font-semibold">{item}</p>
                             <div className="relative group">
-                                <button
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => handleDeleteItem(item)}
                                     disabled={isUsed}
-                                    className={`p-2 rounded-full text-neutral-500 transition-colors ${
+                                    className={`!p-2 !rounded-full !text-neutral-500 transition-colors ${
                                         isUsed 
                                             ? 'cursor-not-allowed opacity-40' 
-                                            : 'hover:text-accent-danger hover:bg-accent-danger/10'
+                                            : 'hover:!text-accent-danger hover:!bg-accent-danger/10'
                                     }`}
                                     aria-label={`حذف ${item}`}
-                                >
-                                    <TrashIcon className="w-5 h-5" />
-                                </button>
+                                    icon={<TrashIcon className="w-5 h-5" />}
+                                />
                                 {isUsed && (
                                     <div role="tooltip" className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-xs px-3 py-1.5 bg-neutral-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                                         لا يمكن الحذف، البند مستخدم في الفواتير النشطة.
@@ -101,17 +103,24 @@ const ManageDeductionItems: React.FC<ManageDeductionItemsProps> = ({ onClose }) 
                         />
                          {errors.newName && <p className="text-accent-danger text-xs mt-1 text-right">{errors.newName}</p>}
                     </div>
-                    <button
+                    <Button
+                        variant="primary"
                         onClick={handleAddItem}
-                        className="flex-shrink-0 flex items-center gap-2 bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-dark transition"
+                        className="flex-shrink-0 flex items-center gap-2 py-3 px-4"
+                        icon={<PlusIcon className="h-5 w-5" />}
                     >
-                        <PlusIcon className="h-5 w-5" />
-                        <span>إضافة</span>
-                    </button>
+                        إضافة
+                    </Button>
                 </div>
             </div>
             <div className="mt-8 flex justify-end">
-                <button onClick={onClose} className="py-2 px-6 bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-50 font-semibold rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors">إغلاق</button>
+                <Button 
+                    variant="secondary"
+                    onClick={onClose} 
+                    className="py-2 px-6"
+                >
+                    إغلاق
+                </Button>
             </div>
         </div>
     );

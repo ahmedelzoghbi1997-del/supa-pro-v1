@@ -193,7 +193,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                             <h3 className="text-base font-extrabold text-neutral-900 dark:text-white">
                                 أحدث المعاملات
                             </h3>
-                            <p className="text-[10px] font-semibold text-neutral-400">
+                            <p className="text-2xs font-semibold text-neutral-400">
                                 اضغط على أي معاملة لعرض تفاصيلها
                             </p>
                         </div>
@@ -213,22 +213,22 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
                             // Styles based on type
                             const iconBg = isInvoice 
-                                ? 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' 
+                                ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20' 
                                 : isExpense 
-                                    ? 'bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20' 
-                                    : 'bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20';
+                                    ? 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger border border-accent-danger/20' 
+                                    : 'bg-accent-info/10 dark:bg-blue-500/20 text-accent-info dark:text-accent-info border border-blue-500/20';
 
                             const badgeStyle = isInvoice 
-                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800/40' 
+                                ? 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success border-accent-success/20/60 dark:border-accent-success/30' 
                                 : isExpense 
-                                    ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200/60 dark:border-rose-800/40' 
-                                    : 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border-blue-200/60 dark:border-blue-800/40';
+                                    ? 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger border-accent-danger/20/60 dark:border-accent-danger/30' 
+                                    : 'bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info border-accent-info/20 dark:border-accent-info/30';
 
                             const amountColor = isInvoice 
-                                ? 'text-emerald-600 dark:text-emerald-400' 
+                                ? 'text-accent-success dark:text-accent-success' 
                                 : isExpense 
-                                    ? 'text-rose-600 dark:text-rose-400' 
-                                    : 'text-blue-600 dark:text-blue-400';
+                                    ? 'text-accent-danger dark:text-accent-danger' 
+                                    : 'text-accent-info dark:text-accent-info';
 
                             const typeLabel = isInvoice ? 'فاتورة بيع' : isExpense ? 'مصروف' : 'سلفة نقدية';
 
@@ -236,7 +236,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                 <div 
                                     key={`${tx.type}-${tx.id}`} 
                                     onClick={() => setSelectedTx(tx)}
-                                    className="flex items-center justify-between p-3 rounded-2xl border border-neutral-100 dark:border-neutral-800/70 hover:border-neutral-300 dark:hover:border-neutral-700 bg-neutral-50/40 dark:bg-neutral-900/40 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 cursor-pointer group active:scale-[0.99] shadow-none hover:shadow-soft"
+                                    className="flex items-center justify-between p-3 rounded-2xl border border-neutral-100 dark:border-neutral-800/70 hover:border-neutral-300 dark:hover:border-neutral-700 bg-neutral-50/40 dark:bg-neutral-900/40 hover:bg-white dark:hover:bg-neutral-800/80 transition-all duration-200 cursor-pointer group tap shadow-none hover:shadow-soft"
                                 >
                                     <div className="flex items-center gap-3 min-w-0">
                                         {/* Colored Icon */}
@@ -252,11 +252,11 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                                 <p className="font-bold text-xs sm:text-sm text-neutral-800 dark:text-neutral-100 truncate group-hover:text-primary transition-colors">
                                                     {tx.title}
                                                 </p>
-                                                <span className={`hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-extrabold border shrink-0 ${badgeStyle}`}>
+                                                <span className={`hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-extrabold border shrink-0 ${badgeStyle}`}>
                                                     {typeLabel}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[10px] text-neutral-400 mt-0.5">
+                                            <div className="flex items-center gap-2 text-2xs text-neutral-400 mt-0.5">
                                                 <span>{formatDateShort(tx.date)}</span>
                                                 <span>•</span>
                                                 <span className="truncate">{tx.cycleName}</span>
@@ -270,7 +270,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                             <span className={`font-black text-xs sm:text-sm tabular-nums ${amountColor}`}>
                                                 {isInvoice ? '+' : '-'}{formatNumber(Math.round(tx.amount))}
                                             </span>
-                                            <span className="text-[9px] font-bold text-neutral-400 mr-1">ج.م</span>
+                                            <span className="text-2xs font-bold text-neutral-400 mr-1">ج.م</span>
                                         </div>
                                         <ChevronLeft className="w-3.5 h-3.5 text-neutral-300 dark:text-neutral-600 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-transform group-hover:-translate-x-0.5" />
                                     </div>
@@ -356,7 +356,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                 {/* Basic Info Cards Grid */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="bg-neutral-50 dark:bg-neutral-800/60 p-3 rounded-2xl border border-neutral-100 dark:border-neutral-800">
-                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-400 mb-1">
+                                        <div className="flex items-center gap-1.5 text-2xs font-bold text-neutral-400 mb-1">
                                             <Calendar className="w-3.5 h-3.5 text-neutral-500" />
                                             <span>تاريخ المعاملة</span>
                                         </div>
@@ -366,8 +366,8 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                     </div>
 
                                     <div className="bg-neutral-50 dark:bg-neutral-800/60 p-3 rounded-2xl border border-neutral-100 dark:border-neutral-800">
-                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-400 mb-1">
-                                            <Sprout className="w-3.5 h-3.5 text-emerald-500" />
+                                        <div className="flex items-center gap-1.5 text-2xs font-bold text-neutral-400 mb-1">
+                                            <Sprout className="w-3.5 h-3.5 text-accent-success" />
                                             <span>العروة / المحصول</span>
                                         </div>
                                         <p className="text-xs font-extrabold text-neutral-800 dark:text-neutral-200 truncate">
@@ -382,7 +382,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                         {/* Market & Buyer */}
                                         <div className="bg-neutral-50 dark:bg-neutral-800/60 p-3.5 rounded-2xl border border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <Building2 className="w-4 h-4 text-indigo-500" />
+                                                <Building2 className="w-4 h-4 text-accent-info" />
                                                 <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300">السوق / المشتري:</span>
                                             </div>
                                             <span className="text-xs font-black text-neutral-900 dark:text-white">
@@ -404,7 +404,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                                                 <span className="font-bold text-neutral-700 dark:text-neutral-200">
                                                                     {item.quantity} كجم × {item.price_per_kg} ج.م/كجم
                                                                 </span>
-                                                                <span className="font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                                                <span className="font-black text-accent-success dark:text-accent-success tabular-nums">
                                                                     {formatNumber(rowTotal)} ج.م
                                                                 </span>
                                                             </div>
@@ -416,8 +416,8 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
                                         {/* Deductions Breakdown */}
                                         {selectedTx.raw?.deductions && selectedTx.raw.deductions.length > 0 && (
-                                            <div className="border border-neutral-100 dark:border-neutral-800 rounded-2xl p-3.5 bg-rose-50/30 dark:bg-rose-950/20">
-                                                <span className="text-[11px] font-extrabold text-rose-600 dark:text-rose-400 block mb-2">
+                                            <div className="border border-neutral-100 dark:border-neutral-800 rounded-2xl p-3.5 bg-accent-danger/10/30 dark:bg-accent-danger/20">
+                                                <span className="text-[11px] font-extrabold text-accent-danger dark:text-accent-danger block mb-2">
                                                     الخصومات والعمولة:
                                                 </span>
                                                 <div className="space-y-1.5">
@@ -426,7 +426,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                                             <span className="text-neutral-600 dark:text-neutral-300 font-medium">
                                                                 {ded.name || 'خصم'}
                                                             </span>
-                                                            <span className="font-bold text-rose-600 dark:text-rose-400 tabular-nums">
+                                                            <span className="font-bold text-accent-danger dark:text-accent-danger tabular-nums">
                                                                 -{formatNumber(Number(ded.amount) || 0)} ج.م
                                                             </span>
                                                         </div>
@@ -453,7 +453,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                                                 </span>
                                             </div>
                                             {selectedTx.raw?.is_establishment && (
-                                                <div className="flex justify-between items-center text-xs text-indigo-600 dark:text-indigo-400 font-bold">
+                                                <div className="flex justify-between items-center text-xs text-accent-info dark:text-accent-info font-bold">
                                                     <span>طبيعة المصروف:</span>
                                                     <span>تكلفة تأسيسية مستردة</span>
                                                 </div>
@@ -462,7 +462,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
                                         {selectedTx.raw?.description && (
                                             <div className="bg-neutral-50 dark:bg-neutral-800/60 p-3 rounded-2xl border border-neutral-100 dark:border-neutral-800">
-                                                <span className="text-[10px] font-bold text-neutral-400 block mb-1">
+                                                <span className="text-2xs font-bold text-neutral-400 block mb-1">
                                                     ملاحظات المصروف:
                                                 </span>
                                                 <p className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">
@@ -475,10 +475,10 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
                                 {selectedTx.type === 'advance' && (
                                     <div className="space-y-3">
-                                        <div className="bg-blue-50/40 dark:bg-blue-950/20 p-3.5 rounded-2xl border border-blue-100 dark:border-blue-900/40 space-y-2">
+                                        <div className="bg-accent-info/10 dark:bg-accent-info/20 p-3.5 rounded-2xl border border-accent-info/20 dark:border-accent-info/30 space-y-2">
                                             <div className="flex justify-between items-center text-xs">
                                                 <span className="text-neutral-500 dark:text-neutral-400 font-bold">المستفيد من السلفة:</span>
-                                                <span className="font-black text-blue-700 dark:text-blue-300">
+                                                <span className="font-black text-accent-info dark:text-accent-info">
                                                     {selectedTx.subtitle}
                                                 </span>
                                             </div>
@@ -492,7 +492,7 @@ const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
                                         {selectedTx.raw?.notes && (
                                             <div className="bg-neutral-50 dark:bg-neutral-800/60 p-3 rounded-2xl border border-neutral-100 dark:border-neutral-800">
-                                                <span className="text-[10px] font-bold text-neutral-400 block mb-1">
+                                                <span className="text-2xs font-bold text-neutral-400 block mb-1">
                                                     بيان السلفة / الملاحظات:
                                                 </span>
                                                 <p className="text-xs text-neutral-700 dark:text-neutral-300 font-medium">

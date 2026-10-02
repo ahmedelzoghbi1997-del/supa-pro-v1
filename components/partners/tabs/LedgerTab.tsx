@@ -4,13 +4,13 @@ import { PencilIcon, TrashIcon, InfoIcon } from '../../Icons';
 
 export const getCycleBadgeStyles = (cycleId: string, cycleName: string) => {
   const colors = [
-    { bg: 'bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 border border-indigo-100/50 dark:border-indigo-900/30' },
+    { bg: 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info border border-accent-info/20 dark:border-accent-info/30' },
     { bg: 'bg-cyan-50/80 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-300 border border-cyan-100/50 dark:border-cyan-900/30' },
-    { bg: 'bg-amber-50/80 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 border border-amber-100/50 dark:border-amber-900/30' },
+    { bg: 'bg-accent-warning/10/80 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning border border-accent-warning/20/50 dark:border-accent-warning/30' },
     { bg: 'bg-purple-50/80 dark:bg-purple-950/40 text-purple-600 dark:text-purple-300 border border-purple-100/50 dark:border-purple-900/30' },
-    { bg: 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300 border border-emerald-100/50 dark:border-emerald-900/30' },
+    { bg: 'bg-accent-success/10/80 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20/50 dark:border-accent-success/30' },
     { bg: 'bg-sky-50/80 dark:bg-sky-950/40 text-sky-600 dark:text-sky-300 border border-sky-100/50 dark:border-sky-900/30' },
-    { bg: 'bg-rose-50/80 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 border border-rose-100/50 dark:border-rose-900/30' },
+    { bg: 'bg-accent-danger/10/80 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger border border-accent-danger/20/50 dark:border-accent-danger/30' },
     { bg: 'bg-teal-50/80 dark:bg-teal-950/40 text-teal-600 dark:text-teal-300 border border-teal-100/50 dark:border-teal-900/30' },
   ];
   let hash = 0;
@@ -159,12 +159,12 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
                             <span
                               className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-colors ${
                                 isTransfer
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600'
+                                  ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success'
                                   : isExternalDebt
                                     ? 'bg-purple-50 dark:bg-purple-950/30 text-purple-650'
                                     : isDraw
-                                      ? 'bg-rose-50 dark:bg-rose-955/30 text-rose-500'
-                                      : 'bg-amber-50 dark:bg-amber-955/30 text-amber-600'
+                                      ? 'bg-accent-danger/10 dark:bg-rose-955/30 text-accent-danger'
+                                      : 'bg-accent-warning/10 dark:bg-amber-955/30 text-accent-warning'
                               }`}
                             >
                               {isTransfer
@@ -190,11 +190,11 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
                                         ? 'سحب كاش شخصي'
                                         : 'إيداع كاش للمحفظة'}
                                 </span>
-                                <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-normal">
+                                <span className="text-2xs text-neutral-400 dark:text-neutral-500 font-normal">
                                   ({draw.date})
                                 </span>
                               </div>
-                              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">
+                              <p className="text-2xs text-neutral-500 dark:text-neutral-400 font-medium">
                                 {draw.reason?.replace(' [AUTO_PROFIT]', '') ||
                                   'حركة مالية جارية'}
                               </p>
@@ -206,18 +206,18 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
                               dir="ltr"
                               className={`font-black font-mono text-xs ${
                                 isTransfer
-                                  ? 'text-emerald-500'
+                                  ? 'text-accent-success'
                                   : isExternalDebt
                                     ? 'text-purple-600 dark:text-purple-400'
                                     : isDraw
-                                      ? 'text-rose-500'
-                                      : 'text-emerald-500'
+                                      ? 'text-accent-danger'
+                                      : 'text-accent-success'
                               } inline-flex items-center gap-0.5`}
                             >
                               <span>{isDraw ? '-' : '+'}</span>
                               <span>{formatNumber(absoluteAmount)}</span>
                               <span
-                                className="text-[9px] font-sans ml-1"
+                                className="text-2xs font-sans ml-1"
                                 dir="rtl"
                               >
                                 ج.م
@@ -235,7 +235,7 @@ export const LedgerTab: React.FC<LedgerTabProps> = ({
                                 </button>
                                 <button
                                   onClick={() => onDeleteDraw(draw.id, draw)}
-                                  className="p-1 text-rose-455 hover:text-rose-600 hover:bg-rose-50/50 dark:hover:bg-rose-955/20 rounded transition-colors"
+                                  className="p-1 text-rose-455 hover:text-accent-danger hover:bg-accent-danger/10/50 dark:hover:bg-rose-955/20 rounded transition-colors"
                                   title="حذف"
                                   type="button"
                                 >

@@ -69,8 +69,8 @@ export const WalletTab: React.FC<WalletTabProps> = ({
           <div
             className={`bg-white dark:bg-neutral-900 p-5 rounded-2xl border ${
               isOwed
-                ? 'border-emerald-200 dark:border-emerald-900/60'
-                : 'border-rose-200 dark:border-rose-900/60'
+                ? 'border-accent-success/20 dark:border-accent-success/30/60'
+                : 'border-accent-danger/20 dark:border-accent-danger/30/60'
             } shadow-sm flex flex-col justify-between transition-all duration-200 relative`}
           >
             <div>
@@ -87,8 +87,8 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                 <span
                   className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                     isOwed
-                      ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40'
-                      : 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40'
+                      ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20/60 dark:border-accent-success/30'
+                      : 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger border border-accent-danger/20/60 dark:border-accent-danger/30'
                   }`}
                 >
                   {isOwed ? 'رصيد دائن' : 'رصيد مدين'}
@@ -105,8 +105,8 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                 <div
                   className={`text-3xl sm:text-4xl font-black tracking-tight tabular-nums flex items-baseline justify-center gap-1.5 ${
                     isOwed
-                      ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-rose-600 dark:text-rose-400'
+                      ? 'text-accent-success dark:text-accent-success'
+                      : 'text-accent-danger dark:text-accent-danger'
                   }`}
                   dir="ltr"
                 >
@@ -129,7 +129,7 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                   </span>
                   <span className="font-bold text-neutral-900 dark:text-white tabular-nums">
                     {formatNumber(partner.closedCyclesProfit)}{' '}
-                    <span className="text-[10px] text-neutral-400 font-normal">
+                    <span className="text-2xs text-neutral-400 font-normal">
                       ج.م
                     </span>
                   </span>
@@ -141,11 +141,11 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                     إجمالي مسحوبات نقدية
                   </span>
                   <span
-                    className="font-bold text-rose-600 dark:text-rose-400 tabular-nums"
+                    className="font-bold text-accent-danger dark:text-accent-danger tabular-nums"
                     dir="ltr"
                   >
                     -{formatNumber(partner.totalDrawings)}{' '}
-                    <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">
+                    <span dir="rtl" className="text-2xs text-neutral-400 font-normal">
                       ج.م
                     </span>
                   </span>
@@ -158,11 +158,11 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                       مسدد مرصود
                     </span>
                     <span
-                      className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums"
+                      className="font-bold text-accent-success dark:text-accent-success tabular-nums"
                       dir="ltr"
                     >
                       +{formatNumber(partner.nonCashRepayments)}{' '}
-                      <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">
+                      <span dir="rtl" className="text-2xs text-neutral-400 font-normal">
                         ج.م
                       </span>
                     </span>
@@ -180,18 +180,18 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                         <button
                           type="button"
                           onClick={() => onSettleMerchant(partner.id)}
-                          className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition-colors"
+                          className="text-2xs font-bold px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 hover:bg-purple-200 dark:hover:bg-purple-900/60 transition-colors"
                         >
                           سداد جهة التمويل
                         </button>
                       )}
                     </div>
                     <span
-                      className="font-bold text-rose-600 dark:text-rose-400 tabular-nums"
+                      className="font-bold text-accent-danger dark:text-accent-danger tabular-nums"
                       dir="ltr"
                     >
                       -{formatNumber(partner.outstandingDebts)}{' '}
-                      <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">
+                      <span dir="rtl" className="text-2xs text-neutral-400 font-normal">
                         ج.م
                       </span>
                     </span>
@@ -205,11 +205,11 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                       إيداع تمويل شخصي معتمَد
                     </span>
                     <span
-                      className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums"
+                      className="font-bold text-accent-success dark:text-accent-success tabular-nums"
                       dir="ltr"
                     >
                       +{formatNumber(partner.totalPersonalFunding)}{' '}
-                      <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">
+                      <span dir="rtl" className="text-2xs text-neutral-400 font-normal">
                         ج.م
                       </span>
                     </span>
@@ -232,18 +232,18 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                   <span className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400">
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
-                        hasProfit ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-400'
+                        hasProfit ? 'bg-accent-success animate-pulse' : 'bg-neutral-400'
                       }`}
                     />
                     <span>أرباح الموسم النشط</span>
                   </span>
                   {hasProfit ? (
                     <span
-                      className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums"
+                      className="font-bold text-accent-success dark:text-accent-success tabular-nums"
                       dir="ltr"
                     >
                       +{formatNumber(partnerActiveShare)}{' '}
-                      <span dir="rtl" className="text-[10px] text-neutral-400 font-normal">
+                      <span dir="rtl" className="text-2xs text-neutral-400 font-normal">
                         ج.م
                       </span>
                     </span>
@@ -261,14 +261,14 @@ export const WalletTab: React.FC<WalletTabProps> = ({
                   <button
                     type="button"
                     onClick={() => onAddDraw(partner.id, 'draw')}
-                    className="py-2 px-3 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 font-bold text-xs rounded-xl border border-rose-200/80 dark:border-rose-800/40 flex items-center justify-center gap-1 transition-colors"
+                    className="py-2 px-3 bg-accent-danger/10 hover:bg-accent-danger/10 dark:bg-accent-danger/20 dark:hover:bg-accent-danger/20 text-accent-danger dark:text-accent-danger font-bold text-xs rounded-xl border border-accent-danger/20/80 dark:border-accent-danger/30 flex items-center justify-center gap-1 transition-colors"
                   >
                     <span>سحب نقدي</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => onAddDraw(partner.id, 'deposit')}
-                    className="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold text-xs rounded-xl border border-emerald-200/80 dark:border-emerald-800/40 flex items-center justify-center gap-1 transition-colors"
+                    className="py-2 px-3 bg-accent-success/10 hover:bg-accent-success/10 dark:bg-accent-success/20 dark:hover:bg-accent-success/20 text-accent-success dark:text-accent-success font-bold text-xs rounded-xl border border-accent-success/20/80 dark:border-accent-success/30 flex items-center justify-center gap-1 transition-colors"
                   >
                     <span>إيداع / سداد</span>
                   </button>

@@ -230,7 +230,7 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
   if (activeListData.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-transparent text-neutral-400 text-center">
-        <Coins className="w-16 h-16 opacity-25 mb-4 text-emerald-600 dark:text-emerald-400" />
+        <Coins className="w-16 h-16 opacity-25 mb-4 text-accent-success dark:text-accent-success" />
         <h3 className="text-lg font-black text-neutral-800 dark:text-neutral-100">لا توجد بيانات مالية للعروة حتي الآن</h3>
         <p className="text-xs text-neutral-500 mt-2 max-w-sm leading-relaxed">
           بمجرد تسجيل فواتير مبيعات أو سندات مصروفات مرتبطة بعروة "{cycle.name}"، ستعرض لك هنا التحاليل المالية والأرباح مجمّعة بشكل احترافي.
@@ -245,7 +245,7 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
     <div className="space-y-6 mt-6 pb-20 animate-page-enter text-right" dir="rtl">
       
       {/* 1. قسم الإحصائيات والأداء المالي الكلي - بطاقة موحدة صغيرة وملونة فائقة الجمال */}
-      <div className="max-w-lg mx-auto bg-gradient-to-br from-emerald-600 to-teal-700 dark:from-emerald-700 dark:to-teal-850 text-white rounded-3xl p-5 shadow-lg border border-emerald-500/20 relative overflow-hidden group">
+      <div className="max-w-lg mx-auto bg-gradient-to-br from-emerald-600 to-teal-700 dark:from-emerald-700 dark:to-teal-850 text-white rounded-3xl p-5 shadow-lg border border-accent-success/20 relative overflow-hidden group">
         
         {/* تأثيرات لمعان وانعكاسات خلفية جمالية */}
         <div className="absolute -right-12 -bottom-12 w-28 h-28 bg-white/5 rounded-full blur-2xl pointer-events-none group-hover:bg-white/10 transition-all duration-700"></div>
@@ -255,23 +255,23 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
           {/* الكتلة الرئيسية: إجمالي المبيعات وصافي الأرباح في صف مدمج للغاية */}
           <div className="grid grid-cols-2 gap-4 border-b border-white/10 pb-3.5">
             <div>
-              <span className="text-emerald-250 text-[10px] font-black tracking-wider block opacity-95">إجمالي الإيرادات (المبيعات)</span>
+              <span className="text-emerald-250 text-2xs font-black tracking-wider block opacity-95">إجمالي الإيرادات (المبيعات)</span>
               <h3 className="text-lg sm:text-2xl font-black tabular-nums leading-none mt-1.5 text-white">
                 {formatNumber(Math.round(cycle.revenue))}
                 <span className="text-xs mr-0.5 opacity-75 font-semibold"> ج.م</span>
               </h3>
-              <p className="text-[9px] text-emerald-100/80 font-bold mt-1.5 leading-none">
+              <p className="text-2xs text-emerald-100/80 font-bold mt-1.5 leading-none">
                 برواية {invoiceCount} شحنات بيع
               </p>
             </div>
 
             <div className="text-left border-r border-white/10 pr-4">
-              <span className="text-emerald-250 text-[10px] font-black tracking-wider block opacity-95">صافي أرباح العروة</span>
+              <span className="text-emerald-250 text-2xs font-black tracking-wider block opacity-95">صافي أرباح العروة</span>
               <h3 className={`text-lg sm:text-2xl font-black tabular-nums leading-none mt-1.5 ${isProfitPositive ? 'text-white' : 'text-rose-200'}`}>
                 {isProfitPositive ? '+' : ''}{formatNumber(Math.round(cycle.profit))}
                 <span className="text-xs mr-0.5 opacity-75 font-semibold"> ج.م</span>
               </h3>
-              <p className="text-[9px] text-emerald-100/80 font-bold mt-1.5 leading-none truncate">
+              <p className="text-2xs text-emerald-100/80 font-bold mt-1.5 leading-none truncate">
                 {isProfitPositive ? 'عائد مالي إيجابي مرضي' : 'العوائد لا تغطي المصروفات'}
               </p>
             </div>
@@ -283,12 +283,12 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
             <div className="flex flex-col gap-0.5 border-l border-white/15 pl-2">
               <div className="flex items-center gap-1 text-emerald-200">
                 <Coins className="w-2.5 h-2.5 shrink-0" />
-                <span className="text-[9px] font-bold">المصروفات الكلية</span>
+                <span className="text-2xs font-bold">المصروفات الكلية</span>
               </div>
               <h4 className="text-[11px] sm:text-xs font-black truncate text-white mt-1 tabular-nums">
                 {formatNumber(Math.round(cycle.expenses))} ج.م
               </h4>
-              <p className="text-[8px] font-extrabold text-emerald-150 leading-none">
+              <p className="text-2xs font-extrabold text-emerald-150 leading-none">
                 تكاليف العروة المسجلة
               </p>
             </div>
@@ -297,12 +297,12 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
             <div className="flex flex-col gap-0.5 border-l border-white/15 pl-2 pr-0.5">
               <div className="flex items-center gap-1 text-emerald-200">
                 <Receipt className="w-2.5 h-2.5 shrink-0" />
-                <span className="text-[9px] font-bold">متوسط الشحنة</span>
+                <span className="text-2xs font-bold">متوسط الشحنة</span>
               </div>
               <h4 className="text-[11px] sm:text-xs font-black truncate text-white mt-1 tabular-nums">
                 {formatNumber(averageInvoice)} ج.م
               </h4>
-              <p className="text-[8px] font-extrabold text-emerald-150 leading-none">
+              <p className="text-2xs font-extrabold text-emerald-150 leading-none">
                 لكل نقلة محصولية
               </p>
             </div>
@@ -315,12 +315,12 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                 ) : (
                   <TrendingDown className="w-2.5 h-2.5 shrink-0" />
                 )}
-                <span className="text-[9px] font-bold">هامش الأرباح</span>
+                <span className="text-2xs font-bold">هامش الأرباح</span>
               </div>
               <h4 className={`text-[11px] sm:text-xs font-black truncate mt-1 tabular-nums ${isProfitPositive ? 'text-white' : 'text-rose-200'}`}>
                 {profitMargin}%
               </h4>
-              <p className="text-[8px] text-emerald-150 font-bold opacity-80 leading-none truncate">
+              <p className="text-2xs text-emerald-150 font-bold opacity-80 leading-none truncate">
                 {isProfitPositive ? 'معدل ربح متميز' : 'مراجعة التكاليف'}
               </p>
             </div>
@@ -333,7 +333,7 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-3 shadow-xs">
         <div>
           <h4 className="text-xs font-black text-neutral-800 dark:text-neutral-200">التحليل المالي الموزع</h4>
-          <p className="text-[10px] text-neutral-500 font-bold mt-0.5">تفقد مبيعات ومصروفات كل فترة بالتفصيل</p>
+          <p className="text-2xs text-neutral-500 font-bold mt-0.5">تفقد مبيعات ومصروفات كل فترة بالتفصيل</p>
         </div>
 
         <div className="flex items-center p-1 bg-neutral-100 dark:bg-neutral-950 rounded-xl select-none w-full sm:w-auto">
@@ -393,7 +393,7 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                       <h4 className="text-xs sm:text-sm font-black text-neutral-800 dark:text-neutral-100 group-hover:text-primary dark:group-hover:text-white transition-colors leading-tight">
                         {row.label}
                       </h4>
-                      <p className="text-[9px] text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">
+                      <p className="text-2xs text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">
                         {row.invoicesList.length} مبيعات • {row.expensesList.length} نفقات
                       </p>
                     </div>
@@ -403,33 +403,33 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                   <div className="col-span-5 sm:col-span-6 px-4 text-center flex flex-col items-stretch gap-1">
                     {/* شريط الإيرادات */}
                     <div className="flex items-center gap-2">
-                      <span className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 w-8 text-right shrink-0">إيراد</span>
+                      <span className="text-2xs font-bold text-accent-success dark:text-accent-success w-8 text-right shrink-0">إيراد</span>
                       <div className="flex-1 h-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+                          className="h-full bg-accent-success rounded-full transition-all duration-500" 
                           style={{ width: `${maxPeriodAmount > 0 ? (row.revenue / maxPeriodAmount) * 100 : 0}%` }}
                         ></div>
                       </div>
-                      <span className="text-[8px] font-bold tabular-nums text-neutral-400 dark:text-neutral-500 w-12 text-left">{formatNumber(Math.round(row.revenue))} ج</span>
+                      <span className="text-2xs font-bold tabular-nums text-neutral-400 dark:text-neutral-500 w-12 text-left">{formatNumber(Math.round(row.revenue))} ج</span>
                     </div>
                     {/* شريط المصروفات */}
                     <div className="flex items-center gap-2">
-                      <span className="text-[8px] font-bold text-rose-500 w-8 text-right shrink-0">مصروف</span>
+                      <span className="text-2xs font-bold text-accent-danger w-8 text-right shrink-0">مصروف</span>
                       <div className="flex-1 h-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-rose-500 rounded-full transition-all duration-500" 
+                          className="h-full bg-accent-danger rounded-full transition-all duration-500" 
                           style={{ width: `${maxPeriodAmount > 0 ? (row.expenses / maxPeriodAmount) * 100 : 0}%` }}
                         ></div>
                       </div>
-                      <span className="text-[8px] font-bold tabular-nums text-neutral-400 dark:text-neutral-500 w-12 text-left">{formatNumber(Math.round(row.expenses))} ج</span>
+                      <span className="text-2xs font-bold tabular-nums text-neutral-400 dark:text-neutral-500 w-12 text-left">{formatNumber(Math.round(row.expenses))} ج</span>
                     </div>
                   </div>
 
                   {/* صافي الربح والتدفق النقدى */}
                   <div className="col-span-3 text-left">
-                    <span className="text-[8px] sm:text-[9px] text-neutral-400 dark:text-neutral-500 font-bold block leading-none">صافي الربح</span>
-                    <p className={`text-xs sm:text-sm font-black mt-1 tabular-nums ${rowProfitPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                      {rowProfitPositive ? '+' : ''}{formatNumber(Math.round(row.profit))} <span className="text-[10px] sm:text-xs font-bold opacity-75">ج.م</span>
+                    <span className="text-2xs sm:text-2xs text-neutral-400 dark:text-neutral-500 font-bold block leading-none">صافي الربح</span>
+                    <p className={`text-xs sm:text-sm font-black mt-1 tabular-nums ${rowProfitPositive ? 'text-accent-success dark:text-accent-success' : 'text-accent-danger dark:text-accent-danger'}`}>
+                      {rowProfitPositive ? '+' : ''}{formatNumber(Math.round(row.profit))} <span className="text-2xs sm:text-xs font-bold opacity-75">ج.م</span>
                     </p>
                   </div>
                 </div>
@@ -448,25 +448,25 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                         {/* العمود الأول: المبيعات */}
                         <div className="space-y-2">
                           <div className="flex items-center gap-1.5 pb-1.5 border-b border-neutral-100 dark:border-neutral-800/40">
-                            <Receipt className="w-3.5 h-3.5 text-emerald-500" />
-                            <h5 className="text-[10px] font-black text-neutral-800 dark:text-neutral-200">مبيعات المدة ({row.invoicesList.length})</h5>
+                            <Receipt className="w-3.5 h-3.5 text-accent-success" />
+                            <h5 className="text-2xs font-black text-neutral-800 dark:text-neutral-200">مبيعات المدة ({row.invoicesList.length})</h5>
                           </div>
 
                           {row.invoicesList.length === 0 ? (
-                            <p className="text-[10px] text-neutral-400 font-bold py-2 text-center">لا توجد حركات مبيعات بيع في هذه المدة.</p>
+                            <p className="text-2xs text-neutral-400 font-bold py-2 text-center">لا توجد حركات مبيعات بيع في هذه المدة.</p>
                           ) : (
                             <div className="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
                               {row.invoicesList.map((invoice, idx) => (
                                 <div 
                                   key={invoice.id || idx}
-                                  className="bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800/50 p-2 rounded-xl flex items-center justify-between text-[11px] transition-colors hover:border-emerald-500/20"
+                                  className="bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800/50 p-2 rounded-xl flex items-center justify-between text-[11px] transition-colors hover:border-accent-success/20"
                                 >
                                   <div className="text-right">
                                     <p className="font-extrabold text-neutral-800 dark:text-neutral-100 text-[11px]">{invoice.buyer}</p>
                                     <p className="text-[8.5px] text-neutral-400 mt-0.5 font-bold">تاريخ البيع: {invoice.date}</p>
                                   </div>
-                                  <div className="text-left font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                                    +{formatNumber(Math.round(invoice.amount))} <span className="text-[9px] opacity-75 font-medium">ج</span>
+                                  <div className="text-left font-black text-accent-success dark:text-accent-success tabular-nums">
+                                    +{formatNumber(Math.round(invoice.amount))} <span className="text-2xs opacity-75 font-medium">ج</span>
                                   </div>
                                 </div>
                               ))}
@@ -477,18 +477,18 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                         {/* العمود الثاني: المصروفات */}
                         <div className="space-y-2">
                           <div className="flex items-center gap-1.5 pb-1.5 border-b border-neutral-100 dark:border-neutral-800/40">
-                            <Coins className="w-3.5 h-3.5 text-rose-500" />
-                            <h5 className="text-[10px] font-black text-neutral-800 dark:text-neutral-200">مصروفات وتكاليف العروة ({row.expensesList.length})</h5>
+                            <Coins className="w-3.5 h-3.5 text-accent-danger" />
+                            <h5 className="text-2xs font-black text-neutral-800 dark:text-neutral-200">مصروفات وتكاليف العروة ({row.expensesList.length})</h5>
                           </div>
 
                           {row.expensesList.length === 0 ? (
-                            <p className="text-[10px] text-neutral-400 font-bold py-2 text-center">لا توجد مصروفات أو مسحوبات تشغيلية في هذه المدة.</p>
+                            <p className="text-2xs text-neutral-400 font-bold py-2 text-center">لا توجد مصروفات أو مسحوبات تشغيلية في هذه المدة.</p>
                           ) : (
                             <div className="space-y-1.5 max-h-48 overflow-y-auto pr-0.5">
                               {row.expensesList.map((expense, idx) => (
                                 <div 
                                   key={expense.id || idx}
-                                  className="bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800/50 p-2 rounded-xl flex items-center justify-between text-[11px] transition-colors hover:border-rose-500/20"
+                                  className="bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800/50 p-2 rounded-xl flex items-center justify-between text-[11px] transition-colors hover:border-accent-danger/20"
                                 >
                                   <div className="text-right max-w-[70%]">
                                     <p className="font-extrabold text-neutral-800 dark:text-neutral-100 text-[11px] truncate">{expense.desc}</p>
@@ -499,8 +499,8 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
                                       <span className="text-[7.5px] text-neutral-400 font-bold">{expense.date}</span>
                                     </div>
                                   </div>
-                                  <div className="text-left font-black text-rose-500 dark:text-rose-400 tabular-nums">
-                                    -{formatNumber(Math.round(expense.amount))} <span className="text-[9px] opacity-75 font-medium">ج</span>
+                                  <div className="text-left font-black text-accent-danger dark:text-accent-danger tabular-nums">
+                                    -{formatNumber(Math.round(expense.amount))} <span className="text-2xs opacity-75 font-medium">ج</span>
                                   </div>
                                 </div>
                               ))}
@@ -523,7 +523,7 @@ const WeeklyTab: React.FC<{ cycle: Cycle }> = ({ cycle }) => {
         <div className="p-2 bg-white dark:bg-neutral-800 rounded-xl text-neutral-400 shrink-0">
           <Info className="w-4 h-4" />
         </div>
-        <p className="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 font-bold leading-relaxed">
+        <p className="text-2xs sm:text-xs text-neutral-500 dark:text-neutral-400 font-bold leading-relaxed">
           نصيحة مالية: يتم حساب صافي الربح التقديري للفترة عبر طرح إجمالي تكاليف التشغيل والمشتريات من إجمالي المستخلصات ومبيعات الحصاد. انقر على أي سطر لعرض السندات والعمليات التفصيلية.
         </p>
       </div>

@@ -127,7 +127,7 @@ const InvoicesList: React.FC<InvoicesListProps> = ({ invoices, onAddNew, onDelet
                 {visibleCount < invoices.length && (
                     <div ref={observerTargetRef} className="py-4 flex items-center justify-center">
                         <div className="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="w-2 h-2 rounded-full bg-accent-success animate-pulse" />
                             <span>عرض {visibleInvoices.length} من أصل {invoices.length} فاتورة...</span>
                         </div>
                     </div>
@@ -157,7 +157,7 @@ const InvoicesList: React.FC<InvoicesListProps> = ({ invoices, onAddNew, onDelet
             {visibleCount < invoices.length && (
                 <div ref={observerTargetRef} className="py-6 flex items-center justify-center">
                     <div className="flex items-center gap-2 text-xs font-bold text-neutral-400 dark:text-neutral-500 bg-white dark:bg-neutral-900 px-4 py-2 rounded-full border border-neutral-100 dark:border-neutral-800 shadow-xs">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-accent-success animate-pulse" />
                         <span>جاري عرض {visibleInvoices.length} من {invoices.length} فاتورة (تحميل تلقائي)...</span>
                     </div>
                 </div>
@@ -169,7 +169,7 @@ const InvoicesList: React.FC<InvoicesListProps> = ({ invoices, onAddNew, onDelet
   return (
     <div className="space-y-6">
        {/* بطاقة إحصاءات موحدة: تجمع إيرادات المحاصيل والأوزان المباعة في بطاقة مدمجة واحترافية وبنفس مظهر بطاقة المصروفات */}
-       <Card className="flex items-center justify-between border-emerald-300/80 dark:border-emerald-800/50 p-4 rounded-2xl shadow-sm bg-emerald-100/70 dark:bg-emerald-900/20">
+       <Card className="flex items-center justify-between border-accent-success/20/80 dark:border-accent-success/30 p-4 rounded-2xl shadow-sm bg-accent-success/10/70 dark:bg-accent-success/20">
            {/* القسم الأيمن: إجمالي الإيرادات والوزن التفصيلي الصغير */}
            <div className="flex items-center gap-3 min-w-0">
                <TrendingUpIcon className="h-8 w-8 text-primary shrink-0" />
@@ -180,9 +180,9 @@ const InvoicesList: React.FC<InvoicesListProps> = ({ invoices, onAddNew, onDelet
                    </p>
                    
                    {/* إجمالي الوزن مبين بخط صغير متناسق تماماً تحت المبلغ الأساسي */}
-                   <div className="flex items-center gap-1 mt-1.5 text-[10px] text-neutral-400 dark:text-neutral-500 font-bold select-none whitespace-nowrap">
+                   <div className="flex items-center gap-1 mt-1.5 text-2xs text-neutral-400 dark:text-neutral-500 font-bold select-none whitespace-nowrap">
                        <span className="flex items-center gap-1">
-                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                           <span className="w-1.5 h-1.5 rounded-full bg-accent-success inline-block" />
                            إجمالي الوزن: <strong className="text-neutral-600 dark:text-neutral-305 tabular-nums font-extrabold">{formatNumber(totalWeight)} كج</strong>
                        </span>
                    </div>
@@ -191,9 +191,9 @@ const InvoicesList: React.FC<InvoicesListProps> = ({ invoices, onAddNew, onDelet
 
            {/* القسم الأيسر: إحصائيات متوازنة لمظهر متناسق تماماً */}
            <div className="text-left pl-1">
-               <p className="text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-xs font-black">سجل الفواتير</p>
+               <p className="text-neutral-500 dark:text-neutral-400 text-2xs sm:text-xs font-black">سجل الفواتير</p>
                <p className="text-base sm:text-lg font-black text-neutral-800 dark:text-neutral-350 tabular-nums leading-none mt-1">
-                   {invoices.length} <span className="text-[10px] sm:text-xs opacity-75 font-bold">فاتورة</span>
+                   {invoices.length} <span className="text-2xs sm:text-xs opacity-75 font-bold">فاتورة</span>
                </p>
            </div>
        </Card>

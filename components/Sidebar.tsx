@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
   return (
     <>
       <div 
-          className={`fixed inset-0 bg-black/50 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
           onClick={onClose} 
       />
       <aside className={sidebarClasses}>
@@ -81,7 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem, isOpen, on
               <LogoIcon className="w-11 h-11 shrink-0 filter drop-shadow-xs" />
               <div>
                 <h1 className="text-lg font-black whitespace-nowrap text-neutral-800 dark:text-neutral-0 leading-none">المحاسب الزراعي</h1>
-                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1 inline-block">الأجندة الزراعية الذكية</span>
+                <span className="text-2xs font-bold text-accent-success dark:text-accent-success mt-1 inline-block">الأجندة الزراعية الذكية</span>
               </div>
             </div>
           </div>

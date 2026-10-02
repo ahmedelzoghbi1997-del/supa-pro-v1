@@ -191,7 +191,7 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
   if (cycleInvoices.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-transparent mt-6 text-neutral-400">
-        <Scale className="w-16 h-16 opacity-30 text-emerald-500 mb-4" />
+        <Scale className="w-16 h-16 opacity-30 text-accent-success mb-4" />
         <p className="text-base font-bold text-neutral-600 dark:text-neutral-400">لا توجد بيانات إنتاج مسجلة حالياً.</p>
         <p className="text-xs mt-1 opacity-70 text-center max-w-sm px-4">
           لم يتم العثور على فواتير بيع مرتبطة بهذه العروة. سيتم احتساب الإنتاج الإجمالي تلقائياً فور إصدار أول فاتورة بيع محصول.
@@ -203,7 +203,7 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
   return (
     <div className="space-y-6 mt-6 pb-12 animate-page-enter text-right" dir="rtl">
       {/* 1. قسم الإحصائيات ومرئيات الأداء الكلي - بطاقة موحدة صغيرة وملونة فائقة الجمال */}
-      <div className="max-w-lg mx-auto bg-gradient-to-br from-emerald-600 to-teal-700 dark:from-emerald-700 dark:to-teal-850 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-emerald-500/20 relative overflow-hidden group">
+      <div className="max-w-lg mx-auto bg-gradient-to-br from-emerald-600 to-teal-700 dark:from-emerald-700 dark:to-teal-850 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-accent-success/20 relative overflow-hidden group">
         {/* تأثيرات لمعان وانعكاسات خلفية جمالية */}
         <div className="absolute -right-12 -bottom-12 w-28 h-28 bg-white/5 rounded-full blur-2xl pointer-events-none group-hover:bg-white/10 transition-all duration-700"></div>
         <div className="absolute -left-12 -top-12 w-24 h-24 bg-emerald-400/15 rounded-full blur-xl pointer-events-none"></div>
@@ -212,25 +212,25 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
           {/* الكتلة الرئيسية: إجمالي الإنتاج وإنتاج النبات في صف واحد مدمج للغاية */}
           <div className="grid grid-cols-2 gap-4 border-b border-white/10 pb-3.5">
             <div>
-              <span className="text-emerald-250 text-[10px] font-black tracking-wider block opacity-90">إجمالي إنتاج العروة</span>
+              <span className="text-emerald-250 text-2xs font-black tracking-wider block opacity-90">إجمالي إنتاج العروة</span>
               <h3 className="text-xl sm:text-2xl font-black tabular-nums leading-none mt-1 text-white">
                 {formatNumber(Math.round(stats.totalWeight))}
                 <span className="text-xs mr-0.5 opacity-75 font-semibold">كجم</span>
               </h3>
-              <p className="text-[9px] text-emerald-200/80 font-bold mt-1.5 leading-none">
+              <p className="text-2xs text-emerald-200/80 font-bold mt-1.5 leading-none">
                 برواية {stats.invoiceCount} شحنات بيع.
               </p>
             </div>
 
             <div className="text-left border-r border-white/10 pr-4">
-              <span className="text-emerald-250 text-[10px] font-black tracking-wider block opacity-90">إنتاج النبات الواحد</span>
+              <span className="text-emerald-250 text-2xs font-black tracking-wider block opacity-90">إنتاج النبات الواحد</span>
               <h3 className="text-xl sm:text-2xl font-black tabular-nums leading-none mt-1 text-white">
                 {cycle.plant_count > 0 
                   ? `${(stats.totalWeight / cycle.plant_count).toFixed(2)}` 
                   : 'غير محدد'}
                 {cycle.plant_count > 0 && <span className="text-xs mr-0.5 opacity-75 font-semibold">كجم</span>}
               </h3>
-              <p className="text-[9px] text-emerald-200/80 font-bold mt-1.5 leading-none truncate">
+              <p className="text-2xs text-emerald-200/80 font-bold mt-1.5 leading-none truncate">
                 {cycle.plant_count > 0 ? `لـ ${formatNumber(cycle.plant_count)} شتلة` : 'يرجى تحديد عدد شتلات العروة'}
               </p>
             </div>
@@ -242,12 +242,12 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
             <div className="flex flex-col gap-0.5 border-l border-white/10 pl-2">
               <div className="flex items-center gap-1 text-emerald-200">
                 <Calendar className="w-2.5 h-2.5 shrink-0" />
-                <span className="text-[9px] font-bold">أعلى الشهور</span>
+                <span className="text-2xs font-bold">أعلى الشهور</span>
               </div>
               <h4 className="text-[11px] font-black truncate text-white mt-1">
                 {stats.peakMonth ? stats.peakMonth.label : 'غير متوفر'}
               </h4>
-              <p className="text-[10px] font-extrabold text-emerald-150 tabular-nums">
+              <p className="text-2xs font-extrabold text-emerald-150 tabular-nums">
                 {stats.peakMonth ? `${formatNumber(Math.round(stats.peakMonth.weight))} كجم` : '-'}
               </p>
             </div>
@@ -256,12 +256,12 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
             <div className="flex flex-col gap-0.5 border-l border-white/10 pl-2 pr-0.5">
               <div className="flex items-center gap-1 text-emerald-200">
                 <Clock className="w-2.5 h-2.5 shrink-0" />
-                <span className="text-[9px] font-bold">أعلى الأسابيع</span>
+                <span className="text-2xs font-bold">أعلى الأسابيع</span>
               </div>
               <h4 className="text-[11px] font-black truncate text-white mt-1">
                 {stats.peakWeek ? stats.peakWeek.label : 'غير متوفر'}
               </h4>
-              <p className="text-[10px] font-extrabold text-emerald-150 tabular-nums">
+              <p className="text-2xs font-extrabold text-emerald-150 tabular-nums">
                 {stats.peakWeek ? `${formatNumber(Math.round(stats.peakWeek.weight))} كجم` : '-'}
               </p>
             </div>
@@ -270,14 +270,14 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
             <div className="flex flex-col gap-0.5 pr-0.5">
               <div className="flex items-center gap-1 text-emerald-200">
                 <TrendingUp className="w-2.5 h-2.5 shrink-0" />
-                <span className="text-[9px] font-bold">متوسط الشحنة</span>
+                <span className="text-2xs font-bold">متوسط الشحنة</span>
               </div>
               <h4 className="text-[11px] font-black text-white truncate mt-1">
                 {stats.invoiceCount > 0 
                   ? `${formatNumber(Math.round(stats.totalWeight / stats.invoiceCount))} كجم` 
                   : '0 كجم'}
               </h4>
-              <p className="text-[9px] text-emerald-250 font-bold opacity-80 leading-none truncate">
+              <p className="text-2xs text-emerald-250 font-bold opacity-80 leading-none truncate">
                 معدل تحميل مستقر
               </p>
             </div>
@@ -358,7 +358,7 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
                       <h4 className="text-xs sm:text-sm font-black text-neutral-800 dark:text-neutral-100 group-hover:text-primary dark:group-hover:text-white transition-colors">
                         {item.label}
                       </h4>
-                      <p className="text-[9px] text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">
+                      <p className="text-2xs text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">
                         {item.invoiceCount} شحنات بيع محملة
                       </p>
                     </div>
@@ -372,7 +372,7 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
                         style={{ width: `${visualRelativePct}%` }}
                       ></div>
                     </div>
-                    <div className="flex justify-between items-center text-[9px] text-neutral-400 dark:text-neutral-500 font-bold px-1">
+                    <div className="flex justify-between items-center text-2xs text-neutral-400 dark:text-neutral-500 font-bold px-1">
                       <span>{percentage.toFixed(1)}% من كلي العروة</span>
                       <span className="tabular-nums">الحد الأقصى</span>
                     </div>
@@ -380,8 +380,8 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
 
                   {/* الوزن الكلي والربحية */}
                   <div className="col-span-3 text-left">
-                    <p className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                      {formatNumber(Math.round(item.weight))} <span className="text-[10px] sm:text-xs font-bold opacity-75">كجم</span>
+                    <p className="text-xs sm:text-sm font-black text-accent-success dark:text-accent-success tabular-nums">
+                      {formatNumber(Math.round(item.weight))} <span className="text-2xs sm:text-xs font-bold opacity-75">كجم</span>
                     </p>
                   </div>
                 </div>
@@ -390,10 +390,10 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
                 {isExpanded && (
                   <div className="bg-neutral-50/70 dark:bg-neutral-950/20 px-6 py-4 border-t border-b border-neutral-100 dark:border-neutral-800/50 space-y-3.5 animate-page-enter">
                     <div className="flex items-center justify-between border-b border-neutral-200/50 dark:border-neutral-800/50 pb-2">
-                      <span className="text-[10px] sm:text-xs font-black text-neutral-500 dark:text-neutral-400">
+                      <span className="text-2xs sm:text-xs font-black text-neutral-500 dark:text-neutral-400">
                         بروتوكول تفصيل الفواتير المرتبطة بـ ({item.label}):
                       </span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold select-none">
+                      <span className="text-2xs text-accent-success dark:text-accent-success font-bold select-none">
                         إجمالي التعبئة والتحميل كجم
                       </span>
                     </div>
@@ -407,14 +407,14 @@ const ProductionTab: React.FC<ProductionTabProps> = ({ cycle }) => {
                             className="flex items-center justify-between bg-white dark:bg-neutral-900 border border-neutral-150/50 dark:border-neutral-850 p-3 rounded-2xl shadow-soft hover:shadow-md transition-all group/item"
                           >
                             <div className="flex items-center gap-3">
-                              <div className="p-2 bg-emerald-100/40 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold text-xs select-none">
+                              <div className="p-2 bg-accent-success/10/40 dark:bg-accent-success/20/10 text-accent-success dark:text-accent-success rounded-xl font-bold text-xs select-none">
                                 شحنة
                               </div>
                               <div className="text-right">
                                 <h5 className="text-xs sm:text-sm font-extrabold text-neutral-700 dark:text-neutral-200 group-hover/item:text-primary dark:group-hover/item:text-white transition-colors">
                                   سوق {inv.market}
                                 </h5>
-                                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">
+                                <p className="text-2xs text-neutral-400 dark:text-neutral-500 font-bold mt-0.5">
                                   بتاريخ {new Date(inv.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'numeric', year: 'numeric', numberingSystem: 'latn' })}
                                 </p>
                               </div>

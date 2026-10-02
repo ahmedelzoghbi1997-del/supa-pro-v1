@@ -16,9 +16,9 @@ interface CyclesTableProps {
 
 const StatusBadge: React.FC<{ status: CycleStatus }> = ({ status }) => {
     const statusMap = {
-        active: { label: 'نشطة', classes: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' },
+        active: { label: 'نشطة', classes: 'bg-accent-success/10 text-accent-success' },
         closed: { label: 'مغلقة', classes: 'bg-neutral-200 text-neutral-800 dark:bg-neutral-700 dark:text-neutral-300' },
-        archived: { label: 'مؤرشفة', classes: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' },
+        archived: { label: 'مؤرشفة', classes: 'bg-accent-warning/10 text-accent-warning' },
     };
     const { label, classes } = statusMap[status] || statusMap.closed;
     return (
@@ -67,20 +67,20 @@ const ActionsMenu: React.FC<{
 
     return (
         <div className="relative" ref={menuRef}>
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700">
+            <button onClick={() => setIsOpen(!isOpen)} className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700" aria-label="خيارات">
                 <EllipsisVerticalIcon className="h-5 w-5" />
             </button>
             {isOpen && (
                 <div className="absolute left-0 bottom-full mb-2 w-48 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-700 z-10">
                      {onEdit && (
-                        <button onClick={() => { onEdit(cycle.id); setIsOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">
-                            <PencilIcon className="w-4 h-4 text-blue-500" />
+                        <button onClick={() => { onEdit(cycle.id); setIsOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                            <PencilIcon className="w-4 h-4 text-accent-info" />
                             <span>تعديل</span>
                         </button>
                      )}
                     {onToggleStatus && (
-                        <button onClick={() => { onToggleStatus(cycle); setIsOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">
-                            <EyeSlashIcon className="w-4 h-4 text-amber-500" />
+                        <button onClick={() => { onToggleStatus(cycle); setIsOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-2.5 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                            <EyeSlashIcon className="w-4 h-4 text-accent-warning" />
                             <span>{cycle.status === 'active' ? 'إغلاق العروة' : 'إعادة فتح العروة'}</span>
                         </button>
                     )}
@@ -88,7 +88,7 @@ const ActionsMenu: React.FC<{
                     {onDelete && (
                         <button 
                             onClick={handleDeleteClick} 
-                            className={`w-full text-right flex items-center gap-3 px-4 py-2 text-sm transition-all ${!canDelete ? 'opacity-20 grayscale cursor-not-allowed text-neutral-400' : 'text-rose-600 hover:bg-red-50 dark:hover:bg-red-500/10'}`}
+                            className={`w-full text-right flex items-center gap-3 px-4 py-2.5 text-sm transition-all ${!canDelete ? 'opacity-20 grayscale cursor-not-allowed text-neutral-400' : 'text-accent-danger hover:bg-accent-danger/10'}`}
                         >
                             <TrashIcon className="w-4 h-4" />
                             <span>حذف العروة</span>
@@ -134,7 +134,7 @@ const CyclesTable: React.FC<CyclesTableProps> = ({ cycles, onEdit, onDelete, onV
                 <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => onViewReport(cycle.id)}
-                    className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+                    className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                     aria-label="عرض التقرير"
                     title="التقرير"
                   >
@@ -158,21 +158,21 @@ const CyclesTable: React.FC<CyclesTableProps> = ({ cycles, onEdit, onDelete, onV
 
               {/* Financial Mini Strip: Revenue, Expenses, Profit */}
               <div className="grid grid-cols-3 gap-2 pt-3 text-center">
-                <div className="bg-emerald-50/70 dark:bg-emerald-950/20 p-2 rounded-xl border border-emerald-100/60 dark:border-emerald-900/30">
-                  <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 block mb-0.5">الإيرادات</span>
-                  <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                <div className="bg-accent-success/10/70 dark:bg-accent-success/20 p-2 rounded-xl border border-accent-success/20/60 dark:border-accent-success/30">
+                  <span className="text-2xs font-bold text-accent-success dark:text-accent-success block mb-0.5">الإيرادات</span>
+                  <span className="text-xs font-black text-accent-success dark:text-accent-success tabular-nums">
                     {formatCurrency(cycle.revenue).replace('EGP', '')}
                   </span>
                 </div>
-                <div className="bg-rose-50/70 dark:bg-rose-950/20 p-2 rounded-xl border border-rose-100/60 dark:border-rose-900/30">
-                  <span className="text-[9px] font-bold text-rose-700 dark:text-rose-400 block mb-0.5">المصروفات</span>
-                  <span className="text-xs font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                <div className="bg-accent-danger/10/70 dark:bg-accent-danger/20 p-2 rounded-xl border border-accent-danger/20/60 dark:border-accent-danger/30">
+                  <span className="text-2xs font-bold text-accent-danger dark:text-accent-danger block mb-0.5">المصروفات</span>
+                  <span className="text-xs font-black text-accent-danger dark:text-accent-danger tabular-nums">
                     {formatCurrency(cycle.expenses).replace('EGP', '')}
                   </span>
                 </div>
-                <div className="bg-blue-50/70 dark:bg-blue-950/20 p-2 rounded-xl border border-blue-100/60 dark:border-blue-900/30">
-                  <span className="text-[9px] font-bold text-blue-700 dark:text-blue-400 block mb-0.5">ربح المالك</span>
-                  <span className="text-xs font-black text-blue-600 dark:text-blue-400 tabular-nums">
+                <div className="bg-accent-info/10 dark:bg-accent-info/20 p-2 rounded-xl border border-accent-info/20 dark:border-accent-info/30">
+                  <span className="text-2xs font-bold text-accent-info dark:text-accent-info block mb-0.5">ربح المالك</span>
+                  <span className="text-xs font-black text-accent-info dark:text-accent-info tabular-nums">
                     {formatCurrency(cycle.profit).replace('EGP', '')}
                   </span>
                 </div>
@@ -220,7 +220,7 @@ const CyclesTable: React.FC<CyclesTableProps> = ({ cycles, onEdit, onDelete, onV
                     <td className={cellClasses}><StatusBadge status={cycle.status} /></td>
                     <td className={`${cellClasses} text-left`}>
                         <div className="flex items-center justify-end gap-1">
-                            <button onClick={() => onViewReport(cycle.id)} className="p-2 rounded-md text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors" aria-label="عرض التقرير">
+                            <button onClick={() => onViewReport(cycle.id)} className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 rounded-md text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors" aria-label="عرض التقرير">
                                 <ClipboardDocumentIcon className="h-5 w-5" />
                             </button>
                             <ActionsMenu cycle={cycle} onEdit={onEdit} onDelete={onDelete} onToggleStatus={onToggleStatus} />

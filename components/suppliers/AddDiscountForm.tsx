@@ -135,7 +135,7 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                                     </select>
                                     <ChevronDownIcon className="w-4 h-4 ml-3 text-neutral-400 absolute left-2 top-3.5 pointer-events-none" />
                                 </div>
-                                {errors.cycleId && <p className="text-rose-500 text-[10px] font-bold mt-1 px-1">{errors.cycleId}</p>}
+                                {errors.cycleId && <p className="text-accent-danger text-2xs font-bold mt-1 px-1">{errors.cycleId}</p>}
                             </div>
 
                             {/* Amount (المبلغ) */}
@@ -152,7 +152,7 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                                     />
                                     <span className="absolute left-4 top-3 text-xs font-black text-violet-400">ج.م</span>
                                 </div>
-                                {errors.amount && <p className="text-rose-500 text-[10px] font-bold mt-1 px-1">{errors.amount}</p>}
+                                {errors.amount && <p className="text-accent-danger text-2xs font-bold mt-1 px-1">{errors.amount}</p>}
                             </div>
 
                             {/* Date (التاريخ) */}
@@ -164,7 +164,7 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                                     onChange={(e) => setDate(e.target.value)}
                                     className="w-full h-11 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-250 dark:border-neutral-700 text-neutral-800 dark:text-white rounded-xl px-4 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
                                 />
-                                {errors.date && <p className="text-rose-500 text-[10px] font-bold mt-1 px-1">{errors.date}</p>}
+                                {errors.date && <p className="text-accent-danger text-2xs font-bold mt-1 px-1">{errors.date}</p>}
                             </div>
                         </div>
 
@@ -178,7 +178,7 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="w-full h-11 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 border border-neutral-250 dark:border-neutral-700 text-neutral-800 dark:text-white rounded-xl px-4 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all"
                             />
-                            {errors.description && <p className="text-rose-500 text-[10px] font-bold mt-1 px-1">{errors.description}</p>}
+                            {errors.description && <p className="text-accent-danger text-2xs font-bold mt-1 px-1">{errors.description}</p>}
                         </div>
 
                     </div>
@@ -189,7 +189,7 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                             type="button"
                             onClick={onCancel}
                             disabled={isSaving}
-                            className="h-10 px-5 bg-neutral-200 hover:bg-neutral-250 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-750 dark:text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 active:scale-95"
+                            className="h-10 px-5 bg-neutral-200 hover:bg-neutral-250 dark:bg-neutral-800 dark:hover:bg-neutral-750 text-neutral-750 dark:text-white text-xs font-bold rounded-xl transition-all disabled:opacity-50 tap"
                         >
                             إلغاء
                         </button>
@@ -197,7 +197,7 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                             type="submit"
                             onClick={triggerSaveHaptic}
                             disabled={isSaving}
-                            className="h-10 px-8 bg-violet-600 hover:bg-violet-700 text-white text-xs font-black rounded-xl transition-all shadow-sm shadow-violet-200/5 disabled:opacity-50 active:scale-95 flex items-center justify-center gap-2"
+                            className="h-10 px-8 bg-violet-600 hover:bg-violet-700 text-white text-xs font-black rounded-xl transition-all shadow-sm shadow-violet-200/5 disabled:opacity-50 tap flex items-center justify-center gap-2"
                         >
                             {isSaving ? 'جاري الحفظ...' : initialData ? 'حفظ التعديلات' : 'تسجيل الخصم'}
                         </button>
@@ -220,9 +220,9 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                                     <div className="p-1.5 bg-white/15 dark:bg-black/20 rounded-lg">
                                         <LucideTag className="w-4 h-4 text-violet-100" />
                                     </div>
-                                    <span className="text-[10px] uppercase font-black tracking-wider text-violet-100">سند خصم مكتسب</span>
+                                    <span className="text-2xs uppercase font-black tracking-wider text-violet-100">سند خصم مكتسب</span>
                                 </div>
-                                <span className="text-[9px] font-mono tracking-tight bg-black/20 px-2 py-0.5 rounded-full text-violet-200">
+                                <span className="text-2xs font-mono tracking-tight bg-black/20 px-2 py-0.5 rounded-full text-violet-200">
                                     مؤقت
                                 </span>
                             </div>
@@ -230,23 +230,23 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                             {/* Main Body */}
                             <div className="space-y-3">
                                 <div>
-                                    <p className="text-[8px] text-violet-200 font-bold mb-0.5">المستفيد الأصلي</p>
+                                    <p className="text-2xs text-violet-200 font-bold mb-0.5">المستفيد الأصلي</p>
                                     <p className="font-extrabold text-sm truncate">{supplier?.name || "اختر مورداً..."}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
-                                        <p className="text-[8px] text-violet-200 font-bold mb-0.5">تابع لعروة</p>
+                                        <p className="text-2xs text-violet-200 font-bold mb-0.5">تابع لعروة</p>
                                         <p className="font-bold text-xs truncate">{selectedCycleName}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[8px] text-violet-200 font-bold mb-0.5">التاريخ المسجل</p>
+                                        <p className="text-2xs text-violet-200 font-bold mb-0.5">التاريخ المسجل</p>
                                         <p className="font-bold text-xs tracking-wide">{date || '...'}</p>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <p className="text-[8px] text-violet-200 font-bold mb-0.5">بيان قيد الحركة</p>
+                                    <p className="text-2xs text-violet-200 font-bold mb-0.5">بيان قيد الحركة</p>
                                     <p className="font-bold text-xs truncate leading-snug">{description || 'لا يوجد وصف...'}</p>
                                 </div>
                             </div>
@@ -255,17 +255,17 @@ const AddDiscountForm: React.FC<AddDiscountFormProps> = ({ onSave, onCancel, sup
                         {/* Large value & stamp impact area */}
                         <div className="relative z-10 border-t border-dashed border-white/25 pt-3 mt-4 space-y-2">
                             <div className="flex justify-between items-baseline">
-                                <span className="text-[9px] text-violet-100 font-extrabold">مبلغ التخفيض:</span>
+                                <span className="text-2xs text-violet-100 font-extrabold">مبلغ التخفيض:</span>
                                 <div className="text-left">
                                     <span className="text-2xl font-black tabular-nums tracking-tight">
                                         -{amtNum > 0 ? formatNumberWithCommas(amtNum) : '0.00'}
                                     </span>
-                                    <span className="text-[10px] font-bold text-violet-200 mr-1">ج.م</span>
+                                    <span className="text-2xs font-bold text-violet-200 mr-1">ج.م</span>
                                 </div>
                             </div>
 
                             {/* Ledger effect indicator */}
-                            <div className="text-[9px] bg-black/15 text-violet-100/90 py-2 px-2.5 rounded-xl border border-white/5 space-y-1">
+                            <div className="text-2xs bg-black/15 text-violet-100/90 py-2 px-2.5 rounded-xl border border-white/5 space-y-1">
                                 <div className="flex items-center gap-1.5">
                                     <span className="w-1 h-1 rounded-full bg-emerald-300"></span>
                                     <p>خفض مديونية المورد بـ <strong className="font-black text-white">{formatCurrency(amtNum)} ج.م</strong></p>

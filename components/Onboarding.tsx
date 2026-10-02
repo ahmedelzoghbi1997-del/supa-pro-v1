@@ -23,7 +23,7 @@ const slides: Slide[] = [
         description: 'شريكك الذكي لإدارة شؤون الزراعة بذكاء وحكمة. تحكم متكامل في العروات والموارد لتحقيق أقصى ربحية ممكنة لمزرعتك.',
         icon: Sprout,
         gradient: 'from-emerald-500/20 via-emerald-600/5 to-transparent dark:from-emerald-500/10 dark:via-emerald-950/10 dark:to-transparent',
-        accentColor: 'text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/40 border-emerald-250 dark:border-emerald-900/40',
+        accentColor: 'text-accent-success dark:text-accent-success bg-accent-success/10 dark:bg-accent-success/20 border-emerald-250 dark:border-accent-success/30',
         shadowColor: 'shadow-emerald-500/10'
     },
     {
@@ -32,7 +32,7 @@ const slides: Slide[] = [
         description: 'تابع رصيد عهدة كل عروة نقدياً ولحظة بلغت، مع ميزات متطورة لإدارة عمليات السحب والإيداع وحوافظ البنوك بكل احترافية ودقة متناهية.',
         icon: Wallet,
         gradient: 'from-blue-500/20 via-blue-600/5 to-transparent dark:from-blue-500/10 dark:via-blue-950/10 dark:to-transparent',
-        accentColor: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/40 border-blue-250 dark:border-blue-900/40',
+        accentColor: 'text-accent-info dark:text-accent-info bg-accent-info/10 dark:bg-accent-info/20 border-blue-250 dark:border-accent-info/30',
         shadowColor: 'shadow-blue-500/10'
     },
     {
@@ -238,7 +238,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     {/* Next/Finish Button */}
                     <button
                         onClick={handleNext}
-                        className="flex-1 max-w-[200px] flex items-center justify-center gap-2 py-4 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-600/20 dark:shadow-none hover:shadow-indigo-600/30 transition-all cursor-pointer relative overflow-hidden group active:scale-[0.98]"
+                        className="flex-1 max-w-[200px] flex items-center justify-center gap-2 py-4 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-600/20 dark:shadow-none hover:shadow-indigo-600/30 transition-all cursor-pointer relative overflow-hidden group tap"
                     >
                         {/* Shimmer effect */}
                         <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12 -translate-x-full group-hover:animate-shimmer" />

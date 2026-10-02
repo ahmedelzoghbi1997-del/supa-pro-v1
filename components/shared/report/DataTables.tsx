@@ -27,11 +27,11 @@ export const InfoTooltip = ({ content }: { content: string }) => {
         setIsVisible(!isVisible);
       }}
     >
-      <div className="w-4 h-4 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-[10px] font-bold text-neutral-500 dark:text-neutral-400 cursor-help hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors">
+      <div className="w-4 h-4 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-2xs font-bold text-neutral-500 dark:text-neutral-400 cursor-help hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors">
         ؟
       </div>
       {isVisible && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-neutral-800 dark:bg-neutral-100 text-white dark:text-neutral-900 text-[10px] sm:text-xs rounded-lg shadow-xl z-[100] text-center leading-relaxed font-medium animate-enter pointer-events-none">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-3 bg-neutral-800 dark:bg-neutral-100 text-white dark:text-neutral-900 text-2xs sm:text-xs rounded-lg shadow-xl z-[100] text-center leading-relaxed font-medium animate-enter pointer-events-none">
           {content}
           <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-neutral-800 dark:border-t-neutral-100"></div>
         </div>
@@ -57,7 +57,7 @@ export const CategorySummaryCard: React.FC<CategorySummaryCardProps> = React.mem
     return (
       <button
         onClick={onClick}
-        className="group w-full bg-white dark:bg-neutral-800 p-4 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-neutral-100 dark:border-neutral-700/50 hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 text-right active:scale-[0.98] flex items-center justify-between gap-4"
+        className="group w-full bg-white dark:bg-neutral-800 p-4 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-neutral-100 dark:border-neutral-700/50 hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 text-right tap flex items-center justify-between gap-4"
       >
         <div className="flex items-center gap-4">
           <div
@@ -84,7 +84,7 @@ export const CategorySummaryCard: React.FC<CategorySummaryCardProps> = React.mem
           </p>
           {percentage > 0 && (
             <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${meta.badgeBg}`}
+              className={`text-2xs font-bold px-2 py-0.5 rounded-lg border ${meta.badgeBg}`}
             >
               %{percentage.toFixed(1)}
             </span>
@@ -109,7 +109,7 @@ export const InfoItem: React.FC<{
   value: string;
   icon: React.FC<React.SVGProps<SVGSVGElement>>;
 }> = ({ value, icon: Icon }) => (
-  <div className="flex items-center gap-1 text-neutral-400 dark:text-neutral-500 text-[9px] sm:text-[10px] shrink-0">
+  <div className="flex items-center gap-1 text-neutral-400 dark:text-neutral-500 text-2xs sm:text-2xs shrink-0">
     <Icon className="h-3 w-3 flex-shrink-0 opacity-50" />
     <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">
       {value}
@@ -145,9 +145,9 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
       if (isEstablishment) {
         activeTags.push({
           label: "تأسيس",
-          textColor: "text-blue-600 dark:text-blue-400",
-          bgColor: "bg-blue-50 dark:bg-blue-900/30",
-          borderColor: "border-blue-200 dark:border-blue-800/50",
+          textColor: "text-accent-info dark:text-accent-info",
+          bgColor: "bg-accent-info/10 dark:bg-accent-info/20",
+          borderColor: "border-accent-info/20 dark:border-accent-info/30",
         });
       }
 
@@ -161,9 +161,9 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
       } else if (!isEstablishment) {
         activeTags.push({
           label: "نقدي",
-          textColor: "text-emerald-600 dark:text-emerald-400",
-          bgColor: "bg-emerald-50 dark:bg-emerald-900/30",
-          borderColor: "border-emerald-200 dark:border-emerald-800/50",
+          textColor: "text-accent-success dark:text-accent-success",
+          bgColor: "bg-accent-success/10 dark:bg-accent-success/20",
+          borderColor: "border-accent-success/20 dark:border-accent-success/30",
         });
       }
 
@@ -174,7 +174,7 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
 
     return (
       <div
-        className={`group relative bg-white dark:bg-neutral-800 p-2.5 sm:p-3 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right active:scale-[0.99] flex items-center justify-between gap-3 w-full overflow-hidden animate-stagger-in`}
+        className={`group relative bg-white dark:bg-neutral-800 p-2.5 sm:p-3 rounded-[16px] border border-neutral-200 dark:border-neutral-700 shadow-soft hover:shadow-md transition-all text-right tap flex items-center justify-between gap-3 w-full overflow-hidden animate-stagger-in`}
         style={{
           animationDelay: `${Math.min(index * 30, 600)}ms`,
         }}
@@ -189,7 +189,7 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
               {tags.map((tag, tIdx) => (
                 <span
                   key={tIdx}
-                  className={`text-[8px] font-black px-1.5 py-px rounded-full border ${tag.bgColor} ${tag.textColor} ${tag.borderColor} shadow-sm whitespace-nowrap`}
+                  className={`text-2xs font-black px-1.5 py-px rounded-full border ${tag.bgColor} ${tag.textColor} ${tag.borderColor} shadow-sm whitespace-nowrap`}
                 >
                   {tag.label}
                 </span>
@@ -220,7 +220,7 @@ export const ReadOnlyExpenseCard: React.FC<ReadOnlyExpenseCardProps> = React.mem
               className={`text-sm sm:text-base font-black tabular-nums tracking-tighter ${primaryTextColor}`}
             >
               {formatNumber(Math.round(amount))}
-              <span className="text-[9px] mr-0.5 opacity-50 font-bold uppercase">
+              <span className="text-2xs mr-0.5 opacity-50 font-bold uppercase">
                 ج.م
               </span>
             </p>
@@ -257,7 +257,7 @@ export const StatMiniCard: React.FC<StatMiniCardProps> = React.memo(
   }) => (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] ${bgColorClass} border border-neutral-100 dark:border-neutral-800 shadow-sm flex flex-col justify-between h-full transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:border-neutral-200 dark:hover:border-neutral-700 group ${onClick ? "cursor-pointer active:scale-[0.98]" : ""}`}
+      className={`relative overflow-hidden p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] ${bgColorClass} border border-neutral-100 dark:border-neutral-800 shadow-sm flex flex-col justify-between h-full transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl hover:border-neutral-200 dark:hover:border-neutral-700 group ${onClick ? "cursor-pointer tap" : ""}`}
     >
       <div
         className={`absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${colorClass.replace("text-", "bg-")}`}
@@ -269,20 +269,20 @@ export const StatMiniCard: React.FC<StatMiniCardProps> = React.memo(
           <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
         <div className="text-left">
-          <span className="text-[8px] sm:text-[10px] font-black text-neutral-400 bg-neutral-50 dark:bg-neutral-900 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-neutral-100 dark:border-neutral-800 tabular-nums transition-colors group-hover:bg-white dark:group-hover:bg-neutral-800">
+          <span className="text-2xs sm:text-2xs font-black text-neutral-400 bg-neutral-50 dark:bg-neutral-900 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-lg border border-neutral-100 dark:border-neutral-800 tabular-nums transition-colors group-hover:bg-white dark:group-hover:bg-neutral-800">
             {count} حركات
           </span>
         </div>
       </div>
       <div className="relative z-10">
-        <p className="text-[9px] sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-tight sm:tracking-widest mb-1">
+        <p className="text-2xs sm:text-[11px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-tight sm:tracking-widest mb-1">
           {label}
         </p>
         <p
           className={`text-sm sm:text-2xl font-black ${colorClass} tracking-tighter tabular-nums mb-2 sm:mb-3`}
         >
           {formatNumber(value)}
-          <span className="text-[8px] sm:text-xs mr-1 opacity-60 font-bold">
+          <span className="text-2xs sm:text-xs mr-1 opacity-60 font-bold">
             ج.م
           </span>
         </p>
@@ -292,7 +292,7 @@ export const StatMiniCard: React.FC<StatMiniCardProps> = React.memo(
             {SubIcon && (
               <SubIcon className="w-2.5 h-2.5 sm:w-3 h-3 text-neutral-400" />
             )}
-            <span className="text-[8px] sm:text-[10px] font-bold text-neutral-400 truncate max-w-full">
+            <span className="text-2xs sm:text-2xs font-bold text-neutral-400 truncate max-w-full">
               {subLabel}
             </span>
           </div>
@@ -325,7 +325,7 @@ export const MetricBox: React.FC<MetricBoxProps> = React.memo(
       </div>
       <div className="relative z-10 flex-1 min-w-0">
         <div className="flex items-center gap-1 mb-0.5">
-          <p className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 truncate uppercase tracking-tighter">
+          <p className="text-2xs font-bold text-neutral-500 dark:text-neutral-400 truncate uppercase tracking-tighter">
             {label}
           </p>
           {tooltip && <InfoTooltip content={tooltip} />}
@@ -335,7 +335,7 @@ export const MetricBox: React.FC<MetricBoxProps> = React.memo(
             {value}
           </p>
           {subValue && (
-            <span className="text-[9px] font-bold text-neutral-400 shrink-0">
+            <span className="text-2xs font-bold text-neutral-400 shrink-0">
               {subValue}
             </span>
           )}
@@ -367,7 +367,7 @@ export const GridCard: React.FC<GridCardProps> = ({
           {title}
         </h3>
         {subtitle && (
-          <p className="text-[9px] text-neutral-500 font-bold mt-0.5 truncate">
+          <p className="text-2xs text-neutral-500 font-bold mt-0.5 truncate">
             {subtitle}
           </p>
         )}

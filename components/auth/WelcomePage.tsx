@@ -34,19 +34,19 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ profile, onContinue }) => {
               createRipple(e);
               onContinue();
             }}
-            className="w-full mt-8 ripple-effect relative flex justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-dark transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95"
+            className="w-full mt-8 ripple-effect relative flex justify-center rounded-lg bg-primary py-3 px-4 text-md font-semibold text-white hover:bg-primary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-dark transition-all duration-300 transform hover:-translate-y-0.5 tap"
           >
             الدخول إلى حسابك
           </button>
         </div>
 
-        <div className="mt-8 text-center bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-700/50">
-          <p className="font-semibold text-green-800 dark:text-green-300">للمساعدة أو الاستفسار، تواصل مع الدعم الفني عبر واتساب:</p>
+        <div className="mt-8 text-center bg-accent-success/10 dark:bg-accent-success/20 p-6 rounded-lg border border-accent-success/20 dark:border-accent-success/30">
+          <p className="font-semibold text-accent-success dark:text-accent-success">للمساعدة أو الاستفسار، تواصل مع الدعم الفني عبر واتساب:</p>
           <a 
             href={`https://wa.me/${settings.support_whatsapp}`} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="mt-3 inline-flex items-center gap-3 text-lg font-bold text-green-600 dark:text-green-400 hover:underline"
+            className="mt-3 inline-flex items-center gap-3 text-lg font-bold text-accent-success dark:text-accent-success hover:underline"
           >
             <WhatsAppIcon className="w-6 h-6" />
             <span>{settings.support_whatsapp}</span>

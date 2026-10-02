@@ -2,6 +2,7 @@ import React from 'react';
 import type { Theme, AccentColor } from '../../types';
 import { SunIcon, MoonIcon, DesktopIcon, CheckCircleIcon } from '../Icons';
 import { useSettings } from '../../contexts/SettingsContext';
+import Button from '../shared/Button';
 
 const AppearanceSettings: React.FC = () => {
     const { settings, updateSettings } = useSettings();
@@ -31,18 +32,20 @@ const AppearanceSettings: React.FC = () => {
                 <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">اختر المظهر المفضل لديك لواجهة التطبيق.</p>
                 <div className="bg-neutral-100 dark:bg-neutral-800/50 p-1.5 rounded-xl flex items-center justify-between gap-2">
                     {themeOptions.map((option) => (
-                        <button
+                        <Button
                             key={option.id}
+                            variant={theme === option.id ? 'primary' : 'ghost'}
+                            size="md"
                             onClick={() => setTheme(option.id)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-300
+                            className={`!flex-1 !flex !items-center !justify-center !gap-2 !py-2.5 !rounded-xl !text-sm !font-semibold transition-colors duration-300
                                 ${theme === option.id 
-                                    ? 'bg-primary text-white shadow-sm' 
-                                    : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800/50'}`
+                                    ? '!bg-primary !text-white shadow-sm' 
+                                    : '!text-neutral-500 dark:!text-neutral-400 hover:!bg-neutral-200 dark:hover:!bg-neutral-800/50'}`
                                 }
+                            icon={<option.icon className="w-5 h-5" />}
                         >
-                            <option.icon className="w-5 h-5" />
-                            <span>{option.label}</span>
-                        </button>
+                            {option.label}
+                        </Button>
                     ))}
                 </div>
             </div>
@@ -52,10 +55,11 @@ const AppearanceSettings: React.FC = () => {
                 <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-4">اختر اللون الرئيسي الذي يظهر في الأزرار والأيقونات والروابط.</p>
                 <div className="flex flex-wrap items-center gap-4">
                     {colorOptions.map((color) => (
-                        <button
+                        <Button
                             key={color.id}
+                            variant="ghost"
                             onClick={() => setAccentColor(color.id)}
-                            className="flex flex-col items-center gap-2 group"
+                            className="!flex !flex-col !items-center !gap-2 !p-1 !h-auto group"
                             aria-label={`Set theme to ${color.label}`}
                         >
                             <div className={`relative w-10 h-10 rounded-full ${color.bgClass} flex items-center justify-center transition-transform group-hover:scale-110 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900 ${accentColor === color.id ? 'ring-primary' : 'ring-transparent'}`}>
@@ -66,7 +70,7 @@ const AppearanceSettings: React.FC = () => {
                             <span className={`text-xs font-medium transition-colors ${accentColor === color.id ? 'text-primary' : 'text-neutral-500'}`}>
                                 {color.label}
                             </span>
-                        </button>
+                        </Button>
                     ))}
                 </div>
             </div>

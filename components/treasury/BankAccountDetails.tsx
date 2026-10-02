@@ -13,6 +13,7 @@ interface BankAccountDetailsProps {
 }
 
 const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack }) => {
+    const { showToast } = useToast();
     const { 
         bankTransactions, addBankTransaction, deleteBankTransaction, 
         updateBankAccount, deleteBankAccount
@@ -151,7 +152,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                 <div className="flex items-center gap-3.5">
                     <button 
                         onClick={onBack} 
-                        className="p-2.5 bg-white dark:bg-neutral-900 rounded-xl shadow-xs border border-neutral-200/70 dark:border-neutral-800/80 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-450 transition-all active:scale-95 cursor-pointer"
+                        className="p-2.5 bg-white dark:bg-neutral-900 rounded-xl shadow-xs border border-neutral-200/70 dark:border-neutral-800/80 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-450 transition-all tap cursor-pointer"
                         title="رجوع"
                     >
                         <ArrowLeftIcon className="w-4 h-4 transform rotate-180" />
@@ -174,7 +175,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                             setEditBankBalance(account.initial_balance.toString());
                             setIsEditBankModalOpen(true);
                         }}
-                        className="p-2 text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-xl transition-all active:scale-95 cursor-pointer border border-transparent hover:border-indigo-150 dark:hover:border-indigo-900/40"
+                        className="p-2 text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-xl transition-all tap cursor-pointer border border-transparent hover:border-indigo-150 dark:hover:border-indigo-900/40"
                         title="تعديل الحساب"
                     >
                         <PencilIcon className="w-4.5 h-4.5" />
@@ -182,10 +183,10 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                     <button 
                         onClick={() => setIsDeleteBankModalOpen(true)}
                         disabled={hasTransactions}
-                        className={`p-2 rounded-xl transition-all active:scale-95 border border-transparent ${
+                        className={`p-2 rounded-xl transition-all tap border border-transparent ${
                             hasTransactions 
                             ? 'text-neutral-200 dark:text-neutral-800 cursor-not-allowed' 
-                            : 'text-neutral-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:border-rose-150 dark:hover:border-rose-900/40 cursor-pointer'
+                            : 'text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 hover:border-rose-150 dark:hover:border-rose-900/40 cursor-pointer'
                         }`}
                         title={hasTransactions ? "لا يمكن حذف حساب به حركات" : "حذف الحساب"}
                     >
@@ -204,7 +205,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                     <div className="relative z-10 flex flex-col justify-between">
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="text-[10px] font-black text-indigo-300 dark:text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                <p className="text-2xs font-black text-indigo-300 dark:text-indigo-400 uppercase tracking-widest mb-1 flex items-center gap-1">
                                     <WalletIcon className="w-3.5 h-3.5 text-indigo-400" />
                                     <span>الرصيد المتاح بالبنك</span>
                                 </p>
@@ -216,7 +217,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                                 </div>
                             </div>
                             <div className="px-2.5 py-1 bg-white/5 rounded-lg border border-white/10 text-right">
-                                <span className="text-[8px] text-indigo-200 block font-bold leading-none">رصيد البداية</span>
+                                <span className="text-2xs text-indigo-200 block font-bold leading-none">رصيد البداية</span>
                                 <span className="text-xs font-bold text-neutral-200 tabular-nums">{formatNumber(account.initial_balance)} ج.م</span>
                             </div>
                         </div>
@@ -224,15 +225,15 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                         {/* Breakdown Inlays */}
                         <div className="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-white/[0.06]">
                             <div>
-                                <p className="text-[8px] font-bold text-neutral-450 uppercase tracking-wider mb-0.5">إجمالي الإيداعات</p>
-                                <p className="text-xs sm:text-sm font-black text-emerald-400 tabular-nums">
-                                    +{formatNumber(deposits)} <span className="text-[9px] font-bold">ج.م</span>
+                                <p className="text-2xs font-bold text-neutral-450 uppercase tracking-wider mb-0.5">إجمالي الإيداعات</p>
+                                <p className="text-xs sm:text-sm font-black text-accent-success tabular-nums">
+                                    +{formatNumber(deposits)} <span className="text-2xs font-bold">ج.م</span>
                                 </p>
                             </div>
                             <div className="border-r border-white/[0.06] pr-3">
-                                <p className="text-[8px] font-bold text-neutral-450 uppercase tracking-wider mb-0.5">إجمالي السحوبات</p>
-                                <p className="text-xs sm:text-sm font-black text-rose-400 tabular-nums">
-                                    -{formatNumber(withdrawals)} <span className="text-[9px] font-bold">ج.م</span>
+                                <p className="text-2xs font-bold text-neutral-450 uppercase tracking-wider mb-0.5">إجمالي السحوبات</p>
+                                <p className="text-xs sm:text-sm font-black text-accent-danger tabular-nums">
+                                    -{formatNumber(withdrawals)} <span className="text-2xs font-bold">ج.م</span>
                                 </p>
                             </div>
                         </div>
@@ -243,18 +244,18 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         <button 
                             onClick={() => { setTransferType('deposit'); setIsTransferModalOpen(true); }}
-                            className="flex items-center justify-center gap-2.5 py-4 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white rounded-2xl font-black transition-all duration-200 active:scale-[0.98] border border-emerald-100 dark:border-emerald-900/35 shadow-xs cursor-pointer group"
+                            className="flex items-center justify-center gap-2.5 py-4 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success hover:bg-accent-success hover:text-white dark:hover:bg-accent-success dark:hover:text-white rounded-2xl font-black transition-all duration-200 tap border border-accent-success/20 dark:border-accent-success/30/35 shadow-xs cursor-pointer group"
                         >
-                            <div className="p-1 px-2.5 bg-emerald-100 dark:bg-emerald-950/50 group-hover:bg-white/10 text-emerald-700 dark:text-emerald-400 group-hover:text-white rounded-lg transition-colors">
+                            <div className="p-1 px-2.5 bg-accent-success/10 dark:bg-accent-success/20 group-hover:bg-white/10 text-accent-success dark:text-accent-success group-hover:text-white rounded-lg transition-colors">
                                 <span className="font-bold text-base sm:text-lg">↓</span>
                             </div>
                             <span className="text-sm sm:text-base">إيداع جديد للمصرف</span>
                         </button>
                         <button 
                             onClick={() => { setTransferType('withdrawal'); setIsTransferModalOpen(true); }}
-                            className="flex items-center justify-center gap-2.5 py-4 bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-600 dark:hover:text-white rounded-2xl font-black transition-all duration-200 active:scale-[0.98] border border-rose-100 dark:border-rose-900/35 shadow-xs cursor-pointer group"
+                            className="flex items-center justify-center gap-2.5 py-4 bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger hover:bg-accent-danger hover:text-white dark:hover:bg-accent-danger dark:hover:text-white rounded-2xl font-black transition-all duration-200 tap border border-accent-danger/20 dark:border-accent-danger/30/35 shadow-xs cursor-pointer group"
                         >
-                            <div className="p-1 px-2.5 bg-rose-100 dark:bg-rose-950/50 group-hover:bg-white/10 text-rose-700 dark:text-rose-400 group-hover:text-white rounded-lg transition-colors">
+                            <div className="p-1 px-2.5 bg-accent-danger/10 dark:bg-accent-danger/20 group-hover:bg-white/10 text-accent-danger dark:text-accent-danger group-hover:text-white rounded-lg transition-colors">
                                 <span className="font-bold text-base sm:text-lg">↑</span>
                             </div>
                             <span className="text-sm sm:text-base">سحب نقدي من البنك</span>
@@ -265,28 +266,28 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
 
             {/* Contemporary Bento Monthly Statistics Box */}
             <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white dark:bg-neutral-905/30 p-5 rounded-2xl border border-neutral-200/65 dark:border-neutral-800/80 shadow-xs flex items-center justify-between relative overflow-hidden group hover:border-emerald-500/25 transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
+                <div className="bg-white dark:bg-neutral-905/30 p-5 rounded-2xl border border-neutral-200/65 dark:border-neutral-800/80 shadow-xs flex items-center justify-between relative overflow-hidden group hover:border-accent-success/25 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-accent-success/5 rounded-full blur-xl pointer-events-none" />
                     <div className="relative z-10 text-right">
-                        <p className="text-[10px] sm:text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest mb-1">وارد الشهر الحالي ({new Date().toLocaleString('ar-EG', { month: 'long' })})</p>
-                        <p className="text-lg sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                            {formatNumber(currentMonthStats.monthlyDeposits)} <span className="text-[10px] font-black">ج.م</span>
+                        <p className="text-2xs sm:text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest mb-1">وارد الشهر الحالي ({new Date().toLocaleString('ar-EG', { month: 'long' })})</p>
+                        <p className="text-lg sm:text-2xl font-black text-accent-success dark:text-accent-success tabular-nums">
+                            {formatNumber(currentMonthStats.monthlyDeposits)} <span className="text-2xs font-black">ج.م</span>
                         </p>
                     </div>
-                    <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-450 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <div className="p-2.5 bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-emerald-450 rounded-xl group-hover:scale-110 transition-transform duration-300">
                         <TrendingUpIcon className="w-5 h-5" />
                     </div>
                 </div>
                 
-                <div className="bg-white dark:bg-neutral-905/30 p-5 rounded-2xl border border-neutral-200/65 dark:border-neutral-800/80 shadow-xs flex items-center justify-between relative overflow-hidden group hover:border-rose-500/25 transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-16 h-16 bg-rose-500/5 rounded-full blur-xl pointer-events-none" />
+                <div className="bg-white dark:bg-neutral-905/30 p-5 rounded-2xl border border-neutral-200/65 dark:border-neutral-800/80 shadow-xs flex items-center justify-between relative overflow-hidden group hover:border-accent-danger/25 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-accent-danger/5 rounded-full blur-xl pointer-events-none" />
                     <div className="relative z-10 text-right">
-                        <p className="text-[10px] sm:text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest mb-1">صادر الشهر الحالي ({new Date().toLocaleString('ar-EG', { month: 'long' })})</p>
-                        <p className="text-lg sm:text-2xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
-                            {formatNumber(currentMonthStats.monthlyWithdrawals)} <span className="text-[10px] font-black">ج.م</span>
+                        <p className="text-2xs sm:text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest mb-1">صادر الشهر الحالي ({new Date().toLocaleString('ar-EG', { month: 'long' })})</p>
+                        <p className="text-lg sm:text-2xl font-black text-accent-danger dark:text-accent-danger tabular-nums">
+                            {formatNumber(currentMonthStats.monthlyWithdrawals)} <span className="text-2xs font-black">ج.م</span>
                         </p>
                     </div>
-                    <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-450 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    <div className="p-2.5 bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger rounded-xl group-hover:scale-110 transition-transform duration-300">
                         <TrendingDownIcon className="w-5 h-5" />
                     </div>
                 </div>
@@ -314,8 +315,8 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                                     <div className="flex items-center gap-3.5 min-w-0">
                                         <div className={`p-2.5 rounded-xl shrink-0 transition-transform duration-200 group-hover:scale-105 ${
                                             isDeposit 
-                                            ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' 
-                                            : 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400'
+                                            ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success' 
+                                            : 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger'
                                         }`}>
                                             {isDeposit ? <TrendingUpIcon className="w-5 h-5" /> : <TrendingDownIcon className="w-5 h-5" />}
                                         </div>
@@ -325,7 +326,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                                                     {isDeposit ? 'إيداع نقدي للمصرف' : 'سحب نقدي للعهدة'}
                                                 </p>
                                                 {cycle && (
-                                                    <span className="text-[10px] font-black px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md">
+                                                    <span className="text-2xs font-black px-1.5 py-0.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md">
                                                         {cycle.name}
                                                     </span>
                                                 )}
@@ -345,16 +346,16 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                                         <div className="text-left shrink-0">
                                             <div className={`px-2 py-1 rounded-md font-semibold font-mono text-sm sm:text-base tabular-nums transition-colors ${
                                                 isDeposit 
-                                                ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400' 
-                                                : 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400'
+                                                ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success' 
+                                                : 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger'
                                             }`}>
-                                                {isDeposit ? '+' : '-'}{formatNumber(tx.amount)} <span className="text-[10px] font-bold">ج.م</span>
+                                                {isDeposit ? '+' : '-'}{formatNumber(tx.amount)} <span className="text-2xs font-bold">ج.م</span>
                                             </div>
                                         </div>
                                         {!isViewer && (
                                         <button 
                                             onClick={() => { setTxToDelete(tx); setIsDeleteTxModalOpen(true); }}
-                                            className="p-2 text-neutral-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition-all active:scale-95 cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                            className="p-2 text-neutral-400 hover:text-accent-danger dark:hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 rounded-xl transition-all tap cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100"
                                             title="حذف الحركة"
                                         >
                                             <TrashIcon className="w-4 h-4" />
@@ -383,11 +384,11 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                 <div className="space-y-6 text-right" dir="rtl">
                     <div className={`p-4 rounded-2xl flex items-start gap-3 border transition-colors ${
                         transferType === 'deposit' 
-                        ? 'bg-emerald-50/50 dark:bg-emerald-950/10 border-emerald-100/50 dark:border-emerald-900/20 text-emerald-800 dark:text-emerald-400' 
-                        : 'bg-rose-50/50 dark:bg-rose-950/10 border-rose-100/50 dark:border-rose-900/20 text-rose-800 dark:text-rose-400'
+                        ? 'bg-accent-success/10/50 dark:bg-accent-success/20/10 border-accent-success/20/50 dark:border-accent-success/30 text-accent-success dark:text-accent-success' 
+                        : 'bg-accent-danger/10/50 dark:bg-accent-danger/20/10 border-accent-danger/20/50 dark:border-accent-danger/30 text-accent-danger dark:text-accent-danger'
                     }`}>
                         <div className={`p-2 rounded-xl shrink-0 ${
-                            transferType === 'deposit' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-rose-100 dark:bg-rose-900/30'
+                            transferType === 'deposit' ? 'bg-accent-success/10 dark:bg-accent-success/20' : 'bg-accent-danger/10 dark:bg-accent-danger/20'
                         }`}>
                             {transferType === 'deposit' ? <TrendingUpIcon className="w-5 h-5" /> : <TrendingDownIcon className="w-5 h-5" />}
                         </div>
@@ -418,7 +419,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                                         placeholder="0.00"
                                     />
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
-                                        <span className="text-[10px] font-black text-neutral-400 uppercase tracking-tighter">ج.م</span>
+                                        <span className="text-2xs font-black text-neutral-400 uppercase tracking-tighter">ج.م</span>
                                     </div>
                                 </div>
                             </div>
@@ -462,8 +463,8 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                                 type="submit" 
                                 className={`flex-1 py-3 text-white rounded-xl font-black transition-all outline-none cursor-pointer shadow-lg ${
                                     transferType === 'deposit' 
-                                    ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/10 dark:shadow-none' 
-                                    : 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/10 dark:shadow-none'
+                                    ? 'bg-accent-success hover:bg-accent-success/90 shadow-emerald-500/10 dark:shadow-none' 
+                                    : 'bg-accent-danger hover:bg-accent-danger/90 shadow-rose-500/10 dark:shadow-none'
                                 }`}
                             >
                                 تأكيد العملية
@@ -508,8 +509,8 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
             {/* Delete Bank Modal */}
             <Modal isOpen={isDeleteBankModalOpen} onClose={() => setIsDeleteBankModalOpen(false)} title="تأكيد حذف الحساب البنكي">
                 <div className="space-y-4 text-right">
-                    <div className="p-4 bg-rose-50 dark:bg-rose-955/20 text-rose-600 dark:text-rose-400 rounded-xl flex items-start gap-3 border border-rose-100 dark:border-rose-900/30">
-                        <WarningIcon className="w-6 h-6 shrink-0 mt-0.5 text-rose-600 dark:text-rose-450" />
+                    <div className="p-4 bg-accent-danger/10 dark:bg-rose-955/20 text-accent-danger dark:text-accent-danger rounded-xl flex items-start gap-3 border border-accent-danger/20 dark:border-accent-danger/30">
+                        <WarningIcon className="w-6 h-6 shrink-0 mt-0.5 text-accent-danger dark:text-accent-danger" />
                         <div>
                             <p className="font-black text-base">هل أنت متأكد من حذف هذا الحساب نهائياً؟</p>
                             <p className="text-sm mt-1 opacity-80 leading-relaxed">يرجى العلم بأنه لا يمكن حذف أي حساب بنكي يحتوي على معاملات مالية نشطة في السجل، لضمان تكامل القيود المحاسبية.</p>
@@ -517,7 +518,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                     </div>
                     <div className="flex gap-3 pt-4">
                         <button onClick={() => setIsDeleteBankModalOpen(false)} className="flex-1 py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-350 rounded-xl font-black hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer">إلغاء الإجراء</button>
-                        <button onClick={handleDeleteBank} className="flex-1 py-3 bg-rose-600 text-white rounded-xl font-black hover:bg-rose-700 transition-colors cursor-pointer shadow-lg shadow-rose-500/15 dark:shadow-none">تأكيد عملية الحذف</button>
+                        <button onClick={handleDeleteBank} className="flex-1 py-3 bg-accent-danger text-white rounded-xl font-black hover:bg-accent-danger/90 transition-colors cursor-pointer shadow-lg shadow-rose-500/15 dark:shadow-none">تأكيد عملية الحذف</button>
                     </div>
                 </div>
             </Modal>
@@ -525,8 +526,8 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
             {/* Delete Transaction Modal */}
             <Modal isOpen={isDeleteTxModalOpen} onClose={() => { setIsDeleteTxModalOpen(false); setTxToDelete(null); }} title="تأكيد حذف الحركة المالية">
                 <div className="space-y-4 text-right">
-                    <div className="p-4 bg-rose-55/70 dark:bg-rose-955/20 text-rose-600 dark:text-rose-400 rounded-xl flex items-start gap-3 border border-rose-100 dark:border-rose-900/30">
-                        <WarningIcon className="w-6 h-6 shrink-0 mt-0.5 text-rose-600 or dark:text-rose-450" />
+                    <div className="p-4 bg-rose-55/70 dark:bg-rose-955/20 text-accent-danger dark:text-accent-danger rounded-xl flex items-start gap-3 border border-accent-danger/20 dark:border-accent-danger/30">
+                        <WarningIcon className="w-6 h-6 shrink-0 mt-0.5 text-accent-danger or dark:text-accent-danger" />
                         <div>
                             <p className="font-black">تأكيد حذف الحركة المصرفية</p>
                             <p className="text-sm mt-1 opacity-85 leading-relaxed">سيؤثر حذف هذه المعاملة بشكل مباشر ومزدوج على رصيد البنك ورصيد كاش الصندوق للعهدة الزراعية المرتبطة بها!</p>
@@ -534,17 +535,17 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({ account, onBack
                     </div>
                     {txToDelete && (
                         <div className="p-4 bg-neutral-50 dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800/80 rounded-xl">
-                            <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 mb-2 inline-block">تفاصيل المعاملة الحالية</span>
+                            <span className="text-2xs uppercase font-black px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 mb-2 inline-block">تفاصيل المعاملة الحالية</span>
                             <p className="text-sm font-black text-neutral-800 dark:text-neutral-200">
                                 {txToDelete.type === 'deposit' ? 'إيداع نقدي' : 'سحب نقدي'} بقيمة: {formatNumber(txToDelete.amount)} ج.م
                             </p>
                             {txToDelete.description && <p className="text-xs text-neutral-450 mt-1">البيان: {txToDelete.description}</p>}
-                            <p className="text-[10px] text-neutral-400 mt-2 font-mono">{txToDelete.date}</p>
+                            <p className="text-2xs text-neutral-400 mt-2 font-mono">{txToDelete.date}</p>
                         </div>
                     )}
                     <div className="flex gap-3 pt-4">
                         <button onClick={() => { setIsDeleteTxModalOpen(false); setTxToDelete(null); }} className="flex-1 py-3 bg-neutral-100 dark:bg-neutral-805 text-neutral-700 dark:text-neutral-350 rounded-xl font-black hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer">إلغاء</button>
-                        <button onClick={handleDeleteTx} className="flex-1 py-3 bg-rose-600 text-white rounded-xl font-black hover:bg-rose-700 transition-all cursor-pointer shadow-lg shadow-rose-500/15 dark:shadow-none">حفظ وحذف الحركة</button>
+                        <button onClick={handleDeleteTx} className="flex-1 py-3 bg-accent-danger text-white rounded-xl font-black hover:bg-accent-danger/90 transition-all cursor-pointer shadow-lg shadow-rose-500/15 dark:shadow-none">حفظ وحذف الحركة</button>
                     </div>
                 </div>
             </Modal>

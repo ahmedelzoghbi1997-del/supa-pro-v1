@@ -41,7 +41,7 @@ const PersonMiniCard: React.FC<{
                     <div className="min-w-0">
                         <h3 className="text-sm font-black text-neutral-800 dark:text-white truncate leading-tight">{person.name}</h3>
                         <div className="flex items-center gap-1 mt-0.5">
-                            <span className="text-[8px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{personAdvances.length} سلفة مسجلة</span>
+                            <span className="text-2xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{personAdvances.length} سلفة مسجلة</span>
                         </div>
                     </div>
                 </div>
@@ -50,12 +50,12 @@ const PersonMiniCard: React.FC<{
             <div className="relative overflow-hidden px-4 py-3 rounded-2xl border bg-neutral-900 dark:bg-black border-neutral-800 text-white shadow-lg">
                 <div className="relative z-10 flex justify-between items-center">
                     <div className="flex flex-col">
-                        <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-60 mb-0.5">مجموع السلف بالعروة</span>
+                        <span className="text-2xs font-black uppercase tracking-[0.2em] opacity-60 mb-0.5">مجموع السلف بالعروة</span>
                         <div className="flex items-baseline gap-1.5">
                             <span className="text-xl font-black tabular-nums tracking-tighter">
                                 {formatNumber(totalAmount)}
                             </span>
-                            <span className="text-[10px] font-bold opacity-50">ج.م</span>
+                            <span className="text-2xs font-bold opacity-50">ج.م</span>
                         </div>
                     </div>
                     <div className="p-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/5">
@@ -67,7 +67,7 @@ const PersonMiniCard: React.FC<{
 
             <button 
                 onClick={() => onViewStatement(person.id)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 rounded-xl font-black text-xs transition-all border border-neutral-200 dark:border-neutral-700 active:scale-95"
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300 rounded-xl font-black text-xs transition-all border border-neutral-200 dark:border-neutral-700 tap"
             >
                 <ClipboardDocumentIcon className="w-4 h-4 opacity-70" />
                 <span>عرض كشف الحساب بالتفصيل</span>

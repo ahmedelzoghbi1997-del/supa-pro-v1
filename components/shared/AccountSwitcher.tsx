@@ -218,7 +218,7 @@ const AccountSwitcher: React.FC = () => {
             {/* Switch Trigger Button - Pure Avatar */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="w-10 h-10 rounded-full sm:w-11 sm:h-11 overflow-hidden transition-transform duration-300 hover:scale-105 active:scale-95 border-2 border-neutral-200 dark:border-neutral-800 hover:border-purple-500/50 dark:hover:border-purple-500/50 shadow-sm relative focus:outline-none focus:ring-4 focus:ring-purple-500/20"
+                className="w-10 h-10 rounded-full sm:w-11 sm:h-11 overflow-hidden transition-transform duration-300 hover:scale-105 tap border-2 border-neutral-200 dark:border-neutral-800 hover:border-purple-500/50 dark:hover:border-purple-500/50 shadow-sm relative focus:outline-none focus:ring-4 focus:ring-purple-500/20"
             >
                 <div 
                     className="w-full h-full flex items-center justify-center text-[15px] font-black shadow-inner object-cover"
@@ -291,11 +291,11 @@ const AccountSwitcher: React.FC = () => {
                                                             </p>
                                                             <div className="flex items-center gap-2 mt-1 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                                                                 {!acc.isVirtual ? (
-                                                                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                                                    <span className="flex items-center gap-1 text-accent-success dark:text-accent-success">
                                                                         <Shield className="w-3.5 h-3.5" /> المالك
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
+                                                                    <span className="flex items-center gap-1 text-accent-info dark:text-accent-info">
                                                                         <Eye className="w-3.5 h-3.5" /> مشاهدة
                                                                     </span>
                                                                 )}

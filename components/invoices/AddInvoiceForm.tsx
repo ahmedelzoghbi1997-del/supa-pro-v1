@@ -48,7 +48,7 @@ interface InvoiceFormData {
 }
 
 const inputBase = "w-full bg-white dark:bg-[#1e293b] border border-neutral-200 dark:border-neutral-700 text-slate-800 dark:text-white rounded-lg p-2 text-sm focus:ring-1 focus:ring-primary transition-all outline-none";
-const labelBase = "flex items-center gap-1 text-[10px] font-bold text-neutral-400 dark:text-neutral-500 mb-1 uppercase tracking-tighter";
+const labelBase = "flex items-center gap-1 text-2xs font-bold text-neutral-400 dark:text-neutral-500 mb-1 uppercase tracking-tighter";
 
 // --- MEMOIZED SUB-COMPONENTS FOR HIGH-PERFORMANCE INPUTS ---
 
@@ -88,7 +88,7 @@ const PriceItemRow: React.FC<PriceItemRowProps> = React.memo(({
                     }} 
                     className={`${inputBase} !py-2 text-center text-base md:text-lg font-bold border-primary/30`} 
                 />
-                <span className="text-[8px] text-center block text-neutral-400 font-bold mt-0.5">{isCarton ? 'كرتونة' : 'قفص'}</span>
+                <span className="text-2xs text-center block text-neutral-400 font-bold mt-0.5">{isCarton ? 'كرتونة' : 'قفص'}</span>
             </div>
             <div className="flex-1">
                 <input 
@@ -104,7 +104,7 @@ const PriceItemRow: React.FC<PriceItemRowProps> = React.memo(({
                     }} 
                     className={`${inputBase} !py-2 text-center text-base md:text-lg font-bold`} 
                 />
-                <span className="text-[8px] text-center block text-neutral-400 font-bold mt-0.5">الوزن كجم</span>
+                <span className="text-2xs text-center block text-neutral-400 font-bold mt-0.5">الوزن كجم</span>
             </div>
             <span className="text-neutral-400 text-lg font-bold self-start mt-2 select-none">×</span>
             <div className="flex-1">
@@ -121,13 +121,13 @@ const PriceItemRow: React.FC<PriceItemRowProps> = React.memo(({
                     }} 
                     className={`${inputBase} !py-2 text-center text-base md:text-lg font-bold`} 
                 />
-                <span className="text-[8px] text-center block text-neutral-400 font-bold mt-0.5">سعر الكيلو</span>
+                <span className="text-2xs text-center block text-neutral-400 font-bold mt-0.5">سعر الكيلو</span>
             </div>
             {canRemove && (
                 <button 
                     type="button" 
                     onClick={() => onRemove(id)}
-                    className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-md transition-all self-start mt-1.5 cursor-pointer"
+                    className="p-1.5 text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 rounded-md transition-all self-start mt-1.5 cursor-pointer"
                     aria-label="حذف السطر"
                 >
                     <TrashIcon className="w-4 h-4" />
@@ -159,8 +159,8 @@ const DeductionRow: React.FC<DeductionRowProps> = React.memo(({
     return (
         <div className="space-y-1">
             <div className="flex justify-between items-center gap-1">
-                <span className="text-[9px] font-bold text-neutral-500 truncate block">{name}</span>
-                <span className="text-[8px] font-black text-neutral-400">%{itemP}</span>
+                <span className="text-2xs font-bold text-neutral-500 truncate block">{name}</span>
+                <span className="text-2xs font-black text-neutral-400">%{itemP}</span>
             </div>
             <input 
                 type="text" 
@@ -650,7 +650,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
             <form onSubmit={handleSubmit} className="space-y-4 pb-6">
                 <div className="grid grid-cols-2 gap-3">
                     <div className="col-span-1">
-                        <label className={`${labelBase} ${dateError ? 'text-rose-500 dark:text-rose-400' : ''}`}>
+                        <label className={`${labelBase} ${dateError ? 'text-accent-danger dark:text-accent-danger' : ''}`}>
                             <CalendarIcon className="w-3 h-3"/> التاريخ (إجباري)
                         </label>
                         <input 
@@ -660,10 +660,10 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                 setFormData(prev => ({ ...prev, date: e.target.value }));
                                 if (e.target.value) setDateError(false);
                             }} 
-                            className={`${inputBase} ${dateError ? 'border-rose-500 ring-1 ring-rose-500/20' : ''}`} 
+                            className={`${inputBase} ${dateError ? 'border-accent-danger ring-1 ring-accent-danger' : ''}`} 
                         />
                         {dateError && (
-                            <p className="text-[9px] text-rose-500 font-bold mt-1 animate-pulse">يجب تحديد تاريخ الفاتورة</p>
+                            <p className="text-2xs text-accent-danger font-bold mt-1 animate-pulse">يجب تحديد تاريخ الفاتورة</p>
                         )}
                     </div>
                     <div className="col-span-1">
@@ -708,13 +708,13 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                     </div>
                 </div>
 
-                <div className="p-3 bg-emerald-50/50 dark:bg-emerald-500/5 rounded-xl border border-emerald-100 dark:border-emerald-900/20">
+                <div className="p-3 bg-accent-success/10/50 dark:bg-accent-success/5 rounded-xl border border-accent-success/20 dark:border-accent-success/30">
                     <div className="flex justify-between items-center mb-3">
-                        <label className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 block">💰 تفاصيل الأوزان والأسعار</label>
+                        <label className="text-[11px] font-black text-accent-success dark:text-accent-success block">💰 تفاصيل الأوزان والأسعار</label>
                         <button 
                             type="button" 
                             onClick={addPriceItem}
-                            className="flex items-center gap-1 text-[10px] font-black bg-emerald-600 text-white px-2 py-1 rounded-lg hover:bg-emerald-700 transition-all shadow-sm cursor-pointer"
+                            className="flex items-center gap-1 text-2xs font-black bg-accent-success text-white px-2 py-1 rounded-lg hover:bg-accent-success/90 transition-all shadow-sm cursor-pointer"
                         >
                             <PlusIcon className="w-3 h-3" />
                             <span>إضافة سطر</span>
@@ -738,17 +738,17 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                 </div>
 
                 <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-3 p-3 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl border border-blue-100/60 dark:border-blue-900/20">
+                    <div className="flex items-center justify-between gap-3 p-3 bg-accent-info/10 dark:bg-accent-info/20 rounded-xl border border-accent-info/20 dark:border-accent-info/30">
                         <div className="flex items-center gap-1.5">
-                            <CartonIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                            <span className="text-xs font-black text-blue-800 dark:text-blue-300">إجمالي عدد الطرود (محسوب تلقائياً)</span>
+                            <CartonIcon className="w-4 h-4 text-accent-info dark:text-accent-info" />
+                            <span className="text-xs font-black text-accent-info dark:text-accent-info">إجمالي عدد الطرود (محسوب تلقائياً)</span>
                         </div>
-                        <span className="px-3 py-1 bg-blue-100/60 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-lg text-base font-black tabular-nums">
+                        <span className="px-3 py-1 bg-accent-info/10 dark:bg-accent-info/20 text-accent-info dark:text-accent-info rounded-lg text-base font-black tabular-nums">
                             {formData.packaging_count || '0'}
                         </span>
                     </div>
                     {isCarton && isFutureMarket && (
-                        <p className="text-[9px] text-emerald-650 dark:text-emerald-400 font-black text-right px-1">
+                        <p className="text-2xs text-emerald-650 dark:text-accent-success font-black text-right px-1">
                             ⚠️ سيتم خصم 2ك وزن و 10ج تكلفة لكل كرتونة (خاص بسوق المستقبل)
                         </p>
                     )}
@@ -782,7 +782,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                 </div>
 
                 {/* PILLAR 1: SMART & FAST RETAINED INVOICE ENTRY PANEL */}
-                <div className="p-4 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-amber-600/10 dark:from-amber-500/15 dark:to-amber-900/20 rounded-2xl border border-amber-500/30 space-y-4 shadow-sm">
+                <div className="p-4 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-amber-600/10 dark:from-amber-500/15 dark:to-amber-900/20 rounded-2xl border border-accent-warning/20 space-y-4 shadow-sm">
                     <label className="flex items-center justify-between cursor-pointer select-none">
                         <div className="flex items-center gap-2.5">
                             <input 
@@ -794,36 +794,36 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                         handleSmartAutoFitDebts();
                                     }
                                 }}
-                                className="w-5 h-5 text-amber-600 rounded border-amber-400 focus:ring-amber-500 focus:ring-offset-0 cursor-pointer"
+                                className="w-5 h-5 text-accent-warning rounded border-amber-400 focus:ring-accent-warning focus:ring-offset-0 cursor-pointer"
                             />
                             <div>
                                 <span className="text-xs font-black text-amber-900 dark:text-amber-200 block">
                                     🌾 رصد الفاتورة لسداد ديون (رصد كامل أو جزئي مع ترحيل الفائض للخزنة)
                                 </span>
-                                <span className="text-[9px] text-amber-700/80 dark:text-amber-400 font-bold block">
+                                <span className="text-2xs text-accent-warning/80 dark:text-accent-warning font-bold block">
                                     (سداد ديون الشركاء أو المعلم مباشرة من المبيعات، مع ترحيل أي فائض نقدي تلقائياً إلى الخزنة)
                                 </span>
                             </div>
                         </div>
                         {isRetained && (
-                            <span className="px-2 py-0.5 bg-amber-500 text-white rounded-full text-[9px] font-black animate-pulse">
+                            <span className="px-2 py-0.5 bg-accent-warning text-white rounded-full text-2xs font-black animate-pulse">
                                 إدخال ذكي نشط
                             </span>
                         )}
                     </label>
                     
                     {isRetained && (
-                        <div className="space-y-4 pt-3 border-t border-amber-500/20 animate-page-enter">
+                        <div className="space-y-4 pt-3 border-t border-accent-warning/20 animate-page-enter">
                             
                             
                             {/* SMART ALLOCATION BOARD */}
                             <div className="space-y-4 mb-4">
                                 <div className="flex items-center justify-between">
                                     <h4 className="text-xs font-black text-amber-900 dark:text-amber-100 flex items-center gap-1.5">
-                                        <SparklesIcon className="w-4 h-4 text-amber-600" />
+                                        <SparklesIcon className="w-4 h-4 text-accent-warning" />
                                         <span>توزيع الفاتورة (لوحة التوزيع الذكية)</span>
                                     </h4>
-                                    <div className="text-[10px] font-bold text-amber-700 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-full">
+                                    <div className="text-2xs font-bold text-accent-warning bg-accent-warning/10 dark:bg-accent-warning/20 px-2 py-1 rounded-full">
                                         إجمالي صافي الفاتورة: {formatCurrency(totals.net)}
                                     </div>
                                 </div>
@@ -832,12 +832,12 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                     const itemAllocationsTotal = Object.values(item.allocations).reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
                                     
                                     return (
-                                    <div key={item.id} className="p-3 bg-white dark:bg-neutral-900 border border-amber-200 dark:border-neutral-700 rounded-xl relative shadow-sm">
+                                    <div key={item.id} className="p-3 bg-white dark:bg-neutral-900 border border-accent-warning/20 dark:border-neutral-700 rounded-xl relative shadow-sm">
                                         {allocationItems.length > 1 && (
                                             <button
                                                 type="button"
                                                 onClick={() => setAllocationItems(prev => prev.filter(a => a.id !== item.id))}
-                                                className="absolute top-2 left-2 p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors z-10"
+                                                className="absolute top-2 left-2 p-1.5 bg-accent-danger/10 text-accent-danger rounded-lg hover:bg-accent-danger/10 transition-colors z-10"
                                                 aria-label="حذف التوزيع"
                                             >
                                                 <TrashIcon className="w-4 h-4" />
@@ -860,8 +860,8 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                 }))}
                                                 className={`p-2.5 rounded-xl text-[11px] font-black transition-all flex items-center justify-center gap-1.5 border ${
                                                     item.debtType === 'external' 
-                                                        ? 'bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-600/20' 
-                                                        : 'bg-neutral-50 dark:bg-neutral-800 text-amber-900 dark:text-amber-300 border-amber-200 dark:border-neutral-700'
+                                                        ? 'bg-accent-warning text-white border-amber-600 shadow-md shadow-amber-600/20' 
+                                                        : 'bg-neutral-50 dark:bg-neutral-800 text-amber-900 dark:text-accent-warning border-accent-warning/20 dark:border-neutral-700'
                                                 }`}
                                             >
                                                 <span>مديونية خارجية</span>
@@ -871,8 +871,8 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                 onClick={() => setAllocationItems(prev => prev.map(a => a.id === item.id ? { ...a, debtType: 'joint' } : a))}
                                                 className={`p-2.5 rounded-xl text-[11px] font-black transition-all flex items-center justify-center gap-1.5 border ${
                                                     item.debtType === 'joint' 
-                                                        ? 'bg-amber-600 text-white border-amber-600 shadow-md shadow-amber-600/20' 
-                                                        : 'bg-neutral-50 dark:bg-neutral-800 text-amber-900 dark:text-amber-300 border-amber-200 dark:border-neutral-700'
+                                                        ? 'bg-accent-warning text-white border-amber-600 shadow-md shadow-amber-600/20' 
+                                                        : 'bg-neutral-50 dark:bg-neutral-800 text-amber-900 dark:text-accent-warning border-accent-warning/20 dark:border-neutral-700'
                                                 }`}
                                             >
                                                 <span>دين مشترك نشط</span>
@@ -882,7 +882,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                         {item.debtType === 'joint' && (
                                             <div className="mb-3">
                                                 {(!partnerDebts || partnerDebts.length === 0) ? (
-                                                    <div className="p-2 bg-rose-50 text-rose-700 rounded-lg text-[10px] font-bold">
+                                                    <div className="p-2 bg-accent-danger/10 text-accent-danger rounded-lg text-2xs font-bold">
                                                         لا يوجد ديون مشتركة.
                                                     </div>
                                                 ) : (
@@ -904,7 +904,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                                 return a;
                                                             }));
                                                         }}
-                                                        className={`${inputBase} !py-2 font-bold text-xs border-amber-300`}
+                                                        className={`${inputBase} !py-2 font-bold text-xs border-accent-warning/20`}
                                                         required={isRetained && item.debtType === 'joint'}
                                                     >
                                                         <option value="">-- اختر الدين المشترك لتسديده --</option>
@@ -924,7 +924,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                             </div>
                                         )}
 
-                                        <div className="space-y-2 bg-amber-500/5 dark:bg-neutral-800/50 p-2.5 rounded-xl border border-amber-500/15">
+                                        <div className="space-y-2 bg-accent-warning/5 dark:bg-neutral-800/50 p-2.5 rounded-xl border border-accent-warning/15">
                                             {activePersons.map(person => {
                                                 let capValue = -1;
                                                 if (item.debtType === 'joint' && item.debtId) {
@@ -958,13 +958,13 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                 return (
                                                     <div key={person.id} className="flex items-center gap-2">
                                                         <label className="text-xs font-black text-slate-800 dark:text-neutral-200 w-24 shrink-0 truncate flex items-center gap-1">
-                                                            <UserIcon className="w-3 h-3 text-amber-600"/>
+                                                            <UserIcon className="w-3 h-3 text-accent-warning"/>
                                                             {person.name}
                                                         </label>
                                                         <div className="flex-1 flex flex-col gap-1">
                                                             {capValue >= 0 && (
                                                                 <div className="flex justify-between items-center px-1">
-                                                                    <span className={`text-[9px] font-black ${capValue === 0 ? 'text-neutral-400 dark:text-neutral-500' : 'text-amber-700 dark:text-amber-400'}`}>
+                                                                    <span className={`text-2xs font-black ${capValue === 0 ? 'text-neutral-400 dark:text-neutral-500' : 'text-accent-warning dark:text-accent-warning'}`}>
                                                                         {capValue === 0 ? 'أقصى سداد مسموح: 0 ج (لا توجد مديونية)' : `أقصى سداد مسموح: ${formatCurrency(capValue).replace('EGP', '')} ج`}
                                                                     </span>
                                                                 </div>
@@ -993,7 +993,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                                         ));
                                                                     }
                                                                 }}
-                                                                className={`${inputBase} !py-2 text-center text-sm font-black w-full border-amber-300 ${effectiveMax === 0 ? 'opacity-50 cursor-not-allowed bg-neutral-200/60 dark:bg-neutral-800' : 'focus:border-amber-500 focus:ring-amber-500'}`}
+                                                                className={`${inputBase} !py-2 text-center text-sm font-black w-full border-accent-warning/20 ${effectiveMax === 0 ? 'opacity-50 cursor-not-allowed bg-neutral-200/60 dark:bg-neutral-800' : 'focus:border-accent-warning focus:ring-accent-warning'}`}
                                                                 disabled={effectiveMax === 0}
                                                             />
                                                         </div>
@@ -1002,9 +1002,9 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                             })}
                                         </div>
                                         
-                                        <div className="mt-3 flex items-center justify-between border-t border-amber-200/50 pt-2">
-                                            <span className="text-[10px] font-bold text-amber-900/60 dark:text-amber-100/50">إجمالي هذا التوزيع:</span>
-                                            <span className="text-xs font-black text-amber-700 dark:text-amber-400">
+                                        <div className="mt-3 flex items-center justify-between border-t border-accent-warning/20/50 pt-2">
+                                            <span className="text-2xs font-bold text-amber-900/60 dark:text-amber-100/50">إجمالي هذا التوزيع:</span>
+                                            <span className="text-xs font-black text-accent-warning dark:text-accent-warning">
                                                 {formatCurrency(itemAllocationsTotal)}
                                             </span>
                                         </div>
@@ -1025,8 +1025,8 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                         <>
                                             {/* SURPLUS & RETENTION SUMMARY CARD */}
                                             {grandTotalAllocated > 0 && surplus > 0 && (
-                                                <div className="w-full p-3.5 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-300 dark:border-emerald-800/60 flex items-start gap-3 shadow-sm animate-page-enter">
-                                                    <div className="p-2 bg-emerald-500 text-white rounded-lg shrink-0 shadow-sm">
+                                                <div className="w-full p-3.5 bg-accent-success/10 dark:bg-accent-success/20 rounded-xl border border-accent-success/20 dark:border-accent-success/30/60 flex items-start gap-3 shadow-sm animate-page-enter">
+                                                    <div className="p-2 bg-accent-success text-white rounded-lg shrink-0 shadow-sm">
                                                         <WalletIcon className="w-5 h-5" />
                                                     </div>
                                                     <div className="space-y-1 text-right flex-1">
@@ -1034,11 +1034,11 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                             <span className="text-xs font-black text-emerald-900 dark:text-emerald-200">
                                                                 رصد جزئي مع ترحيل الفائض تلقائياً للخزنة
                                                             </span>
-                                                            <span className="px-2.5 py-0.5 bg-emerald-600 text-white rounded-full text-[10px] font-black">
+                                                            <span className="px-2.5 py-0.5 bg-accent-success text-white rounded-full text-2xs font-black">
                                                                 +{formatCurrency(surplus).replace('EGP', '')} ج.م نقدية واردة
                                                             </span>
                                                         </div>
-                                                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300 font-bold leading-relaxed">
+                                                        <p className="text-[11px] text-accent-success dark:text-accent-success font-bold leading-relaxed">
                                                             سيتم اعتماد سداد الدين بالكامل وتصفيره بمبلغ <span className="underline font-black">{formatCurrency(grandTotalAllocated).replace('EGP', '')} ج.م</span>، و<span className="font-black underline text-emerald-900 dark:text-emerald-100">سيتم ترحيل الفائض المتبقي ({formatCurrency(surplus).replace('EGP', '')} ج.م) كاش إلى الخزنة</span> كإيراد مبيعات لنفس الفاتورة مع حفظ المبيعات بكامل قيمتها ({formatCurrency(totals.net).replace('EGP', '')} ج.م).
                                                         </p>
                                                     </div>
@@ -1046,8 +1046,8 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                             )}
 
                                             {grandTotalAllocated > 0 && surplus === 0 && (
-                                                <div className="w-full p-3 bg-amber-50 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-800/50 flex items-center gap-2 text-[11px] font-bold text-amber-900 dark:text-amber-200">
-                                                    <SparklesIcon className="w-4 h-4 text-amber-600 shrink-0" />
+                                                <div className="w-full p-3 bg-accent-warning/10 dark:bg-accent-warning/20 rounded-xl border border-accent-warning/20 dark:border-accent-warning/30 flex items-center gap-2 text-[11px] font-bold text-amber-900 dark:text-amber-200">
+                                                    <SparklesIcon className="w-4 h-4 text-accent-warning shrink-0" />
                                                     <span>تم رصد صافي الفاتورة بالكامل ({formatCurrency(totals.net).replace('EGP', '')} ج.م) لسداد الديون من المنبع ولا يوجد فائض مرحل.</span>
                                                 </div>
                                             )}
@@ -1056,28 +1056,28 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                                 <button
                                                     type="button"
                                                     onClick={() => setAllocationItems(prev => [...prev, { id: generateRowId(), debtType: 'joint', debtId: '', allocations: {} }])}
-                                                    className="w-full sm:w-auto text-[11px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                                                    className="w-full sm:w-auto text-[11px] font-black text-accent-success bg-accent-success/10 border border-accent-success/20 hover:bg-accent-success/10 px-4 py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                                                 >
                                                     <PlusIcon className="w-4 h-4" />
                                                     توجيه جزء لدين آخر
                                                 </button>
 
                                                 {grandTotalAllocated > 0 && grandTotalAllocated <= totals.net ? (
-                                                    <div className="w-full sm:w-auto text-[10px] sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30">
-                                                        <CheckCircleIcon className="w-4 h-4 text-emerald-600" />
+                                                    <div className="w-full sm:w-auto text-2xs sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-accent-success/10 text-accent-success dark:text-accent-success border-accent-success/20">
+                                                        <CheckCircleIcon className="w-4 h-4 text-accent-success" />
                                                         <span>
                                                             سداد دين: {formatCurrency(grandTotalAllocated).replace('EGP', '')} ج.م
                                                             {surplus > 0 ? ` | فائض كاش للخزنة: ${formatCurrency(surplus).replace('EGP', '')} ج.م` : ' (مرصودة بالكامل)'}
                                                         </span>
                                                     </div>
                                                 ) : grandTotalAllocated > totals.net ? (
-                                                    <div className="w-full sm:w-auto text-[10px] sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-rose-50 text-rose-700 border-rose-200">
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                                                    <div className="w-full sm:w-auto text-2xs sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-accent-danger/10 text-accent-danger border-accent-danger/20">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-accent-danger animate-pulse" />
                                                         <span>تجاوزت صافي الفاتورة بمقدار: {formatCurrency(grandTotalAllocated - totals.net).replace('EGP', '')} ج.م</span>
                                                     </div>
                                                 ) : (
-                                                    <div className="w-full sm:w-auto text-[10px] sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-amber-50 text-amber-700 border-amber-200">
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                                                    <div className="w-full sm:w-auto text-2xs sm:text-xs font-black px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border shadow-sm bg-accent-warning/10 text-accent-warning border-accent-warning/20">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-accent-warning animate-pulse" />
                                                         <span>يرجى تحديد مبالغ سداد الديون</span>
                                                     </div>
                                                 )}
@@ -1106,7 +1106,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                         <div className="mt-6 bg-neutral-900 dark:bg-black p-4 rounded-2xl text-white relative">
                             <div className="flex justify-between items-end">
                                 <div>
-                                    <span className="text-[9px] font-black opacity-50 block mb-0.5">
+                                    <span className="text-2xs font-black opacity-50 block mb-0.5">
                                         {isRetained && surplus > 0 
                                             ? `صافي الفاتورة (${formatCurrency(totals.net).replace('EGP', '')}) - فائض كاش للخزنة:`
                                             : isRetained 
@@ -1121,7 +1121,7 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                                             : 'صافي الفاتورة'}
                                     </span>
                                 </div>
-                                <div className="text-3xl font-black tracking-tighter tabular-nums text-emerald-400">
+                                <div className="text-3xl font-black tracking-tighter tabular-nums text-accent-success">
                                     {formatCurrency(isRetained && surplus > 0 ? surplus : totals.net).replace('EGP', '')}
                                     <span className="text-xs mr-1 opacity-60">ج.م</span>
                                 </div>
@@ -1135,14 +1135,14 @@ const AddInvoiceForm: React.FC<AddInvoiceFormProps> = ({ onSave, onCancel, initi
                         type="button" 
                         onClick={() => { clearDraft(); onCancel(); }} 
                         disabled={isSaving}
-                        className="py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-bold rounded-xl text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        className="py-3 bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-bold rounded-xl text-sm transition-all tap disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         إلغاء
                     </button>
                     <button 
                         type="submit" 
                         disabled={isSaving} 
-                        className="py-3 bg-primary text-white font-bold rounded-xl text-sm shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:bg-neutral-300 dark:disabled:bg-neutral-700 disabled:cursor-not-allowed cursor-pointer"
+                        className="py-3 bg-primary text-white font-bold rounded-xl text-sm shadow-lg shadow-primary/20 transition-all tap disabled:bg-neutral-300 dark:disabled:bg-neutral-700 disabled:cursor-not-allowed cursor-pointer"
                     >
                         {isSaving ? 'جاري الحفظ...' : (initialData?.id ? 'حفظ التعديلات' : 'حفظ الفاتورة')}
                     </button>

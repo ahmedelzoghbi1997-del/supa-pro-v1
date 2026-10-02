@@ -11,9 +11,9 @@ import { formatTimeAgo } from '../../utils/helpers';
 
 const StatusBadge: React.FC<{ status: Profile['status'] }> = ({ status }) => {
     const statusMap = {
-        active: { label: 'نشط', classes: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' },
+        active: { label: 'نشط', classes: 'bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success' },
         pending: { label: 'قيد المراجعة', classes: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300' },
-        rejected: { label: 'مرفوض', classes: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' },
+        rejected: { label: 'مرفوض', classes: 'bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger' },
     };
     const { label, classes } = statusMap[status] || { label: status, classes: 'bg-neutral-200 text-neutral-800' };
     return (
@@ -226,7 +226,7 @@ const UserManager: React.FC = () => {
                             {users.map((user) => {
                                 const isCurrentUser = user.id === profile!.id;
                                 const isOnline = isCurrentUser || !!(presences && presences[user.id]);
-                                const presenceColor = isOnline ? 'bg-green-500' : 'bg-neutral-400';
+                                const presenceColor = isOnline ? 'bg-accent-success' : 'bg-neutral-400';
                                 const subscriptionLabel = getSubscriptionLabel(user.subscription_type);
                                 
                                 return (
@@ -237,12 +237,12 @@ const UserManager: React.FC = () => {
                                             <div>
                                                 <p className="font-semibold">{user.full_name}</p>
                                                 {isOnline ? (
-                                                    <p className="text-xs text-green-500">متصل الآن</p>
+                                                    <p className="text-xs text-accent-success">متصل الآن</p>
                                                 ) : (
                                                     <p className="text-xs text-neutral-500">{user.last_seen_at ? `آخر ظهور: ${formatTimeAgo(user.last_seen_at)}` : `انضم: ${formatTimeAgo(user.created_at)}`}</p>
                                                 )}
                                             </div>
-                                            {isCurrentUser && <span className="text-xs px-2 py-0.5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">أنت</span>}
+                                            {isCurrentUser && <span className="text-xs px-2 py-0.5 font-semibold rounded-full bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info">أنت</span>}
                                             {user.role === 'owner' && <span className="text-xs px-2 py-0.5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">مالك</span>}
                                         </div>
                                     </td>
@@ -258,7 +258,7 @@ const UserManager: React.FC = () => {
                                             {user.id !== profile!.id && (
                                                 <button 
                                                     onClick={() => setUserToManage(user)} 
-                                                    className="flex items-center gap-2 text-sm bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 px-3 py-1.5 rounded-md font-semibold">
+                                                    className="min-h-[44px] inline-flex items-center justify-center gap-2 text-sm bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 px-3 py-1.5 rounded-md font-semibold">
                                                     <Cog6ToothIcon className="w-4 h-4" />
                                                     إدارة
                                                 </button>
@@ -266,7 +266,7 @@ const UserManager: React.FC = () => {
                                             {user.role !== 'owner' && (
                                                 <button
                                                     onClick={() => setUserToDelete(user)}
-                                                    className="p-2 text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 rounded-md transition-colors"
+                                                    className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 rounded-md transition-colors"
                                                     aria-label={`حذف ${user.full_name}`}
                                                 >
                                                     <TrashIcon className="w-5 h-5" />
@@ -285,7 +285,7 @@ const UserManager: React.FC = () => {
                     {users.map((user) => {
                         const isCurrentUser = user.id === profile!.id;
                         const isOnline = isCurrentUser || !!(presences && presences[user.id]);
-                        const presenceColor = isOnline ? 'bg-green-500' : 'bg-neutral-400';
+                        const presenceColor = isOnline ? 'bg-accent-success' : 'bg-neutral-400';
                         const subscriptionLabel = getSubscriptionLabel(user.subscription_type);
 
                         return (
@@ -294,12 +294,12 @@ const UserManager: React.FC = () => {
                                 <div className="flex-1 min-w-0 pr-4">
                                      <div className="flex items-center gap-3 mb-1">
                                         <p className="font-bold text-lg truncate">{user.full_name}</p>
-                                        {isCurrentUser && <span className="text-xs px-2 py-0.5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">أنت</span>}
+                                        {isCurrentUser && <span className="text-xs px-2 py-0.5 font-semibold rounded-full bg-accent-info/10 text-accent-info dark:bg-accent-info/20 dark:text-accent-info">أنت</span>}
                                      </div>
                                     <div className="flex items-center gap-2">
                                         <span className={`h-2 w-2 rounded-full flex-shrink-0 ${presenceColor}`}></span>
                                         {isOnline ? (
-                                            <p className="text-xs text-green-500">متصل الآن</p>
+                                            <p className="text-xs text-accent-success">متصل الآن</p>
                                         ) : (
                                             <p className="text-xs text-neutral-500">{user.last_seen_at ? `آخر ظهور: ${formatTimeAgo(user.last_seen_at)}` : `انضم: ${formatTimeAgo(user.created_at)}`}</p>
                                         )}
@@ -321,8 +321,8 @@ const UserManager: React.FC = () => {
                                 <div className="flex items-center gap-1">
                                     {user.id !== profile!.id && (
                                         <button 
-                                            onClick={() => setUserToManage(user)}
-                                            className="flex items-center gap-2 text-sm bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 px-3 py-1.5 rounded-md font-semibold">
+                                            onClick={() => setUserToManage(user)} 
+                                            className="min-h-[44px] inline-flex items-center justify-center gap-2 text-sm bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 px-3 py-1.5 rounded-md font-semibold">
                                             <Cog6ToothIcon className="w-4 h-4" />
                                             إدارة
                                         </button>
@@ -330,7 +330,7 @@ const UserManager: React.FC = () => {
                                     {user.role !== 'owner' && (
                                         <button
                                             onClick={() => setUserToDelete(user)}
-                                            className="p-2 text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 rounded-md transition-colors"
+                                            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 rounded-md transition-colors"
                                             aria-label={`حذف ${user.full_name}`}
                                         >
                                             <TrashIcon className="w-5 h-5" />
@@ -365,13 +365,13 @@ const UserManager: React.FC = () => {
                 title="تأكيد الحذف النهائي"
             >
                 <div className="space-y-4">
-                    <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-500/30">
-                        <WarningIcon className="w-10 h-10 text-red-500 flex-shrink-0" />
+                    <div className="flex items-start gap-3 p-4 bg-accent-danger/10 dark:bg-accent-danger/20 rounded-lg border border-accent-danger/20 dark:border-accent-danger/20">
+                        <WarningIcon className="w-10 h-10 text-accent-danger flex-shrink-0" />
                         <div>
-                            <p className="font-semibold text-red-800 dark:text-red-200">
+                            <p className="font-semibold text-accent-danger dark:text-red-200">
                                 أنت على وشك حذف المستخدم: <span className="font-bold">{userToDelete?.full_name}</span> ({userToDelete?.email})
                             </p>
-                            <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                            <p className="text-sm text-accent-danger dark:text-accent-danger mt-1">
                                 هذا الإجراء سيحذف المستخدم وحسابه و<span className="font-bold">جميع بياناته بالكامل</span> (الفواتير، المصروفات، إلخ) بشكل نهائي. <span className="font-bold">لا يمكن التراجع عن هذا الإجراء.</span>
                             </p>
                         </div>
@@ -393,7 +393,7 @@ const UserManager: React.FC = () => {
                     <button
                         onClick={handleDeleteUser}
                         disabled={deleteConfirmationText !== 'حذف نهائي'}
-                        className="rounded-lg bg-accent-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:bg-red-300 dark:disabled:bg-red-800 disabled:cursor-not-allowed"
+                        className="rounded-lg bg-accent-danger px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-danger/90 disabled:bg-red-300 dark:disabled:bg-red-800 disabled:cursor-not-allowed"
                     >
                         أفهم العواقب، قم بالحذف النهائي
                     </button>
@@ -430,12 +430,12 @@ const UserManager: React.FC = () => {
                         <div className="flex items-center gap-2 w-full sm:w-auto">
                             <div className="flex items-center gap-2 bg-white dark:bg-neutral-800 p-1 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm">
                                 <div className="px-3 py-1.5 text-center border-l border-neutral-100 dark:border-neutral-700">
-                                    <p className="text-[9px] text-neutral-400 uppercase font-bold">الإجمالي</p>
+                                    <p className="text-2xs text-neutral-400 uppercase font-bold">الإجمالي</p>
                                     <p className="text-sm font-bold" dir="ltr">{visits.length}</p>
                                 </div>
                                 <div className="px-3 py-1.5 text-center">
-                                    <p className="text-[9px] text-blue-500 uppercase font-bold">جديد</p>
-                                    <p className="text-sm font-bold text-blue-500" dir="ltr">
+                                    <p className="text-2xs text-accent-info uppercase font-bold">جديد</p>
+                                    <p className="text-sm font-bold text-accent-info" dir="ltr">
                                         {visits.filter(v => !v.is_read).length}
                                     </p>
                                 </div>
@@ -495,7 +495,7 @@ const UserManager: React.FC = () => {
                                         {visits.map((visit) => (
                                             <tr 
                                                 key={visit.id} 
-                                                className={`group transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/30 ${!visit.is_read ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
+                                                className={`group transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/30 ${!visit.is_read ? 'bg-accent-info/10 dark:bg-accent-info/20' : ''}`}
                                                 onClick={async () => {
                                                     if (!visit.is_read) {
                                                         await supabase.from('report_visits').update({ is_read: true }).eq('id', visit.id);
@@ -505,7 +505,7 @@ const UserManager: React.FC = () => {
                                             >
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className={`p-2 rounded-xl flex-shrink-0 ${!visit.is_read ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-500' : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-400'}`}>
+                                                        <div className={`p-2 rounded-xl flex-shrink-0 ${!visit.is_read ? 'bg-accent-info/10 dark:bg-accent-info/20 text-accent-info' : 'bg-neutral-100 dark:bg-neutral-700 text-neutral-400'}`}>
                                                             <UserIcon className="w-4 h-4" />
                                                         </div>
                                                         <div className="min-w-0 flex-1">
@@ -538,7 +538,7 @@ const UserManager: React.FC = () => {
                                                                     }
                                                                 }}
                                                             />
-                                                            <p className="text-[10px] text-neutral-400 font-mono" dir="ltr">ID: {visit.visitor_id.slice(0, 8)}</p>
+                                                            <p className="text-2xs text-neutral-400 font-mono" dir="ltr">ID: {visit.visitor_id.slice(0, 8)}</p>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -552,7 +552,7 @@ const UserManager: React.FC = () => {
                                                         <p className="text-xs font-bold text-neutral-700 dark:text-neutral-200" dir="ltr">
                                                             {formatTimeAgo(visit.accessed_at)}
                                                         </p>
-                                                        <p className="text-[10px] text-neutral-400" dir="ltr">
+                                                        <p className="text-2xs text-neutral-400" dir="ltr">
                                                             {new Date(visit.accessed_at).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}
                                                         </p>
                                                     </div>
@@ -563,7 +563,7 @@ const UserManager: React.FC = () => {
                                                             e.stopPropagation();
                                                             handleDeleteVisit(visit);
                                                         }}
-                                                        className="p-2 text-neutral-400 hover:text-accent-danger hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                                        className="p-2 text-neutral-400 hover:text-accent-danger hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 rounded-lg transition-all"
                                                         title="إخفاء الزائر نهائياً"
                                                     >
                                                         <TrashIcon className="w-4 h-4" />

@@ -12,6 +12,7 @@ import {
   AssetIcon,
   LeafIcon,
 } from "../../Icons";
+import Button from "../Button";
 
 export interface ReportHeaderProps {
   cycle: Cycle;
@@ -48,30 +49,33 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
       <div className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 sticky top-0 z-20 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-emerald-500 p-2 rounded-xl">
+            <div className="bg-accent-success p-2 rounded-xl">
               <LogoIcon className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-lg font-black text-neutral-900 dark:text-white leading-none">
                 المحاسب الزراعي
               </h1>
-              <p className="text-[10px] font-bold text-neutral-400 mt-1">
+              <p className="text-2xs font-bold text-neutral-400 mt-1">
                 تقرير أداء العروة (للقراءة فقط)
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className={`p-2 rounded-xl transition-all duration-500 ${
+                className={`!p-2 !rounded-xl transition-all duration-500 ${
                   notifications.length > 0
-                    ? "animate-[pulse-glow_2s_ease-in-out_infinite] bg-white text-emerald-600 shadow-md"
+                    ? "animate-[pulse-glow_2s_ease-in-out_infinite] !bg-white !text-accent-success shadow-md"
                     : isNotificationOpen
-                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                      ? "!bg-accent-success/10 !text-accent-success dark:!bg-accent-success/20 dark:!text-accent-success"
+                      : "!bg-neutral-100 dark:!bg-neutral-800 !text-neutral-600 dark:!text-neutral-400 hover:!bg-neutral-200 dark:hover:!bg-neutral-700"
                 }`}
                 title="آخر التحديثات"
+                aria-label="آخر التحديثات"
               >
                 <div className="relative">
                   <svg
@@ -90,7 +94,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
                     <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
                   </svg>
                 </div>
-              </button>
+              </Button>
 
               {isNotificationOpen && (
                 <>
@@ -113,7 +117,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
                           >
                             <div className="flex items-start gap-3">
                               <div
-                                className={`p-2 rounded-full shrink-0 ${activity.type === "invoice" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"}`}
+                                className={`p-2 rounded-full shrink-0 ${activity.type === "invoice" ? "bg-accent-success/10 text-accent-success dark:bg-accent-success/20 dark:text-accent-success" : "bg-accent-danger/10 text-accent-danger dark:bg-accent-danger/20 dark:text-accent-danger"}`}
                               >
                                 {activity.type === "invoice" ? (
                                   <InvoicesIcon className="w-3 h-3" />
@@ -122,11 +126,11 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-[10px] font-bold text-neutral-800 dark:text-neutral-200 leading-relaxed">
+                                <p className="text-2xs font-bold text-neutral-800 dark:text-neutral-200 leading-relaxed">
                                   {activity.label}
                                 </p>
                                 <div className="flex justify-between items-center mt-1">
-                                  <span className="text-[9px] text-neutral-400">
+                                  <span className="text-2xs text-neutral-400">
                                     {activity.date.toLocaleDateString("ar-EG", {
                                       numberingSystem: "latn",
                                     })}{" "}
@@ -152,13 +156,16 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
               )}
             </div>
             <div className="relative">
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsFontMenuOpen(!isFontMenuOpen)}
-                className={`p-2 rounded-xl transition-colors ${isFontMenuOpen ? "bg-primary text-white" : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"}`}
+                className={`!p-2 !rounded-xl transition-colors ${isFontMenuOpen ? "!bg-primary !text-white" : "!bg-neutral-100 dark:!bg-neutral-800 !text-neutral-600 dark:!text-neutral-400 hover:!bg-neutral-200 dark:hover:!bg-neutral-700"}`}
                 title="تغيير حجم الخط"
+                aria-label="تغيير حجم الخط"
               >
                 <TypeIcon className="w-5 h-5" />
-              </button>
+              </Button>
 
               {isFontMenuOpen && (
                 <>
@@ -167,29 +174,33 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
                     onClick={() => setIsFontMenuOpen(false)}
                   ></div>
                   <div className="absolute top-full left-0 mt-2 p-2 bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border border-neutral-100 dark:border-neutral-800 z-50 flex items-center gap-3 animate-enter min-w-[120px]">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={increaseFontSize}
                       disabled={fontSizeLevel === 10}
-                      className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 disabled:opacity-30 transition-colors"
+                      className="!w-8 !h-8 !p-0 !rounded-lg !bg-neutral-100 dark:!bg-neutral-800 flex items-center justify-center !text-neutral-600 dark:!text-neutral-300 hover:!bg-neutral-200 dark:hover:!bg-neutral-700 disabled:!opacity-30"
                     >
                       +
-                    </button>
+                    </Button>
                     <span className="font-bold text-sm text-neutral-800 dark:text-neutral-200 min-w-[20px] text-center">
                       {fontSizeLevel}
                     </span>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={decreaseFontSize}
                       disabled={fontSizeLevel === 1}
-                      className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 disabled:opacity-30 transition-colors"
+                      className="!w-8 !h-8 !p-0 !rounded-lg !bg-neutral-100 dark:!bg-neutral-800 flex items-center justify-center !text-neutral-600 dark:!text-neutral-300 hover:!bg-neutral-200 dark:hover:!bg-neutral-700 disabled:!opacity-30"
                     >
                       -
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}
             </div>
             <div
-              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${cycle.status === "active" ? "bg-emerald-100 text-emerald-600" : "bg-neutral-100 text-neutral-500"}`}
+              className={`px-3 py-1 rounded-full text-2xs font-black uppercase tracking-wider ${cycle.status === "active" ? "bg-accent-success/10 text-accent-success" : "bg-neutral-100 text-neutral-500"}`}
             >
               {cycle.status === "active" ? "نشطة" : "مغلقة"}
             </div>
@@ -200,31 +211,32 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
           className="fixed left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md"
           style={{ bottom: "calc(1.5rem + env(safe-area-inset-bottom, 24px))" }}
         >
-          <div className="flex items-center justify-between p-1.5 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl border-2 border-emerald-100 dark:border-emerald-900/50 rounded-full shadow-[0_8px_30px_-5px_rgba(16,185,129,0.25)] dark:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.15)]">
+          <div className="flex items-center justify-between p-1.5 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-2 border-accent-success/20 dark:border-accent-success/30 rounded-full shadow-[0_8px_30px_-5px_rgba(16,185,129,0.25)] dark:shadow-[0_8px_30px_-5px_rgba(16,185,129,0.15)]">
             {[
               { id: "overview", label: "نظرة عامة", icon: ChartBarIcon },
               { id: "invoices", label: "الفواتير", icon: InvoicesIcon },
               { id: "treasury", label: "الخزنة", icon: WalletIcon },
               { id: "expenses", label: "المصروفات", icon: CreditCardIcon },
             ].map((tab) => (
-              <button
+              <Button
                 key={tab.id}
+                variant="ghost"
                 onClick={() => setActiveTab(tab.id as ReportTabId)}
-                className={`relative flex-1 flex flex-col items-center justify-center py-2 px-3 rounded-full transition-all duration-300 ${
+                className={`!relative !flex-1 !flex !flex-col !items-center !justify-center !py-2 !px-3 !rounded-full transition-all duration-300 ${
                   activeTab === tab.id
-                    ? "text-emerald-800 bg-emerald-200 dark:bg-emerald-500/30 dark:text-emerald-300 shadow-sm scale-105"
-                    : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                    ? "!text-accent-success !bg-emerald-200 dark:!bg-accent-success/30 dark:!text-accent-success shadow-sm scale-105"
+                    : "!text-neutral-500 hover:!text-neutral-900 dark:hover:!text-white hover:!bg-neutral-100 dark:hover:!bg-neutral-800"
                 }`}
               >
                 <tab.icon
                   className={`w-5 h-5 mb-1 ${activeTab === tab.id ? "scale-110" : ""} transition-transform duration-300`}
                 />
                 <span
-                  className={`text-[10px] ${activeTab === tab.id ? "font-black" : "font-bold"}`}
+                  className={`text-2xs ${activeTab === tab.id ? "font-black" : "font-bold"}`}
                 >
                   {tab.label}
                 </span>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -250,7 +262,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
           <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-1">
             التقييم العام
           </p>
-          <p className="text-5xl font-black text-emerald-500 leading-none">
+          <p className="text-5xl font-black text-accent-success leading-none">
             {Math.round(cycle.health || 0)}%
           </p>
         </div>

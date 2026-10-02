@@ -15,7 +15,7 @@ interface InvoiceCardProps {
 }
 
 const InfoItem: React.FC<{ value: string; icon: React.FC<any> }> = ({ value, icon: Icon }) => (
-    <div className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400 text-[10px] sm:text-[11px] shrink-0">
+    <div className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400 text-2xs sm:text-[11px] shrink-0">
         <Icon className="h-3.5 w-3.5 flex-shrink-0 opacity-70" />
         <span className="font-bold whitespace-nowrap text-neutral-600 dark:text-neutral-300">{value}</span>
     </div>
@@ -40,8 +40,8 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                 relative w-full bg-white dark:bg-neutral-900 rounded-2xl px-4 py-3
                 border border-neutral-200 dark:border-neutral-800 shadow-sm
                 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-md
-                hover:border-emerald-200 dark:hover:border-emerald-800/50
-                cursor-pointer active:scale-[0.99] group
+                hover:border-accent-success/20 dark:hover:border-emerald-800/50
+                cursor-pointer tap group
                 ${animationClass}
             `}
             style={{ 
@@ -63,14 +63,14 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                                 if (!retDetails.isRetained) return null;
                                 if (retDetails.surplus > 0) {
                                     return (
-                                        <span className="text-[8px] font-black bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 whitespace-nowrap flex items-center gap-1">
+                                        <span className="text-2xs font-black bg-accent-success/10 text-accent-success px-1.5 py-0.5 rounded border border-accent-success/20 whitespace-nowrap flex items-center gap-1">
                                             <span>مرصودة جزئياً</span>
-                                            <span className="text-emerald-800 dark:text-emerald-300 underline font-black">(+{formatCurrency(retDetails.surplus).replace('EGP', '')} ج للخزنة)</span>
+                                            <span className="text-accent-success underline font-black">(+{formatCurrency(retDetails.surplus).replace('EGP', '')} ج للخزنة)</span>
                                         </span>
                                     );
                                 }
                                 return (
-                                    <span className="text-[8px] font-black bg-amber-500/10 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/10 whitespace-nowrap">
+                                    <span className="text-2xs font-black bg-accent-warning/10 text-accent-warning px-1.5 py-0.5 rounded border border-accent-warning/20 whitespace-nowrap">
                                         مرصودة بالكامل للدين 🔄
                                     </span>
                                 );
@@ -84,7 +84,7 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                                 <InfoItem icon={BoxIcon} value={`${formatNumber(packagingCount)} ${packagingLabel}`} />
                             )}
                             {avgCageWeight > 0 && (
-                                <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-md text-[10px] font-black border border-amber-200/50 dark:border-amber-500/20 shrink-0" title="متوسط وزن القفص">
+                                <div className="flex items-center gap-1 bg-accent-warning/10 text-accent-warning px-1.5 py-0.5 rounded-md text-2xs font-black border border-accent-warning/20 shrink-0" title="متوسط وزن القفص">
                                     <span>⚖️</span>
                                     <span>{avgCageWeight.toFixed(1)} كج/{packagingLabel === 'كرتونة' ? 'ك' : 'قفص'}</span>
                                 </div>
@@ -93,11 +93,11 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                     </div>
 
                     <div className="flex flex-col items-end shrink-0 pl-1">
-                        <div className="bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20 flex items-baseline gap-1">
-                            <span className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-400 tabular-nums leading-none">
+                        <div className="bg-accent-success/10 px-2 py-0.5 rounded-lg border border-accent-success/20 flex items-baseline gap-1">
+                            <span className="text-base sm:text-lg font-black text-accent-success tabular-nums leading-none">
                                 {formatCurrency(totalAmount).replace('EGP', '')}
                             </span>
-                            <span className="text-[9px] font-bold text-emerald-600/70 dark:text-emerald-400/70">ج.م</span>
+                            <span className="text-2xs font-bold text-accent-success/70">ج.م</span>
                         </div>
                     </div>
                 </div>
@@ -108,9 +108,9 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                         {invoice.price_items.map((item, idx) => (
                             <div 
                                 key={idx} 
-                                className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-0.5 leading-none ${
+                                className={`text-2xs sm:text-2xs font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-0.5 leading-none ${
                                     idx === 0 
-                                    ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20' 
+                                    ? 'text-accent-success bg-accent-success/10 border-accent-success/20' 
                                     : 'text-neutral-600 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-800/50 border-neutral-200 dark:border-neutral-700'
                                 }`}
                             >
@@ -126,7 +126,7 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                             {onEdit && (
                                 <button 
                                     onClick={(e) => { e.stopPropagation(); onEdit(invoice.id); }} 
-                                    className="p-1 rounded-md text-neutral-400 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 transition-colors"
+                                    className="p-1 rounded-md text-neutral-400 hover:bg-accent-info/10 hover:text-accent-info transition-colors"
                                     aria-label="تعديل"
                                 >
                                     <PencilIcon className="h-3.5 w-3.5" />
@@ -135,7 +135,7 @@ const InvoiceCard: React.FC<InvoiceCardProps> = React.memo(({ invoice, onDelete,
                             {onDelete && (
                                 <button 
                                     onClick={(e) => { e.stopPropagation(); onDelete(invoice.id); }} 
-                                    className="p-1 rounded-md text-neutral-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-colors"
+                                    className="p-1 rounded-md text-neutral-400 hover:bg-accent-danger/10 hover:text-accent-danger transition-colors"
                                     aria-label="حذف"
                                 >
                                     <TrashIcon className="h-3.5 w-3.5" />

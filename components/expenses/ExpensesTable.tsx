@@ -34,27 +34,27 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
               <div className="flex items-start justify-between gap-2 pb-2.5 border-b border-neutral-100 dark:border-neutral-800">
                 <div className="flex flex-col gap-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-extrabold bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-2xs font-extrabold bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
                       {categoryName}
                     </span>
                     {expense.cycle && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-700/60 truncate max-w-[100px]">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-2xs font-bold bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400 border border-neutral-200/60 dark:border-neutral-700/60 truncate max-w-[100px]">
                         {expense.cycle}
                       </span>
                     )}
                   </div>
-                  <span className="font-mono text-[10px] text-neutral-400 font-medium">
+                  <span className="font-mono text-2xs text-neutral-400 font-medium">
                     {expense.date}
                   </span>
                 </div>
 
                 {/* Amount */}
                 <div className="text-left shrink-0">
-                  <div className="bg-rose-50 dark:bg-rose-950/30 px-2.5 py-1 rounded-xl border border-rose-100 dark:border-rose-900/30">
-                    <span dir="ltr" className="text-base font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                  <div className="bg-accent-danger/10 dark:bg-accent-danger/20 px-2.5 py-1 rounded-xl border border-accent-danger/20 dark:border-accent-danger/30">
+                    <span dir="ltr" className="text-base font-black text-accent-danger dark:text-accent-danger tabular-nums">
                       {formatCurrency(amount).replace('EGP', '')}
                     </span>
-                    <span className="text-[9px] font-bold text-rose-600/70 dark:text-rose-400/70 mr-1">ج.م</span>
+                    <span className="text-2xs font-bold text-accent-danger/70 dark:text-accent-danger/70 mr-1">ج.م</span>
                   </div>
                 </div>
               </div>
@@ -66,7 +66,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                     {expense.description || 'بدون بيان'}
                   </p>
                   {supplierName && (
-                    <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-bold block mt-0.5">
+                    <span className="text-2xs text-neutral-400 dark:text-neutral-500 font-bold block mt-0.5">
                       المورد: {supplierName}
                     </span>
                   )}
@@ -80,7 +80,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                         navigator.clipboard.writeText(`${expense.date} - ${expense.description || ''} - ${amount}`);
                       }
                     }}
-                    className="p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+                    className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 rounded-lg text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
                     aria-label="نسخ"
                     title="نسخ"
                   >
@@ -88,7 +88,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                   </button>
                   <button
                     onClick={() => onEdit(expense.id)}
-                    className="p-2 rounded-lg text-neutral-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 rounded-lg text-neutral-400 hover:bg-accent-info/10 dark:hover:bg-blue-950/50 hover:text-accent-info dark:hover:text-blue-400 transition-colors"
                     aria-label="تعديل"
                     title="تعديل"
                   >
@@ -96,7 +96,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                   </button>
                   <button
                     onClick={() => onDelete(expense.id)}
-                    className="p-2 rounded-lg text-neutral-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                    className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-2 rounded-lg text-neutral-400 hover:bg-accent-danger/10 dark:hover:bg-accent-danger/20 hover:text-accent-danger dark:hover:text-accent-danger transition-colors"
                     aria-label="حذف"
                     title="حذف"
                   >
@@ -143,7 +143,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                     {expense.description || '-'}
                   </td>
                   <td className={cellClasses}>
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-2xs font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
                       {categoryName}
                     </span>
                   </td>
@@ -152,7 +152,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                   </td>
                   <td className={cellClasses}>
                     {supplierName ? (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-2xs font-bold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 border border-neutral-200/60 dark:border-neutral-700/60 whitespace-nowrap">
                         {supplierName}
                       </span>
                     ) : (
@@ -160,7 +160,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                     )}
                   </td>
                   <td className={`${cellClasses} text-left whitespace-nowrap`}>
-                    <span dir="ltr" className="font-mono font-black text-rose-600 dark:text-rose-400 tabular-nums text-sm">
+                    <span dir="ltr" className="font-mono font-black text-accent-danger tabular-nums text-sm">
                       {formatCurrency(amount)}
                     </span>
                   </td>
@@ -172,7 +172,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                             navigator.clipboard.writeText(`${expense.date} - ${expense.description} - ${amount}`);
                           }
                         }}
-                        className="p-1.5 rounded-md text-neutral-400 hover:bg-neutral-200/70 dark:hover:bg-neutral-700 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors" 
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-md text-neutral-400 hover:bg-neutral-200/70 dark:hover:bg-neutral-700 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors" 
                         aria-label="نسخ التفاصيل"
                         title="نسخ"
                       >
@@ -180,7 +180,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                       </button>
                       <button 
                         onClick={() => onEdit(expense.id)} 
-                        className="p-1.5 rounded-md text-neutral-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" 
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-md text-neutral-400 hover:bg-accent-info/10 hover:text-accent-info transition-colors" 
                         aria-label="تعديل المصروف"
                         title="تعديل"
                       >
@@ -188,7 +188,7 @@ const ExpensesTable: React.FC<ExpensesTableProps> = ({ expenses, onEdit, onDelet
                       </button>
                       <button 
                         onClick={() => onDelete(expense.id)} 
-                        className="p-1.5 rounded-md text-neutral-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-600 dark:hover:text-rose-400 transition-colors" 
+                        className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 rounded-md text-neutral-400 hover:bg-accent-danger/10 hover:text-accent-danger transition-colors" 
                         aria-label="حذف المصروف"
                         title="حذف"
                       >

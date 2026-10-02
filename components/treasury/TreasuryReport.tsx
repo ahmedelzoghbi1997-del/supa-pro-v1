@@ -437,7 +437,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                     <h2 className="text-lg font-black text-neutral-900 dark:text-white">كشف حركات الخزنة الموحد</h2>
                     <button 
                         onClick={onClose}
-                        className="bg-neutral-200/60 hover:bg-neutral-300/60 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60 active:scale-95 transition-all p-2 rounded-full outline-none cursor-pointer"
+                        className="bg-neutral-200/60 hover:bg-neutral-300/60 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60 tap transition-all p-2 rounded-full outline-none cursor-pointer"
                     >
                         <X className="w-5 h-5 text-neutral-700 dark:text-neutral-300" />
                     </button>
@@ -489,8 +489,8 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                 </div>
 
                 {/* Hero Balance Card (Banking Style) */}
-                <div className="bg-gradient-to-br from-[#064e3b] via-[#043e34] to-[#012e31] text-white rounded-[2rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl shadow-emerald-950/25 border border-emerald-500/10 mb-6 w-full text-center">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -translate-y-16 translate-x-16 pointer-events-none" />
+                <div className="bg-gradient-to-br from-[#064e3b] via-[#043e34] to-[#012e31] text-white rounded-[2rem] p-6 sm:p-8 relative overflow-hidden shadow-2xl shadow-emerald-950/25 border border-accent-success/20 mb-6 w-full text-center">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-accent-success/5 rounded-full blur-3xl -translate-y-16 translate-x-16 pointer-events-none" />
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl translate-y-16 -translate-x-16 pointer-events-none" />
                     <div className="relative z-10 flex flex-col items-center select-none">
                         <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-250 opacity-90 mb-3 block">
@@ -506,15 +506,15 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                         {/* Two smaller figures underneath inside the same card */}
                         <div className="w-full grid grid-cols-2 gap-4 mt-6 pt-5 border-t border-white/10">
                             <div className="text-center">
-                                <span className="text-[10px] sm:text-[11px] text-emerald-200/70 block mb-1 font-bold">إجمالي الوارد ⬇️</span>
+                                <span className="text-2xs sm:text-[11px] text-emerald-200/70 block mb-1 font-bold">إجمالي الوارد ⬇️</span>
                                 <span className="text-sm sm:text-base font-black text-[#6ee7b7] tabular-nums">
-                                    {formatNumber(stats.inflow)} <span className="text-[10px] font-bold">ج.م</span>
+                                    {formatNumber(stats.inflow)} <span className="text-2xs font-bold">ج.م</span>
                                 </span>
                             </div>
                             <div className="text-center border-r border-white/10">
-                                <span className="text-[10px] sm:text-[11px] text-rose-200/70 block mb-1 font-bold">إجمالي المنصرف ⬆️</span>
+                                <span className="text-2xs sm:text-[11px] text-rose-200/70 block mb-1 font-bold">إجمالي المنصرف ⬆️</span>
                                 <span className="text-sm sm:text-base font-black text-[#fca5a5] tabular-nums">
-                                    {formatNumber(stats.outflow)} <span className="text-[10px] font-bold">ج.م</span>
+                                    {formatNumber(stats.outflow)} <span className="text-2xs font-bold">ج.م</span>
                                 </span>
                             </div>
                         </div>
@@ -525,7 +525,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                 {categoryBreakdown.length > 0 && (
                     <div className="bg-white dark:bg-neutral-900 rounded-3xl border border-neutral-200/60 dark:border-neutral-800 p-5 shadow-xs flex flex-col mb-6 animate-fade-in">
                         <h3 className="text-xs font-black text-neutral-800 dark:text-neutral-200 mb-4 flex items-center gap-2">
-                            <PieChart className="w-4 h-4 text-emerald-500" />
+                            <PieChart className="w-4 h-4 text-accent-success" />
                             تحليل المنصرفات جرافيكياً
                         </h3>
                         <div className="w-full h-[140px]" dir="ltr">
@@ -547,7 +547,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
-                        <div className="mt-3 border-t border-neutral-100 dark:border-neutral-800 pt-3 flex justify-between items-center text-[9px]">
+                        <div className="mt-3 border-t border-neutral-100 dark:border-neutral-800 pt-3 flex justify-between items-center text-2xs">
                             <span className="text-neutral-500">الأعلى كلفة</span>
                             <span className="font-extrabold text-neutral-850 dark:text-neutral-200">
                                 {categoryBreakdown.length > 0 ? `${categoryBreakdown[0].name.replace('مصروفات: ', '')}` : '-'}
@@ -563,7 +563,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                     </div>
                     <input 
                         type="text"
-                        className="w-full h-10 pr-9 pl-4 bg-neutral-200/30 dark:bg-neutral-900/40 hover:bg-neutral-200/50 dark:hover:bg-neutral-900/50 focus:bg-white dark:focus:bg-neutral-900 border border-neutral-200/20 dark:border-neutral-800/20 focus:border-emerald-500/30 text-xs text-neutral-850 dark:text-neutral-250 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-xl outline-none transition-all text-right shadow-xs"
+                        className="w-full h-10 pr-9 pl-4 bg-neutral-200/30 dark:bg-neutral-900/40 hover:bg-neutral-200/50 dark:hover:bg-neutral-900/50 focus:bg-white dark:focus:bg-neutral-900 border border-neutral-200/20 dark:border-neutral-800/20 focus:border-accent-success/20 text-xs text-neutral-850 dark:text-neutral-250 placeholder-neutral-400 dark:placeholder-neutral-500 rounded-xl outline-none transition-all text-right shadow-xs"
                         placeholder="ابحث باسم الحركة، الصوبة، أو البيان..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -572,7 +572,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                     {searchQuery && (
                         <button 
                             onClick={() => setSearchQuery('')}
-                            className="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400 hover:text-rose-500 dark:hover:text-rose-450 text-xs font-bold transition-colors"
+                            className="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400 hover:text-accent-danger dark:hover:text-accent-danger text-xs font-bold transition-colors"
                         >
                             مسح
                         </button>
@@ -586,7 +586,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                              <WalletIcon className="w-5 h-5 text-emerald-550" />
                              سجل الحركات المالية
                          </h3>
-                         <span className="text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-500 px-3 py-1 rounded-full font-black">
+                         <span className="text-2xs bg-neutral-100 dark:bg-neutral-800 text-neutral-500 px-3 py-1 rounded-full font-black">
                              {displayHistory.length} حركة مسجلة
                          </span>
                     </div>
@@ -602,7 +602,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                                     {/* Right side: Circular Icon, Type, Subtitle, details & badges */}
                                     <div className="flex items-start gap-3.5 min-w-0 flex-1">
                                         {/* Circular Icon with gentle matching colors */}
-                                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-base bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/50 dark:border-emerald-900/10 shrink-0 mt-0.5">
+                                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-base bg-accent-success/10 dark:bg-accent-success/20 border border-accent-success/20/50 dark:border-accent-success/30/10 shrink-0 mt-0.5">
                                             {getEmojiForTx(tx)}
                                         </div>
                                         {/* Name & subtitle */}
@@ -614,7 +614,7 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                                                 
                                                 {/* Specific badge showing name / person / party */}
                                                 {tx.subNote && (
-                                                    <span className="text-[9px] font-black bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded-md border border-neutral-200/40 dark:border-neutral-700/40 shrink-0">
+                                                    <span className="text-2xs font-black bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-0.5 rounded-md border border-neutral-200/40 dark:border-neutral-700/40 shrink-0">
                                                         {tx.id.startsWith('advance-') ? `المستلم: ${tx.subNote}` : 
                                                          tx.id.startsWith('supplier-') ? `المورد: ${tx.subNote}` :
                                                          tx.id.startsWith('farmer-') ? `المزارع: ${tx.subNote}` :
@@ -631,12 +631,12 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                                                 </p>
                                             )}
 
-                                            <span className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                                            <span className="text-2xs text-neutral-400 dark:text-neutral-500 mt-1 flex items-center gap-1.5 flex-wrap">
                                                 <span>{new Date(tx.dateStr).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                                 {tx.cycleName && (
                                                     <>
                                                         <span className="opacity-40 select-none">•</span>
-                                                        <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">{tx.cycleName}</span>
+                                                        <span className="text-accent-success dark:text-accent-success font-extrabold">{tx.cycleName}</span>
                                                     </>
                                                 )}
                                             </span>
@@ -647,31 +647,31 @@ const TreasuryReport: React.FC<TreasuryReportProps> = ({
                                     <div className="flex flex-col items-end text-left shrink-0 pl-1.5 mt-0.5">
                                         {tx.isPureNonCash || tx.amount === 0 ? (
                                             <div className="flex flex-col items-end gap-1">
-                                                <div className="px-2 py-1 rounded-md font-semibold font-mono text-[10px] sm:text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/10">
+                                                <div className="px-2 py-1 rounded-md font-semibold font-mono text-2xs sm:text-xs bg-accent-warning/10 text-accent-warning dark:text-accent-warning border border-accent-warning/20">
                                                     <span>تسوية: {formatNumber(tx.originalAmount)}</span>
-                                                    <span className="text-[9px] pr-1 font-bold">ج.م</span>
+                                                    <span className="text-2xs pr-1 font-bold">ج.م</span>
                                                 </div>
-                                                <span className="text-[8px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/5 px-1 py-0.5 rounded">
+                                                <span className="text-2xs font-black text-accent-warning dark:text-accent-warning bg-accent-warning/5 px-1 py-0.5 rounded">
                                                     أثر نقدي: ٠ ج.م 🔄
                                                 </span>
                                             </div>
                                         ) : tx.isRetained && tx.amount > 0 ? (
                                             <div className="flex flex-col items-end gap-1">
-                                                <div className="px-2 py-1 rounded-md font-semibold font-mono text-xs sm:text-sm tracking-tight bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                                                <div className="px-2 py-1 rounded-md font-semibold font-mono text-xs sm:text-sm tracking-tight bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20">
                                                     <span dir="ltr">+ {formatNumber(tx.amount)}</span>
-                                                    <span className="text-[10px] pr-1 font-bold">ج.م</span>
+                                                    <span className="text-2xs pr-1 font-bold">ج.م</span>
                                                 </div>
-                                                <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                                <span className="text-2xs font-black text-accent-success dark:text-accent-success bg-accent-success/10 px-1.5 py-0.5 rounded">
                                                     فائض كاش (تسوية دين {formatNumber((tx.originalAmount || 0) - tx.amount)} ج)
                                                 </span>
                                             </div>
                                         ) : (
-                                            <div className={`px-2 py-1 rounded-md font-semibold font-mono text-xs sm:text-sm tracking-tight mb-0.5 ${!tx.isOutflow ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400'}`}>
+                                            <div className={`px-2 py-1 rounded-md font-semibold font-mono text-xs sm:text-sm tracking-tight mb-0.5 ${!tx.isOutflow ? 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success' : 'bg-accent-danger/10 dark:bg-accent-danger/20 text-accent-danger dark:text-accent-danger'}`}>
                                                 <span dir="ltr">{!tx.isOutflow ? '+' : '-'} {formatNumber(Math.abs(tx.amount))}</span>
-                                                <span className="text-[10px] pr-1 font-bold">ج.م</span>
+                                                <span className="text-2xs pr-1 font-bold">ج.م</span>
                                             </div>
                                         )}
-                                        <span className="text-[9px] text-neutral-450 dark:text-neutral-500 mt-1 font-bold tabular-nums">
+                                        <span className="text-2xs text-neutral-450 dark:text-neutral-500 mt-1 font-bold tabular-nums">
                                             رصيد: {formatNumber(tx.runningBalance)} ج.م
                                         </span>
                                     </div>

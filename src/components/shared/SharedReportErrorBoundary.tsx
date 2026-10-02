@@ -27,12 +27,12 @@ class SharedReportErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-neutral-100 p-6 text-center font-sans">
-          <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md border border-red-100">
+          <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md border border-accent-danger/20">
             <h1 className="text-2xl font-bold text-neutral-800 mb-2">حدث خطأ</h1>
             <p className="text-neutral-500 mb-4">
               عذراً، لم نتمكن من تحميل التقرير.
             </p>
-            <pre className="text-xs text-red-500 bg-red-50 p-4 rounded overflow-auto text-left">
+            <pre className="text-xs text-accent-danger bg-accent-danger/10 p-4 rounded overflow-auto text-left">
               {this.state.error?.message}
             </pre>
           </div>

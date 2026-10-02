@@ -119,7 +119,7 @@ const WeeklyAnalysis: React.FC = () => {
                     {payload.map((p: { color: string, value: number, name: string }, i: number) => (
                         <div key={i} className="flex items-center justify-between gap-4 py-0.5">
                             <span className="text-xs font-bold" style={{ color: p.color }}>{p.value.toLocaleString('ar-EG', { numberingSystem: 'latn' })} ج.م</span>
-                            <span className="text-[10px] text-neutral-500 font-black">{p.name}</span>
+                            <span className="text-2xs text-neutral-500 font-black">{p.name}</span>
                         </div>
                     ))}
                 </div>
@@ -139,26 +139,26 @@ const WeeklyAnalysis: React.FC = () => {
             {/* 3 Compact Summary Cards (Last Week Only) */}
             <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 <Card className="flex flex-col items-center justify-center p-3 sm:p-5 bg-white dark:bg-neutral-900 rounded-3xl border-transparent shadow-soft">
-                    <p className="text-[9px] sm:text-[10px] font-black text-neutral-400 uppercase tracking-tighter mb-1">إجمالي الإيرادات</p>
+                    <p className="text-2xs sm:text-2xs font-black text-neutral-400 uppercase tracking-tighter mb-1">إجمالي الإيرادات</p>
                     <div className="flex items-baseline gap-1">
                         <span className="text-sm sm:text-xl font-black tabular-nums text-emerald-600 dark:text-emerald-400">{formatNumber(lastWeek?.revenue || 0)}</span>
-                        <span className="text-[8px] sm:text-[10px] font-bold text-neutral-400">ج.م</span>
+                        <span className="text-2xs sm:text-2xs font-bold text-neutral-400">ج.م</span>
                     </div>
                 </Card>
 
                 <Card className="flex flex-col items-center justify-center p-3 sm:p-5 bg-white dark:bg-neutral-900 rounded-3xl border-transparent shadow-soft">
-                    <p className="text-[9px] sm:text-[10px] font-black text-neutral-400 uppercase tracking-tighter mb-1">إجمالي المصروفات</p>
+                    <p className="text-2xs sm:text-2xs font-black text-neutral-400 uppercase tracking-tighter mb-1">إجمالي المصروفات</p>
                     <div className="flex items-baseline gap-1">
                         <span className="text-sm sm:text-xl font-black tabular-nums text-rose-600 dark:text-rose-400">{formatNumber(lastWeek?.expenses || 0)}</span>
-                        <span className="text-[8px] sm:text-[10px] font-bold text-neutral-400">ج.م</span>
+                        <span className="text-2xs sm:text-2xs font-bold text-neutral-400">ج.م</span>
                     </div>
                 </Card>
 
                 <Card className="flex flex-col items-center justify-center p-3 sm:p-5 bg-white dark:bg-neutral-900 rounded-3xl border-transparent shadow-soft">
-                    <p className="text-[9px] sm:text-[10px] font-black text-neutral-400 uppercase tracking-tighter mb-1">صافي الربح</p>
+                    <p className="text-2xs sm:text-2xs font-black text-neutral-400 uppercase tracking-tighter mb-1">صافي الربح</p>
                     <div className="flex items-baseline gap-1">
                         <span className="text-sm sm:text-xl font-black tabular-nums text-blue-600 dark:text-blue-400">{formatNumber(lastWeek?.profit || 0)}</span>
-                        <span className="text-[8px] sm:text-[10px] font-bold text-neutral-400">ج.م</span>
+                        <span className="text-2xs sm:text-2xs font-bold text-neutral-400">ج.م</span>
                     </div>
                 </Card>
             </div>
@@ -259,18 +259,18 @@ const WeeklyAnalysis: React.FC = () => {
                                 </div>
                                 <div className="text-center">
                                     <p className="text-[11px] sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                                        {formatNumber(Math.round(week.revenue))} <span className="text-[9px] sm:text-[10px] font-bold">ج.م</span>
+                                        {formatNumber(Math.round(week.revenue))} <span className="text-2xs sm:text-2xs font-bold">ج.م</span>
                                     </p>
                                 </div>
                                 <div className="text-center">
                                     <p className="text-[11px] sm:text-sm font-bold text-rose-600 dark:text-rose-400 tabular-nums">
-                                        {formatNumber(Math.round(week.expenses))} <span className="text-[9px] sm:text-[10px] font-bold">ج.م</span>
+                                        {formatNumber(Math.round(week.expenses))} <span className="text-2xs sm:text-2xs font-bold">ج.م</span>
                                     </p>
                                 </div>
                                 <div className="text-left">
                                     <p className={`text-[11px] sm:text-base font-black tabular-nums ${week.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                                         {formatNumber(Math.round(week.profit))} 
-                                        <span className="text-[9px] sm:text-[10px] mr-1 font-bold">ج.م</span>
+                                        <span className="text-2xs sm:text-2xs mr-1 font-bold">ج.م</span>
                                     </p>
                                 </div>
                             </div>

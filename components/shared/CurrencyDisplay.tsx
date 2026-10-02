@@ -11,7 +11,7 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   amount,
   className = 'font-bold',
   containerClassName = 'inline-flex items-center gap-1 cursor-text',
-  currencyClassName = 'text-[10px] text-neutral-450 dark:text-neutral-500 font-semibold select-none'
+  currencyClassName = 'text-2xs text-neutral-450 dark:text-neutral-500 font-semibold select-none'
 }) => {
   const formattedVal = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: amount % 1 === 0 ? 0 : 2,

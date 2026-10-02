@@ -1,6 +1,7 @@
 import React from 'react';
 import type { UiScale } from '../../types';
 import { useSettings } from '../../contexts/SettingsContext';
+import Button from '../shared/Button';
 
 const SizeSettings: React.FC = () => {
     const { settings, updateSettings } = useSettings();
@@ -22,17 +23,19 @@ const SizeSettings: React.FC = () => {
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">تحكم في حجم الخط وعناصر الواجهة لتناسب تفضيلاتك.</p>
                 <div className="bg-gray-100 dark:bg-neutral-800/50 p-1.5 rounded-lg flex items-center justify-between gap-2">
                     {scaleOptions.map((option) => (
-                        <button
+                        <Button
                             key={option.id}
+                            variant={uiScale === option.id ? 'primary' : 'ghost'}
+                            size="sm"
                             onClick={() => setUiScale(option.id)}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-semibold transition-colors duration-300 ${
                                 uiScale === option.id 
-                                    ? 'bg-primary text-white shadow-sm' 
-                                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800/50'
+                                    ? '!bg-primary !text-white shadow-sm' 
+                                    : '!text-gray-500 dark:!text-gray-400 hover:!bg-gray-200 dark:hover:!bg-gray-800/50'
                             }`}
                         >
-                            <span>{option.label}</span>
-                        </button>
+                            {option.label}
+                        </Button>
                     ))}
                 </div>
             </div>

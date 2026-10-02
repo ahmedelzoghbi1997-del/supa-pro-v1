@@ -14,10 +14,10 @@ const StatMiniCard = ({ label, value, icon: Icon, gradientClass, shadowClass }: 
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-0">
             <div className="min-w-0 order-2 sm:order-1">
-                <p className="text-[7px] sm:text-[8px] font-bold text-white/80 uppercase tracking-wider mb-0.5 truncate">{label}</p>
+                <p className="text-2xs sm:text-2xs font-bold text-white/80 uppercase tracking-wider mb-0.5 truncate">{label}</p>
                 <p className="text-sm sm:text-base lg:text-lg font-black tracking-tight truncate">
                     {formatCurrency(value).replace('EGP', '')}
-                    <span className="text-[7px] sm:text-[8px] mr-1 font-bold opacity-80">ج.م</span>
+                    <span className="text-2xs sm:text-2xs mr-1 font-bold opacity-80">ج.م</span>
                 </p>
             </div>
             <div className="p-1 sm:p-1.5 rounded-lg bg-white/20 backdrop-blur-sm shrink-0 self-start sm:self-auto order-1 sm:order-2">
@@ -78,7 +78,7 @@ const FarmerAccountTab: React.FC<{
                     cycleWithdrawals.map((w, idx) => (
                         <div key={w.id} className="relative animate-stagger-in" style={{ animationDelay: `${Math.min(idx * 30, 600)}ms` }}>
                             {/* Timeline Dot */}
-                            <div className="absolute -right-[31px] top-1.5 w-4 h-4 rounded-full border-4 border-white dark:border-neutral-900 bg-rose-500 shadow-sm z-10"></div>
+                            <div className="absolute -right-[31px] top-1.5 w-4 h-4 rounded-full border-4 border-white dark:border-neutral-900 bg-accent-danger shadow-sm z-10"></div>
                             
                             <div className="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-neutral-100 dark:border-neutral-700/50 hover:shadow-md hover:border-primary/30 transition-all">
                                 <div className="flex justify-between items-start mb-3">
@@ -90,9 +90,9 @@ const FarmerAccountTab: React.FC<{
                                         </div>
                                     </div>
                                     <div className="text-left shrink-0">
-                                        <p className="text-lg sm:text-xl font-black text-rose-600 tracking-tight tabular-nums">
+                                        <p className="text-lg sm:text-xl font-black text-accent-danger tracking-tight tabular-nums">
                                             {formatCurrency(w.amount).replace('EGP', '')}
-                                            <span className="text-[10px] font-bold ml-1 opacity-70">ج.م</span>
+                                            <span className="text-2xs font-bold ml-1 opacity-70">ج.م</span>
                                         </p>
                                     </div>
                                 </div>
@@ -103,23 +103,23 @@ const FarmerAccountTab: React.FC<{
                     <div className="flex flex-col items-center justify-center py-12 text-center bg-neutral-50 dark:bg-neutral-800/20 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800 text-neutral-400">
                         <ClipboardIcon className="w-10 h-10 opacity-20 mb-2" />
                         <p className="text-sm font-bold italic text-neutral-500 dark:text-neutral-400">لا توجد مسحوبات مسجلة لهذا المزارع.</p>
-                        <p className="text-[10px] mt-1 opacity-70">لم يقم المزارع بأي مسحوبات نقدية من حصته حتى الآن.</p>
+                        <p className="text-2xs mt-1 opacity-70">لم يقم المزارع بأي مسحوبات نقدية من حصته حتى الآن.</p>
                     </div>
                 )}
                 
                 {/* Total Share Node */}
                 <div className="relative">
-                    <div className="absolute -right-[31px] top-1.5 w-4 h-4 rounded-full border-4 border-white dark:border-neutral-900 bg-emerald-500 shadow-sm z-10"></div>
-                    <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl p-4 border border-emerald-200 dark:border-emerald-800/30 border-dashed">
+                    <div className="absolute -right-[31px] top-1.5 w-4 h-4 rounded-full border-4 border-white dark:border-neutral-900 bg-accent-success shadow-sm z-10"></div>
+                    <div className="bg-accent-success/10 dark:bg-accent-success/10 rounded-2xl p-4 border border-accent-success/20 dark:border-accent-success/30 border-dashed">
                         <div className="flex justify-between items-start">
                             <div>
-                                <h4 className="font-bold text-emerald-800 dark:text-emerald-300 text-sm sm:text-base">إجمالي المستحق (نصيب المزارع)</h4>
-                                <p className="text-xs text-emerald-600/70 dark:text-emerald-400/70 mt-0.5">بناءً على أرباح العروة الحالية</p>
+                                <h4 className="font-bold text-accent-success dark:text-accent-success text-sm sm:text-base">إجمالي المستحق (نصيب المزارع)</h4>
+                                <p className="text-xs text-accent-success/70 dark:text-accent-success/70 mt-0.5">بناءً على أرباح العروة الحالية</p>
                             </div>
                             <div className="text-left shrink-0">
-                                <p className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums">
+                                <p className="text-lg sm:text-xl font-black text-accent-success dark:text-accent-success tracking-tight tabular-nums">
                                     {formatCurrency(farmerShare).replace('EGP', '')}
-                                    <span className="text-[10px] font-bold ml-1 opacity-70">ج.م</span>
+                                    <span className="text-2xs font-bold ml-1 opacity-70">ج.م</span>
                                 </p>
                             </div>
                         </div>

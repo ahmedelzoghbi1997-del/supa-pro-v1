@@ -154,7 +154,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                     <div>
                         <h3 className="text-base font-bold text-neutral-900 dark:text-white flex items-center gap-2">
                             مركز إدارة الديون والالتزامات الخارجية
-                            <span className="text-[10px] bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-200/60 dark:border-purple-800/40">
+                            <span className="text-2xs bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-200/60 dark:border-purple-800/40">
                                 External Debts Center
                             </span>
                         </h3>
@@ -199,19 +199,19 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                     <div className="px-2">
                         <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 block mb-0.5">إجمالي الديون</span>
                         <span className="text-base sm:text-lg font-bold text-neutral-900 dark:text-white tabular-nums">
-                            {formatNumber(summary.grandTotalDebt)} <span className="text-[10px] font-normal text-neutral-400">ج.م</span>
+                            {formatNumber(summary.grandTotalDebt)} <span className="text-2xs font-normal text-neutral-400">ج.م</span>
                         </span>
                     </div>
                     <div className="px-2">
-                        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 block mb-0.5">سداد فواتير مرصودة</span>
-                        <span className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                            {formatNumber(summary.totalRetainedSettled)} <span className="text-[10px] font-normal text-neutral-400">ج.م</span>
+                        <span className="text-xs font-medium text-accent-success dark:text-accent-success block mb-0.5">سداد فواتير مرصودة</span>
+                        <span className="text-base sm:text-lg font-bold text-accent-success dark:text-accent-success tabular-nums">
+                            {formatNumber(summary.totalRetainedSettled)} <span className="text-2xs font-normal text-neutral-400">ج.م</span>
                         </span>
                     </div>
                     <div className="px-2">
-                        <span className="text-xs font-medium text-rose-600 dark:text-rose-400 block mb-0.5">المتبقي المستحق</span>
-                        <span className="text-base sm:text-lg font-bold text-rose-600 dark:text-rose-400 tabular-nums">
-                            {formatNumber(summary.remainingDebt)} <span className="text-[10px] font-normal text-neutral-400">ج.م</span>
+                        <span className="text-xs font-medium text-accent-danger dark:text-accent-danger block mb-0.5">المتبقي المستحق</span>
+                        <span className="text-base sm:text-lg font-bold text-accent-danger dark:text-accent-danger tabular-nums">
+                            {formatNumber(summary.remainingDebt)} <span className="text-2xs font-normal text-neutral-400">ج.م</span>
                         </span>
                     </div>
                 </div>
@@ -222,7 +222,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                         {summary.retainedPct > 0 && (
                             <div 
                                 style={{ width: `${summary.retainedPct}%` }}
-                                className="h-full bg-emerald-500 transition-all duration-500"
+                                className="h-full bg-accent-success transition-all duration-500"
                                 title={`سداد مرصود من الفواتير: ${formatNumber(summary.totalRetainedSettled)} ج.م (${Math.round(summary.retainedPct)}%)`}
                             />
                         )}
@@ -239,7 +239,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                     <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-500 dark:text-neutral-400">
                         <div className="flex items-center gap-4 flex-wrap">
                             <span className="flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="w-2 h-2 rounded-full bg-accent-success" />
                                 <span>سداد مرصود من فواتير المحصول: <strong className="font-semibold text-neutral-800 dark:text-neutral-200 tabular-nums">{formatNumber(summary.totalRetainedSettled)} ج.م</strong></span>
                             </span>
                             <span className="flex items-center gap-1.5">
@@ -247,7 +247,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                 <span>سداد نقدي مباشر: <strong className="font-semibold text-neutral-800 dark:text-neutral-200 tabular-nums">{formatNumber(summary.totalCashSettled)} ج.م</strong></span>
                             </span>
                         </div>
-                        <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400 font-medium">
+                        <span className="flex items-center gap-1 text-accent-danger dark:text-accent-danger font-medium">
                             <span>المتبقي:</span>
                             <strong className="tabular-nums">{formatNumber(summary.remainingDebt)} ج.م</strong>
                         </span>
@@ -267,7 +267,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                     }`}
                 >
                     <span>سجل الديون العامة</span>
-                    <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                    <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-2 py-0.5 rounded-full text-2xs font-semibold">
                         {enrichedDebts.length + individualExternalDebts.length}
                     </span>
                 </button>
@@ -282,7 +282,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                     }`}
                 >
                     <span>الفواتير المرصودة والسدادات الآلية</span>
-                    <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                    <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-2 py-0.5 rounded-full text-2xs font-semibold">
                         {retainedByInvoiceMap.length}
                     </span>
                 </button>
@@ -311,17 +311,17 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={`w-2 h-2 rounded-full ${isFullyPaid ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                                                    <span className={`w-2 h-2 rounded-full ${isFullyPaid ? 'bg-accent-success' : 'bg-accent-danger'}`} />
                                                     <h4 className="font-bold text-neutral-900 dark:text-white text-sm">{debt.description}</h4>
                                                 </div>
                                                 <div className="flex items-center gap-2 flex-wrap text-xs">
                                                     <span className="text-neutral-400">التاريخ: {debt.date}</span>
                                                     {debt.entered_treasury ? (
-                                                        <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-medium px-2 py-0.5 rounded border border-emerald-200/50 dark:border-emerald-800/40 text-[10px]">
+                                                        <span className="bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success font-medium px-2 py-0.5 rounded border border-accent-success/20/50 dark:border-accent-success/30 text-2xs">
                                                             دخل الخزنة كاش ({cycles.find(cy => cy.id === debt.cycle_id)?.name || 'المحصول'})
                                                         </span>
                                                     ) : (
-                                                        <span className="bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 font-medium px-2 py-0.5 rounded border border-sky-200/50 dark:border-sky-800/40 text-[10px]">
+                                                        <span className="bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-400 font-medium px-2 py-0.5 rounded border border-sky-200/50 dark:border-sky-800/40 text-2xs">
                                                             دين دفتري (خارج الخزنة)
                                                         </span>
                                                     )}
@@ -331,7 +331,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                                 <div className="flex gap-1.5 items-center">
                                                     <button
                                                         onClick={() => onRepayDebt(debt)}
-                                                        className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/50 rounded-lg text-xs font-semibold transition-colors"
+                                                        className="px-2.5 py-1 bg-accent-success/10 hover:bg-accent-success/10 dark:bg-accent-success/20 dark:hover:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20/80 dark:border-accent-success/30 rounded-lg text-xs font-semibold transition-colors"
                                                     >
                                                         سداد دفتري
                                                     </button>
@@ -343,7 +343,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                                     </button>
                                                     <button
                                                         onClick={() => onDeleteDebt(debt.id)}
-                                                        className="p-1.5 text-rose-500 hover:text-rose-600 rounded-lg transition-colors"
+                                                        className="p-1.5 text-accent-danger hover:text-accent-danger rounded-lg transition-colors"
                                                     >
                                                         <TrashIcon className="w-3.5 h-3.5" />
                                                     </button>
@@ -354,16 +354,16 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                         {/* Financial Totals Row */}
                                         <div className="flex justify-between items-center py-2 px-3.5 bg-neutral-50 dark:bg-neutral-950/50 rounded-lg border border-neutral-100 dark:border-neutral-800/60 text-xs">
                                             <div>
-                                                <span className="text-neutral-400 text-[10px] block font-medium">الدين المجموع</span>
+                                                <span className="text-neutral-400 text-2xs block font-medium">الدين المجموع</span>
                                                 <span className="text-neutral-900 dark:text-white tabular-nums font-bold">{formatNumber(debt.total_amount ?? debt.totalAmount ?? 0)} ج.م</span>
                                             </div>
                                             <div>
-                                                <span className="text-emerald-600 dark:text-emerald-400 text-[10px] block font-medium">المسدد</span>
-                                                <span className="text-emerald-600 dark:text-emerald-400 tabular-nums font-bold">{formatNumber(totalPaid)} ج.م</span>
+                                                <span className="text-accent-success dark:text-accent-success text-2xs block font-medium">المسدد</span>
+                                                <span className="text-accent-success dark:text-accent-success tabular-nums font-bold">{formatNumber(totalPaid)} ج.م</span>
                                             </div>
                                             <div>
-                                                <span className="text-rose-600 dark:text-rose-400 text-[10px] block font-medium">المتبقي</span>
-                                                <span className="text-rose-600 dark:text-rose-400 tabular-nums font-bold">{formatNumber(totalRemaining)} ج.م</span>
+                                                <span className="text-accent-danger dark:text-accent-danger text-2xs block font-medium">المتبقي</span>
+                                                <span className="text-accent-danger dark:text-accent-danger tabular-nums font-bold">{formatNumber(totalRemaining)} ج.م</span>
                                             </div>
                                         </div>
 
@@ -380,7 +380,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                                         <span className="tabular-nums font-medium text-neutral-500 dark:text-neutral-400">
                                                             مخصص: <strong className="text-neutral-900 dark:text-white font-semibold">{formatNumber(alloc)} ج.م</strong>
                                                             <span className="mx-2 text-neutral-300 dark:text-neutral-700">|</span>
-                                                            متبقي: <strong className={rem > 0 ? "text-rose-600 dark:text-rose-400 font-bold" : "text-emerald-600 dark:text-emerald-400 font-bold"}>{formatNumber(rem)} ج.م</strong>
+                                                            متبقي: <strong className={rem > 0 ? "text-accent-danger dark:text-accent-danger font-bold" : "text-accent-success dark:text-accent-success font-bold"}>{formatNumber(rem)} ج.م</strong>
                                                         </span>
                                                     </div>
                                                 );
@@ -411,10 +411,10 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                         <div className="space-y-1 text-right w-2/3">
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="font-bold text-neutral-900 dark:text-white">الشريك: {partnerLabel}</span>
-                                                <span className={isEntered ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-[10px] font-medium px-2 py-0.5 rounded border border-emerald-200/50 dark:border-emerald-800/40" : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 text-[10px] font-medium px-2 py-0.5 rounded border border-amber-200/50 dark:border-amber-800/40"}>
+                                                <span className={isEntered ? "bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success text-2xs font-medium px-2 py-0.5 rounded border border-accent-success/20/50 dark:border-accent-success/30" : "bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning text-2xs font-medium px-2 py-0.5 rounded border border-accent-warning/20/50 dark:border-accent-warning/30"}>
                                                     {isEntered ? `دخل الخزنة كاش (${cycles.find(cy => cy.id === adv.cycle_id)?.name || 'المحصول'})` : 'دين دفتري (خارج الخزنة)'}
                                                 </span>
-                                                <span className="text-[10px] text-neutral-400">({adv.date})</span>
+                                                <span className="text-2xs text-neutral-400">({adv.date})</span>
                                             </div>
                                             <p className="text-xs text-neutral-500 font-normal">{adv.reason || 'قيد مديونية شخصية لجهة خارجية'}</p>
                                         </div>
@@ -428,8 +428,8 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                                         onClick={() => onToggleTreasuryStatus(adv)}
                                                         className={`px-2 py-1 rounded-lg text-xs font-semibold transition-colors ${
                                                             isEntered 
-                                                                ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40' 
-                                                                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40'
+                                                                ? 'bg-accent-warning/10 dark:bg-accent-warning/20 text-accent-warning dark:text-accent-warning border border-accent-warning/20/60 dark:border-accent-warning/30' 
+                                                                : 'bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success border border-accent-success/20/60 dark:border-accent-success/30'
                                                         }`}
                                                     >
                                                         {isEntered ? 'جعل دفتري' : 'ربطه بالخزنة'}
@@ -448,7 +448,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                                     </button>
                                                     <button
                                                         onClick={() => onDeleteDraw(adv.id, adv)}
-                                                        className="p-1 text-rose-500 hover:text-rose-600"
+                                                        className="p-1 text-accent-danger hover:text-accent-danger"
                                                     >
                                                         <TrashIcon className="w-3.5 h-3.5" />
                                                     </button>
@@ -487,7 +487,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                                     <span className="font-bold text-neutral-900 dark:text-white text-sm">
                                                         {inv?.market ? `استقطاع فواتير المبيعات: ${inv.market}` : 'فاتورة محصول مرصودة'}
                                                     </span>
-                                                    <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-semibold px-2 py-0.5 rounded border border-emerald-200/60 dark:border-emerald-800/40 flex items-center gap-1">
+                                                    <span className="bg-accent-success/10 dark:bg-accent-success/20 text-accent-success dark:text-accent-success text-2xs font-semibold px-2 py-0.5 rounded border border-accent-success/20/60 dark:border-accent-success/30 flex items-center gap-1">
                                                         <CheckCircleIcon className="w-3 h-3" />
                                                         مرصودة آلياً
                                                     </span>
@@ -501,8 +501,8 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                             </div>
 
                                             <div className="text-left">
-                                                <span className="text-[10px] text-neutral-400 font-medium block">إجمالي الخصم المرصود</span>
-                                                <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                                <span className="text-2xs text-neutral-400 font-medium block">إجمالي الخصم المرصود</span>
+                                                <span className="text-base font-bold text-accent-success dark:text-accent-success tabular-nums">
                                                     {formatNumber(item.totalAmount)} ج.م
                                                 </span>
                                             </div>
@@ -517,7 +517,7 @@ export const MarketDebtCenter: React.FC<MarketDebtCenterProps> = ({
                                                     return (
                                                         <div key={aIdx} className="py-2 flex justify-between items-center text-xs">
                                                             <span className="font-medium text-neutral-700 dark:text-neutral-300">{partnerName}</span>
-                                                            <span className="font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                                            <span className="font-bold text-accent-success dark:text-accent-success tabular-nums">
                                                                 +{formatNumber(Math.abs(adv.amount || 0))} ج.م
                                                             </span>
                                                         </div>

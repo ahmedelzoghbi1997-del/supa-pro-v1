@@ -60,16 +60,16 @@ const CycleReport: React.FC<{ cycle: Cycle; onBack: () => void }> = ({ cycle, on
                         transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                 )}
-                <Icon className={`w-4 h-4 transition-colors duration-300 ${isActive ? 'text-primary dark:text-emerald-400' : 'text-neutral-400 dark:text-neutral-500'}`} />
+                <Icon className={`w-4 h-4 transition-colors duration-300 ${isActive ? 'text-primary dark:text-accent-success' : 'text-neutral-400 dark:text-neutral-500'}`} />
                 <span>{tabLabel}</span>
             </button>
         );
     };
 
     const statusMap = {
-        active: { label: 'نشطة', color: 'text-emerald-500', dot: 'bg-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+        active: { label: 'نشطة', color: 'text-accent-success', dot: 'bg-accent-success', bg: 'bg-accent-success/10', border: 'border-accent-success/20' },
         closed: { label: 'مكتملة', color: 'text-neutral-500', dot: 'bg-neutral-400', bg: 'bg-neutral-100 dark:bg-neutral-800', border: 'border-neutral-200 dark:border-neutral-700' },
-        archived: { label: 'مؤرشفة', color: 'text-amber-500', dot: 'bg-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+        archived: { label: 'مؤرشفة', color: 'text-accent-warning', dot: 'bg-accent-warning', bg: 'bg-accent-warning/10', border: 'border-accent-warning/20' },
     };
 
     const currentStatus = statusMap[cycle.status] || statusMap.closed;
@@ -91,7 +91,7 @@ const CycleReport: React.FC<{ cycle: Cycle; onBack: () => void }> = ({ cycle, on
                                 <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-white">{cycle.name}</h1>
                                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${currentStatus.bg} ${currentStatus.border} ${currentStatus.color}`}>
                                     <span className={`w-1.5 h-1.5 rounded-full ${currentStatus.dot} ${cycle.status === 'active' ? 'animate-pulse' : ''}`}></span>
-                                    <span className="text-[10px] font-black uppercase tracking-widest">{currentStatus.label}</span>
+                                    <span className="text-2xs font-black uppercase tracking-widest">{currentStatus.label}</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-x-4 gap-y-1 text-sm text-neutral-600 dark:text-neutral-300 mt-2 flex-wrap">
